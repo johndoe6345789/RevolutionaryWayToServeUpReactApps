@@ -2,7 +2,23 @@ FROM node:18-bullseye-slim
 
 WORKDIR /app
 
-# Install dependencies before copying the entire repo to leverage layer caching.
+# Install system dependencies that Cypress requires, including Xvfb for headless browsers.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      libgtk2.0-0 \
+      libgtk-3-0 \
+      libnotify-dev \
+      libgconf-2-4 \
+      libnss3 \
+      libxss1 \
+      libxtst6 \
+      libasound2 \
+      fonts-liberation \
+      xauth \
+      xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install project dependencies before copying the full repo to leverage layer caching.
 COPY package*.json ./
 RUN npm ci
 
