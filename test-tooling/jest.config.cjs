@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
@@ -5,6 +7,10 @@ module.exports = {
   testMatch: ["**/tests/**/*.test.ts?(x)"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   moduleDirectories: ["node_modules"],
+  modulePaths: [
+    path.resolve(__dirname, "node_modules"),
+    path.resolve(__dirname, "../ci/node_modules")
+  ],
   moduleNameMapper: {
     "^@mui/material/(.*)$": "<rootDir>/node_modules/@mui/material/$1",
     "^@mui/material$": "<rootDir>/node_modules/@mui/material",
