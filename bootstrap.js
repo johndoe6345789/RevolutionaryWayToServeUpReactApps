@@ -1,15 +1,106 @@
+let ciLoggingEnabled = false;
+const CI_LOG_QUERY_PARAM = "ci";
+const JSDELIVR_BASE = "https://cdn.jsdelivr.net/npm/";
+
+function setCiLoggingEnabled(enabled) {
+  ciLoggingEnabled = !!enabled;
+}
+
+function detectCiLogging(config) {
+  if (typeof window !== "undefined") {
+    if (typeof window.__RWTRA_CI_MODE__ === "boolean") {
+      return window.__RWTRA_CI_MODE__;
+    }
+    const params = new URLSearchParams(window.location.search || "");
+    const q = params.get(CI_LOG_QUERY_PARAM);
+    if (q && (q === "1" || q.toLowerCase() === "true")) {
+      return true;
+    }
+  }
+  if (config && config.ciLogging === true) return true;
+  return false;
+}
+
 async function loadConfig() {
   const res = await fetch("config.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load config.json");
   return res.json();
 }
 
+const CLIENT_LOG_ENDPOINT = "/__client-log";
+
+function serializeForLog(value) {
+  if (value instanceof Error) {
+    return { message: value.message, stack: value.stack };
+  }
+  if (typeof value === "object") {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_err) {
+      return { type: typeof value, note: "unserializable" };
+    }
+  }
+  return value;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function logClient(event, detail, level = "info") {
+  const isErrorLevel = level === "error" || level === "warn";
+  if (!ciLoggingEnabled && !isErrorLevel) return;
+  if (typeof window === "undefined") return;
+  try {
+    const payload = {
+      event,
+      detail: serializeForLog(detail),
+      ts: new Date().toISOString(),
+      href: window.location && window.location.href
+    };
+    const body = JSON.stringify(payload);
+    const sendBeacon =
+      typeof navigator !== "undefined" &&
+      navigator &&
+      typeof navigator.sendBeacon === "function";
+    if (sendBeacon) {
+      navigator.sendBeacon(
+        CLIENT_LOG_ENDPOINT,
+        new Blob([body], { type: "application/json" })
+      );
+    } else if (typeof fetch === "function") {
+      fetch(CLIENT_LOG_ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body
+      }).catch(() => {});
+    }
+    if (typeof console !== "undefined" && console.info) {
+      const logFn =
+        level === "error"
+          ? console.error
+          : level === "warn"
+            ? console.warn
+            : console.info;
+      logFn("[bootstrap]", event, detail);
+    }
+  } catch (_err) {
+    // ignore logging failures to avoid interfering with app execution
+  }
+}
+
 function loadScript(url) {
   return new Promise((resolve, reject) => {
     const el = document.createElement("script");
     el.src = url;
-    el.onload = () => resolve();
-    el.onerror = () => reject(new Error("Failed to load " + url));
+    el.onload = () => {
+      logClient("loadScript:success", { url });
+      resolve();
+    };
+    el.onerror = () => {
+      logClient("loadScript:error", { url });
+      reject(new Error("Failed to load " + url));
+    };
     document.head.appendChild(el);
   });
 }
@@ -40,39 +131,93 @@ function resolveProvider(mod) {
   return mod.provider || mod.ci_provider || mod.production_provider || "unpkg.com";
 }
 
-async function probeUrl(url) {
-  try {
-    const res = await fetch(url, {
-      method: "HEAD",
-      cache: "no-store"
-    });
-    return res.ok;
-  } catch (_e) {
-    return false;
+function shouldRetryStatus(status) {
+  return status === 0 || status >= 500 || status === 429;
+}
+
+async function probeUrl(url, opts = {}) {
+  let { retries = 2, backoffMs = 300, allowGetFallback = true } = opts;
+  let attempt = 0;
+
+  while (true) {
+    let lastStatus = 0;
+    try {
+      const res = await fetch(url, {
+        method: "HEAD",
+        cache: "no-store"
+      });
+      lastStatus = res.status;
+      if (res.ok) return true;
+
+      if (allowGetFallback && (res.status === 405 || res.status === 403)) {
+        const getRes = await fetch(url, { method: "GET", cache: "no-store" });
+        lastStatus = getRes.status;
+        if (getRes.ok) return true;
+      }
+
+      if (retries > 0 && shouldRetryStatus(lastStatus)) {
+        retries -= 1;
+        await wait(backoffMs * Math.pow(1.5, attempt++));
+        continue;
+      }
+
+      if (ciLoggingEnabled) {
+        logClient("probe:fail", { url, status: lastStatus });
+      }
+      return false;
+    } catch (err) {
+      if (retries > 0) {
+        retries -= 1;
+        await wait(backoffMs * Math.pow(1.5, attempt++));
+        continue;
+      }
+      if (ciLoggingEnabled) {
+        logClient("probe:fail", { url, error: err && err.message });
+      }
+      return false;
+    }
   }
 }
 
 async function resolveModuleUrl(mod) {
   if (mod.url) return mod.url;
 
-  const base = normalizeProviderBase(resolveProvider(mod));
+  function collectBases() {
+    const bases = [];
+    const addBase = (b) => {
+      if (!b) return;
+      const normalized = normalizeProviderBase(b);
+      if (!bases.includes(normalized)) bases.push(normalized);
+    };
+
+    addBase(resolveProvider(mod));
+    addBase(mod.provider);
+    addBase(mod.ci_provider);
+    addBase(mod.production_provider);
+    if (mod.allowJsDelivr !== false) addBase(JSDELIVR_BASE);
+    return bases;
+  }
+
+  const bases = collectBases();
   const pkgName = mod.name;
   const versionSegment = mod.version ? "@" + mod.version : "";
   const file = (mod.file || "").replace(/^\/+/, "");
   const pathPrefix = (mod.pathPrefix || "").replace(/^\/+|\/+$/g, "");
   const explicitPath = mod.path ? mod.path.replace(/^\/+/, "") : "";
   const combinedPath = [pathPrefix, file].filter(Boolean).join("/");
-  const packageRoot = base + pkgName + versionSegment;
 
   const candidates = [];
-  if (explicitPath) {
-    candidates.push(packageRoot + "/" + explicitPath);
-  } else if (combinedPath) {
-    candidates.push(packageRoot + "/" + combinedPath);
-    candidates.push(packageRoot + "/umd/" + combinedPath);
-    candidates.push(packageRoot + "/dist/" + combinedPath);
-  } else {
-    candidates.push(packageRoot);
+  for (const base of bases) {
+    const packageRoot = base + pkgName + versionSegment;
+    if (explicitPath) {
+      candidates.push(packageRoot + "/" + explicitPath);
+    } else if (combinedPath) {
+      candidates.push(packageRoot + "/" + combinedPath);
+      candidates.push(packageRoot + "/umd/" + combinedPath);
+      candidates.push(packageRoot + "/dist/" + combinedPath);
+    } else {
+      candidates.push(packageRoot);
+    }
   }
 
   // De-dupe candidates
@@ -87,8 +232,15 @@ async function resolveModuleUrl(mod) {
 
   for (const url of unique) {
     if (await probeUrl(url)) {
+      if (ciLoggingEnabled) {
+        logClient("resolve:success", { name: mod.name, url });
+      }
       return url;
     }
+  }
+
+  if (ciLoggingEnabled) {
+    logClient("resolve:fail", { name: mod.name, tried: unique });
   }
 
   throw new Error(
@@ -111,11 +263,12 @@ async function loadTools(tools) {
         "Tool global not found after loading " + url + ": " + tool.global
       );
     }
+    logClient("tool:loaded", { name: tool.name, url, global: tool.global });
   }
 }
 
 function makeNamespace(globalObj) {
-  const ns = { default: globalObj };
+  const ns = { default: globalObj, __esModule: true };
   for (const k in globalObj) {
     if (Object.prototype.hasOwnProperty.call(globalObj, k)) {
       ns[k] = globalObj[k];
@@ -136,6 +289,11 @@ async function loadModules(modules) {
       );
     }
     registry[mod.name] = makeNamespace(globalObj);
+    logClient("module:loaded", {
+      name: mod.name,
+      url,
+      global: mod.global
+    });
   }
   return registry;
 }
@@ -148,17 +306,27 @@ async function loadDynamicModule(name, config, registry) {
   }
 
   const icon = name.slice(rule.prefix.length);
-  const base = normalizeProviderBase(rule.provider || "unpkg.com");
+  const bases = [];
+  const addBase = (b) => {
+    if (!b) return;
+    const normalized = normalizeProviderBase(b);
+    if (!bases.includes(normalized)) bases.push(normalized);
+  };
+  addBase(rule.provider || "unpkg.com");
+  if (rule.production_provider) addBase(rule.production_provider);
+  if (rule.allowJsDelivr !== false) addBase(JSDELIVR_BASE);
+
   const pkg = rule.package || rule.prefix.replace(/\/\*?$/, "");
   const version = rule.version ? "@" + rule.version : "";
   const fileName = (rule.filePattern || "{icon}.js").replace("{icon}", icon);
-  const packageRoot = base + pkg + version;
 
-  const candidates = [
-    packageRoot + "/" + fileName,
-    packageRoot + "/umd/" + fileName,
-    packageRoot + "/dist/" + fileName
-  ];
+  const candidates = [];
+  for (const base of bases) {
+    const packageRoot = base + pkg + version;
+    candidates.push(packageRoot + "/" + fileName);
+    candidates.push(packageRoot + "/umd/" + fileName);
+    candidates.push(packageRoot + "/dist/" + fileName);
+  }
 
   const seen = new Set();
   const urls = [];
@@ -201,6 +369,11 @@ async function loadDynamicModule(name, config, registry) {
   }
 
   registry[name] = makeNamespace(globalObj);
+  logClient("dynamic-module:loaded", {
+    name,
+    url: foundUrl,
+    global: globalName
+  });
   return registry[name];
 }
 
@@ -401,7 +574,9 @@ async function compileTSX(entryFile, requireFn, entryDir = "") {
 
   await preloadModulesFromSource(tsxCode, requireFn, entryDir);
 
-  return executeModuleSource(tsxCode, entryFile, entryDir, requireFn);
+  const compiled = executeModuleSource(tsxCode, entryFile, entryDir, requireFn);
+  logClient("tsx:compiled", { entryFile, entryDir });
+  return compiled;
 }
 
 const LOCAL_MODULE_EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js"];
@@ -570,6 +745,7 @@ async function fetchLocalModuleSource(basePath) {
     }
   }
 
+  logClient("local-module:failed", { basePath, candidates });
   throw new Error(
     "Failed to load local module: " +
       basePath +
@@ -608,6 +784,10 @@ function frameworkRender(config, registry, App) {
 async function bootstrap() {
   try {
     const config = await loadConfig();
+    setCiLoggingEnabled(detectCiLogging(config));
+    if (ciLoggingEnabled) {
+      logClient("ci:enabled", { config: !!config, href: window.location && window.location.href });
+    }
     const entryFile = config.entry || "main.tsx";
     const scssFile = config.styles || "styles.scss";
 
@@ -631,8 +811,13 @@ async function bootstrap() {
     const App = await compileTSX(entryFile, requireFn, entryDir);
 
     frameworkRender(config, registry, App);
+    logClient("bootstrap:success", { entryFile, scssFile });
   } catch (err) {
     console.error(err);
+    logClient("bootstrap:error", {
+      message: err && err.message ? err.message : String(err),
+      stack: err && err.stack ? err.stack : undefined
+    });
     const root = document.getElementById("root");
     if (root) {
       root.textContent =
@@ -669,6 +854,23 @@ if (typeof module !== "undefined" && module.exports) {
 
 const isBrowser =
   typeof window !== "undefined" && typeof document !== "undefined";
+if (isBrowser) {
+  window.__rwtraLog = logClient;
+  window.addEventListener("error", (event) => {
+    logClient("window:error", {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno
+    });
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event && event.reason ? event.reason : "unknown";
+    logClient("window:unhandledrejection", {
+      reason: serializeForLog(reason)
+    });
+  });
+}
 if (isBrowser && !window.__RWTRA_BOOTSTRAP_TEST_MODE__) {
   bootstrap();
 }

@@ -1,0 +1,781 @@
+[2025-12-11T18:39:17.502Z] server Serving /Users/rmac/Documents/GitHub/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-11T18:39:17.503Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-11T18:39:19.383Z] static HEAD / -> 200 (3ms)
+[2025-12-11T18:39:20.352Z] static GET / -> 200 (1ms)
+[2025-12-11T18:39:20.355Z] static GET /bootstrap.js -> 200 (1ms)
+[2025-12-11T18:39:20.357Z] static GET /config.json -> 200 (1ms)
+[2025-12-11T18:39:20.649Z] static HEAD /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (291ms)
+[2025-12-11T18:39:20.969Z] static GET /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (317ms)
+[2025-12-11T18:39:21.052Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/@babel/standalone@7.26.0/babel.min.js"
+  },
+  "ts": "2025-12-11T18:39:21.043Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:21.052Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:21.053Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "tool:loaded",
+  "detail": {
+    "name": "@babel/standalone",
+    "url": "/proxy/unpkg/@babel/standalone@7.26.0/babel.min.js",
+    "global": "Babel"
+  },
+  "ts": "2025-12-11T18:39:21.046Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:21.053Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:21.329Z] static HEAD /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (281ms)
+[2025-12-11T18:39:21.721Z] static GET /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (389ms)
+[2025-12-11T18:39:21.851Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js"
+  },
+  "ts": "2025-12-11T18:39:21.850Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:21.851Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:21.852Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "tool:loaded",
+  "detail": {
+    "name": "sass.js",
+    "url": "/proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js",
+    "global": "Sass"
+  },
+  "ts": "2025-12-11T18:39:21.851Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:21.852Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:21.852Z] static GET /styles.scss -> 200 (0ms)
+[2025-12-11T18:39:22.162Z] static HEAD /proxy/unpkg/react@18.3.1/umd/react.development.js -> 200 (285ms)
+[2025-12-11T18:39:22.321Z] static GET /proxy/unpkg/react@18.3.1/umd/react.development.js -> 200 (156ms)
+[2025-12-11T18:39:22.325Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/react@18.3.1/umd/react.development.js"
+  },
+  "ts": "2025-12-11T18:39:22.323Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:22.325Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:22.327Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "react",
+    "url": "/proxy/unpkg/react@18.3.1/umd/react.development.js",
+    "global": "React"
+  },
+  "ts": "2025-12-11T18:39:22.324Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:22.327Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:22.724Z] static HEAD /proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js -> 200 (398ms)
+[2025-12-11T18:39:22.945Z] static GET /proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js -> 200 (219ms)
+[2025-12-11T18:39:22.968Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js"
+  },
+  "ts": "2025-12-11T18:39:22.967Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:22.968Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:22.969Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "react-dom",
+    "url": "/proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js",
+    "global": "ReactDOM"
+  },
+  "ts": "2025-12-11T18:39:22.967Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:22.969Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:23.183Z] static HEAD /proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js -> 200 (215ms)
+[2025-12-11T18:39:23.458Z] static GET /proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js -> 200 (273ms)
+[2025-12-11T18:39:23.484Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:23.483Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:23.484Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:23.485Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "@mui/material",
+    "url": "/proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI"
+  },
+  "ts": "2025-12-11T18:39:23.483Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:23.485Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:23.816Z] static HEAD /proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js -> 200 (332ms)
+[2025-12-11T18:39:23.966Z] static GET /proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js -> 200 (148ms)
+[2025-12-11T18:39:23.970Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js"
+  },
+  "ts": "2025-12-11T18:39:23.968Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:23.970Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:23.971Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "@emotion/react",
+    "url": "/proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js",
+    "global": "emotionReact"
+  },
+  "ts": "2025-12-11T18:39:23.969Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:23.971Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:24.368Z] static HEAD /proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js -> 200 (398ms)
+[2025-12-11T18:39:24.510Z] static GET /proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js -> 200 (140ms)
+[2025-12-11T18:39:24.515Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js"
+  },
+  "ts": "2025-12-11T18:39:24.513Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:24.515Z] static POST /__client-log -> 204 (1ms)
+[2025-12-11T18:39:24.516Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "@emotion/styled",
+    "url": "/proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js",
+    "global": "emotionStyled"
+  },
+  "ts": "2025-12-11T18:39:24.514Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:24.516Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:24.516Z] static GET /src/App.tsx -> 200 (1ms)
+[2025-12-11T18:39:24.520Z] static GET /src/theme -> 404 (1ms)
+[2025-12-11T18:39:24.520Z] static GET /src/components/HeroSection -> 404 (1ms)
+[2025-12-11T18:39:24.520Z] static GET /src/components/FeaturedGames -> 404 (0ms)
+[2025-12-11T18:39:24.521Z] static GET /src/components/FooterStrip -> 404 (1ms)
+[2025-12-11T18:39:24.523Z] static GET /src/theme.tsx -> 404 (1ms)
+[2025-12-11T18:39:24.523Z] static GET /src/components/FeaturedGames.tsx -> 200 (1ms)
+[2025-12-11T18:39:24.523Z] static GET /src/components/HeroSection.tsx -> 200 (1ms)
+[2025-12-11T18:39:24.524Z] static GET /src/components/FooterStrip.tsx -> 200 (2ms)
+[2025-12-11T18:39:24.524Z] static GET /src/theme.ts -> 200 (0ms)
+[2025-12-11T18:39:24.525Z] static GET /src/data -> 404 (0ms)
+[2025-12-11T18:39:24.526Z] static GET /src/data -> 404 (0ms)
+[2025-12-11T18:39:24.526Z] static GET /src/data.tsx -> 404 (0ms)
+[2025-12-11T18:39:24.551Z] static GET /src/data.tsx -> 404 (1ms)
+[2025-12-11T18:39:24.551Z] static GET /src/data.ts -> 200 (0ms)
+[2025-12-11T18:39:24.552Z] static GET /src/data.ts -> 200 (1ms)
+[2025-12-11T18:39:25.417Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.416Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.417Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.417Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Grid",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Grid"
+  },
+  "ts": "2025-12-11T18:39:25.417Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.418Z] static POST /__client-log -> 204 (1ms)
+[2025-12-11T18:39:25.424Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.423Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.424Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.425Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Stack",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Stack"
+  },
+  "ts": "2025-12-11T18:39:25.424Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.425Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.430Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.429Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.430Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.431Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Box",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Box"
+  },
+  "ts": "2025-12-11T18:39:25.429Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.431Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.434Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.433Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.434Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.434Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/CardMedia",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.CardMedia"
+  },
+  "ts": "2025-12-11T18:39:25.434Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.434Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.439Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.438Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.439Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.439Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Button",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Button"
+  },
+  "ts": "2025-12-11T18:39:25.439Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.439Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.443Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.442Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.443Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.443Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Card",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Card"
+  },
+  "ts": "2025-12-11T18:39:25.443Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.443Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.447Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.446Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.447Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.447Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Chip",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Chip"
+  },
+  "ts": "2025-12-11T18:39:25.446Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.447Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.453Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.452Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.453Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.453Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Chip",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Chip"
+  },
+  "ts": "2025-12-11T18:39:25.452Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.453Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.459Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.458Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.459Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.459Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/CssBaseline",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.CssBaseline"
+  },
+  "ts": "2025-12-11T18:39:25.458Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.459Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.462Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.462Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.462Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.462Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Button",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Button"
+  },
+  "ts": "2025-12-11T18:39:25.462Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.462Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.466Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.465Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.466Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.466Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Box",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Box"
+  },
+  "ts": "2025-12-11T18:39:25.466Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.466Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.470Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.469Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.470Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.470Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Typography",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Typography"
+  },
+  "ts": "2025-12-11T18:39:25.469Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.470Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.474Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.473Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.474Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.474Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Stack",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Stack"
+  },
+  "ts": "2025-12-11T18:39:25.473Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.474Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.478Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.477Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.478Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.478Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Container",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Container"
+  },
+  "ts": "2025-12-11T18:39:25.477Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.478Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.483Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.482Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.483Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.483Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Typography",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Typography"
+  },
+  "ts": "2025-12-11T18:39:25.483Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.483Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.487Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.487Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.487Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.487Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Typography",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Typography"
+  },
+  "ts": "2025-12-11T18:39:25.487Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.487Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.491Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.491Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.491Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.492Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Typography",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Typography"
+  },
+  "ts": "2025-12-11T18:39:25.491Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.492Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.495Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.494Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.495Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.495Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Stack",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Stack"
+  },
+  "ts": "2025-12-11T18:39:25.495Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.495Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.499Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.498Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.499Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.499Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Divider",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Divider"
+  },
+  "ts": "2025-12-11T18:39:25.499Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.499Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.505Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.504Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.505Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.505Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Box",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Box"
+  },
+  "ts": "2025-12-11T18:39:25.504Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.505Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.508Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.508Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.509Z] static POST /__client-log -> 204 (1ms)
+[2025-12-11T18:39:25.509Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Button",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Button"
+  },
+  "ts": "2025-12-11T18:39:25.508Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.509Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.529Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.528Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.529Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.529Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Stack",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Stack"
+  },
+  "ts": "2025-12-11T18:39:25.528Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.529Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.532Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.532Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.532Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.532Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Box",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Box"
+  },
+  "ts": "2025-12-11T18:39:25.532Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.532Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.540Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.540Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.541Z] static POST /__client-log -> 204 (1ms)
+[2025-12-11T18:39:25.541Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/CardContent",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.CardContent"
+  },
+  "ts": "2025-12-11T18:39:25.540Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.541Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.544Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js"
+  },
+  "ts": "2025-12-11T18:39:25.543Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.544Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.544Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "dynamic-module:loaded",
+  "detail": {
+    "name": "@mui/material/Chip",
+    "url": "https://unpkg.com/@mui/material@5.16.7/umd/material-ui.development.js",
+    "global": "MaterialUI.Chip"
+  },
+  "ts": "2025-12-11T18:39:25.544Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.544Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.558Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "tsx:compiled",
+  "detail": {
+    "entryFile": "src/App.tsx",
+    "entryDir": "src"
+  },
+  "ts": "2025-12-11T18:39:25.557Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.558Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.559Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "bootstrap:success",
+  "detail": {
+    "entryFile": "src/App.tsx",
+    "scssFile": "styles.scss"
+  },
+  "ts": "2025-12-11T18:39:25.558Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.559Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.564Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "window:error",
+  "detail": {
+    "message": "Uncaught Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.\n\nCheck the render method of `App`.",
+    "filename": "http://127.0.0.1:4173/proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js",
+    "lineno": 28488,
+    "colno": 19
+  },
+  "ts": "2025-12-11T18:39:25.564Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.564Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.567Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "window:error",
+  "detail": {
+    "message": "Uncaught Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.\n\nCheck the render method of `App`.",
+    "filename": "http://127.0.0.1:4173/proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js",
+    "lineno": 28488,
+    "colno": 19
+  },
+  "ts": "2025-12-11T18:39:25.566Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.567Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:39:25.568Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "window:error",
+  "detail": {
+    "message": "Uncaught Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.\n\nCheck the render method of `App`.",
+    "filename": "http://127.0.0.1:4173/proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js",
+    "lineno": 28488,
+    "colno": 19
+  },
+  "ts": "2025-12-11T18:39:25.567Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-11T18:39:25.568Z] static POST /__client-log -> 204 (0ms)
+[2025-12-11T18:49:08.535Z] server Serving /Users/rmac/Documents/GitHub/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-11T18:49:08.536Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-11T18:49:10.424Z] static HEAD / -> 200 (3ms)
+[2025-12-11T18:49:11.259Z] static GET / -> 200 (1ms)
+[2025-12-11T18:49:11.262Z] static GET /bootstrap.js -> 200 (1ms)
+[2025-12-11T18:49:11.264Z] static GET /config.json -> 200 (1ms)
+[2025-12-11T18:49:11.507Z] static HEAD /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (242ms)
+[2025-12-11T18:49:11.764Z] static GET /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (253ms)
+[2025-12-11T18:49:29.272Z] static HEAD /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 504 (17435ms)
+[2025-12-11T18:49:29.446Z] static HEAD /proxy/unpkg/sass.js@0.11.1/umd/dist/sass.sync.js -> 404 (173ms)
+[2025-12-11T18:49:29.598Z] static HEAD /proxy/unpkg/sass.js@0.11.1/dist/dist/sass.sync.js -> 404 (149ms)
+[2025-12-11T18:55:11.231Z] server Serving /Users/rmac/Documents/GitHub/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-11T18:55:11.232Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-11T18:55:13.120Z] static HEAD / -> 200 (3ms)
+[2025-12-11T18:55:13.900Z] static GET / -> 200 (1ms)
+[2025-12-11T18:55:13.902Z] static GET /bootstrap.js -> 200 (0ms)
+[2025-12-11T18:55:13.904Z] static GET /config.json -> 200 (0ms)
+[2025-12-11T18:55:14.151Z] static HEAD /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (245ms)
+[2025-12-11T18:55:14.400Z] static GET /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (246ms)
+[2025-12-11T18:55:14.756Z] static HEAD /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (277ms)
+[2025-12-11T18:55:15.105Z] static GET /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (346ms)
+[2025-12-11T18:55:15.231Z] static GET /styles.scss -> 200 (0ms)
+[2025-12-11T18:55:15.456Z] static HEAD /proxy/unpkg/react@18.3.1/umd/react.development.js -> 200 (200ms)
+[2025-12-11T18:55:15.590Z] static GET /proxy/unpkg/react@18.3.1/umd/react.development.js -> 200 (132ms)
+[2025-12-11T18:55:15.845Z] static HEAD /proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js -> 200 (253ms)
+[2025-12-11T18:55:16.041Z] static GET /proxy/unpkg/react-dom@18.3.1/umd/react-dom.development.js -> 200 (194ms)
+[2025-12-11T18:55:16.268Z] static HEAD /proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js -> 200 (205ms)
+[2025-12-11T18:55:16.508Z] static GET /proxy/unpkg/@mui/material@5.16.7/umd/material-ui.development.js -> 200 (238ms)
+[2025-12-11T18:55:16.733Z] static HEAD /proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js -> 200 (200ms)
+[2025-12-11T18:55:16.872Z] static GET /proxy/unpkg/@emotion/react@11.13.0/dist/emotion-react.umd.min.js -> 200 (136ms)
+[2025-12-11T18:55:17.140Z] static HEAD /proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js -> 200 (265ms)
+[2025-12-11T18:55:17.282Z] static GET /proxy/unpkg/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js -> 200 (139ms)
+[2025-12-11T18:55:17.286Z] static GET /src/App.tsx -> 200 (1ms)
+[2025-12-11T18:55:17.290Z] static GET /src/theme -> 404 (1ms)
+[2025-12-11T18:55:17.290Z] static GET /src/components/HeroSection -> 404 (0ms)
+[2025-12-11T18:55:17.291Z] static GET /src/components/FeaturedGames -> 404 (1ms)
+[2025-12-11T18:55:17.291Z] static GET /src/components/FooterStrip -> 404 (1ms)
+[2025-12-11T18:55:17.291Z] static GET /src/theme.tsx -> 404 (0ms)
+[2025-12-11T18:55:17.292Z] static GET /src/components/HeroSection.tsx -> 200 (1ms)
+[2025-12-11T18:55:17.292Z] static GET /src/components/FeaturedGames.tsx -> 200 (1ms)
+[2025-12-11T18:55:17.292Z] static GET /src/components/FooterStrip.tsx -> 200 (0ms)
+[2025-12-11T18:55:17.293Z] static GET /src/theme.ts -> 200 (1ms)
+[2025-12-11T18:55:17.293Z] static GET /src/data -> 404 (0ms)
+[2025-12-11T18:55:17.295Z] static GET /src/data -> 404 (1ms)
+[2025-12-11T18:55:17.295Z] static GET /src/data.tsx -> 404 (0ms)
+[2025-12-11T18:55:17.317Z] static GET /src/data.tsx -> 404 (0ms)
+[2025-12-11T18:55:17.317Z] static GET /src/data.ts -> 200 (0ms)
+[2025-12-11T18:55:17.318Z] static GET /src/data.ts -> 200 (0ms)
