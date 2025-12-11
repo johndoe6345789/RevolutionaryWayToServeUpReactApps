@@ -11,15 +11,19 @@
   "tools": [
     {
       "name": "@babel/standalone",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "7.26.0",
+      "pathPrefix": "",
       "file": "babel.min.js",
       "global": "Babel"
     },
     {
       "name": "sass.js",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "0.11.1",
+      "pathPrefix": "dist",
       "file": "sass.sync.js",
       "global": "Sass"
     }
@@ -28,36 +32,46 @@
   "modules": [
     {
       "name": "react",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "18.3.1",
+      "pathPrefix": "umd",
       "file": "react.development.js",
       "global": "React"
     },
     {
       "name": "react-dom",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "18.3.1",
+      "pathPrefix": "umd",
       "file": "react-dom.development.js",
       "global": "ReactDOM"
     },
     {
       "name": "@mui/material",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "5.16.7",
+      "pathPrefix": "umd",
       "file": "material-ui.development.js",
       "global": "MaterialUI"
     },
     {
       "name": "@emotion/react",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "11.13.0",
+      "pathPrefix": "dist",
       "file": "emotion-react.umd.min.js",
       "global": "emotionReact"
     },
     {
       "name": "@emotion/styled",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "version": "11.13.0",
+      "pathPrefix": "dist",
       "file": "emotion-styled.umd.min.js",
       "global": "emotionStyled"
     }
@@ -65,7 +79,8 @@
   "dynamicModules": [
     {
       "prefix": "@mui/icons-material/",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "package": "@mui/icons-material",
       "version": "7.3.6",
       "filePattern": "{icon}.js",
@@ -73,7 +88,8 @@
     },
     {
       "prefix": "@mui/material/",
-      "provider": "unpkg.com",
+      "ci_provider": "/proxy/unpkg",
+      "production_provider": "unpkg.com",
       "package": "@mui/material",
       "version": "5.16.7",
       "filePattern": "material-ui.development.js",

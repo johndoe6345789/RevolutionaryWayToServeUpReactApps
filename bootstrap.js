@@ -21,10 +21,23 @@ function normalizeProviderBase(provider) {
   if (provider === "unpkg" || provider === "unpkg.com") {
     return "https://unpkg.com/";
   }
+  if (provider.startsWith("/")) {
+    return provider.endsWith("/") ? provider : provider + "/";
+  }
   if (provider.startsWith("http://") || provider.startsWith("https://")) {
     return provider.endsWith("/") ? provider : provider + "/";
   }
   return "https://" + provider.replace(/\/+$/, "") + "/";
+}
+
+function resolveProvider(mod) {
+  const hasDualProviders = mod.ci_provider || mod.production_provider;
+  if (hasDualProviders) {
+    const host = typeof window !== "undefined" ? window.location.hostname : "";
+    const isCiLike = host === "127.0.0.1" || host === "localhost";
+    return isCiLike ? mod.ci_provider || mod.production_provider : mod.production_provider || mod.ci_provider;
+  }
+  return mod.provider || mod.ci_provider || mod.production_provider || "unpkg.com";
 }
 
 async function probeUrl(url) {
@@ -42,20 +55,22 @@ async function probeUrl(url) {
 async function resolveModuleUrl(mod) {
   if (mod.url) return mod.url;
 
-  const base = normalizeProviderBase(mod.provider || "unpkg.com");
+  const base = normalizeProviderBase(resolveProvider(mod));
   const pkgName = mod.name;
   const versionSegment = mod.version ? "@" + mod.version : "";
   const file = (mod.file || "").replace(/^\/+/, "");
+  const pathPrefix = (mod.pathPrefix || "").replace(/^\/+|\/+$/g, "");
   const explicitPath = mod.path ? mod.path.replace(/^\/+/, "") : "";
+  const combinedPath = [pathPrefix, file].filter(Boolean).join("/");
   const packageRoot = base + pkgName + versionSegment;
 
   const candidates = [];
   if (explicitPath) {
     candidates.push(packageRoot + "/" + explicitPath);
-  } else if (file) {
-    candidates.push(packageRoot + "/" + file);
-    candidates.push(packageRoot + "/umd/" + file);
-    candidates.push(packageRoot + "/dist/" + file);
+  } else if (combinedPath) {
+    candidates.push(packageRoot + "/" + combinedPath);
+    candidates.push(packageRoot + "/umd/" + combinedPath);
+    candidates.push(packageRoot + "/dist/" + combinedPath);
   } else {
     candidates.push(packageRoot);
   }

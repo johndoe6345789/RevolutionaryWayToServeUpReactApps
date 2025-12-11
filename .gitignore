@@ -3,6 +3,7 @@ src/node_modules/
 
 # Tooling workspace
 /test-tooling/node_modules/
+/test-tooling/node_modules.old/
 /test-tooling/npm-debug.log*
 /test-tooling/*.log
 /test-tooling/.cache/
@@ -17,6 +18,7 @@ src/node_modules/
 *.swo
 *.tmp
 /e2e/node_modules/
+/e2e/node_modules.old/
 /e2e/test-results/
 
 venv/
