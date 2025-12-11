@@ -189,16 +189,13 @@ async function loadDynamicModule(name, config, registry) {
   return registry[name];
 }
 
-function createRequire(registry, config, dynamicModuleLoader = loadDynamicModule) {
-  async function requireAsync(name) {
-    if (registry[name]) return registry[name];
-    const dynRules = config.dynamicModules || [];
-    if (dynRules.some((r) => name.startsWith(r.prefix))) {
-      return dynamicModuleLoader(name, config, registry);
-    }
-    throw new Error("Module not registered: " + name);
-  }
-
+function createRequire(
+  registry,
+  config,
+  entryDir = "",
+  localModuleLoader,
+  dynamicModuleLoader = loadDynamicModule
+) {
   function require(name) {
     if (registry[name]) return registry[name];
     throw new Error(
@@ -206,6 +203,18 @@ function createRequire(registry, config, dynamicModuleLoader = loadDynamicModule
         name +
         " (use a preload step via requireAsync for dynamic modules)"
     );
+  }
+
+  async function requireAsync(name, baseDir) {
+    if (registry[name]) return registry[name];
+    if (localModuleLoader && isLocalModule(name)) {
+      return localModuleLoader(name, baseDir || entryDir, require, registry);
+    }
+    const dynRules = config.dynamicModules || [];
+    if (dynRules.some((r) => name.startsWith(r.prefix))) {
+      return dynamicModuleLoader(name, config, registry);
+    }
+    throw new Error("Module not registered: " + name);
   }
 
   require._async = requireAsync;
@@ -339,14 +348,14 @@ function collectModuleSpecifiers(source) {
 }
 
 // Preload every imported / required module via requireFn._async
-async function preloadModulesFromSource(source, requireFn) {
+async function preloadModulesFromSource(source, requireFn, baseDir = "") {
   if (!requireFn || typeof requireFn._async !== "function") return;
   const specs = collectModuleSpecifiers(source);
   if (!specs.length) return;
 
   await Promise.all(
     specs.map((name) =>
-      requireFn._async(name).catch((err) => {
+      requireFn._async(name, baseDir).catch((err) => {
         console.warn("Preload failed for", name, err);
       })
     )
@@ -354,15 +363,78 @@ async function preloadModulesFromSource(source, requireFn) {
 }
 
 // Compile a TSX entry file, after preloading all its dependencies
-async function compileTSX(entryFile, requireFn) {
+async function compileTSX(entryFile, requireFn, entryDir = "") {
   const res = await fetch(entryFile, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load " + entryFile);
   const tsxCode = await res.text();
 
-  await preloadModulesFromSource(tsxCode, requireFn);
+  await preloadModulesFromSource(tsxCode, requireFn, entryDir);
 
-  const compiled = Babel.transform(tsxCode, {
-    filename: entryFile,
+  return executeModuleSource(tsxCode, entryFile, entryDir, requireFn);
+}
+
+const LOCAL_MODULE_EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js"];
+const moduleContextStack = [];
+
+function isLocalModule(name) {
+  return name.startsWith(".") || name.startsWith("/");
+}
+
+function normalizeDir(dir) {
+  if (!dir) return "";
+  return dir.replace(/^\/+/, "").replace(/\/+$/, "");
+}
+
+function makeAliasKey(name, baseDir) {
+  return normalizeDir(baseDir) + "|" + name;
+}
+
+function resolveLocalModuleBase(name, baseDir) {
+  const normalizedBase = normalizeDir(baseDir);
+  const baseUrl = normalizedBase
+    ? `${location.origin}/${normalizedBase}/`
+    : `${location.origin}/`;
+  const resolvedUrl = new URL(name, baseUrl);
+  return resolvedUrl.pathname.replace(/^\//, "");
+}
+
+function getModuleDir(filePath) {
+  const idx = filePath.lastIndexOf("/");
+  return idx === -1 ? "" : filePath.slice(0, idx);
+}
+
+function hasKnownExtension(path) {
+  return /\.(tsx|ts|jsx|js)$/.test(path);
+}
+
+function getCandidateLocalPaths(basePath) {
+  const normalizedBase = basePath.replace(/\/+$/, "");
+  const seen = new Set();
+  const candidates = [];
+
+  function add(candidate) {
+    if (!candidate) return;
+    if (seen.has(candidate)) return;
+    seen.add(candidate);
+    candidates.push(candidate);
+  }
+
+  add(normalizedBase);
+  if (!hasKnownExtension(normalizedBase)) {
+    for (const ext of LOCAL_MODULE_EXTENSIONS) {
+      add(normalizedBase + ext);
+    }
+    for (const ext of LOCAL_MODULE_EXTENSIONS) {
+      add(`${normalizedBase}/index${ext}`);
+    }
+  }
+
+  return candidates;
+}
+
+function transformSource(source, filePath) {
+  return Babel.transform(source, {
+    filename: filePath,
     presets: [
       ["typescript", { allExtensions: true, isTSX: true }],
       "react",
@@ -370,17 +442,110 @@ async function compileTSX(entryFile, requireFn) {
     ],
     sourceMaps: "inline"
   }).code;
+}
 
+function executeModuleSource(source, filePath, moduleDir, requireFn) {
+  const compiled = transformSource(source, filePath);
   const exports = {};
   const module = { exports };
 
-  new Function("require", "exports", "module", compiled)(
-    requireFn,
-    exports,
-    module
-  );
+  moduleContextStack.push({ path: filePath, dir: moduleDir });
+  try {
+    new Function("require", "exports", "module", compiled)(
+      requireFn,
+      exports,
+      module
+    );
+  } finally {
+    moduleContextStack.pop();
+  }
 
   return module.exports.default || module.exports;
+}
+
+function createLocalModuleLoader(entryDir) {
+  const moduleCache = new Map();
+  const modulePromises = new Map();
+  const aliasToCanonical = new Map();
+
+  return async function loadLocalModule(name, baseDir, requireFn, registry) {
+    const normalizedBase = normalizeDir(baseDir || entryDir || "");
+    const aliasKey = makeAliasKey(name, normalizedBase);
+    const existingCanonical = aliasToCanonical.get(aliasKey);
+
+    if (existingCanonical && registry[existingCanonical]) {
+      const cached = registry[existingCanonical];
+      registry[name] = cached;
+      return cached;
+    }
+
+    const basePath = resolveLocalModuleBase(name, normalizedBase);
+    const { source, resolvedPath } = await fetchLocalModuleSource(basePath);
+    const moduleDir = getModuleDir(resolvedPath);
+    aliasToCanonical.set(aliasKey, resolvedPath);
+
+    if (moduleCache.has(resolvedPath)) {
+      const cached = moduleCache.get(resolvedPath);
+      registry[resolvedPath] = cached;
+      registry[name] = cached;
+      return cached;
+    }
+
+    if (modulePromises.has(resolvedPath)) {
+      const pending = await modulePromises.get(resolvedPath);
+      registry[resolvedPath] = pending;
+      registry[name] = pending;
+      return pending;
+    }
+
+    const loadPromise = (async () => {
+      await preloadModulesFromSource(source, requireFn, moduleDir);
+      const moduleExports = executeModuleSource(
+        source,
+        resolvedPath,
+        moduleDir,
+        requireFn
+      );
+      moduleCache.set(resolvedPath, moduleExports);
+      registry[resolvedPath] = moduleExports;
+      return moduleExports;
+    })();
+
+    modulePromises.set(resolvedPath, loadPromise);
+    try {
+      const result = await loadPromise;
+      registry[name] = result;
+      return result;
+    } finally {
+      modulePromises.delete(resolvedPath);
+    }
+  };
+}
+
+async function fetchLocalModuleSource(basePath) {
+  const candidates = getCandidateLocalPaths(basePath);
+
+  for (const candidate of candidates) {
+    try {
+      const res = await fetch(candidate, { cache: "no-store" });
+      if (res.ok) {
+        return {
+          source: await res.text(),
+          resolvedPath: candidate
+        };
+      }
+    } catch (err) {
+      // ignore and try next candidate
+    }
+  }
+
+  throw new Error(
+    "Failed to load local module: " +
+      basePath +
+      " (tried: " +
+      candidates.join(", ") +
+      ")"
+  );
 }
 
 function frameworkRender(config, registry, App) {
@@ -421,9 +586,18 @@ async function bootstrap() {
     injectCSS(css);
 
     const registry = await loadModules(config.modules || []);
-    const requireFn = createRequire(registry, config);
+    const entryDir = entryFile.includes("/")
+      ? entryFile.slice(0, entryFile.lastIndexOf("/"))
+      : "";
+    const localLoader = createLocalModuleLoader(entryDir);
+    const requireFn = createRequire(
+      registry,
+      config,
+      entryDir,
+      localLoader
+    );
 
-    const App = await compileTSX(entryFile, requireFn);
+    const App = await compileTSX(entryFile, requireFn, entryDir);
 
     frameworkRender(config, registry, App);
   } catch (err) {
