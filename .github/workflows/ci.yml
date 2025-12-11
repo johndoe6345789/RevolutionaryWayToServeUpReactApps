@@ -25,6 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+        working-directory: bun
 
       - name: Install unit-test dependencies
         run: bun install

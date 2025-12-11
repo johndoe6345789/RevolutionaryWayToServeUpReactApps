@@ -48,38 +48,48 @@ Running `poetry install` creates the `bun-wrapper` console script and a `python/
 
 ## Install dependencies
 
+Bun's manifest lives inside the `bun/` directory, so install the shared runtime from there before installing the workspace packages:
+
 ```bash
+cd bun
 bun install
-bun install --prefix test-tooling
-bun install --prefix e2e
+cd ../test-tooling
+bun install
+cd ../e2e
+bun install
+cd ..
 ```
 
 ## Run locally
 
-1. Start the static server that serves `bootstrap.js`:
+1. Start the static server (the script lives inside `bun/`, so it serves the repository root via `http-server ..`):
 
    ```bash
+   cd bun
    bun run serve
    ```
 
 2. In a new shell run the Playwright smoke test against the running bundle:
 
    ```bash
-   bun run test --prefix e2e
+   cd e2e
+   bun run test
    ```
 
 ## Testing
 
-- Unit tests (test-tooling):
+- Unit tests (from `test-tooling`):
 
   ```bash
-  bun test --prefix test-tooling
+  cd test-tooling
+  bun test
   ```
 
-- Smoke test:
+- Smoke test (from `e2e`):
 
   ```bash
-  bun run test --prefix e2e
+  cd e2e
+  bun run test
   ```
 
 ## Dockerized smoke test
