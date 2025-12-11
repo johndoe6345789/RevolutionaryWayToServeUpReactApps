@@ -194,8 +194,19 @@ function createRequire(
   config,
   entryDir = "",
   localModuleLoader,
-  dynamicModuleLoader = loadDynamicModule
+  dynamicModuleLoader
 ) {
+  let resolvedEntryDir = "";
+  let resolvedDynamicModuleLoader = dynamicModuleLoader;
+
+  if (typeof entryDir === "function" && arguments.length === 3) {
+    resolvedDynamicModuleLoader = entryDir;
+  } else {
+    resolvedEntryDir = entryDir || "";
+  }
+
+  resolvedDynamicModuleLoader = resolvedDynamicModuleLoader || loadDynamicModule;
+
   function require(name) {
     if (registry[name]) return registry[name];
     throw new Error(
@@ -208,11 +219,16 @@ function createRequire(
   async function requireAsync(name, baseDir) {
     if (registry[name]) return registry[name];
     if (localModuleLoader && isLocalModule(name)) {
-      return localModuleLoader(name, baseDir || entryDir, require, registry);
+      return localModuleLoader(
+        name,
+        baseDir || resolvedEntryDir,
+        require,
+        registry
+      );
     }
     const dynRules = config.dynamicModules || [];
     if (dynRules.some((r) => name.startsWith(r.prefix))) {
-      return dynamicModuleLoader(name, config, registry);
+      return resolvedDynamicModuleLoader(name, config, registry);
     }
     throw new Error("Module not registered: " + name);
   }
