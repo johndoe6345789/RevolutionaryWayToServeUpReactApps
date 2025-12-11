@@ -1,4 +1,5 @@
 node_modules/
+src/node_modules/
 
 # Tooling workspace
 /test-tooling/node_modules/
