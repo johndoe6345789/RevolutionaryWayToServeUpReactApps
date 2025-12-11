@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies that Cypress requires, including Xvfb for headless browsers.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+      libgbm1 \
       libgtk2.0-0 \
       libgtk-3-0 \
       libnotify-dev \
