@@ -15,14 +15,13 @@ if (typeof window !== "undefined") {
   (window as Window & { __RWTRA_BOOTSTRAP_TEST_MODE__?: boolean }).__RWTRA_BOOTSTRAP_TEST_MODE__ = true;
 }
 
-const bootstrap = require("../../bootstrap.js");
-const {
+import {
   normalizeProviderBase,
   resolveModuleUrl,
   collectModuleSpecifiers,
   collectDynamicModuleImports,
   createRequire
-} = bootstrap;
+} from "../../bootstrap.js";
 
 describe("bootstrap helpers", () => {
   afterEach(() => {
