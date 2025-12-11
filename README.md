@@ -71,6 +71,29 @@ The repository ships with a container image that mirrors the GitHub Actions envi
 - **CI workflow** (`ci.yml`): boots Bun 1.3.4, installs every workspace, runs the `test-tooling` suite via `bun test --prefix test-tooling`, prepares the Playwright e2e stack, and then launches `bun run test --prefix e2e`.
 - **Docker image build** (`docker-build.yml`): ensures a reproducible Playwright container can be produced for smoke-testing.
 
+## Bun wrapper helper
+
+The repository now includes `python/bun_wrapper.py`, which fetches the latest Bun release, caches it under your XDG or APPDATA cache directory (or under `BUN_WRAPPER_CACHE_DIR` / `--cache-dir`), and forwards any arguments you give directly to the Bun binary. To run Bun without installing it system-wide:
+
+```bash
+python python/bun_wrapper.py -- bun --version
+python python/bun_wrapper.py -- bun run test --prefix test-tooling
+```
+
+Use `python python/bun_wrapper.py -p` to print the resolved Bun binary (handy for tooling) or `python python/bun_wrapper.py -f` to force a fresh download of the newest release.
+
+Internally the helper is described by `python/pyproject.toml` so tooling that understands `pyproject` (Flit, pip, etc.) can install the shim and expose a `bun-wrapper` console script alongside the existing `.py` entry point.
+
+## Source copier helper
+
+`python/copy_sources.py` scans your workspace for `.html`, `.scss`, `.json`, `.tsx`, and `.ts` files (plus the root-level `bootstrap.js`) and mirrors them under `dist/` (mirror structure relative to the source root). The helper skips `.git`, `node_modules`, `dist`, `__pycache__`, and `.github` directories by default and respects extra `--exclude-dir` entries. Run it with `--clean` to rebuild the `dist` directory from scratch or pass `--src`/`--dest` to target a different path:
+
+```bash
+python python/copy_sources.py --clean
+python python/copy_sources.py --src src --dest build/sources
+```
+
+
 ## License
 
 This project is distributed under the terms of the MIT License (see `LICENSE`).

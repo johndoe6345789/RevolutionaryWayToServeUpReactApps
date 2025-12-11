@@ -1,0 +1,34 @@
+[build-system]
+requires = ["flit_core >=3.8"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "rwtra-bun-wrapper"
+version = "0.1.0"
+description = "Python helpers that download Bun, cache it, and mirror specific sources into a dist folder."
+readme = "../README.md"
+requires-python = ">=3.8"
+authors = [
+    { name = "RevolutionaryWayToServeUpReactApps", email = "noreply@revolutionaryway.app" },
+]
+license = { text = "MIT" }
+keywords = ["bun", "wrapper", "python", "cache", "assets"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactApps"
+Repository = "https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactApps"
+Bug Tracker = "https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactApps/issues"
+
+[project.scripts]
+bun-wrapper = "bun_wrapper:main"
+copy-sources = "copy_sources:main"
