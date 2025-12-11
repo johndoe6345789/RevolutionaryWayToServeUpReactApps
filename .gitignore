@@ -1,0 +1,17 @@
+node_modules/
+
+# Tooling workspace
+/test-tooling/node_modules/
+/test-tooling/npm-debug.log*
+/test-tooling/*.log
+/test-tooling/.cache/
+
+# Ignore generated JS from TypeScript sources
+/src/**/*.js
+/src/**/*.js.map
+/src/**/*.d.ts
+
+# Optional IDE artifacts
+*.swp
+*.swo
+*.tmp
