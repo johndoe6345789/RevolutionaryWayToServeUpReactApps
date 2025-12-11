@@ -1,0 +1,6 @@
+{
+  "name": "rwtra-ci",
+  "private": true,
+  "packageManager": "bun@1.3.4",
+  "workspaces": ["../test-tooling", "../e2e"]
+}
