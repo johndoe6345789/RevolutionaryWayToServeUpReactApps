@@ -4,8 +4,12 @@ WORKDIR /app
 
 COPY . .
 
-WORKDIR /app/e2e
-RUN npm ci
-RUN npx playwright install --with-deps
+# Install Bun so the container can install and run the e2e tooling
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
 
-CMD ["npm", "run", "test"]
+WORKDIR /app/e2e
+RUN bun install
+RUN bunx playwright install --with-deps
+
+CMD ["bun", "run", "test", "--prefix", "e2e"]

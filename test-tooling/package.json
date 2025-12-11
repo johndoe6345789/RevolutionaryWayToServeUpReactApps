@@ -2,6 +2,7 @@
   "name": "rwtra-tests",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.3.4",
   "type": "commonjs",
   "scripts": {
     "test": "jest"
