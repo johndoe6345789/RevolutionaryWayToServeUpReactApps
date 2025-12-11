@@ -12,6 +12,8 @@ src/node_modules/
 /src/**/*.js
 /src/**/*.js.map
 /src/**/*.d.ts
+/test-tooling/tests/*.test.js
+/test-tooling/tests/setupTests.js
 
 # Optional IDE artifacts
 *.swp

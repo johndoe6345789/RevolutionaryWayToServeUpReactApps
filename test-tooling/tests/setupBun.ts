@@ -1,7 +1,5 @@
 import { JSDOM } from "jsdom";
 
-declare function require(name: string): any;
-
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   url: "http://localhost"
 });
@@ -26,5 +24,9 @@ if (fetchImpl) {
   globalThis.fetch = fetchImpl.bind(window);
 }
 
+// Skip auto-bootstrap in browser-like environments during Bun tests.
+(globalThis as { __RWTRA_BOOTSTRAP_TEST_MODE__?: boolean }).__RWTRA_BOOTSTRAP_TEST_MODE__ = true;
+(window as typeof window & { __RWTRA_BOOTSTRAP_TEST_MODE__?: boolean }).__RWTRA_BOOTSTRAP_TEST_MODE__ = true;
+
 // Reuse the shared Jest-style setup (matchers + bootstrap guard)
-require("./setupTests");
+import "./setupTests.ts";
