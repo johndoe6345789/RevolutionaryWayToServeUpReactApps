@@ -8,6 +8,7 @@
     "test": "node tests/linkSrcNodeModules.js && jest"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.0.0",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^5.16.7",
