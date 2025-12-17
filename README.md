@@ -1,8 +1,8 @@
 # RevolutionaryWayToServeUpReactApps
-![CI](https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactApps/actions/workflows/ci.yml/badge.svg)
-![Docker build](https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactApps/actions/workflows/docker-build.yml/badge.svg)
+![CI](https://github.com/johndoe6345789/RevolutionaryWayToServeUpReactApps/actions/workflows/ci.yml/badge.svg)
+![Package site image](https://github.com/johndoe6345789/RevolutionaryWayToServeUpReactApps/actions/workflows/docker-publish.yml/badge.svg)
 ![Bun](https://img.shields.io/badge/bun-1.3.4-7d3cff)
-![License](https://img.shields.io/github/license/JohnDoe6345789/RevolutionaryWayToServeUpReactApps)
+![License](https://img.shields.io/github/license/johndoe6345789/RevolutionaryWayToServeUpReactApps)
 
 Revolutionary Way To Serve Up React Apps delivers a RetroDeck-style landing page entirely rendered in the browser plus automated validation through Playwright using the exact bundle created by `bootstrap.js`.
 
@@ -14,8 +14,9 @@ Revolutionary Way To Serve Up React Apps delivers a RetroDeck-style landing page
 4. [Run locally](#run-locally)
 5. [Testing](#testing)
 6. [Dockerized smoke test](#dockerized-smoke-test)
-7. [Python helpers](#python-helpers)
-8. [License](#license)
+7. [Container image](#container-image)
+8. [Python helpers](#python-helpers)
+9. [License](#license)
 
 ## Overview
 
@@ -107,6 +108,27 @@ Reproduces the GitHub Actions environment without installing Bun locally.
    ```
 
    Inside the container the test targets `http://127.0.0.1:4173`, matching the default `http-server` port Bun uses in `e2e/serve`.
+
+## Container image
+
+The new **Package site image** workflow builds the root-level `Dockerfile` and publishes `ghcr.io/johndoe6345789/rwtra-website` with both `latest` and the commit SHA every time something lands on `main`. The container simply copies `index.html`, `bootstrap.js`, `config.json`, `styles.scss`, and the `src/` bundle, and then runs `http-server` on port `4173`.
+
+### Local container workflow
+
+- Build locally and verify that the exported bundle behaves identically to the CI runs:
+
+  ```bash
+  docker build -t rwtra-website .
+  docker run --rm -p 4173:4173 rwtra-website
+  ```
+
+- Or pull the most recent image from GitHub Container Registry:
+
+  ```bash
+  docker run --rm -p 4173:4173 ghcr.io/johndoe6345789/rwtra-website:latest
+  ```
+
+The workflow records every push and you can find the triggered runs on the `docker-publish.yml` tab of the repository's Actions page.
 
 ## Python helpers
 
