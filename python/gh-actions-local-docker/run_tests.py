@@ -21,7 +21,16 @@ def main() -> int:
     root = _repo_root()
     env = os.environ.copy()
     env["PYTHONPATH"] = str(root)
-    cmd = [_python(), "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"]
+    cmd = [
+        _python(),
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_*.py",
+    ]
     return subprocess.call(cmd, cwd=root, env=env)
 
 
