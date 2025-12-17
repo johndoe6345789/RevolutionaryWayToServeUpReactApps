@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-    """Run GitHub Actions workflows locally via Docker using nektos/act.
+"""Run GitHub Actions workflows locally via Docker using nektos/act.
 
 Design goals:
 - Run from any directory, targeting a repo root explicitly.
@@ -8,16 +8,16 @@ Design goals:
 - Uses a Docker container to run "act", but executes jobs with the host Docker engine.
 """
 
-    from __future__ import annotations
+from __future__ import annotations
 
-    import argparse
-    import os
-    import shlex
-    import subprocess
-    import sys
-    from dataclasses import dataclass
-    from pathlib import Path
-    from typing import List, Optional, Sequence
+import argparse
+import os
+import shlex
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Optional, Sequence
 
 
     DEFAULT_ACT_IMAGE = "nektos/act:latest"
