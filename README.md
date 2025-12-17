@@ -130,6 +130,10 @@ The new **Package site image** workflow builds the root-level `Dockerfile` and p
 
 The workflow records every push and you can find the triggered runs on the `docker-publish.yml` tab of the repository's Actions page.
 
+## Release zip
+
+When a release is published, a dedicated workflow packages the distributable bundle from `dist/` (produced by `python/rwtra_scripts/copy_sources.py --clean`) and uploads `rwtra-<tag>.zip` as an asset on the release. The workflow is defined in `.github/workflows/release-zip.yml`, so you can inspect or rerun it from the Releases tab whenever you need the matching ZIP of the sources.
+
 ## Python helpers
 
 ### Bun wrapper
