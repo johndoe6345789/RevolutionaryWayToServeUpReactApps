@@ -1,11 +1,24 @@
-[project]
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
 name = "gh-actions-local-docker"
 version = "0.1.0"
-requires-python = ">=3.10"
 description = "Run GitHub Actions workflows locally via Docker using nektos/act"
-authors = [{name="WardCrew"}]
+authors = ["WardCrew"]
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+
+packages = [
+    { include = "src" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+[tool.poetry.scripts]
+gh-actions-local-docker = "src.run_actions_local:main"
 
 [tool.mypy]
 python_version = "3.10"
