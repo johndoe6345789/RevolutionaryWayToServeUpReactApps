@@ -6,7 +6,7 @@ RUN npm install -g http-server
 WORKDIR /app
 
 # Only copy the files that bootstrap the browser bundle
-COPY index.html bootstrap.js config.json styles.scss src/ /app/
+COPY index.html bootstrap.js config.json styles.scss bootstrap/ src/ /app/
 
 EXPOSE 4173
 
