@@ -27,6 +27,7 @@ This guide documents the interactive surfaces that power the app bundle, the CI 
 - `config.json:1` defines the entrypoints and CDN graph:
   - `entry`/`styles`: entry TSX/SCSS files compiled by the bootstrapper.
   - `render`: `rootId`, module names for React/DOM, and the render method (`createRoot` + `render` by default).
+  - `fallbackProviders`: optional array of CDN bases used when `allowJsDelivr` is not `false`; defaults to `["https://cdn.jsdelivr.net/npm/"]`.
   - `tools`: Babel and Sass loader entries that produce the globals consumed by `compileTSX`/`compileSCSS`.
   - `modules`: explicit React/MUI/Emotion dependencies with `ci_provider`/`production_provider` overrides so CI runs through `e2e/server.js:1`’s `/proxy/unpkg`.
   - `dynamicModules`: prefix-based rules for icon/material helpers; every prefix declares CDN providers, optional package overrides, `filePattern`, and `globalPattern` so `loadDynamicModule` can resolve the requested identifier without bundling the entire module graph.

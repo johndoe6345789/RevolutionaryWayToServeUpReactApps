@@ -15,7 +15,7 @@
     loadScript = () => Promise.resolve(),
     probeUrl = () => false,
     normalizeProviderBase = () => "",
-    JSDELIVR_BASE = ""
+    getFallbackProviders = () => []
   } = network || {};
 
   async function loadDynamicModule(name, config, registry) {
@@ -34,7 +34,11 @@
     };
     addBase(rule.provider || "unpkg.com");
     if (rule.production_provider) addBase(rule.production_provider);
-    if (rule.allowJsDelivr !== false) addBase(JSDELIVR_BASE);
+    if (rule.allowJsDelivr !== false) {
+      for (const fallback of getFallbackProviders()) {
+        addBase(fallback);
+      }
+    }
 
     const pkg = rule.package || rule.prefix.replace(/\/\*?$/, "");
     const version = rule.version ? "@" + rule.version : "";

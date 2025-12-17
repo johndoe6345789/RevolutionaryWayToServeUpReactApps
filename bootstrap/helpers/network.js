@@ -1,4 +1,4 @@
-(function (global) {
+ (function (global) {
   const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
   const helpers = namespace.helpers || (namespace.helpers = {});
 
@@ -8,7 +8,25 @@
     : helpers.logging;
   const { logClient = () => {}, wait = () => Promise.resolve() } = logging || {};
 
-  const JSDELIVR_BASE = "https://cdn.jsdelivr.net/npm/";
+  const DEFAULT_FALLBACK_PROVIDERS = [];
+  let fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
+
+  function setFallbackProviders(providers) {
+    if (!Array.isArray(providers) || !providers.length) {
+      fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
+      return;
+    }
+    fallbackProviders = providers
+      .map((provider) => normalizeProviderBase(provider))
+      .filter(Boolean);
+    if (!fallbackProviders.length) {
+      fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
+    }
+  }
+
+  function getFallbackProviders() {
+    return [...fallbackProviders];
+  }
 
   function loadScript(url) {
     return new Promise((resolve, reject) => {
@@ -113,7 +131,11 @@
       addBase(mod.provider);
       addBase(mod.ci_provider);
       addBase(mod.production_provider);
-      if (mod.allowJsDelivr !== false) addBase(JSDELIVR_BASE);
+      if (mod.allowJsDelivr !== false) {
+        for (const fallback of fallbackProviders) {
+          addBase(fallback);
+        }
+      }
       return bases;
     }
 
@@ -177,7 +199,8 @@
     shouldRetryStatus,
     probeUrl,
     resolveModuleUrl,
-    JSDELIVR_BASE
+    setFallbackProviders,
+    getFallbackProviders
   };
 
   helpers.network = exports;

@@ -8,6 +8,9 @@
     "createRoot": "createRoot",
     "renderMethod": "render"
   },
+  "fallbackProviders": [
+    "https://cdn.jsdelivr.net/npm/"
+  ],
   "tools": [
     {
       "name": "@babel/standalone",
