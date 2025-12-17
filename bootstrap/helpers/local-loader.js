@@ -46,6 +46,17 @@
     fetchLocalModuleSource
   } = moduleLoader || {};
 
+  function getModuleExport(mod, name) {
+    if (!mod) return null;
+    if (Object.prototype.hasOwnProperty.call(mod, name)) {
+      return mod[name];
+    }
+    if (mod.default && Object.prototype.hasOwnProperty.call(mod.default, name)) {
+      return mod.default[name];
+    }
+    return null;
+  }
+
   function frameworkRender(config, registry, App) {
     const rootId = config.render?.rootId || "root";
     const rootEl = document.getElementById(rootId);
@@ -58,7 +69,7 @@
     if (!domModule) throw new Error("DOM render module missing: " + domModuleName);
     if (!reactModule) throw new Error("React module missing: " + reactModuleName);
 
-    const createRootFn = domModule[config.render.createRoot];
+    const createRootFn = getModuleExport(domModule, config.render.createRoot);
     if (!createRootFn) {
       throw new Error("createRoot not found: " + config.render.createRoot);
     }
@@ -69,7 +80,11 @@
       throw new Error("Render method not found: " + renderMethod);
     }
 
-    root[renderMethod](reactModule.createElement(App));
+    const createElementFn = getModuleExport(reactModule, "createElement");
+    if (!createElementFn) {
+      throw new Error("createElement not found on React module");
+    }
+    root[renderMethod](createElementFn(App));
   }
 
   function createRequire(

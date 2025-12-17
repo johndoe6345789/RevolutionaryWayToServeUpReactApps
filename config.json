@@ -9,7 +9,8 @@
     "renderMethod": "render"
   },
   "fallbackProviders": [
-    "https://cdn.jsdelivr.net/npm/"
+    "https://cdn.skypack.dev/",
+    "https://jspm.dev/"
   ],
   "tools": [
     {
@@ -31,74 +32,80 @@
       "global": "Sass"
     }
   ],
-
   "modules": [
     {
       "name": "react",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "version": "19.2.3",
-      "pathPrefix": "cjs",
+      "pathPrefix": "",
       "file": "react.development.js",
-      "global": "React"
+      "global": "React",
+      "format": "esm"
     },
     {
       "name": "react-dom",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "version": "19.2.3",
-      "pathPrefix": "cjs",
-      "file": "react-dom.development.js",
-      "global": "ReactDOM"
+      "pathPrefix": "es2022",
+      "file": "client.mjs",
+      "global": "ReactDOM",
+      "format": "esm"
     },
     {
       "name": "@mui/material",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "version": "5.16.7",
-      "pathPrefix": "umd",
-      "file": "material-ui.development.js",
-      "global": "MaterialUI"
+      "pathPrefix": "es2022",
+      "file": "material.mjs",
+      "global": "MaterialUI",
+      "format": "esm"
     },
     {
       "name": "@emotion/react",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "version": "11.13.0",
-      "pathPrefix": "dist",
-      "file": "emotion-react.umd.min.js",
-      "global": "emotionReact"
+      "pathPrefix": "es2022",
+      "file": "react.mjs",
+      "global": "emotionReact",
+      "format": "esm"
     },
     {
       "name": "@emotion/styled",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "version": "11.13.0",
-      "pathPrefix": "dist",
-      "file": "emotion-styled.umd.min.js",
-      "global": "emotionStyled"
+      "pathPrefix": "es2022",
+      "file": "styled.mjs",
+      "global": "emotionStyled",
+      "format": "esm"
     }
   ],
   "dynamicModules": [
     {
       "prefix": "@mui/icons-material/",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "package": "@mui/icons-material",
       "version": "7.3.6",
-      "filePattern": "{icon}.js",
-      "globalPattern": "{icon}" 
+      "pathPrefix": "es2022",
+      "filePattern": "{icon}.mjs",
+      "format": "esm",
+      "provider": "https://esm.sh/"
     },
     {
       "prefix": "@mui/material/",
-      "ci_provider": "/proxy/unpkg",
-      "production_provider": "unpkg.com",
+      "ci_provider": "https://esm.sh/",
+      "production_provider": "https://esm.sh/",
       "package": "@mui/material",
       "version": "5.16.7",
-      "filePattern": "material-ui.development.js",
-      "globalPattern": "MaterialUI.{icon}"
+      "pathPrefix": "es2022",
+      "filePattern": "{icon}.mjs",
+      "format": "esm",
+      "provider": "https://esm.sh/"
     }
   ]
 }
-
-
