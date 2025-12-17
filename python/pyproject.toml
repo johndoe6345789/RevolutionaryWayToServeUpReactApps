@@ -32,6 +32,7 @@ Repository = "https://github.com/JohnDoe6345789/RevolutionaryWayToServeUpReactAp
 [project.scripts]
 bun-wrapper = "rwtra_scripts.bun_wrapper:main"
 copy-sources = "rwtra_scripts.copy_sources:main"
+actions-runner = "rwtra_scripts.actions_runner:main"
 
 [tool.flit.metadata]
 packages = ["rwtra_scripts"]

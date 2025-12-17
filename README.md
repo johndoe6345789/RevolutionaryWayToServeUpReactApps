@@ -132,6 +132,33 @@ python python/rwtra_scripts/copy_sources.py --clean
 python python/rwtra_scripts/copy_sources.py --src src --dest build/sources
 ```
 
+### Self-hosted runner helper
+
+`python/rwtra_scripts/actions_runner.py` automates downloading the [GitHub Actions runner](https://github.com/actions/runner), configuring it for a repository or organization, and starting the `run.sh`/`run.cmd` loop. Install the helper with `poetry install` (it exposes an `actions-runner` console script) or invoke it via `python -m rwtra_scripts.actions_runner`.
+
+1. Create a registration token with the `repo` (repository) or `admin:org` (organization) `actions` scope from GitHub.
+2. Bootstrap the runner (defaults to the `actions-runner` directory inside this repo):
+
+   ```bash
+   actions-runner setup --url https://github.com/<org-or-owner>/<repo> --token $GITHUB_RUNNER_TOKEN
+   ```
+
+   Add `--name`, `--labels`, `--runner-group`, or `--work-dir` to customize the registration. Supply `--force` to redownload the binaries.
+
+3. Execute the runner:
+
+   ```bash
+   actions-runner start
+   ```
+
+   Pass `--once` to stop after a single job or `--env RUNNER_ALLOW_RUNASROOT=1` if you are running as root on Linux.
+
+4. Remove the runner when it is no longer needed:
+
+   ```bash
+   actions-runner remove --url https://github.com/<org-or-owner>/<repo> --token $GITHUB_RUNNER_TOKEN
+   ```
+
 ## License
 
 This project is distributed under the terms of the MIT License (see `LICENSE`).
