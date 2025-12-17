@@ -16,11 +16,13 @@ import tempfile
 import urllib.error
 import urllib.request
 from pathlib import Path
+import logging
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 API_LATEST_RELEASE = "https://api.github.com/repos/actions/runner/releases/latest"
 USER_AGENT = "rwtra-actions-runner/1.0"
 DOWNLOAD_TIMEOUT_S = 10 * 60
+logger = logging.getLogger(__name__)
 
 
 def default_cache_root() -> Path:
@@ -37,6 +39,7 @@ def default_cache_root() -> Path:
 
 
 def fetch_latest_release() -> Tuple[str, List[Dict[str, Any]]]:
+    logger.info("Fetching latest runner release metadata")
     request = urllib.request.Request(API_LATEST_RELEASE, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=DOWNLOAD_TIMEOUT_S) as response:
         if response.status != 200:
@@ -46,6 +49,7 @@ def fetch_latest_release() -> Tuple[str, List[Dict[str, Any]]]:
     assets = data.get("assets", [])
     if not isinstance(assets, list) or not tag:
         raise RuntimeError("release metadata missing expected fields")
+    logger.info("Found release %s with %d assets", tag, len(assets))
     return tag, assets
 
 
@@ -84,19 +88,38 @@ def choose_asset(assets: Iterable[Dict[str, Any]], os_label: str, arch_label: st
     for asset in assets:
         name = asset.get("name", "")
         if name.startswith(prefix) and name.endswith(".tar.gz"):
+            logger.info("Selected asset %s for platform %s/%s", name, os_label, arch_label)
             return asset
     raise RuntimeError(f"no runner asset found for platform {os_label}/{arch_label}")
 
 
 def download_asset(url: str, dest: Path) -> None:
+    logger.info("Downloading runner asset to %s", dest)
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=DOWNLOAD_TIMEOUT_S) as response, open(dest, "wb") as out_file:
-        shutil.copyfileobj(response, out_file)
+        total_bytes = int(response.getheader("Content-Length") or 0)
+        downloaded = 0
+        chunk_size = 32 * 1024
+        while True:
+            chunk = response.read(chunk_size)
+            if not chunk:
+                break
+            out_file.write(chunk)
+            downloaded += len(chunk)
+            if total_bytes:
+                percent = downloaded * 100 / total_bytes
+                print(f"\rDownloading runner asset... {percent:5.1f}% "
+                      f"({downloaded // 1024} KiB of {total_bytes // 1024} KiB)", end="", flush=True)
+            else:
+                print(f"\rDownloading runner asset... {downloaded // 1024} KiB", end="", flush=True)
+        print()
+    logger.info("Downloaded runner asset (%d bytes)", downloaded)
 
 
 def extract_archive(archive: Path, destination: Path) -> Path:
     """Extract the release archive and return the runner root folder."""
     destination.mkdir(parents=True, exist_ok=True)
+    logger.info("Extracting %s", archive)
     if tarfile.is_tarfile(archive):
         with tarfile.open(archive) as tar:
             tar.extractall(destination)
@@ -106,6 +129,7 @@ def extract_archive(archive: Path, destination: Path) -> Path:
         if child.is_dir():
             candidate = child
             if (candidate / "config.sh").exists() or (candidate / "config.cmd").exists():
+                logger.info("Runner installed to %s", candidate)
                 return candidate
     return destination
 
@@ -136,6 +160,7 @@ def ensure_runner_downloaded(
         if runner_dir.exists():
             shutil.rmtree(runner_dir)
         shutil.copytree(runner_root, runner_dir)
+        logger.info("Runner binaries copied to %s", runner_dir)
 
 
 def find_script(runner_dir: Path, base_name: str) -> Path:
@@ -169,7 +194,9 @@ def configure_runner(
     args.extend(["--url", url, "--token", token])
     if replace:
         args.append("--replace")
+    logger.info("Configuring runner with URL %s", url)
     subprocess.run(args, cwd=runner_dir, check=True)
+    logger.info("Runner configured")
 
 
 def remove_runner(runner_dir: Path, url: str, token: str) -> None:
@@ -177,7 +204,9 @@ def remove_runner(runner_dir: Path, url: str, token: str) -> None:
     args = [str(script)]
     args.extend(["remove", "--unattended"])
     args.extend(["--url", url, "--token", token])
+    logger.info("Removing runner at %s", runner_dir)
     subprocess.run(args, cwd=runner_dir, check=True)
+    logger.info("Runner removed")
 
 
 def start_runner(runner_dir: Path, once: bool, env_vars: Iterable[str]) -> None:
@@ -191,10 +220,13 @@ def start_runner(runner_dir: Path, once: bool, env_vars: Iterable[str]) -> None:
             raise RuntimeError(f"invalid environment variable assignment: {env_var}")
         key, value = env_var.split("=", 1)
         env[key] = value
+    logger.info("Starting runner%s", " once" if once else "")
     subprocess.run(command, cwd=runner_dir, env=env, check=True)
+    logger.info("Runner process exited")
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
     parser = argparse.ArgumentParser(description="Download and run a GitHub Actions self-hosted runner.")
     parser.add_argument(
         "--runner-dir",
