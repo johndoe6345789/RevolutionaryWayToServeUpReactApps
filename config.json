@@ -46,7 +46,7 @@
       "name": "react-dom",
       "ci_provider": "/proxy/unpkg",
       "production_provider": "unpkg.com",
-      "version": "18.2.0",
+      "version": "19.2.3",
       "pathPrefix": "umd",
       "file": "react-dom.development.js",
       "global": "ReactDOM"
@@ -100,4 +100,5 @@
     }
   ]
 }
+
 
