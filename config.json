@@ -38,7 +38,7 @@
       "ci_provider": "/proxy/unpkg",
       "production_provider": "unpkg.com",
       "version": "19.2.3",
-      "pathPrefix": "umd",
+      "pathPrefix": "cjs",
       "file": "react.development.js",
       "global": "React"
     },
@@ -47,7 +47,7 @@
       "ci_provider": "/proxy/unpkg",
       "production_provider": "unpkg.com",
       "version": "19.2.3",
-      "pathPrefix": "umd",
+      "pathPrefix": "cjs",
       "file": "react-dom.development.js",
       "global": "ReactDOM"
     },
