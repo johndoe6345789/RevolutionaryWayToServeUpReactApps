@@ -5,18 +5,19 @@ This guide documents the interactive surfaces that power the app bundle, the CI 
 ## Browser bootstrap API
 
 - `bootstrap.js:1` exports functions such as `bootstrap()`, `loadConfig()`, `loadScript()`, and `resolveModuleUrl()` that are used by the e2e server and Playwright suite to compile the `src`/`styles.scss` bundle inside the browser. Its implementation simply aggregates the helper modules listed below, so each helper can be unit-tested and documented separately:
-  - `bootstrap/logging.js` – CI-aware logging, `logClient`, and the `ciLogging` detector.
-  - `bootstrap/network.js` – CDN resolution helpers (`resolveModuleUrl`, `probeUrl`, etc.).
-  - `bootstrap/tools.js` – load tool bundles and create the namespace for exported globals.
-  - `bootstrap/dynamic-modules.js` – dynamic module resolution via prefix-based CDN probing.
-  - `bootstrap/source-utils.js` – source scanning (`collectModuleSpecifiers`, `collectDynamicModuleImports`, preloads).
-  - `bootstrap/local-loader.js` – SCSS/TSX compilation, require-style loader, and framework render helpers.
-  - `bootstrap/sass-compiler.js` – SCSS compilation + style injection used before the JS bundle renders.
-  - `bootstrap/tsx-compiler.js` – Babel source transformation, TSX compilation, and module execution with the test-friendly `moduleContextStack`.
-  - `bootstrap/local-paths.js` – canonical local module path utilities (`normalizeDir`, `getCandidateLocalPaths`, etc.).
-  - `bootstrap/local-module-loader.js` – fetches local TS/TSX files, preloads dependencies, and caches compiled exports for `createLocalModuleLoader`.
+  - `bootstrap/cdn/logging.js` – CI-aware logging, `logClient`, and the `ciLogging` detector.
+  - `bootstrap/cdn/network.js` – CDN resolution helpers (`resolveModuleUrl`, `probeUrl`, etc.).
+  - `bootstrap/cdn/tools.js` – load tool bundles and create the namespace for exported globals.
+  - `bootstrap/cdn/dynamic-modules.js` – dynamic module resolution via prefix-based CDN probing.
+  - `bootstrap/cdn/source-utils.js` – source scanning (`collectModuleSpecifiers`, `collectDynamicModuleImports`, preloads).
+  - `bootstrap/cdn/import-map-init.js` – hydrates the `<script data-rwtra-importmap>` element with CDN URLs derived from `config.json`.
+  - `bootstrap/local/local-loader.js` – SCSS/TSX compilation, require-style loader, and framework render helpers.
+  - `bootstrap/local/sass-compiler.js` – SCSS compilation + style injection used before the JS bundle renders.
+  - `bootstrap/local/tsx-compiler.js` – Babel source transformation, TSX compilation, and module execution with the test-friendly `moduleContextStack`.
+  - `bootstrap/local/local-paths.js` – canonical local module path utilities (`normalizeDir`, `getCandidateLocalPaths`, etc.).
+  - `bootstrap/local/local-module-loader.js` – fetches local TS/TSX files, preloads dependencies, and caches compiled exports for `createLocalModuleLoader`.
   - `bootstrap/module-loader.js` – combines the helpers above so the resulting bundle API stays unchanged.
-  - The same bootstrap runtime is now composed of helper modules inside `bootstrap/`, so logging, CDN resolution, and module loading code can be understood and tested independently while still exposing the consolidated API surface through `bootstrap.js`.
+  - The same bootstrap runtime is now composed of helper modules inside `bootstrap/cdn/` and `bootstrap/local/`, so logging, CDN resolution, and module loading code can be understood and tested independently while still exposing the consolidated API surface through `bootstrap.js`.
   - Config-driven tool resolution (`loadTools`) and module loading (`loadModules`), each of which probes several CDN bases (via `resolveProvider`/`normalizeProviderBase`) and retries transient failures (`probeUrl`).
   - Dynamic rules via `dynamicModules`: `loadDynamicModule` inspects the configured prefix list to build CDN candidates (including UMD/dist fallbacks), probes each candidate, loads the matching script, and merges the global into the async registry (`createRequire`/`require._async`). `collectDynamicModuleImports` and `preloadDynamicModulesFromSource` scan TSX/TS sources for imports/`require` statements to warm up the registry before execution.
   - TSX compilation (`compileTSX`, `executeModuleSource`): Babel and TypeScript presets are loaded from the configured tools, sources are transpiled with React/Env presets, dependencies are preloaded, and each module is cached inside the local loader (`createLocalModuleLoader`).

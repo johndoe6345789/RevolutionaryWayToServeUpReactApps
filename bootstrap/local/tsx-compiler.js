@@ -4,10 +4,10 @@
 
   const isCommonJs = typeof module !== "undefined" && module.exports;
   const logging = isCommonJs
-    ? require("./logging.js")
+    ? require("../cdn/logging.js")
     : helpers.logging;
   const sourceUtils = isCommonJs
-    ? require("./source-utils.js")
+    ? require("../cdn/source-utils.js")
     : helpers.sourceUtils;
 
   const { logClient = () => {} } = logging || {};

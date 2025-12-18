@@ -4,19 +4,19 @@
   const isCommonJs = typeof module !== "undefined" && module.exports;
 
   const network = isCommonJs
-    ? require("./network.js")
+    ? require("./cdn/network.js")
     : helpers.network || {};
   const tools = isCommonJs
-    ? require("./tools.js")
+    ? require("./cdn/tools.js")
     : helpers.tools || {};
   const dynamicModules = isCommonJs
-    ? require("./dynamic-modules.js")
+    ? require("./cdn/dynamic-modules.js")
     : helpers.dynamicModules || {};
   const sourceUtils = isCommonJs
-    ? require("./source-utils.js")
+    ? require("./cdn/source-utils.js")
     : helpers.sourceUtils || {};
   const localLoader = isCommonJs
-    ? require("./local-loader.js")
+    ? require("./local/local-loader.js")
     : helpers.localLoader || {};
 
   const exports = Object.assign(

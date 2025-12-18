@@ -4,10 +4,10 @@ const helpersNamespace = bootstrapNamespace.helpers || (bootstrapNamespace.helpe
 const isCommonJs = typeof module !== "undefined" && module.exports;
 
 const logging = isCommonJs
-  ? require("./bootstrap/logging.js")
+  ? require("./bootstrap/cdn/logging.js")
   : helpersNamespace.logging;
 const network = isCommonJs
-  ? require("./bootstrap/network.js")
+  ? require("./bootstrap/cdn/network.js")
   : helpersNamespace.network;
 const moduleLoader = isCommonJs
   ? require("./bootstrap/module-loader.js")

@@ -4,13 +4,13 @@
   const isCommonJs = typeof module !== "undefined" && module.exports;
 
   const logging = isCommonJs
-    ? require("./logging.js")
+    ? require("../cdn/logging.js")
     : helpers.logging;
   const dynamicModules = isCommonJs
-    ? require("./dynamic-modules.js")
+    ? require("../cdn/dynamic-modules.js")
     : helpers.dynamicModules;
   const sourceUtils = isCommonJs
-    ? require("./source-utils.js")
+    ? require("../cdn/source-utils.js")
     : helpers.sourceUtils;
   const tsxCompiler = isCommonJs
     ? require("./tsx-compiler.js")
