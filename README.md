@@ -91,6 +91,8 @@ cd ..
   bun run test
   ```
 
+The Playwright smoke test now logs console output and HTTP responses (400+) during execution and, when a failure occurs, attaches the failing page snapshot and screenshot to the test results so you can inspect exactly what rendered before the assertion timed out.
+
 ## Dockerized smoke test
 
 Reproduces the GitHub Actions environment without installing Bun locally.
