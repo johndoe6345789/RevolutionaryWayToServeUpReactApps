@@ -25,7 +25,9 @@ const {
   normalizeProviderBase,
   resolveModuleUrl,
   probeUrl,
-  setFallbackProviders
+  setFallbackProviders,
+  setDefaultProviderBase,
+  setProviderAliases
 } = network;
 const {
   loadTools,
@@ -67,6 +69,8 @@ async function bootstrap() {
   try {
     const config = await loadConfig();
     setFallbackProviders(config.fallbackProviders);
+    setDefaultProviderBase(config.providers && config.providers.default);
+    setProviderAliases(config.providers && config.providers.aliases);
     setCiLoggingEnabled(detectCiLogging(config));
     if (isCiLoggingEnabled()) {
       logClient("ci:enabled", {

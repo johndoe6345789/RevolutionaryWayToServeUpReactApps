@@ -9,9 +9,29 @@
   const { logClient = () => {}, wait = () => Promise.resolve() } = logging || {};
 
   const DEFAULT_FALLBACK_PROVIDERS = [];
+  const DEFAULT_PROVIDER_ALIASES = (() => {
+    try {
+      if (isCommonJs) {
+        const cfg = require("../../config.json");
+        return (cfg && cfg.providers && cfg.providers.aliases) || {};
+      }
+      if (
+        global &&
+        global.__rwtraConfig &&
+        global.__rwtraConfig.providers &&
+        global.__rwtraConfig.providers.aliases
+      ) {
+        return global.__rwtraConfig.providers.aliases;
+      }
+    } catch (err) {
+      // Swallow errors when loading default aliases; an empty alias map is acceptable.
+    }
+    return {};
+  })();
+
   let fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
   let defaultProviderBase = "";
-  let providerAliases = new Map();
+  let providerAliases = createAliasMap(DEFAULT_PROVIDER_ALIASES);
 
   function setFallbackProviders(providers) {
     if (!Array.isArray(providers) || !providers.length) {
@@ -39,17 +59,21 @@
   }
 
   function setProviderAliases(aliases) {
-    const updated = new Map();
-    if (aliases && typeof aliases === "object") {
-      for (const [alias, value] of Object.entries(aliases)) {
+    providerAliases = createAliasMap({ ...DEFAULT_PROVIDER_ALIASES, ...aliases });
+  }
+
+  function createAliasMap(source) {
+    const map = new Map();
+    if (source && typeof source === "object") {
+      for (const [alias, value] of Object.entries(source)) {
         if (!alias) continue;
         const normalized = normalizeProviderBaseRaw(value);
         if (normalized) {
-          updated.set(alias, normalized);
+          map.set(alias, normalized);
         }
       }
     }
-    providerAliases = updated;
+    return map;
   }
 
   function loadScript(url) {
