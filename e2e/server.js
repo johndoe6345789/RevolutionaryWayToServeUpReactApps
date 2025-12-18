@@ -2,10 +2,22 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const config = require("../config.json");
 
-const port = Number(process.env.PORT || 4173);
+const { server: serverConfig = {}, providers = {} } = config;
+const host = serverConfig.host || "127.0.0.1";
+const rawPort = process.env.PORT ?? serverConfig.port ?? 4173;
+const parsedPort = Number(rawPort);
+const port = Number.isNaN(parsedPort) ? 4173 : parsedPort;
+const proxyTarget = process.env.CDN_PROXY_TARGET || providers.default;
+const esmTarget = providers.esm;
+if (!proxyTarget) {
+  throw new Error("Missing CDN proxy target (providers.default) in config.json");
+}
+if (!esmTarget) {
+  throw new Error("Missing CDN ESM target (providers.esm) in config.json");
+}
 const rootDir = path.resolve(__dirname, "..");
-const proxyTarget = process.env.CDN_PROXY_TARGET || "https://unpkg.com";
 const logPath = path.resolve(__dirname, "server.log");
 const logStream = fs.createWriteStream(logPath, { flags: "a" });
 
@@ -67,19 +79,25 @@ app.use(
 );
 
 const esmProxy = createProxyMiddleware({
-  target: "https://esm.sh",
+  target: esmTarget,
   changeOrigin: true,
   logLevel: "debug",
   onProxyReq(_proxyReq, req) {
-    logLine("esm:req", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url}`);
+    logLine("esm:req", `${req.method} ${req.originalUrl} -> ${esmTarget}${req.url}`);
   },
   onProxyRes(proxyRes, req) {
     proxyRes.headers["Access-Control-Allow-Origin"] = "*";
     proxyRes.headers["Access-Control-Allow-Headers"] = "*";
-    logLine("esm:res", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url} [${proxyRes.statusCode}]`);
+    logLine(
+      "esm:res",
+      `${req.method} ${req.originalUrl} -> ${esmTarget}${req.url} [${proxyRes.statusCode}]`
+    );
   },
   onError(err, req) {
-    logLine("esm:err", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url}: ${err.message}`);
+    logLine(
+      "esm:err",
+      `${req.method} ${req.originalUrl} -> ${esmTarget}${req.url}: ${err.message}`
+    );
   },
 });
 
@@ -104,8 +122,8 @@ app.post("/__client-log", (req, res) => {
 // Serve the repository root as static assets.
 app.use(express.static(rootDir, { etag: false, maxAge: 0 }));
 
-app.listen(port, () => {
-  logLine("server", `Serving ${rootDir} on http://127.0.0.1:${port}`);
+app.listen(port, host, () => {
+  logLine("server", `Serving ${rootDir} on http://${host}:${port}`);
   logLine("server", `Proxying /proxy/unpkg/* -> ${proxyTarget}`);
 });
 

@@ -10,6 +10,8 @@
 
   const DEFAULT_FALLBACK_PROVIDERS = [];
   let fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
+  let defaultProviderBase = "";
+  let providerAliases = new Map();
 
   function setFallbackProviders(providers) {
     if (!Array.isArray(providers) || !providers.length) {
@@ -26,6 +28,28 @@
 
   function getFallbackProviders() {
     return [...fallbackProviders];
+  }
+
+  function setDefaultProviderBase(provider) {
+    defaultProviderBase = normalizeProviderBaseRaw(provider);
+  }
+
+  function getDefaultProviderBase() {
+    return defaultProviderBase;
+  }
+
+  function setProviderAliases(aliases) {
+    const updated = new Map();
+    if (aliases && typeof aliases === "object") {
+      for (const [alias, value] of Object.entries(aliases)) {
+        if (!alias) continue;
+        const normalized = normalizeProviderBaseRaw(value);
+        if (normalized) {
+          updated.set(alias, normalized);
+        }
+      }
+    }
+    providerAliases = updated;
   }
 
   function loadScript(url) {
@@ -46,9 +70,13 @@
 
   function normalizeProviderBase(provider) {
     if (!provider) return "";
-    if (provider === "unpkg" || provider === "unpkg.com") {
-      return "https://unpkg.com/";
-    }
+    const alias = providerAliases.get(provider);
+    if (alias) return alias;
+    return normalizeProviderBaseRaw(provider);
+  }
+
+  function normalizeProviderBaseRaw(provider) {
+    if (!provider) return "";
     if (provider.startsWith("/")) {
       return provider.endsWith("/") ? provider : provider + "/";
     }
@@ -65,7 +93,13 @@
       const isCiLike = host === "127.0.0.1" || host === "localhost";
       return isCiLike ? mod.ci_provider || mod.production_provider : mod.production_provider || mod.ci_provider;
     }
-    return mod.provider || mod.ci_provider || mod.production_provider || "unpkg.com";
+    return (
+      mod.provider ||
+      mod.ci_provider ||
+      mod.production_provider ||
+      defaultProviderBase ||
+      ""
+    );
   }
 
   function shouldRetryStatus(status) {
@@ -200,7 +234,10 @@
     probeUrl,
     resolveModuleUrl,
     setFallbackProviders,
-    getFallbackProviders
+    getFallbackProviders,
+    setDefaultProviderBase,
+    getDefaultProviderBase,
+    setProviderAliases
   };
 
   helpers.network = exports;

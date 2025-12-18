@@ -12,6 +12,18 @@
     "https://cdn.skypack.dev/",
     "https://jspm.dev/"
   ],
+  "providers": {
+    "default": "https://unpkg.com",
+    "esm": "https://esm.sh",
+    "aliases": {
+      "unpkg": "https://unpkg.com",
+      "unpkg.com": "https://unpkg.com"
+    }
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 4173
+  },
   "tools": [
     {
       "name": "@babel/standalone",

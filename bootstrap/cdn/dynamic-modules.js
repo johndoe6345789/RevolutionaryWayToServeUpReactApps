@@ -15,7 +15,8 @@
     loadScript = () => Promise.resolve(),
     probeUrl = () => false,
     normalizeProviderBase = () => "",
-    getFallbackProviders = () => []
+    getFallbackProviders = () => [],
+    getDefaultProviderBase = () => ""
   } = network || {};
 
   function createNamespace(value) {
@@ -85,7 +86,11 @@
       ]);
     }
     if (!bases.length) {
-      addBase(rule.provider || rule.production_provider || "https://unpkg.com");
+      addBase(
+        rule.provider ||
+          rule.production_provider ||
+          getDefaultProviderBase()
+      );
     }
     if (rule.allowJsDelivr !== false) {
       for (const fallback of getFallbackProviders()) {

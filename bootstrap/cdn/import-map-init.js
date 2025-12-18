@@ -19,6 +19,14 @@
     typeof network.setFallbackProviders === "function"
       ? network.setFallbackProviders
       : () => {};
+  const setDefaultProviderBase =
+    typeof network.setDefaultProviderBase === "function"
+      ? network.setDefaultProviderBase
+      : () => {};
+  const setProviderAliases =
+    typeof network.setProviderAliases === "function"
+      ? network.setProviderAliases
+      : () => {};
 
   if (window.__rwtraConfigPromise) {
     return;
@@ -35,6 +43,8 @@
     .then(async (config) => {
       window.__rwtraConfig = config;
       setFallbackProviders(config.fallbackProviders);
+      setDefaultProviderBase(config.providers?.default);
+      setProviderAliases(config.providers?.aliases);
       const modules = Array.isArray(config.modules) ? config.modules : [];
       const imports = {};
       for (const mod of modules) {

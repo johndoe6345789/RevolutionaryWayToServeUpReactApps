@@ -1,4 +1,15 @@
+import fs from "fs";
+import path from "path";
 import { defineConfig } from "@playwright/test";
+
+const configPath = path.resolve(__dirname, "..", "config.json");
+const rawConfig = fs.readFileSync(configPath, "utf8");
+const config = JSON.parse(rawConfig);
+const serverConfig = config.server || {};
+const host = serverConfig.host || "127.0.0.1";
+const parsedPort = Number(serverConfig.port ?? 4173);
+const port = Number.isNaN(parsedPort) ? 4173 : parsedPort;
+const baseURL = `http://${host}:${port}`;
 
 export default defineConfig({
   testDir: "./tests",
@@ -10,7 +21,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     actionTimeout: 15 * 1000,
     navigationTimeout: 2 * 60 * 1000,
     viewport: {
