@@ -20,6 +20,10 @@
       if (q && (q === "1" || q.toLowerCase() === "true")) {
         return true;
       }
+      const host = window.location.hostname;
+      if (host === "127.0.0.1" || host === "localhost") {
+        return true;
+      }
     }
     if (config && config.ciLogging === true) return true;
     return false;

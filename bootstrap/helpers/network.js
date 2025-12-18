@@ -140,7 +140,7 @@
     }
 
     const bases = collectBases();
-    const pkgName = mod.name;
+    const pkgName = mod.package || mod.name;
     const versionSegment = mod.version ? "@" + mod.version : "";
     const file = (mod.file || "").replace(/^\/+/, "");
     const pathPrefix = (mod.pathPrefix || "").replace(/^\/+|\/+$/g, "");

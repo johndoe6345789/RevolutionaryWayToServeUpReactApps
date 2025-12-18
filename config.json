@@ -3,7 +3,7 @@
   "styles": "styles.scss",
   "render": {
     "rootId": "root",
-    "domModule": "react-dom",
+    "domModule": "react-dom/client",
     "reactModule": "react",
     "createRoot": "createRoot",
     "renderMethod": "render"
@@ -38,13 +38,14 @@
       "ci_provider": "https://esm.sh/",
       "production_provider": "https://esm.sh/",
       "version": "19.2.3",
-      "pathPrefix": "",
-      "file": "react.development.js",
+      "pathPrefix": "es2022",
+      "file": "react.mjs",
       "global": "React",
       "format": "esm"
     },
     {
-      "name": "react-dom",
+      "name": "react-dom/client",
+      "package": "react-dom",
       "ci_provider": "https://esm.sh/",
       "production_provider": "https://esm.sh/",
       "version": "19.2.3",
