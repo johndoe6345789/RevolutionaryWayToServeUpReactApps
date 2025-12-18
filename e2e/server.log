@@ -3725,3 +3725,194 @@
   "href": "http://127.0.0.1:4173/"
 }
 [2025-12-18T10:41:42.318Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:13.620Z] static HEAD / -> 200 (1ms)
+[2025-12-18T12:00:14.331Z] server Serving /home/r/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-18T12:00:14.332Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-18T12:00:15.787Z] static GET / -> 200 (1ms)
+[2025-12-18T12:00:15.793Z] static GET /bootstrap/script-list-loader.js -> 200 (1ms)
+[2025-12-18T12:00:15.796Z] static GET /bootstrap/script-list.html -> 200 (0ms)
+[2025-12-18T12:00:15.800Z] static GET /bootstrap/cdn/logging.js -> 200 (0ms)
+[2025-12-18T12:00:15.804Z] static GET /bootstrap/cdn/network.js -> 200 (1ms)
+[2025-12-18T12:00:15.807Z] static GET /bootstrap/cdn/import-map-init.js -> 200 (1ms)
+[2025-12-18T12:00:15.810Z] static GET /config.json -> 200 (1ms)
+[2025-12-18T12:00:15.810Z] static GET /bootstrap/cdn/tools.js -> 200 (0ms)
+[2025-12-18T12:00:15.814Z] static GET /bootstrap/cdn/dynamic-modules.js -> 200 (1ms)
+[2025-12-18T12:00:15.817Z] static GET /bootstrap/cdn/source-utils.js -> 200 (1ms)
+[2025-12-18T12:00:15.820Z] static GET /bootstrap/local/sass-compiler.js -> 200 (1ms)
+[2025-12-18T12:00:15.823Z] static GET /bootstrap/local/tsx-compiler.js -> 200 (0ms)
+[2025-12-18T12:00:15.826Z] static GET /bootstrap/local/local-paths.js -> 200 (1ms)
+[2025-12-18T12:00:15.828Z] static GET /bootstrap/local/local-module-loader.js -> 200 (0ms)
+[2025-12-18T12:00:15.831Z] static GET /bootstrap/local/local-loader.js -> 200 (1ms)
+[2025-12-18T12:00:15.835Z] static GET /bootstrap/module-loader.js -> 200 (1ms)
+[2025-12-18T12:00:15.839Z] static GET /bootstrap.js -> 200 (1ms)
+[2025-12-18T12:00:15.845Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "ci:enabled",
+  "detail": {
+    "config": true,
+    "href": "http://127.0.0.1:4173/"
+  },
+  "ts": "2025-12-18T12:00:15.841Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:15.845Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:15.976Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "react",
+    "url": "https://esm.sh/react@19.2.3/es2022/react.mjs"
+  },
+  "ts": "2025-12-18T12:00:15.960Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:15.976Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:15.997Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "react-dom/client",
+    "url": "https://esm.sh/react-dom@19.2.3/es2022/client.mjs"
+  },
+  "ts": "2025-12-18T12:00:15.994Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:15.997Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.036Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "@mui/material",
+    "url": "https://esm.sh/@mui/material@5.16.7/es2022/material.mjs"
+  },
+  "ts": "2025-12-18T12:00:16.035Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.037Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:16.059Z] static HEAD /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (216ms)
+[2025-12-18T12:00:16.064Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "@babel/standalone",
+    "url": "/proxy/unpkg/@babel/standalone@7.26.0/babel.min.js"
+  },
+  "ts": "2025-12-18T12:00:16.061Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.064Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.068Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "@emotion/react",
+    "url": "https://esm.sh/@emotion/react@11.13.0/es2022/react.mjs"
+  },
+  "ts": "2025-12-18T12:00:16.065Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.069Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:16.117Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "@emotion/styled",
+    "url": "https://esm.sh/@emotion/styled@11.13.0/es2022/styled.mjs"
+  },
+  "ts": "2025-12-18T12:00:16.115Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.117Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.125Z] static HEAD /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (280ms)
+[2025-12-18T12:00:16.129Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "resolve:success",
+  "detail": {
+    "name": "sass.js",
+    "url": "/proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js"
+  },
+  "ts": "2025-12-18T12:00:16.127Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.129Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.406Z] static GET /proxy/unpkg/@babel/standalone@7.26.0/babel.min.js -> 200 (339ms)
+[2025-12-18T12:00:16.516Z] static GET /proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js -> 200 (387ms)
+[2025-12-18T12:00:16.582Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/@babel/standalone@7.26.0/babel.min.js"
+  },
+  "ts": "2025-12-18T12:00:16.579Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.583Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:16.583Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "tool:loaded",
+  "detail": {
+    "name": "@babel/standalone",
+    "url": "/proxy/unpkg/@babel/standalone@7.26.0/babel.min.js",
+    "global": "Babel"
+  },
+  "ts": "2025-12-18T12:00:16.580Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.583Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.841Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "loadScript:success",
+  "detail": {
+    "url": "/proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js"
+  },
+  "ts": "2025-12-18T12:00:16.838Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.841Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:16.842Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "tool:loaded",
+  "detail": {
+    "name": "sass.js",
+    "url": "/proxy/unpkg/sass.js@0.11.1/dist/sass.sync.js",
+    "global": "Sass"
+  },
+  "ts": "2025-12-18T12:00:16.839Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.842Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:16.843Z] static GET /styles.scss -> 200 (1ms)
+[2025-12-18T12:00:16.968Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "react",
+    "url": "https://esm.sh/react@19.2.3/es2022/react.mjs",
+    "global": "React",
+    "format": "esm"
+  },
+  "ts": "2025-12-18T12:00:16.966Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:16.969Z] static POST /__client-log -> 204 (1ms)
+[2025-12-18T12:00:17.205Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "module:loaded",
+  "detail": {
+    "name": "react-dom/client",
+    "url": "https://esm.sh/react-dom@19.2.3/es2022/client.mjs",
+    "global": "ReactDOM",
+    "format": "esm"
+  },
+  "ts": "2025-12-18T12:00:17.203Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:17.205Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:00:17.843Z] client ::ffff:127.0.0.1 POST /__client-log {
+  "event": "bootstrap:error",
+  "detail": {
+    "message": "The requested module '/react@^18.3.1/jsx-runtime?target=es2022' does not provide an export named 'jsx'",
+    "stack": "SyntaxError: The requested module '/react@^18.3.1/jsx-runtime?target=es2022' does not provide an export named 'jsx'"
+  },
+  "ts": "2025-12-18T12:00:17.841Z",
+  "href": "http://127.0.0.1:4173/"
+}
+[2025-12-18T12:00:17.844Z] static POST /__client-log -> 204 (0ms)
+[2025-12-18T12:04:13.029Z] server Serving /home/r/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-18T12:04:13.030Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-18T12:04:24.150Z] static HEAD /react@^18.3.1/jsx-runtime?target=es2022 -> 404 (1ms)
+[2025-12-18T12:05:13.248Z] server Serving /home/r/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-18T12:05:13.249Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-18T12:05:21.211Z] static HEAD /react@^18.3.1/jsx-runtime?target=es2022 -> 404 (1ms)
+[2025-12-18T12:05:47.257Z] server Serving /home/r/RevolutionaryWayToServeUpReactApps on http://127.0.0.1:4173
+[2025-12-18T12:05:47.258Z] server Proxying /proxy/unpkg/* -> https://unpkg.com
+[2025-12-18T12:05:56.090Z] esm:check path=/react@^18.3.1/jsx-runtime
+[2025-12-18T12:05:56.091Z] esm:match path=/react@^18.3.1/jsx-runtime
+[2025-12-18T12:05:56.091Z] esm:trigger path=/react@^18.3.1/jsx-runtime
+[2025-12-18T12:05:56.336Z] static HEAD /react@^18.3.1/jsx-runtime?target=es2022 -> 200 (246ms)

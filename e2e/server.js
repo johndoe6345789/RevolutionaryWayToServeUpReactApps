@@ -66,6 +66,34 @@ app.use(
   }),
 );
 
+const esmProxy = createProxyMiddleware({
+  target: "https://esm.sh",
+  changeOrigin: true,
+  logLevel: "debug",
+  onProxyReq(_proxyReq, req) {
+    logLine("esm:req", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url}`);
+  },
+  onProxyRes(proxyRes, req) {
+    proxyRes.headers["Access-Control-Allow-Origin"] = "*";
+    proxyRes.headers["Access-Control-Allow-Headers"] = "*";
+    logLine("esm:res", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url} [${proxyRes.statusCode}]`);
+  },
+  onError(err, req) {
+    logLine("esm:err", `${req.method} ${req.originalUrl} -> https://esm.sh${req.url}: ${err.message}`);
+  },
+});
+
+function shouldProxyEsm(pathname) {
+  return /^\/(@[^/]+\/)?[^/]+@[^/]+/.test(pathname);
+}
+
+app.use((req, res, next) => {
+  if (shouldProxyEsm(req.path)) {
+    return esmProxy(req, res, next);
+  }
+  next();
+});
+
 // Endpoint for client-side logging coming from bootstrap/app code.
 app.post("/__client-log", (req, res) => {
   const body = formatBody(req.body);
