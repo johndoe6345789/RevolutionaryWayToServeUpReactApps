@@ -228,8 +228,8 @@ def main() -> None:
     globals_docged, globals_total = compute_coverage(globals_names, doc_text)
     functions_docged, functions_total = compute_coverage(functions_names, doc_text)
 
-    overall_total = module_total
-    overall_docged = module_docged
+    overall_total = module_total + globals_total + functions_total
+    overall_docged = module_docged + globals_docged + functions_docged
     coverage_pct = (overall_docged / overall_total * 100) if overall_total else 100.0
 
     print()
