@@ -1,22 +1,35 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
+const ToolsLoaderConfig = require("../configs/tools.js");
 
-  const isCommonJs = typeof module !== "undefined" && module.exports;
-  const logging = isCommonJs
-    ? require("./logging.js")
-    : helpers.logging;
-  const network = isCommonJs
-    ? require("./network.js")
-    : helpers.network;
+class ToolsLoaderService {
+  constructor(config = new ToolsLoaderConfig()) { this.config = config; this.initialized = false; }
 
-  const { logClient = () => {} } = logging || {};
-  const {
-    loadScript = () => Promise.resolve(),
-    resolveModuleUrl = () => ""
-  } = network || {};
+  initialize() {
+    if (this.initialized) {
+      throw new Error("ToolsLoaderService already initialized");
+    }
+    this.initialized = true;
+    const dependencies = this.config.dependencies || {};
+    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.logging =
+      dependencies.logging ??
+      (this.isCommonJs ? require("./logging.js") : this.helpers.logging);
+    this.network =
+      dependencies.network ??
+      (this.isCommonJs ? require("./network.js") : this.helpers.network);
+    this.logClient = (this.logging && this.logging.logClient) || (() => {});
+    this.loadScript = this.network?.loadScript ?? (() => Promise.resolve());
+    this.resolveModuleUrl = this.network?.resolveModuleUrl ?? (() => "");
+  }
 
-  function createNamespace(value) {
+  createNamespace(value) {
     if (value && typeof value === "object" && value.__esModule) {
       return value;
     }
@@ -47,7 +60,7 @@
     return ns;
   }
 
-  async function ensureGlobalFromNamespace(name, globalName, namespace) {
+  async ensureGlobalFromNamespace(name, globalName, namespace) {
     if (!namespace) return;
     if (globalName && typeof window !== "undefined") {
       const existing = window[globalName];
@@ -57,64 +70,82 @@
     }
   }
 
-  function loadTools(tools) {
+  async loadTools(tools) {
+    if (!this.initialized) {
+      throw new Error("ToolsLoaderService not initialized");
+    }
     return Promise.all(
       (tools || []).map(async (tool) => {
-        const url = await resolveModuleUrl(tool);
-        await loadScript(url);
+        const url = await this.resolveModuleUrl(tool);
+        await this.loadScript(url);
         if (!window[tool.global]) {
           throw new Error(
             "Tool global not found after loading " + url + ": " + tool.global
           );
         }
-        logClient("tool:loaded", { name: tool.name, url, global: tool.global });
+        this.logClient("tool:loaded", { name: tool.name, url, global: tool.global });
       })
     );
   }
 
-  function makeNamespace(globalObj) {
-    return createNamespace(globalObj);
+  makeNamespace(globalObj) {
+    return this.createNamespace(globalObj);
   }
 
-  async function loadModules(modules) {
+  async loadModules(modules) {
+    if (!this.initialized) {
+      throw new Error("ToolsLoaderService not initialized");
+    }
     const registry = {};
     for (const mod of modules) {
-      const url = await resolveModuleUrl(mod);
+      const url = await this.resolveModuleUrl(mod);
       const format = (mod.format || mod.type || "global").toLowerCase();
       let namespace;
       if (format === "esm" || format === "module") {
         const moduleExports = await import(url);
-        namespace = createNamespace(moduleExports);
-        await ensureGlobalFromNamespace(mod.name, mod.global, namespace);
+        namespace = this.createNamespace(moduleExports);
+        await this.ensureGlobalFromNamespace(mod.name, mod.global, namespace);
       } else {
-        await loadScript(url);
+        await this.loadScript(url);
         const globalObj = window[mod.global];
         if (!globalObj) {
           throw new Error(
             "Module global not found after loading " + url + ": " + mod.global
           );
         }
-        namespace = createNamespace(globalObj);
+        namespace = this.createNamespace(globalObj);
       }
       registry[mod.name] = namespace;
-      logClient("module:loaded", {
+      this.logClient("module:loaded", {
         name: mod.name,
         url,
         global: mod.global,
-        format
+        format,
       });
     }
     return registry;
   }
 
-  const exports = {
-    loadTools,
-    makeNamespace,
-    loadModules
-  };
-
-  helpers.tools = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return {
+      loadTools: this.loadTools.bind(this),
+      makeNamespace: this.makeNamespace.bind(this),
+      loadModules: this.loadModules.bind(this),
+    };
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("ToolsLoaderService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.tools = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
+  }
+}
+
+const toolsLoaderService = new ToolsLoaderService();
+toolsLoaderService.initialize();
+toolsLoaderService.install();

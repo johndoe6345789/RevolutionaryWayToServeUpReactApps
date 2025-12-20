@@ -1,5 +1,11 @@
-const globalRoot = typeof globalThis !== "undefined" ? globalThis : {};
-const bootstrapNamespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : {};
+const bootstrapNamespace =
+  globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
 const helpersNamespace = bootstrapNamespace.helpers || (bootstrapNamespace.helpers = {});
 const isCommonJs = typeof module !== "undefined" && module.exports;
 
@@ -18,17 +24,39 @@ const {
   detectCiLogging,
   logClient,
   serializeForLog,
-  isCiLoggingEnabled
+  isCiLoggingEnabled,
 } = logging;
-const {
-  loadScript,
-  normalizeProviderBase,
-  resolveModuleUrl,
-  probeUrl,
-  setFallbackProviders,
-  setDefaultProviderBase,
-  setProviderAliases
-} = network;
+
+const BootstrapConfigLoader = require("./bootstrap/config-loader.js");
+const BootstrapConfigLoaderConfig = require("./bootstrap/configs/bootstrap-config-loader.js");
+const LoggingManager = require("./bootstrap/logging-manager.js");
+const LoggingManagerConfig = require("./bootstrap/configs/logging-manager.js");
+const Bootstrapper = require("./bootstrap/bootstrapper.js");
+const BootstrapperConfig = require("./bootstrap/configs/bootstrapper.js");
+
+const configLoader = new BootstrapConfigLoader(new BootstrapConfigLoaderConfig());
+const loggingManager = new LoggingManager(
+  new LoggingManagerConfig({ logClient, serializeForLog })
+);
+const bootstrapper = new Bootstrapper(
+  new BootstrapperConfig({
+    configLoader,
+    logging: {
+      setCiLoggingEnabled,
+      detectCiLogging,
+      logClient,
+      serializeForLog,
+      isCiLoggingEnabled,
+    },
+    network,
+    moduleLoader,
+  })
+);
+
+configLoader.initialize();
+loggingManager.initialize();
+bootstrapper.initialize();
+
 const {
   loadTools,
   makeNamespace,
@@ -43,81 +71,12 @@ const {
   preloadModulesFromSource,
   compileTSX,
   frameworkRender,
-  createLocalModuleLoader
+  loadScript,
 } = moduleLoader;
-
-async function loadConfig() {
-  if (typeof window !== "undefined") {
-    if (window.__rwtraConfig) {
-      return window.__rwtraConfig;
-    }
-    if (window.__rwtraConfigPromise) {
-      return window.__rwtraConfigPromise;
-    }
-  }
-
-  const res = await fetch("config.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load config.json");
-  const config = await res.json();
-  if (typeof window !== "undefined") {
-    window.__rwtraConfig = config;
-  }
-  return config;
-}
-
-async function bootstrap() {
-  try {
-    const config = await loadConfig();
-    setFallbackProviders(config.fallbackProviders);
-    setDefaultProviderBase(config.providers && config.providers.default);
-    setProviderAliases(config.providers && config.providers.aliases);
-    setCiLoggingEnabled(detectCiLogging(config));
-    if (isCiLoggingEnabled()) {
-      logClient("ci:enabled", {
-        config: !!config,
-        href: window.location && window.location.href
-      });
-    }
-    const entryFile = config.entry || "main.tsx";
-    const scssFile = config.styles || "styles.scss";
-
-    await loadTools(config.tools || []);
-
-    const css = await compileSCSS(scssFile);
-    injectCSS(css);
-
-    const registry = await loadModules(config.modules || []);
-    const entryDir = entryFile.includes("/")
-      ? entryFile.slice(0, entryFile.lastIndexOf("/"))
-      : "";
-    const localLoader = createLocalModuleLoader(entryDir);
-    const requireFn = createRequire(
-      registry,
-      config,
-      entryDir,
-      localLoader
-    );
-
-    const App = await compileTSX(entryFile, requireFn, entryDir);
-
-    frameworkRender(config, registry, App);
-    logClient("bootstrap:success", { entryFile, scssFile });
-  } catch (err) {
-    console.error(err);
-    logClient("bootstrap:error", {
-      message: err && err.message ? err.message : String(err),
-      stack: err && err.stack ? err.stack : undefined
-    });
-    const root = document.getElementById("root");
-    if (root) {
-      root.textContent =
-        "Bootstrap error: " + (err && err.message ? err.message : err);
-    }
-  }
-}
+const { normalizeProviderBase, probeUrl, resolveModuleUrl } = network;
 
 const bootstrapExports = {
-  loadConfig,
+  loadConfig: configLoader.loadConfig.bind(configLoader),
   loadScript,
   normalizeProviderBase,
   probeUrl,
@@ -135,11 +94,10 @@ const bootstrapExports = {
   preloadModulesFromSource,
   compileTSX,
   frameworkRender,
-  bootstrap
+  bootstrap: () => bootstrapper.bootstrap(),
 };
 
 helpersNamespace.exports = bootstrapExports;
-
 if (isCommonJs) {
   module.exports = bootstrapExports;
 }
@@ -147,22 +105,9 @@ if (isCommonJs) {
 const isBrowser =
   typeof window !== "undefined" && typeof document !== "undefined";
 if (isBrowser) {
-  window.__rwtraLog = logClient;
-  window.addEventListener("error", (event) => {
-    logClient("window:error", {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno
-    });
-  });
-  window.addEventListener("unhandledrejection", (event) => {
-    const reason = event && event.reason ? event.reason : "unknown";
-    logClient("window:unhandledrejection", {
-      reason: serializeForLog(reason)
-    });
-  });
+  loggingManager.install(window);
 }
+
 if (isBrowser && !window.__RWTRA_BOOTSTRAP_TEST_MODE__) {
-  bootstrap();
+  bootstrapper.bootstrap();
 }

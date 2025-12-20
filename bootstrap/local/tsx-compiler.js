@@ -1,38 +1,57 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
+const TsxCompilerConfig = require("../configs/tsx-compiler.js");
 
-  const isCommonJs = typeof module !== "undefined" && module.exports;
-  const logging = isCommonJs
-    ? require("../cdn/logging.js")
-    : helpers.logging;
-  const sourceUtils = isCommonJs
-    ? require("../cdn/source-utils.js")
-    : helpers.sourceUtils;
+class TsxCompilerService {
+  constructor(config = new TsxCompilerConfig()) { this.config = config; this.initialized = false; }
 
-  const { logClient = () => {} } = logging || {};
-  const {
-    preloadModulesFromSource = () => Promise.resolve()
-  } = sourceUtils || {};
+  initialize() {
+    if (this.initialized) {
+      throw new Error("TsxCompilerService already initialized");
+    }
+    this.initialized = true;
+    const dependencies = this.config.dependencies || {};
+    this.global = globalRoot;
+    this.namespace = this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.logging =
+      dependencies.logging ??
+      (this.isCommonJs ? require("../cdn/logging.js") : this.helpers.logging);
+    this.sourceUtils =
+      dependencies.sourceUtils ??
+      (this.isCommonJs ? require("../cdn/source-utils.js") : this.helpers.sourceUtils);
+    this.logClient = (this.logging && this.logging.logClient) || (() => {});
+    this.preloadModulesFromSource = this.sourceUtils?.preloadModulesFromSource;
+    this.moduleContextStack = [];
+  }
 
-  function transformSource(source, filePath) {
+  transformSource(source, filePath) {
+    const Babel = this.global.Babel;
+    if (!Babel) {
+      throw new Error("Babel is unavailable when transforming TSX");
+    }
     return Babel.transform(source, {
       filename: filePath,
       presets: [
         ["typescript", { allExtensions: true, isTSX: true }],
         "react",
-        "env"
+        "env",
       ],
-      sourceMaps: "inline"
+      sourceMaps: "inline",
     }).code;
   }
 
-  function executeModuleSource(source, filePath, moduleDir, requireFn) {
-    const compiled = transformSource(source, filePath);
+  executeModuleSource(source, filePath, moduleDir, requireFn) {
+    const compiled = this.transformSource(source, filePath);
     const exports = {};
     const module = { exports };
 
-    moduleContextStack.push({ path: filePath, dir: moduleDir });
+    this.moduleContextStack.push({ path: filePath, dir: moduleDir });
     try {
       new Function("require", "exports", "module", compiled)(
         requireFn,
@@ -40,35 +59,50 @@
         module
       );
     } finally {
-      moduleContextStack.pop();
+      this.moduleContextStack.pop();
     }
 
     return module.exports.default || module.exports;
   }
 
-  const moduleContextStack = [];
-
-  async function compileTSX(entryFile, requireFn, entryDir = "") {
-    const res = await fetch(entryFile, { cache: "no-store" });
+  async compileTSX(entryFile, requireFn, entryDir = "") {
+    if (typeof globalRoot.fetch !== "function") {
+      throw new Error("Fetch is unavailable when compiling TSX");
+    }
+    const res = await globalRoot.fetch(entryFile, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load " + entryFile);
     const tsxCode = await res.text();
 
-    await preloadModulesFromSource(tsxCode, requireFn, entryDir);
+    if (this.preloadModulesFromSource) {
+      await this.preloadModulesFromSource(tsxCode, requireFn, entryDir);
+    }
 
-    const compiled = executeModuleSource(tsxCode, entryFile, entryDir, requireFn);
-    logClient("tsx:compiled", { entryFile, entryDir });
+    const compiled = this.executeModuleSource(tsxCode, entryFile, entryDir, requireFn);
+    this.logClient("tsx:compiled", { entryFile, entryDir });
     return compiled;
   }
 
-  const exports = {
-    compileTSX,
-    transformSource,
-    executeModuleSource,
-    moduleContextStack
-  };
-
-  helpers.tsxCompiler = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return {
+      compileTSX: this.compileTSX.bind(this),
+      transformSource: this.transformSource.bind(this),
+      executeModuleSource: this.executeModuleSource.bind(this),
+      moduleContextStack: this.moduleContextStack,
+    };
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("TsxCompilerService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.tsxCompiler = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
+  }
+}
+
+const tsxCompilerService = new TsxCompilerService();
+tsxCompilerService.initialize();
+tsxCompilerService.install();

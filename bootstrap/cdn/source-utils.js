@@ -1,16 +1,31 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
+const SourceUtilsConfig = require("../configs/source-utils.js");
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
 
-  const isCommonJs = typeof module !== "undefined" && module.exports;
+class SourceUtilsService {
+  constructor(config = new SourceUtilsConfig()) { this.config = config; this.initialized = false; }
 
-  function collectDynamicModuleImports(source, config) {
+  initialize() {
+    if (this.initialized) {
+      throw new Error("SourceUtilsService already initialized");
+    }
+    this.initialized = true;
+    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+  }
+
+  collectDynamicModuleImports(source, config) {
     const dynRules = config.dynamicModules || [];
     if (!dynRules.length) return [];
     const prefixes = dynRules.map((r) => r.prefix);
     const results = new Set();
 
-    function maybeAdd(spec) {
+    const maybeAdd = (spec) => {
       if (!spec) return;
       for (const p of prefixes) {
         if (spec.startsWith(p)) {
@@ -18,7 +33,7 @@
           break;
         }
       }
-    }
+    };
 
     const importRe = /import\s+(?:[^'"]+from\s+)?["']([^"']+)["']/g;
     let m;
@@ -34,12 +49,12 @@
     return Array.from(results);
   }
 
-  async function preloadDynamicModulesFromSource(source, requireFn, config) {
+  async preloadDynamicModulesFromSource(source, requireFn, config) {
     if (!requireFn || typeof requireFn._async !== "function") {
       return;
     }
 
-    const toPreload = collectDynamicModuleImports(source, config);
+    const toPreload = this.collectDynamicModuleImports(source, config);
     if (!toPreload.length) return;
 
     await Promise.all(
@@ -51,7 +66,7 @@
     );
   }
 
-  function collectModuleSpecifiers(source) {
+  collectModuleSpecifiers(source) {
     const specs = new Set();
     const importRe = /import\s+(?:[^'"]+from\s+)?["']([^"']+)["']/g;
     let m;
@@ -67,9 +82,9 @@
     return Array.from(specs);
   }
 
-  async function preloadModulesFromSource(source, requireFn, baseDir = "") {
+  async preloadModulesFromSource(source, requireFn, baseDir = "") {
     if (!requireFn || typeof requireFn._async !== "function") return;
-    const specs = collectModuleSpecifiers(source);
+    const specs = this.collectModuleSpecifiers(source);
     if (!specs.length) return;
 
     const results = await Promise.allSettled(
@@ -91,15 +106,27 @@
     }
   }
 
-  const exports = {
-    collectDynamicModuleImports,
-    preloadDynamicModulesFromSource,
-    collectModuleSpecifiers,
-    preloadModulesFromSource
-  };
-
-  helpers.sourceUtils = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return {
+      collectDynamicModuleImports: this.collectDynamicModuleImports.bind(this),
+      preloadDynamicModulesFromSource: this.preloadDynamicModulesFromSource.bind(this),
+      collectModuleSpecifiers: this.collectModuleSpecifiers.bind(this),
+      preloadModulesFromSource: this.preloadModulesFromSource.bind(this),
+    };
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("SourceUtilsService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.sourceUtils = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
+  }
+}
+
+const sourceUtilsService = new SourceUtilsService();
+sourceUtilsService.initialize();
+sourceUtilsService.install();

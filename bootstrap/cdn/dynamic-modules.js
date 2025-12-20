@@ -1,25 +1,39 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
+const DynamicModulesConfig = require("../configs/dynamic-modules.js");
 
-  const isCommonJs = typeof module !== "undefined" && module.exports;
-  const logging = isCommonJs
-    ? require("./logging.js")
-    : helpers.logging;
-  const network = isCommonJs
-    ? require("./network.js")
-    : helpers.network;
+class DynamicModulesService {
+  constructor(config = new DynamicModulesConfig()) { this.config = config; this.initialized = false; }
 
-  const { logClient = () => {} } = logging || {};
-  const {
-    loadScript = () => Promise.resolve(),
-    probeUrl = () => false,
-    normalizeProviderBase = () => "",
-    getFallbackProviders = () => [],
-    getDefaultProviderBase = () => ""
-  } = network || {};
+  initialize() {
+    if (this.initialized) {
+      throw new Error("DynamicModulesService already initialized");
+    }
+    this.initialized = true;
+    const dependencies = this.config.dependencies || {};
+    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.logging =
+      dependencies.logging ??
+      (this.isCommonJs ? require("./logging.js") : this.helpers.logging);
+    this.network =
+      dependencies.network ??
+      (this.isCommonJs ? require("./network.js") : this.helpers.network);
+    const net = this.network || {};
+    this.logClient = (this.logging && this.logging.logClient) || (() => {});
+    this.loadScript = net.loadScript || (() => Promise.resolve());
+    this.probeUrl = net.probeUrl || (() => false);
+    this.normalizeProviderBase = net.normalizeProviderBase || (() => "");
+    this.getFallbackProviders = net.getFallbackProviders || (() => []);
+    this.getDefaultProviderBase = net.getDefaultProviderBase || (() => "");
+  }
 
-  function createNamespace(value) {
+  createNamespace(value) {
     if (value && typeof value === "object" && value.__esModule) {
       return value;
     }
@@ -50,7 +64,10 @@
     return ns;
   }
 
-  async function loadDynamicModule(name, config, registry) {
+  async loadDynamicModule(name, config, registry) {
+    if (!this.initialized) {
+      throw new Error("DynamicModulesService not initialized");
+    }
     const dynRules = config.dynamicModules || [];
     const rule = dynRules.find((r) => name.startsWith(r.prefix));
     if (!rule) {
@@ -61,11 +78,10 @@
     const bases = [];
     const addBase = (b) => {
       if (!b) return;
-      const normalized = normalizeProviderBase(b);
+      const normalized = this.normalizeProviderBase(b);
       if (!bases.includes(normalized)) bases.push(normalized);
     };
-    const host =
-      typeof window !== "undefined" ? window.location.hostname : "";
+    const host = typeof window !== "undefined" ? window.location.hostname : "";
     const isCiLike = host === "127.0.0.1" || host === "localhost";
     const addProvidersInOrder = (providers) => {
       for (const prov of providers) {
@@ -76,24 +92,20 @@
       addProvidersInOrder([
         rule.ci_provider,
         rule.provider,
-        rule.production_provider
+        rule.production_provider,
       ]);
     } else {
       addProvidersInOrder([
         rule.production_provider,
         rule.provider,
-        rule.ci_provider
+        rule.ci_provider,
       ]);
     }
     if (!bases.length) {
-      addBase(
-        rule.provider ||
-          rule.production_provider ||
-          getDefaultProviderBase()
-      );
+      addBase(rule.provider || rule.production_provider || this.getDefaultProviderBase());
     }
     if (rule.allowJsDelivr !== false) {
-      for (const fallback of getFallbackProviders()) {
+      for (const fallback of this.getFallbackProviders()) {
         addBase(fallback);
       }
     }
@@ -127,7 +139,7 @@
 
     let foundUrl = null;
     for (const url of urls) {
-      if (await probeUrl(url)) {
+      if (await this.probeUrl(url)) {
         foundUrl = url;
         break;
       }
@@ -147,17 +159,17 @@
     let namespace;
     if (format === "esm" || format === "module") {
       const moduleExports = await import(foundUrl);
-      namespace = createNamespace(moduleExports);
-      logClient("dynamic-module:loaded", {
+      namespace = this.createNamespace(moduleExports);
+      this.logClient("dynamic-module:loaded", {
         name,
         url: foundUrl,
-        format
+        format,
       });
       registry[name] = namespace;
       return registry[name];
     }
 
-    await loadScript(foundUrl);
+    await this.loadScript(foundUrl);
 
     const globalName = (rule.globalPattern || "{icon}").replace("{icon}", icon);
     const globalObj = globalName.includes(".")
@@ -170,27 +182,35 @@
       );
     }
 
-    namespace = createNamespace(globalObj);
+    namespace = this.createNamespace(globalObj);
     registry[name] = namespace;
-    logClient("dynamic-module:loaded", {
+    this.logClient("dynamic-module:loaded", {
       name,
       url: foundUrl,
       global: globalName,
-      format
+      format,
     });
     return registry[name];
   }
 
-  function makeNamespace(globalObj) {
-    return createNamespace(globalObj);
+  get exports() {
+    return {
+      loadDynamicModule: this.loadDynamicModule.bind(this),
+    };
   }
 
-  const exports = {
-    loadDynamicModule
-  };
-
-  helpers.dynamicModules = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  install() {
+    if (!this.initialized) {
+      throw new Error("DynamicModulesService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.dynamicModules = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+}
+
+const dynamicModulesService = new DynamicModulesService();
+dynamicModulesService.initialize();
+dynamicModulesService.install();

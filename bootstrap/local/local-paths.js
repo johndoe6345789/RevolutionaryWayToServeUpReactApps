@@ -1,25 +1,40 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
-  const isCommonJs = typeof module !== "undefined" && module.exports;
+const LocalPathsConfig = require("../configs/local-paths.js");
+const LOCAL_MODULE_EXTENSIONS = require("../constants/local-module-extensions.js");
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
 
-  const LOCAL_MODULE_EXTENSIONS = ["", ".tsx", ".ts", ".jsx", ".js"];
+class LocalPathsService {
+  constructor(config = new LocalPathsConfig()) { this.config = config; this.initialized = false; }
 
-  function isLocalModule(name) {
+  initialize() {
+    if (this.initialized) {
+      throw new Error("LocalPathsService already initialized");
+    }
+    this.initialized = true;
+    this.LOCAL_MODULE_EXTENSIONS = LOCAL_MODULE_EXTENSIONS;
+    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+  }
+
+  isLocalModule(name) {
     return name.startsWith(".") || name.startsWith("/");
   }
 
-  function normalizeDir(dir) {
+  normalizeDir(dir) {
     if (!dir) return "";
     return dir.replace(/^\/+/, "").replace(/\/+$/, "");
   }
 
-  function makeAliasKey(name, baseDir) {
-    return normalizeDir(baseDir) + "|" + name;
+  makeAliasKey(name, baseDir) {
+    return this.normalizeDir(baseDir) + "|" + name;
   }
 
-  function resolveLocalModuleBase(name, baseDir, currentHref) {
-    const normalizedBase = normalizeDir(baseDir);
+  resolveLocalModuleBase(name, baseDir, currentHref) {
+    const normalizedBase = this.normalizeDir(baseDir);
     const href =
       currentHref ||
       (typeof location !== "undefined" ? location.href : "http://localhost/");
@@ -31,33 +46,33 @@
     return resolvedUrl.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
   }
 
-  function getModuleDir(filePath) {
+  getModuleDir(filePath) {
     const idx = filePath.lastIndexOf("/");
     return idx === -1 ? "" : filePath.slice(0, idx);
   }
 
-  function hasKnownExtension(path) {
+  hasKnownExtension(path) {
     return /\.(tsx|ts|jsx|js)$/.test(path);
   }
 
-  function getCandidateLocalPaths(basePath) {
+  getCandidateLocalPaths(basePath) {
     const normalizedBase = basePath.replace(/\/+$/, "");
     const seen = new Set();
     const candidates = [];
 
-    function add(candidate) {
+    const add = (candidate) => {
       if (!candidate) return;
       if (seen.has(candidate)) return;
       seen.add(candidate);
       candidates.push(candidate);
-    }
+    };
 
     add(normalizedBase);
-    if (!hasKnownExtension(normalizedBase)) {
-      for (const ext of LOCAL_MODULE_EXTENSIONS) {
+    if (!this.hasKnownExtension(normalizedBase)) {
+      for (const ext of this.LOCAL_MODULE_EXTENSIONS) {
         add(normalizedBase + ext);
       }
-      for (const ext of LOCAL_MODULE_EXTENSIONS) {
+      for (const ext of this.LOCAL_MODULE_EXTENSIONS) {
         add(`${normalizedBase}/index${ext}`);
       }
     }
@@ -65,18 +80,30 @@
     return candidates;
   }
 
-  const exports = {
-    isLocalModule,
-    normalizeDir,
-    makeAliasKey,
-    resolveLocalModuleBase,
-    getModuleDir,
-    hasKnownExtension,
-    getCandidateLocalPaths
-  };
-
-  helpers.localPaths = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return {
+      isLocalModule: this.isLocalModule.bind(this),
+      normalizeDir: this.normalizeDir.bind(this),
+      makeAliasKey: this.makeAliasKey.bind(this),
+      resolveLocalModuleBase: this.resolveLocalModuleBase.bind(this),
+      getModuleDir: this.getModuleDir.bind(this),
+      hasKnownExtension: this.hasKnownExtension.bind(this),
+      getCandidateLocalPaths: this.getCandidateLocalPaths.bind(this),
+    };
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("LocalPathsService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.localPaths = exports;
+    if (typeof module !== "undefined" && module.exports) {
+      module.exports = exports;
+    }
+  }
+}
+
+const localPathsService = new LocalPathsService();
+localPathsService.initialize();
+localPathsService.install();

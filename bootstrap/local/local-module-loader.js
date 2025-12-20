@@ -1,50 +1,65 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
-  const isCommonJs = typeof module !== "undefined" && module.exports;
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
+const LocalModuleLoaderConfig = require("../configs/local-module-loader.js");
 
-  const logging = isCommonJs
-    ? require("../cdn/logging.js")
-    : helpers.logging;
-  const dynamicModules = isCommonJs
-    ? require("../cdn/dynamic-modules.js")
-    : helpers.dynamicModules;
-  const sourceUtils = isCommonJs
-    ? require("../cdn/source-utils.js")
-    : helpers.sourceUtils;
-  const tsxCompiler = isCommonJs
-    ? require("./tsx-compiler.js")
-    : helpers.tsxCompiler;
-  const localPaths = isCommonJs
-    ? require("./local-paths.js")
-    : helpers.localPaths;
+class LocalModuleLoaderService {
+  constructor(config = new LocalModuleLoaderConfig()) { this.config = config; this.initialized = false; }
 
-  const { logClient = () => {} } = logging || {};
-  const { loadDynamicModule = () => Promise.reject(new Error("dynamic loader missing")) } =
-    dynamicModules || {};
-  const {
-    preloadModulesFromSource = () => Promise.resolve()
-  } = sourceUtils || {};
-  const {
-    executeModuleSource = () => {},
-    transformSource = () => "",
-  } = tsxCompiler || {};
-  const {
-    normalizeDir = () => "",
-    makeAliasKey = () => "",
-    resolveLocalModuleBase = () => "",
-    getModuleDir = () => "",
-    getCandidateLocalPaths = () => []
-  } = localPaths || {};
+  initialize() {
+    if (this.initialized) {
+      throw new Error("LocalModuleLoaderService already initialized");
+    }
+    this.initialized = true;
+    const dependencies = this.config.dependencies || {};
+    this.global = globalRoot;
+    this.namespace = this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.logging =
+      dependencies.logging ?? (this.isCommonJs ? require("../cdn/logging.js") : this.helpers.logging);
+    this.dynamicModules =
+      dependencies.dynamicModules ?? (this.isCommonJs ? require("../cdn/dynamic-modules.js") : this.helpers.dynamicModules);
+    this.sourceUtils =
+      dependencies.sourceUtils ?? (this.isCommonJs ? require("../cdn/source-utils.js") : this.helpers.sourceUtils);
+    this.tsxCompiler =
+      dependencies.tsxCompiler ?? (this.isCommonJs ? require("./tsx-compiler.js") : this.helpers.tsxCompiler);
+    this.localPaths =
+      dependencies.localPaths ?? (this.isCommonJs ? require("./local-paths.js") : this.helpers.localPaths);
+    this.logClient = (this.logging && this.logging.logClient) || (() => {});
+    this.loadDynamicModule =
+      (this.dynamicModules && this.dynamicModules.loadDynamicModule) ||
+      (() => Promise.reject(new Error("dynamic loader missing")));
+    this.preloadModulesFromSource = this.sourceUtils?.preloadModulesFromSource;
+    this.executeModuleSource = this.tsxCompiler?.executeModuleSource;
+    this.transformSource = this.tsxCompiler?.transformSource;
+    this.normalizeDir = this.localPaths?.normalizeDir;
+    this.makeAliasKey = this.localPaths?.makeAliasKey;
+    this.resolveLocalModuleBase = this.localPaths?.resolveLocalModuleBase;
+    this.getModuleDir = this.localPaths?.getModuleDir;
+    this.getCandidateLocalPaths = this.localPaths?.getCandidateLocalPaths;
+    this.fetchImpl =
+      typeof globalRoot.fetch === "function"
+        ? globalRoot.fetch.bind(globalRoot)
+        : undefined;
+  }
 
-  function createLocalModuleLoader(entryDir) {
+  createLocalModuleLoader(entryDir) {
     const moduleCache = new Map();
     const modulePromises = new Map();
     const aliasToCanonical = new Map();
+    const normalizedEntryDir = entryDir || "";
 
-    return async function loadLocalModule(name, baseDir, requireFn, registry) {
-      const normalizedBase = normalizeDir(baseDir || entryDir || "");
-      const aliasKey = makeAliasKey(name, normalizedBase);
+    return async (name, baseDir, requireFn, registry) => {
+      const normalizedBase = this.normalizeDir
+        ? this.normalizeDir(baseDir || normalizedEntryDir)
+        : baseDir || normalizedEntryDir || "";
+      const aliasKey = this.makeAliasKey
+        ? this.makeAliasKey(name, normalizedBase)
+        : name;
       const existingCanonical = aliasToCanonical.get(aliasKey);
 
       if (existingCanonical && registry[existingCanonical]) {
@@ -53,9 +68,11 @@
         return cached;
       }
 
-      const basePath = resolveLocalModuleBase(name, normalizedBase);
-      const { source, resolvedPath } = await fetchLocalModuleSource(basePath);
-      const moduleDir = getModuleDir(resolvedPath);
+      const basePath = this.resolveLocalModuleBase
+        ? this.resolveLocalModuleBase(name, normalizedBase)
+        : name;
+      const { source, resolvedPath } = await this.fetchLocalModuleSource(basePath);
+      const moduleDir = this.getModuleDir ? this.getModuleDir(resolvedPath) : "";
       aliasToCanonical.set(aliasKey, resolvedPath);
 
       if (moduleCache.has(resolvedPath)) {
@@ -73,8 +90,13 @@
       }
 
       const loadPromise = (async () => {
-        await preloadModulesFromSource(source, requireFn, moduleDir);
-        const moduleExports = executeModuleSource(
+        if (this.preloadModulesFromSource) {
+          await this.preloadModulesFromSource(source, requireFn, moduleDir);
+        }
+        if (!this.executeModuleSource) {
+          throw new Error("TSX compiler executeModuleSource missing");
+        }
+        const moduleExports = this.executeModuleSource(
           source,
           resolvedPath,
           moduleDir,
@@ -96,24 +118,29 @@
     };
   }
 
-  async function fetchLocalModuleSource(basePath) {
-    const candidates = getCandidateLocalPaths(basePath);
+  async fetchLocalModuleSource(basePath) {
+    if (!this.fetchImpl) {
+      throw new Error("Fetch unavailable for local modules");
+    }
+    const candidates = this.getCandidateLocalPaths
+      ? this.getCandidateLocalPaths(basePath)
+      : [basePath];
 
     for (const candidate of candidates) {
       try {
-        const res = await fetch(candidate, { cache: "no-store" });
+        const res = await this.fetchImpl(candidate, { cache: "no-store" });
         if (res.ok) {
           return {
             source: await res.text(),
-            resolvedPath: candidate
+            resolvedPath: candidate,
           };
         }
-      } catch (err) {
+      } catch (_err) {
         // ignore and try next candidate
       }
     }
 
-    logClient("local-module:failed", { basePath, candidates });
+    this.logClient("local-module:failed", { basePath, candidates });
     throw new Error(
       "Failed to load local module: " +
         basePath +
@@ -123,13 +150,25 @@
     );
   }
 
-  const exports = {
-    createLocalModuleLoader,
-    fetchLocalModuleSource
-  };
-
-  helpers.localModuleLoader = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return {
+      createLocalModuleLoader: this.createLocalModuleLoader.bind(this),
+      fetchLocalModuleSource: this.fetchLocalModuleSource.bind(this),
+    };
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("LocalModuleLoaderService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.localModuleLoader = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
+  }
+}
+
+const localModuleLoaderService = new LocalModuleLoaderService();
+localModuleLoaderService.initialize();
+localModuleLoaderService.install();

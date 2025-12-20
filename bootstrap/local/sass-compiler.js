@@ -1,13 +1,37 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
-  const isCommonJs = typeof module !== "undefined" && module.exports;
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
+const SassCompilerConfig = require("../configs/sass-compiler.js");
 
-  async function compileSCSS(scssFile) {
-    const res = await fetch(scssFile, { cache: "no-store" });
+class SassCompilerService {
+  constructor(config = new SassCompilerConfig()) { this.config = config; this.initialized = false; }
+
+  initialize() {
+    if (this.initialized) {
+      throw new Error("SassCompilerService already initialized");
+    }
+    this.initialized = true;
+    this.fetchImpl =
+      this.config.fetch ??
+      (typeof globalRoot.fetch === "function" ? globalRoot.fetch.bind(globalRoot) : undefined);
+    this.document = this.config.document ?? globalRoot.document;
+    this.SassImpl = this.config.SassImpl ?? globalRoot.Sass;
+  }
+
+  async compileSCSS(scssFile) {
+    if (!this.fetchImpl) {
+      throw new Error("Fetch is unavailable when compiling SCSS");
+    }
+    if (!this.document) {
+      throw new Error("Document is unavailable for Sass compilation");
+    }
+    const res = await this.fetchImpl(scssFile, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load " + scssFile);
     const scss = await res.text();
-    const SassImpl = window.Sass;
+    const SassImpl = this.SassImpl;
     if (!SassImpl) {
       throw new Error("Sass global not found (is your Sass tool loaded?)");
     }
@@ -59,18 +83,36 @@
     });
   }
 
-  function injectCSS(css) {
-    const tag = document.createElement("style");
+  injectCSS(css) {
+    if (!this.document) {
+      throw new Error("Document is unavailable when injecting CSS");
+    }
+    const tag = this.document.createElement("style");
     tag.textContent = css;
-    document.head.appendChild(tag);
+    this.document.head.appendChild(tag);
   }
 
-  const exports = { compileSCSS, injectCSS };
+  get exports() {
+    return {
+      compileSCSS: this.compileSCSS.bind(this),
+      injectCSS: this.injectCSS.bind(this),
+    };
+  }
 
-  if (helpers) {
+  install() {
+    if (!this.initialized) {
+      throw new Error("SassCompilerService not initialized");
+    }
+    const exports = this.exports;
+    const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    const helpers = namespace.helpers || (namespace.helpers = {});
     helpers.sassCompiler = exports;
+    if (typeof module !== "undefined" && module.exports) {
+      module.exports = exports;
+    }
   }
-  if (isCommonJs) {
-    module.exports = exports;
-  }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+}
+
+const sassCompilerService = new SassCompilerService();
+sassCompilerService.initialize();
+sassCompilerService.install();

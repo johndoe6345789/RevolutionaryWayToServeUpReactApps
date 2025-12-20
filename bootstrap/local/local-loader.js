@@ -1,52 +1,56 @@
-(function (global) {
-  const namespace = global.__rwtraBootstrap || (global.__rwtraBootstrap = {});
-  const helpers = namespace.helpers || (namespace.helpers = {});
-  const isCommonJs = typeof module !== "undefined" && module.exports;
+const LocalLoaderConfig = require("../configs/local-loader.js");
+const globalRoot =
+  typeof globalThis !== "undefined"
+    ? globalThis
+    : typeof global !== "undefined"
+    ? global
+    : this;
 
-  const logging = isCommonJs
-    ? require("../cdn/logging.js")
-    : helpers.logging;
-  const dynamicModules = isCommonJs
-    ? require("../cdn/dynamic-modules.js")
-    : helpers.dynamicModules;
-  const sassCompiler = isCommonJs
-    ? require("./sass-compiler.js")
-    : helpers.sassCompiler;
-  const tsxCompiler = isCommonJs
-    ? require("./tsx-compiler.js")
-    : helpers.tsxCompiler;
-  const localPaths = isCommonJs
-    ? require("./local-paths.js")
-    : helpers.localPaths;
-  const moduleLoader = isCommonJs
-    ? require("./local-module-loader.js")
-    : helpers.localModuleLoader;
+class LocalLoaderService {
+  constructor(config = new LocalLoaderConfig()) { this.config = config; this.initialized = false; }
 
-  const { logClient = () => {} } = logging || {};
-  const { loadDynamicModule = () => Promise.reject(new Error("dynamic loader missing")) } =
-    dynamicModules || {};
+  initialize() {
+    if (this.initialized) {
+      throw new Error("LocalLoaderService already initialized");
+    }
+    this.initialized = true;
+    const dependencies = this.config.dependencies || {};
+    this.global = globalRoot;
+    this.namespace = this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
+    this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.logging =
+      dependencies.logging ?? (this.isCommonJs ? require("../cdn/logging.js") : this.helpers.logging);
+    this.dynamicModules =
+      dependencies.dynamicModules ??
+      (this.isCommonJs ? require("../cdn/dynamic-modules.js") : this.helpers.dynamicModules);
+    this.sassCompiler =
+      dependencies.sassCompiler ?? (this.isCommonJs ? require("./sass-compiler.js") : this.helpers.sassCompiler);
+    this.tsxCompiler =
+      dependencies.tsxCompiler ?? (this.isCommonJs ? require("./tsx-compiler.js") : this.helpers.tsxCompiler);
+    this.localPaths =
+      dependencies.localPaths ?? (this.isCommonJs ? require("./local-paths.js") : this.helpers.localPaths);
+    this.moduleLoader =
+      dependencies.moduleLoader ??
+      (this.isCommonJs ? require("./local-module-loader.js") : this.helpers.localModuleLoader);
+    this.logClient = (this.logging && this.logging.logClient) || (() => {});
+    this.loadDynamicModule =
+      (this.dynamicModules && this.dynamicModules.loadDynamicModule) ||
+      (() => Promise.reject(new Error("dynamic loader missing")));
+    this.compileSCSS = this.sassCompiler?.compileSCSS;
+    this.injectCSS = this.sassCompiler?.injectCSS;
+    this.compileTSX = this.tsxCompiler?.compileTSX;
+    this.transformSource = this.tsxCompiler?.transformSource;
+    this.executeModuleSource = this.tsxCompiler?.executeModuleSource;
+    this.isLocalModule = this.localPaths?.isLocalModule;
+    this.normalizeDir = this.localPaths?.normalizeDir;
+    this.makeAliasKey = this.localPaths?.makeAliasKey;
+    this.getModuleDir = this.localPaths?.getModuleDir;
+    this.localModuleLoader = this.moduleLoader?.createLocalModuleLoader;
+    this.fetchLocalModuleSource = this.moduleLoader?.fetchLocalModuleSource;
+  }
 
-  const {
-    compileSCSS,
-    injectCSS
-  } = sassCompiler || {};
-  const {
-    compileTSX,
-    transformSource,
-    executeModuleSource
-  } = tsxCompiler || {};
-  const {
-    isLocalModule,
-    normalizeDir,
-    makeAliasKey,
-    getModuleDir
-  } = localPaths || {};
-  const {
-    createLocalModuleLoader,
-    fetchLocalModuleSource
-  } = moduleLoader || {};
-
-  function getModuleExport(mod, name) {
+  getModuleExport(mod, name) {
     if (!mod) return null;
     if (Object.prototype.hasOwnProperty.call(mod, name)) {
       return mod[name];
@@ -57,9 +61,9 @@
     return null;
   }
 
-  function frameworkRender(config, registry, App) {
+  frameworkRender(config, registry, App) {
     const rootId = config.render?.rootId || "root";
-    const rootEl = document.getElementById(rootId);
+    const rootEl = this.global.document.getElementById(rootId);
     if (!rootEl) throw new Error("Root element not found: #" + rootId);
 
     const domModuleName = config.render?.domModule;
@@ -69,7 +73,7 @@
     if (!domModule) throw new Error("DOM render module missing: " + domModuleName);
     if (!reactModule) throw new Error("React module missing: " + reactModuleName);
 
-    const createRootFn = getModuleExport(domModule, config.render.createRoot);
+    const createRootFn = this.getModuleExport(domModule, config.render.createRoot);
     if (!createRootFn) {
       throw new Error("createRoot not found: " + config.render.createRoot);
     }
@@ -80,14 +84,14 @@
       throw new Error("Render method not found: " + renderMethod);
     }
 
-    const createElementFn = getModuleExport(reactModule, "createElement");
+    const createElementFn = this.getModuleExport(reactModule, "createElement");
     if (!createElementFn) {
       throw new Error("createElement not found on React module");
     }
     root[renderMethod](createElementFn(App));
   }
 
-  function createRequire(
+  createRequire(
     registry,
     config,
     entryDir = "",
@@ -103,24 +107,24 @@
       resolvedEntryDir = entryDir || "";
     }
 
-    resolvedDynamicModuleLoader = resolvedDynamicModuleLoader || loadDynamicModule;
+    resolvedDynamicModuleLoader = resolvedDynamicModuleLoader || this.loadDynamicModule;
 
-    function require(name) {
+    const requireFn = (name) => {
       if (registry[name]) return registry[name];
       throw new Error(
         "Module not yet loaded: " +
           name +
           " (use a preload step via requireAsync for dynamic modules)"
       );
-    }
+    };
 
-    async function requireAsync(name, baseDir) {
+    const requireAsync = async (name, baseDir) => {
       if (registry[name]) return registry[name];
-      if (localModuleLoader && isLocalModule(name)) {
+      if (localModuleLoader && this.isLocalModule && this.isLocalModule(name)) {
         return localModuleLoader(
           name,
           baseDir || resolvedEntryDir,
-          require,
+          requireFn,
           registry
         );
       }
@@ -129,26 +133,38 @@
         return resolvedDynamicModuleLoader(name, config, registry);
       }
       throw new Error("Module not registered: " + name);
-    }
+    };
 
-    require._async = requireAsync;
-    return require;
+    requireFn._async = requireAsync;
+    return requireFn;
   }
 
-  const exports = Object.assign(
-    {},
-    sassCompiler,
-    tsxCompiler,
-    localPaths,
-    moduleLoader,
-    {
-      frameworkRender,
-      createRequire
-    }
-  );
-
-  helpers.localLoader = exports;
-  if (isCommonJs) {
-    module.exports = exports;
+  get exports() {
+    return Object.assign(
+      {},
+      this.sassCompiler || {},
+      this.tsxCompiler || {},
+      this.localPaths || {},
+      this.moduleLoader || {},
+      {
+        frameworkRender: this.frameworkRender.bind(this),
+        createRequire: this.createRequire.bind(this),
+      }
+    );
   }
-})(typeof globalThis !== "undefined" ? globalThis : this);
+
+  install() {
+    if (!this.initialized) {
+      throw new Error("LocalLoaderService not initialized");
+    }
+    const exports = this.exports;
+    this.helpers.localLoader = exports;
+    if (this.isCommonJs) {
+      module.exports = exports;
+    }
+  }
+}
+
+const localLoaderService = new LocalLoaderService();
+localLoaderService.initialize();
+localLoaderService.install();
