@@ -10,21 +10,35 @@ import scripts.doc_coverage as doc_coverage
 
 
 class TestDocCoverage(unittest.TestCase):
+    def _run_cli(self, repo_root, extra_args=None):
+        args = ["doc_coverage.py", "--code-root", str(repo_root), "--doc-root", "docs"]
+        if extra_args:
+            args.extend(extra_args)
+        argv_backup = sys.argv
+        try:
+            sys.argv = args
+            buffer = StringIO()
+            with redirect_stdout(buffer):
+                result = doc_coverage.DocCoverageCLI.execute()
+        finally:
+            sys.argv = argv_backup
+        return buffer.getvalue(), result
+
     def test_extract_symbols_finds_globals_and_functions(self):
         source = textwrap.dedent(
             """
-        const topLevel = 1
-        let another = 2
-        var legacy
+            const topLevel = 1
+            let another = 2
+            var legacy
 
-        function declared() {}
-        const arrow = () => {}
-        const method: () => void = () => {}
-        asyncLocal: async () => {}
-        """
+            function declared() {}
+            const arrow = () => {}
+            const method: () => void = () => {}
+            asyncLocal: async () => {}
+            """
         )
 
-        globals_set, functions_set = doc_coverage.extract_symbols(source)
+        globals_set, functions_set = doc_coverage.DocumentationAnalyzer.extract_symbols(source)
         self.assertIn("topLevel", globals_set)
         self.assertIn("another", globals_set)
         self.assertIn("legacy", globals_set)
@@ -37,49 +51,37 @@ class TestDocCoverage(unittest.TestCase):
         doc_text = "moduleA:foo moduleA:bar cables"
         names = ["moduleA:foo", "moduleA:untracked", "moduleA:bar", "moduleB:baz"]
 
-        documented, total = doc_coverage.compute_coverage(names, doc_text)
+        documented, total = doc_coverage.DocumentationAnalyzer.compute_coverage(names, doc_text)
         self.assertEqual(total, 4)
         self.assertEqual(documented, 2)
 
-    def test_main_writes_twin_in_docs_folder(self):
+    def test_cli_reports_coverage_for_documented_module(self):
         with TemporaryDirectory() as tmpdir:
             repo_root = Path(tmpdir) / "repo"
             src_dir = repo_root / "src"
             docs_dir = repo_root / "docs"
-            docs_dir.mkdir(parents=True)
-            src_dir.mkdir(parents=True)
-
-            module_file = src_dir / "app.js"
-            module_file.write_text("const exposed = 1\nfunction helper() {}\n")
-
             api_dir = docs_dir / "api"
-            api_dir.mkdir(parents=True, exist_ok=True)
-            api_src = api_dir / "src"
-            api_src.mkdir()
-            (api_src / "app.md").write_text("app.js:helper")
+            src_dir.mkdir(parents=True)
+            api_dir.mkdir(parents=True)
+            (src_dir / "app.js").write_text("const exposed = 1\nfunction helper() {}\n", encoding="utf-8")
+            api_src_dir = api_dir / "src"
+            api_src_dir.mkdir(parents=True, exist_ok=True)
+            (api_src_dir / "README.md").write_text("# src module docs\n", encoding="utf-8")
+            (api_src_dir / "app.md").write_text("# Module: `src/app.js`\n", encoding="utf-8")
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = ["doc_coverage.py", "--code-root", str(repo_root)]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, result = self._run_cli(repo_root)
             self.assertIn("Documentation coverage", output)
-            self.assertTrue((docs_dir / "api" / "src" / "app.md").exists())
-
+            self.assertIn("Modules:    1/1 documented", output)
+            self.assertEqual(result, 0)
 
     def test_symbol_detection_receives_bare_function_reference(self):
         doc_text = "The loader calls compileSCSS before injectCSS runs."
         symbol_name = "bootstrap/local/sass-compiler.js:compileSCSS"
 
-        self.assertTrue(doc_coverage.is_documented(symbol_name, doc_text))
+        self.assertTrue(doc_coverage.DocumentationAnalyzer.is_documented(symbol_name, doc_text))
 
     def test_is_documented_handles_empty_docs(self):
-        self.assertFalse(doc_coverage.is_documented("module:name", ""))
+        self.assertFalse(doc_coverage.DocumentationAnalyzer.is_documented("module:name", ""))
 
     def test_collect_source_files_filters_declarations(self):
         with TemporaryDirectory() as tmpdir:
@@ -87,7 +89,7 @@ class TestDocCoverage(unittest.TestCase):
             (root / "node_modules").mkdir()
             (root / "app.js").write_text("const foo = 1")
             (root / "ignore.d.ts").write_text("declare const bar: number")
-            collected = list(doc_coverage.collect_source_files(root))
+            collected = list(doc_coverage.DocumentationAnalyzer.collect_source_files(root))
             names = [p.name for p in collected]
             self.assertIn("app.js", names)
             self.assertNotIn("ignore.d.ts", names)
@@ -99,26 +101,36 @@ class TestDocCoverage(unittest.TestCase):
             (root / "bootstrap").mkdir()
             (root / "bootstrap" / "script-list.html").write_text("<!doctype html>")
             collected = list(
-                doc_coverage.collect_source_files(root, extensions={".html"})
+                doc_coverage.DocumentationAnalyzer.collect_source_files(root, extensions={".html"})
             )
             self.assertEqual(len(collected), 1)
             self.assertTrue(collected[0].name.endswith("script-list.html"))
 
     def test_render_module_template_includes_symbols(self):
+        generator = doc_coverage.TemplateGenerator(Path("templates"))
         summary = doc_coverage.ModuleSummary("src/utils.js", globals=["CONST"], functions=["doThing"])
-        template = doc_coverage.render_module_template(summary)
+        template = doc_coverage.TemplateGenerator._render_module_template(summary)
         self.assertIn("CONST", template)
         self.assertIn("doThing", template)
 
-    def test_ensure_module_templates_creates_file(self):
+    def test_generate_module_template_files(self):
         with TemporaryDirectory() as tmpdir:
-            template_root = Path(tmpdir)
-            summary = doc_coverage.ModuleSummary("pkg/foo.js", globals=["foo"], functions=[])
-        created = doc_coverage.ensure_module_templates([summary], template_root, "")
-        self.assertEqual(len(created), 1)
-        self.assertTrue((template_root / "pkg" / "foo.js.md").exists())
+            repo_root = Path(tmpdir) / "repo"
+            doc_root = repo_root / "docs"
+            doc_root.mkdir(parents=True)
+            template_root = Path(tmpdir) / "templates"
+            generator = doc_coverage.TemplateGenerator(template_root)
+            module_summary = doc_coverage.ModuleSummary("src/app.js", globals=[], functions=[])
+            buffer = StringIO()
+            with redirect_stdout(buffer):
+                generator.generate(
+                    doc_coverage.TemplateGenerationRequest(
+                        module_summaries=[module_summary], existing_doc_text=""
+                    )
+                )
+            self.assertTrue((template_root / "src" / "app.js.md").exists())
 
-    def test_main_with_template_root_writes_templates(self):
+    def test_cli_with_template_root_writes_templates(self):
         with TemporaryDirectory() as tmpdir:
             repo_root = Path(tmpdir) / "repo"
             src_dir = repo_root / "src"
@@ -126,41 +138,26 @@ class TestDocCoverage(unittest.TestCase):
             template_root = repo_root / "templates"
             src_dir.mkdir(parents=True)
             docs.mkdir(parents=True)
-            (src_dir / "new.js").write_text("const foo = 1")
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                    "--template-root",
-                    str(template_root),
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-            self.assertIn("Module templates written", output)
+            (src_dir / "new.js").write_text("const foo = 1", encoding="utf-8")
+
+            output, _ = self._run_cli(repo_root, ["--template-root", str(template_root)])
+            self.assertIn("Module templates written for 1 modules", output)
+            self.assertTrue((template_root / "src" / "new.js.md").exists())
 
     def _write_stub(self, stub_path: Path, module_path: str) -> None:
         stub_path.parent.mkdir(parents=True, exist_ok=True)
         stub_path.write_text(
             textwrap.dedent(
                 f"""
-            # Module documentation template
+                # Module documentation template
 
-            ## Module: `{module_path}`
+                ## Module: `{module_path}`
 
-            ### Overview
+                ### Overview
 
-            - **Purpose:** Placeholder
-            """
-            ),
-            encoding="utf-8",
+                - **Purpose:** Placeholder
+                """
+            ).strip()
         )
 
     def test_stub_penalty_lists_missing_templates(self):
@@ -168,31 +165,16 @@ class TestDocCoverage(unittest.TestCase):
             repo_root = Path(tmpdir) / "repo"
             src = repo_root / "src"
             docs = repo_root / "docs" / "api"
-            (src / "foo.js").parent.mkdir(parents=True)
-            (src / "foo.js").write_text("const foo = 1\n", encoding="utf-8")
+            src.mkdir(parents=True)
             docs.mkdir(parents=True)
+            (src / "foo.js").write_text("const foo = 1\n", encoding="utf-8")
             (docs / "foo.md").write_text("# Module: `src/foo.js`\n", encoding="utf-8")
             stub_path = docs / "stubs" / "missing.md"
             self._write_stub(stub_path, "missing/module.js")
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, _ = self._run_cli(repo_root)
             self.assertIn("penalized", output)
-            self.assertIn("api/stubs/missing.md", output)
+            self.assertIn("stub template", output)
             self.assertTrue(stub_path.exists())
 
     def test_fix_stubs_removes_templates_when_doc_present(self):
@@ -200,36 +182,20 @@ class TestDocCoverage(unittest.TestCase):
             repo_root = Path(tmpdir) / "repo"
             doc_root = repo_root / "docs"
             src = repo_root / "src"
-            (src / "bar.js").parent.mkdir(parents=True)
-            (src / "bar.js").write_text("const bar = 1\n", encoding="utf-8")
-            target_docs = doc_root / "api"
+            src.mkdir(parents=True)
+            doc_root.mkdir(parents=True)
+            target_docs = doc_root / "api" / "src"
             target_docs.mkdir(parents=True)
-            target_src = target_docs / "src"
-            target_src.mkdir(parents=True)
-            (target_src / "bar.md").write_text("# Module: `src/bar.js`\n", encoding="utf-8")
-            (target_src / "README.md").write_text("# src docs\n", encoding="utf-8")
-            stub_path = target_docs / "stubs" / "bar.md"
+            (src / "bar.js").write_text("const bar = 1\n", encoding="utf-8")
+            (target_docs / "bar.md").write_text("# Module: `src/bar.js`\n", encoding="utf-8")
+            (target_docs / "README.md").write_text("# src docs\n", encoding="utf-8")
+            stub_path = doc_root / "api" / "stubs" / "bar.md"
             self._write_stub(stub_path, "src/bar.js")
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                    "--fix-stubs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, result = self._run_cli(repo_root, ["--fix-stubs"])
             self.assertNotIn("penalized", output)
             self.assertFalse(stub_path.exists())
+            self.assertEqual(result, 0)
 
     def test_module_docs_require_module_heading(self):
         with TemporaryDirectory() as tmpdir:
@@ -244,24 +210,11 @@ class TestDocCoverage(unittest.TestCase):
             (src_dir / "other.js").write_text("const bar = 2\n", encoding="utf-8")
 
             (api_dir / "app.md").write_text("# Module: `src/app.js`\n", encoding="utf-8")
-            (api_dir / "other.md").write_text("This document mentions src/other.js but lacks a module heading.", encoding="utf-8")
+            (api_dir / "other.md").write_text(
+                "This document mentions src/other.js but lacks a module heading.", encoding="utf-8"
+            )
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, _ = self._run_cli(repo_root)
             self.assertIn("Modules:    1/2 documented", output)
             self.assertIn("Missing module docs:", output)
             self.assertIn("- src/other.js", output)
@@ -284,22 +237,7 @@ class TestDocCoverage(unittest.TestCase):
                 "# Module: `src/feature.js`\n", encoding="utf-8"
             )
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, _ = self._run_cli(repo_root)
             self.assertIn("Missing README.md in these directories:", output)
             self.assertIn("- api/src", output)
             self.assertIn("Overall:    98.0% (penalized 2.0% for 1 missing README)", output)
@@ -325,22 +263,7 @@ class TestDocCoverage(unittest.TestCase):
             )
             (missing_dir / "README.md").write_text("# missing docs\n", encoding="utf-8")
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, _ = self._run_cli(repo_root)
             self.assertIn("Documented modules without matching source files:", output)
             self.assertIn("- missing/ghost.js", output)
             self.assertIn("Overall:    98.0% (penalized 2.0% for 1 extra module doc)", output)
@@ -356,7 +279,7 @@ class TestDocCoverage(unittest.TestCase):
             api_dir.mkdir(parents=True)
             bootstrap_doc.mkdir(parents=True)
 
-            (bootstrap_dir / "module.js").write_text("export const core = 1\n")
+            (bootstrap_dir / "module.js").write_text("export const core = 1\n", encoding="utf-8")
             (api_dir / "README.md").write_text("# API\n", encoding="utf-8")
             (bootstrap_doc / "README.md").write_text("# Bootstrap\n", encoding="utf-8")
 
@@ -367,26 +290,13 @@ class TestDocCoverage(unittest.TestCase):
                 "# Module: `bootstrap/missing.js`\n", encoding="utf-8"
             )
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, _ = self._run_cli(repo_root)
             self.assertIn("Bootstrap docs without matching source files:", output)
             self.assertIn("- api/bootstrap/orphan.md -> bootstrap/missing.js", output)
             self.assertIn("Documented modules not located at expected path:", output)
-            self.assertIn("Overall:    96.0% (penalized 4.0% for 1 misplaced doc and 1 unmatched bootstrap doc)", output)
+            self.assertIn(
+                "Overall:    96.0% (penalized 4.0% for 1 misplaced doc and 1 unmatched bootstrap doc)", output
+            )
 
     def test_misplaced_docs_penalty(self):
         with TemporaryDirectory() as tmpdir:
@@ -398,29 +308,14 @@ class TestDocCoverage(unittest.TestCase):
             bootstrap_dir.mkdir(parents=True)
             mis_doc_dir.mkdir(parents=True)
 
-            (bootstrap_dir / "loader.js").write_text("export const load = () => {}\n")
+            (bootstrap_dir / "loader.js").write_text("export const load = () => {}\n", encoding="utf-8")
             (api_dir / "README.md").write_text("# API\n", encoding="utf-8")
             (mis_doc_dir / "loader.md").write_text(
                 "# Module: `bootstrap/loader.js`\n\n- `load`\n", encoding="utf-8"
             )
             (mis_doc_dir / "README.md").write_text("# Local\n", encoding="utf-8")
 
-            argv_backup = sys.argv
-            try:
-                sys.argv = [
-                    "doc_coverage.py",
-                    "--code-root",
-                    str(repo_root),
-                    "--doc-root",
-                    "docs",
-                ]
-                buffer = StringIO()
-                with redirect_stdout(buffer):
-                    result = doc_coverage.main()
-                output = buffer.getvalue()
-            finally:
-                sys.argv = argv_backup
-
+            output, result = self._run_cli(repo_root)
             self.assertIn("Documented modules not located at expected path:", output)
             self.assertIn(
                 "api/local/loader.md (expected api/bootstrap/loader.md)", output
