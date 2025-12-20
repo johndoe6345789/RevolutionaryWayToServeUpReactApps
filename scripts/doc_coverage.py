@@ -286,8 +286,12 @@ def main() -> None:
         except ValueError:
             pass
     digital_twin_path = doc_root / "digital-twin.md"
+    reference_path = doc_root / "api" / "reference.md"
+    stub_path = doc_root / "api" / "stubs"
     if not args.include_digital_twin:
         ignore_paths.append(digital_twin_path)
+    ignore_paths.append(reference_path)
+    ignore_paths.append(stub_path)
     existing_doc_text = load_docs(doc_root, ignore_dirs=ignore_paths)
 
     for path in collect_source_files(code_root):
