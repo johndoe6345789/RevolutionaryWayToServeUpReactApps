@@ -1,3 +1,6 @@
+/**
+ * Entry point that wires the module loader into the shared bootstrap namespace.
+ */
 const ModuleLoaderAggregator = require("./services/core/module-loader-service.js");
 const ModuleLoaderConfig = require("./configs/module-loader.js");
 const serviceRegistry = require("./services/service-registry-instance.js");

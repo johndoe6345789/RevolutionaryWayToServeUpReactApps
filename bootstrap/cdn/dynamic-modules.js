@@ -1,3 +1,6 @@
+/**
+ * Entry point that registers the CDN dynamic modules helper into the bootstrap namespace.
+ */
 const DynamicModulesService = require("../services/cdn/dynamic-modules-service.js");
 const DynamicModulesConfig = require("../configs/dynamic-modules.js");
 const serviceRegistry = require("../services/service-registry-instance.js");

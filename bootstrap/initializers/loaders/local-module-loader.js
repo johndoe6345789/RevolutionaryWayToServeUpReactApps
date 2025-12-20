@@ -1,3 +1,6 @@
+/**
+ * Initializes the local module loader helper with the shared document/fetch utilities.
+ */
 const LocalModuleLoaderService = require("../services/local/local-module-loader-service.js");
 const LocalModuleLoaderConfig = require("../configs/local-module-loader.js");
 const serviceRegistry = require("../services/service-registry-instance.js");

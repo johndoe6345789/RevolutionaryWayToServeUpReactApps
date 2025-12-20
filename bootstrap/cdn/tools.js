@@ -1,3 +1,6 @@
+/**
+ * Initializes the CDN tools helper and exposes it through the shared bootstrap namespace.
+ */
 const ToolsLoaderService = require("../services/cdn/tools-service.js");
 const ToolsLoaderConfig = require("../configs/tools.js");
 const serviceRegistry = require("../services/service-registry-instance.js");

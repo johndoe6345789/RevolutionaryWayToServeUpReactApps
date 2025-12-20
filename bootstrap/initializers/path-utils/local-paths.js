@@ -1,3 +1,6 @@
+/**
+ * Bootstraps the local path utilities so helpers can normalize module paths.
+ */
 const LocalPathsService = require("../services/local/local-paths-service.js");
 const LocalPathsConfig = require("../configs/local-paths.js");
 const serviceRegistry = require("../services/service-registry-instance.js");

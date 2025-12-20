@@ -2,11 +2,17 @@
  * Encapsulates access to the current global object and its bootstrap namespace.
  */
 class GlobalRootHandler {
+  /**
+   * Creates a handler around the current global object and bootstrap namespace.
+   */
   constructor(root) {
     this.root = root || this._detectGlobal();
     this.namespace = this.root.__rwtraBootstrap || (this.root.__rwtraBootstrap = {});
   }
 
+  /**
+   * Locates whatever global object is available in the current runtime.
+   */
   _detectGlobal() {
     if (typeof globalThis !== "undefined") return globalThis;
     if (typeof global !== "undefined") return global;

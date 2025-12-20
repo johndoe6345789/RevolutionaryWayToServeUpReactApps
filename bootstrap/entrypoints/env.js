@@ -1,3 +1,6 @@
+/**
+ * Bootstrap entrypoint responsible for establishing proxy mode via EnvInitializer.
+ */
 const GlobalRootHandler = require("../constants/global-root-handler.js");
 const EnvInitializer = require("./services/core/env-service.js");
 const EnvInitializerConfig = require("./configs/env.js");

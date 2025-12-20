@@ -1,3 +1,6 @@
+/**
+ * Bootstraps the Sass compiler helper with runtime globals and registers it for local builds.
+ */
 const SassCompilerService = require("../services/local/sass-compiler-service.js");
 const SassCompilerConfig = require("../configs/sass-compiler.js");
 const serviceRegistry = require("../services/service-registry-instance.js");

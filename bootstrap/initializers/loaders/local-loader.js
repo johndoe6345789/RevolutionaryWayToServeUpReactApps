@@ -1,3 +1,6 @@
+/**
+ * Sets up the shared local loader surface, wiring document overrides and helper dependencies.
+ */
 const LocalLoaderService = require("../services/local/local-loader-service.js");
 const LocalLoaderConfig = require("../configs/local-loader.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
