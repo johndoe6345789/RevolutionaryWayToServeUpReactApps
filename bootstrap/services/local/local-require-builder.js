@@ -12,6 +12,13 @@ class LocalRequireBuilder {
     }
     this.loadDynamicModule = loadDynamicModule;
     this.isLocalModule = isLocalModule;
+    const registry = this.config.helperRegistry;
+    if (registry && !registry.isRegistered("localRequireBuilderInstance")) {
+      registry.register("localRequireBuilderInstance", this, {
+        folder: "services/local/helpers",
+        domain: "helpers",
+      });
+    }
     this.initialized = true;
     return this;
   }
@@ -98,6 +105,7 @@ class LocalRequireBuilder {
   _isLocalModule(name) {
     return typeof this.isLocalModule === "function" && this.isLocalModule(name);
   }
+
 }
 
 module.exports = LocalRequireBuilder;

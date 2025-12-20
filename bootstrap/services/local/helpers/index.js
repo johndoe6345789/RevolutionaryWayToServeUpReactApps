@@ -8,6 +8,7 @@ if (!helperRegistry.isRegistered("frameworkRenderer")) {
     domain: "helpers",
   });
 }
+
 if (!helperRegistry.isRegistered("localRequireBuilder")) {
   helperRegistry.register("localRequireBuilder", LocalRequireBuilder, {
     folder: "services/local/helpers",
