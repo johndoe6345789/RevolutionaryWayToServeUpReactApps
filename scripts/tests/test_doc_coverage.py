@@ -76,6 +76,63 @@ class TestDocCoverage(unittest.TestCase):
 
         self.assertTrue(doc_coverage.is_documented(symbol_name, doc_text))
 
+    def test_is_documented_handles_empty_docs(self):
+        self.assertFalse(doc_coverage.is_documented("module:name", ""))
+
+    def test_collect_source_files_filters_declarations(self):
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "node_modules").mkdir()
+            (root / "app.js").write_text("const foo = 1")
+            (root / "ignore.d.ts").write_text("declare const bar: number")
+            collected = list(doc_coverage.collect_source_files(root))
+            names = [p.name for p in collected]
+            self.assertIn("app.js", names)
+            self.assertNotIn("ignore.d.ts", names)
+            self.assertNotIn("node_modules", [str(p) for p in collected])
+
+    def test_render_module_template_includes_symbols(self):
+        summary = doc_coverage.ModuleSummary("src/utils.js", globals=["CONST"], functions=["doThing"])
+        template = doc_coverage.render_module_template(summary)
+        self.assertIn("CONST", template)
+        self.assertIn("doThing", template)
+
+    def test_ensure_module_templates_creates_file(self):
+        with TemporaryDirectory() as tmpdir:
+            template_root = Path(tmpdir)
+            summary = doc_coverage.ModuleSummary("pkg/foo.js", globals=["foo"], functions=[])
+        created = doc_coverage.ensure_module_templates([summary], template_root, "")
+        self.assertEqual(len(created), 1)
+        self.assertTrue((template_root / "pkg" / "foo.js.md").exists())
+
+    def test_main_with_template_root_writes_templates(self):
+        with TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir) / "repo"
+            src_dir = repo_root / "src"
+            docs = repo_root / "docs"
+            template_root = repo_root / "templates"
+            src_dir.mkdir(parents=True)
+            docs.mkdir(parents=True)
+            (src_dir / "new.js").write_text("const foo = 1")
+            argv_backup = sys.argv
+            try:
+                sys.argv = [
+                    "doc_coverage.py",
+                    "--code-root",
+                    str(repo_root),
+                    "--doc-root",
+                    "docs",
+                    "--template-root",
+                    str(template_root),
+                ]
+                buffer = StringIO()
+                with redirect_stdout(buffer):
+                    doc_coverage.main()
+                output = buffer.getvalue()
+            finally:
+                sys.argv = argv_backup
+            self.assertIn("Module templates written", output)
+
     def _write_stub(self, stub_path: Path, module_path: str) -> None:
         stub_path.parent.mkdir(parents=True, exist_ok=True)
         stub_path.write_text(
