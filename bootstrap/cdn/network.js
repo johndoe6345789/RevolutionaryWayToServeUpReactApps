@@ -33,6 +33,10 @@
   let defaultProviderBase = "";
   let providerAliases = createAliasMap(DEFAULT_PROVIDER_ALIASES);
 
+  const PROXY_MODE_AUTO = "auto";
+  const PROXY_MODE_PROXY = "proxy";
+  const PROXY_MODE_DIRECT = "direct";
+
   function setFallbackProviders(providers) {
     if (!Array.isArray(providers) || !providers.length) {
       fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
@@ -60,6 +64,38 @@
 
   function setProviderAliases(aliases) {
     providerAliases = createAliasMap({ ...DEFAULT_PROVIDER_ALIASES, ...aliases });
+  }
+
+  function normalizeProxyMode(mode) {
+    if (!mode) return PROXY_MODE_AUTO;
+    const normalized = String(mode).trim().toLowerCase();
+    return normalized === PROXY_MODE_PROXY || normalized === PROXY_MODE_DIRECT
+      ? normalized
+      : PROXY_MODE_AUTO;
+  }
+
+  function getProxyMode() {
+    const globalMode = normalizeProxyMode(global.__RWTRA_PROXY_MODE__);
+    if (globalMode !== PROXY_MODE_AUTO) {
+      return globalMode;
+    }
+    try {
+      const envMode = normalizeProxyMode(
+        typeof process !== "undefined" && process.env && process.env.RWTRA_PROXY_MODE
+      );
+      if (envMode !== PROXY_MODE_AUTO) {
+        return envMode;
+      }
+    } catch (_err) {
+      // Accessing process.env can fail in some sandboxed environments; default to auto.
+    }
+    return PROXY_MODE_AUTO;
+  }
+
+  function isCiLikeHost() {
+    if (typeof window === "undefined") return false;
+    const host = window.location && window.location.hostname;
+    return host === "127.0.0.1" || host === "localhost";
   }
 
   function createAliasMap(source) {
@@ -113,9 +149,13 @@
   function resolveProvider(mod) {
     const hasDualProviders = mod.ci_provider || mod.production_provider;
     if (hasDualProviders) {
-      const host = typeof window !== "undefined" ? window.location.hostname : "";
-      const isCiLike = host === "127.0.0.1" || host === "localhost";
-      return isCiLike ? mod.ci_provider || mod.production_provider : mod.production_provider || mod.ci_provider;
+      const proxyMode = getProxyMode();
+      const preferProxy =
+        proxyMode === PROXY_MODE_PROXY ||
+        (proxyMode === PROXY_MODE_AUTO && isCiLikeHost());
+      return preferProxy
+        ? mod.ci_provider || mod.production_provider
+        : mod.production_provider || mod.ci_provider;
     }
     return (
       mod.provider ||
@@ -261,7 +301,8 @@
     getFallbackProviders,
     setDefaultProviderBase,
     getDefaultProviderBase,
-    setProviderAliases
+    setProviderAliases,
+    getProxyMode
   };
 
   helpers.network = exports;
