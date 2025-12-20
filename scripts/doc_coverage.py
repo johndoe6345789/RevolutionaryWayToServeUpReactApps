@@ -285,6 +285,7 @@ class DocumentationAnalyzer:
     def collect_source_files(
         code_root: Path, extensions: set[str] | None = None, ignore_dirs: set[str] | None = None
     ) -> Iterable[Path]:
+        """Yield all tracked source files matching the configured extensions."""
         extensions = extensions or DEFAULT_EXTENSIONS
         extensions = {ext if ext.startswith(".") else f".{ext}" for ext in extensions}
         ignore_dirs = ignore_dirs or DEFAULT_IGNORE_DIRS
@@ -299,6 +300,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def extract_symbols(text: str) -> tuple[set[str], set[str]]:
+        """Return the set of globals and functions declared in the provided source."""
         globals_set: set[str] = set()
         functions_set: set[str] = set()
         for match in re.finditer(r"^(?:const|let|var)\s+([A-Za-z_]\w*)", text, re.MULTILINE):
@@ -317,6 +319,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def load_docs(doc_root: Path, ignore_dirs: Sequence[Path] | None = None) -> tuple[str, list[tuple[Path, str]]]:
+        """Read markdown docs and collect any '# Module:' headings."""
         collected = []
         entries: list[tuple[Path, str]] = []
         if not doc_root.exists():
@@ -336,6 +339,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def compute_coverage(names: Iterable[str], doc_text: str) -> tuple[int, int]:
+        """Count how many of the given names appear in the documentation text."""
         names_set = set(names)
         if not names_set:
             return 0, 0
@@ -344,6 +348,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def compute_module_coverage(modules: Sequence[str], documented_modules: set[str]) -> tuple[int, int, list[str]]:
+        """Compare module file list against documented module headings."""
         unique_modules = list(dict.fromkeys(modules))
         documented = 0
         missing: list[str] = []
@@ -357,6 +362,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def is_documented(name: str, doc_text: str) -> bool:
+        """Determine if a module or symbol name exists within the docs."""
         if not doc_text:
             return False
         escaped = re.escape(name)
@@ -375,6 +381,7 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def parse_extensions(value: str) -> set[str]:
+        """Return a normalized set of extensions from the CLI argument."""
         candidates = [part.strip() for part in value.split(",") if part.strip()]
         if not candidates:
             return DEFAULT_EXTENSIONS.copy()
@@ -454,6 +461,7 @@ class StubManager:
         self.config = config
 
     def _populate_template_ignore(self) -> None:
+        """Add template root to ignore list if it sits inside docs."""
         if not self.template_root:
             return
         try:
