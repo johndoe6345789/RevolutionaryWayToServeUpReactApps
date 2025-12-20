@@ -72,13 +72,23 @@
     const specs = collectModuleSpecifiers(source);
     if (!specs.length) return;
 
-    await Promise.all(
-      specs.map((name) =>
-        requireFn._async(name, baseDir).catch((err) => {
-          console.warn("Preload failed for", name, err);
-        })
-      )
+    const results = await Promise.allSettled(
+      specs.map((name) => requireFn._async(name, baseDir))
     );
+
+    const failures = results
+      .map((res, idx) => [res, specs[idx]])
+      .filter(([res]) => res.status === "rejected")
+      .map(([res, name]) => ({ name, error: res.reason }));
+
+    if (failures.length) {
+      const messages = failures
+        .map(({ name, error }) => `${name}: ${error?.message || error}`)
+        .join(", ");
+      throw new Error(
+        `Failed to preload module(s): ${messages}. Check file paths and dynamic module rules.`
+      );
+    }
   }
 
   const exports = {

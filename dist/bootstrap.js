@@ -353,13 +353,23 @@ async function preloadModulesFromSource(source, requireFn, baseDir = "") {
   const specs = collectModuleSpecifiers(source);
   if (!specs.length) return;
 
-  await Promise.all(
-    specs.map((name) =>
-      requireFn._async(name, baseDir).catch((err) => {
-        console.warn("Preload failed for", name, err);
-      })
-    )
+  const results = await Promise.allSettled(
+    specs.map((name) => requireFn._async(name, baseDir))
   );
+
+  const failures = results
+    .map((res, idx) => [res, specs[idx]])
+    .filter(([res]) => res.status === "rejected")
+    .map(([res, name]) => ({ name, error: res.reason }));
+
+  if (failures.length) {
+    const messages = failures
+      .map(({ name, error }) => `${name}: ${error?.message || error}`)
+      .join(", ");
+    throw new Error(
+      `Failed to preload module(s): ${messages}. Check file paths and dynamic module rules.`
+    );
+  }
 }
 
 // Compile a TSX entry file, after preloading all its dependencies
@@ -389,13 +399,12 @@ function makeAliasKey(name, baseDir) {
   return normalizeDir(baseDir) + "|" + name;
 }
 
-function resolveLocalModuleBase(name, baseDir) {
+function resolveLocalModuleBase(name, baseDir, currentHref) {
   const normalizedBase = normalizeDir(baseDir);
-  const baseUrl = normalizedBase
-    ? `${location.origin}/${normalizedBase}/`
-    : `${location.origin}/`;
+  const href = currentHref || (typeof location !== "undefined" ? location.href : "http://localhost/");
+  const baseUrl = new URL(normalizedBase ? `${normalizedBase}/` : "./", href);
   const resolvedUrl = new URL(name, baseUrl);
-  return resolvedUrl.pathname.replace(/^\//, "");
+  return resolvedUrl.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
 }
 
 function getModuleDir(filePath) {

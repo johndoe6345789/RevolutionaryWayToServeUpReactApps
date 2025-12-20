@@ -20,8 +20,10 @@ import {
   resolveModuleUrl,
   collectModuleSpecifiers,
   collectDynamicModuleImports,
-  createRequire
+  createRequire,
+  preloadModulesFromSource
 } from "../../bootstrap.js";
+import { resolveLocalModuleBase } from "../../bootstrap/local/local-paths.js";
 
 describe("bootstrap helpers", () => {
   afterEach(() => {
@@ -123,5 +125,45 @@ describe("bootstrap helpers", () => {
 
     await expect(dynamicRequire._async("icons/test")).resolves.toBe(dynamicModule);
     expect(dynamicLoader).toHaveBeenCalledWith("icons/test", config as any, registry as any);
+  });
+
+  it("fails fast when any preload promise rejects", async () => {
+    const source = `
+      import "./ok";
+      const mod = require("./fail");
+    `;
+
+    const calls: Array<{ name: string; baseDir?: string }> = [];
+    const requireFn: any = () => {
+      throw new Error("sync require should not be called during preload");
+    };
+    requireFn._async = jest.fn((name: string, baseDir?: string) => {
+      calls.push({ name, baseDir });
+      if (name === "./fail") {
+        return Promise.reject(new Error("boom"));
+      }
+      return Promise.resolve({ ok: true });
+    });
+
+    await expect(
+      preloadModulesFromSource(source, requireFn as any, "src/components")
+    ).rejects.toThrow(
+      "Failed to preload module(s): ./fail: boom. Check file paths and dynamic module rules."
+    );
+
+    expect(requireFn._async).toHaveBeenCalledTimes(2);
+    expect(calls.every((call) => call.baseDir === "src/components")).toBe(true);
+  });
+});
+
+describe("local path helpers", () => {
+  it("resolves module bases relative to the current page location", () => {
+    expect(
+      resolveLocalModuleBase(
+        "./theme",
+        "src",
+        "https://example.com/nested/app/index.html"
+      )
+    ).toBe("nested/app/src/theme");
   });
 });

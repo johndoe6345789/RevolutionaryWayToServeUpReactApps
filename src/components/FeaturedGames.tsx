@@ -32,7 +32,7 @@ export default function FeaturedGames() {
 
       <Grid container spacing={3}>
         {FEATURED_GAMES.map((game) => (
-          <Grid item xs={12} md={4} key={game.id}>
+          <Grid size={{ xs: 12, md: 4 }} key={game.id}>
             <Card
               sx={{
                 height: "100%",

@@ -18,13 +18,17 @@
     return normalizeDir(baseDir) + "|" + name;
   }
 
-  function resolveLocalModuleBase(name, baseDir) {
+  function resolveLocalModuleBase(name, baseDir, currentHref) {
     const normalizedBase = normalizeDir(baseDir);
-    const baseUrl = normalizedBase
-      ? `${location.origin}/${normalizedBase}/`
-      : `${location.origin}/`;
+    const href =
+      currentHref ||
+      (typeof location !== "undefined" ? location.href : "http://localhost/");
+    const baseUrl = new URL(
+      normalizedBase ? `${normalizedBase}/` : "./",
+      href
+    );
     const resolvedUrl = new URL(name, baseUrl);
-    return resolvedUrl.pathname.replace(/^\//, "");
+    return resolvedUrl.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
   }
 
   function getModuleDir(filePath) {
