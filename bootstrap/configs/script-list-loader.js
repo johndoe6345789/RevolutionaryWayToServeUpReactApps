@@ -1,3 +1,6 @@
+/**
+ * Configures where the script manifest is loaded from and how scripts are injected.
+ */
 class ScriptListLoaderConfig {
   constructor({ document, manifestUrl, fetch, log } = {}) {
     this.document = document;
