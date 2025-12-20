@@ -7,7 +7,7 @@ const rootHandler = new GlobalRootHandler();
 const dynamicModulesService = new DynamicModulesService(
   new DynamicModulesConfig({
     serviceRegistry,
-    namespace: rootHandler.namespace,
+    namespace: rootHandler.getNamespace(),
   })
 );
 dynamicModulesService.initialize();

@@ -13,8 +13,25 @@ class GlobalRootHandler {
     return this;
   }
 
+  /**
+   * Returns the shared bootstrap namespace for helper registration.
+   */
   get helpers() {
     return this.namespace.helpers || (this.namespace.helpers = {});
+  }
+
+  /**
+   * Returns the bootstrap namespace object.
+   */
+  getNamespace() {
+    return this.namespace;
+  }
+
+  /**
+   * Returns the global document reference if available.
+   */
+  getDocument() {
+    return this.root.document;
   }
 }
 

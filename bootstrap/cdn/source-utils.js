@@ -4,7 +4,7 @@ const serviceRegistry = require("../services/service-registry-instance.js");
 const GlobalRootHandler = require("../constants/global-root-handler.js");
 
 const rootHandler = new GlobalRootHandler();
-const namespace = rootHandler.namespace;
+const namespace = rootHandler.getNamespace();
 const sourceUtilsService = new SourceUtilsService(
   new SourceUtilsConfig({ serviceRegistry, namespace })
 );

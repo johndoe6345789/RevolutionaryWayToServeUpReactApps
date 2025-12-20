@@ -4,8 +4,8 @@ const serviceRegistry = require("../services/service-registry-instance.js");
 const GlobalRootHandler = require("../constants/global-root-handler.js");
 
 const rootHandler = new GlobalRootHandler();
-const namespace = rootHandler.namespace;
-const document = rootHandler.root.document;
+const namespace = rootHandler.getNamespace();
+const document = rootHandler.getDocument();
 const localLoaderService = new LocalLoaderService(
   new LocalLoaderConfig({
     serviceRegistry,
