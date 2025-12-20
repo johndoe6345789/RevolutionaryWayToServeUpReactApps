@@ -1,10 +1,5 @@
 const ModuleLoaderConfig = require("../../configs/module-loader.js");
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const globalRoot = require("../../constants/global-root.js");
 
 /**
  * Aggregates the CDN/local helpers and exposes the module loader façade.

@@ -1,9 +1,4 @@
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const globalRoot = require("../../constants/global-root.js");
 const LocalModuleLoaderConfig = require("../../configs/local-module-loader.js");
 
 /**

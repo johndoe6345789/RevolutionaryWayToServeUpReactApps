@@ -1,9 +1,4 @@
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const globalRoot = require("../../constants/global-root.js");
 const SassCompilerConfig = require("../../configs/sass-compiler.js");
 
 /**

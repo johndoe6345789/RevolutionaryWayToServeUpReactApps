@@ -1,10 +1,5 @@
 const LocalLoaderConfig = require("../../configs/local-loader.js");
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const globalRoot = require("../../constants/global-root.js");
 
 /**
  * Combines sass/tsx/local helpers into the shared local loader surface.

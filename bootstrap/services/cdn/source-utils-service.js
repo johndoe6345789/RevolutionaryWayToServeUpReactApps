@@ -1,10 +1,5 @@
 const SourceUtilsConfig = require("../../configs/source-utils.js");
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const globalRoot = require("../../constants/global-root.js");
 
 /**
  * Parses source files for module specifiers and preloads dynamic dependencies.
