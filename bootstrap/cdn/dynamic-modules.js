@@ -1,11 +1,14 @@
 const DynamicModulesService = require("../services/cdn/dynamic-modules-service.js");
 const DynamicModulesConfig = require("../configs/dynamic-modules.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
-const globalRoot = require("../constants/global-root.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
-const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+const rootHandler = new GlobalRootHandler();
 const dynamicModulesService = new DynamicModulesService(
-  new DynamicModulesConfig({ serviceRegistry, namespace })
+  new DynamicModulesConfig({
+    serviceRegistry,
+    namespace: rootHandler.namespace,
+  })
 );
 dynamicModulesService.initialize();
 dynamicModulesService.install();

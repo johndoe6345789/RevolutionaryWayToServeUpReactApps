@@ -1,11 +1,6 @@
-/**
- * Shared reference to the current global object so helpers can run in browsers or Node.
- */
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : this;
+const GlobalRootHandler = require("./global-root-handler.js");
 
-module.exports = globalRoot;
+const handler = new GlobalRootHandler();
+
+module.exports = handler.root;
+module.exports.handler = handler;
