@@ -17,8 +17,12 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 
-def collect_source_files(code_root: Path) -> Iterable[Path]:
-    extensions = {".js", ".jsx", ".ts", ".tsx"}
+DEFAULT_EXTENSIONS = {".js", ".jsx", ".ts", ".tsx", ".html"}
+
+
+def collect_source_files(code_root: Path, extensions: set[str] | None = None) -> Iterable[Path]:
+    extensions = extensions or DEFAULT_EXTENSIONS
+    extensions = {ext if ext.startswith(".") else f".{ext}" for ext in extensions}
     ignore_dirs = {
         ".git",
         ".venv",
@@ -185,6 +189,13 @@ def ensure_module_templates(
     return created
 
 
+def parse_extensions(value: str) -> set[str]:
+    candidates = [part.strip() for part in value.split(",") if part.strip()]
+    if not candidates:
+        return DEFAULT_EXTENSIONS.copy()
+    return {part if part.startswith(".") else f".{part}" for part in candidates}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Estimate API doc coverage")
     parser.add_argument("--code-root", default=".", help="Code root folder to scan")
@@ -199,11 +210,17 @@ def main() -> None:
         action="store_true",
         help="Delete stub templates that already have fully documented counterparts.",
     )
+    parser.add_argument(
+        "--extensions",
+        default=",".join(sorted(DEFAULT_EXTENSIONS)),
+        help="Comma-separated list of file extensions to scan (include leading dot or not); defaults to js,jsx,ts,tsx,html.",
+    )
     args = parser.parse_args()
 
     code_root = Path(args.code_root).resolve()
     doc_root = (code_root / args.doc_root).resolve()
     template_root = Path(args.template_root).resolve() if args.template_root else None
+    extensions = parse_extensions(args.extensions)
 
     module_summaries: list[ModuleSummary] = []
     modules: list[str] = []
@@ -221,7 +238,7 @@ def main() -> None:
     ignore_paths.append(stub_path)
     existing_doc_text = load_docs(doc_root, ignore_dirs=ignore_paths)
 
-    for path in collect_source_files(code_root):
+    for path in collect_source_files(code_root, extensions):
         rel = path.relative_to(code_root)
         summary = ModuleSummary(path=rel.as_posix())
         text = path.read_text(encoding="utf-8", errors="ignore")

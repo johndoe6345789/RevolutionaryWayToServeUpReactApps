@@ -91,6 +91,17 @@ class TestDocCoverage(unittest.TestCase):
             self.assertNotIn("ignore.d.ts", names)
             self.assertNotIn("node_modules", [str(p) for p in collected])
 
+    def test_collect_source_files_includes_html_when_requested(self):
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "bootstrap").mkdir()
+            (root / "bootstrap" / "script-list.html").write_text("<!doctype html>")
+            collected = list(
+                doc_coverage.collect_source_files(root, extensions={".html"})
+            )
+            self.assertEqual(len(collected), 1)
+            self.assertTrue(collected[0].name.endswith("script-list.html"))
+
     def test_render_module_template_includes_symbols(self):
         summary = doc_coverage.ModuleSummary("src/utils.js", globals=["CONST"], functions=["doThing"])
         template = doc_coverage.render_module_template(summary)
