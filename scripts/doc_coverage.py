@@ -245,6 +245,11 @@ def main() -> None:
     coverage_pct = (overall_docged / overall_total * 100) if overall_total else 100.0
 
     doc_text_lower = doc_text.lower()
+    documented_modules = {
+        match.group(1).lower()
+        for match in re.finditer(r"## Module:\s*`([^`]+)`", doc_text, re.IGNORECASE)
+        if match.group(1)
+    }
     stub_templates = []
     for path in stub_path.rglob("*.md"):
         try:
@@ -256,7 +261,8 @@ def main() -> None:
         module_match = re.search(r"## Module:\s*`([^`]+)`", text)
         if module_match:
             module_path = module_match.group(1)
-            if module_path and module_path.lower() in doc_text_lower:
+            module_lower = module_path.lower() if module_path else ""
+            if module_lower and module_lower in documented_modules:
                 continue
         stub_templates.append(path)
     stub_penalty = min(len(stub_templates) * 2.0, 100.0)
