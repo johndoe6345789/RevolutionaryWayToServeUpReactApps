@@ -4,6 +4,9 @@ WORKDIR /app
 
 COPY . .
 
+# Install the shared HTTP/proxy server so e2e runs can start it via the root package
+RUN npm ci --prefix server
+
 # Install helpers so the container can install Bun
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y unzip && \
