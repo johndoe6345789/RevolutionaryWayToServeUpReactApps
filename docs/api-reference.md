@@ -30,16 +30,16 @@ This guide documents the interactive surfaces that power the app bundle, the CI 
   - `render`: `rootId`, module names for React/DOM, and the render method (`createRoot` + `render` by default).
   - `fallbackProviders`: optional array of CDN bases used when `allowJsDelivr` is not `false`; defaults to `["https://cdn.jsdelivr.net/npm/"]`.
   - `tools`: Babel and Sass loader entries that produce the globals consumed by `compileTSX`/`compileSCSS`.
-  - `modules`: explicit React/MUI/Emotion dependencies with `ci_provider`/`production_provider` overrides so CI runs through `e2e/server.js:1`’s `/proxy/unpkg`.
+  - `modules`: explicit React/MUI/Emotion dependencies with `ci_provider`/`production_provider` overrides so CI runs through `server/server.js:1`’s `/proxy/unpkg`.
   - `dynamicModules`: prefix-based rules for icon/material helpers; every prefix declares CDN providers, optional package overrides, `filePattern`, and `globalPattern` so `loadDynamicModule` can resolve the requested identifier without bundling the entire module graph.
 
 Documenting `config.json` is essential for anyone adding dependencies, switching CDN providers, or tuning render behavior.
 
 ## Local server + proxy API
 
-- `e2e/server.js:1` provides the API surface used by `bun run serve` and the Playwright test:
+- `server/server.js:1` provides the API surface used by `bun run serve` and the Playwright test:
   - `/proxy/unpkg/*`: proxies CDN requests to `https://unpkg.com` (configurable via `CDN_PROXY_TARGET`) and injects permissive CORS headers so the browser-side bootstrapper can fetch dependencies.
-  - `/__client-log`: accepts POSTed JSON logs (event + detail + timestamp) from `bootstrap.js` whenever `ciLogging` is enabled, writes to `e2e/server.log`, and lets Playwright surface bootstrap resolution failures.
+  - `/__client-log`: accepts POSTed JSON logs (event + detail + timestamp) from `bootstrap.js` whenever `ciLogging` is enabled, writes to `server/server.log`, and lets Playwright surface bootstrap resolution failures.
   - Static file server: serves the repository root (including `bootstrap.js`, `styles.scss`, `src/`) so the in-browser compiler can load the app just like the production container.
 
 ## Python helper CLI APIs

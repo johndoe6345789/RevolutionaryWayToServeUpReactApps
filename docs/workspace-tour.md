@@ -12,7 +12,7 @@ This repo already has a focused `README.md` that covers the high-level workflow 
 
 ## Testing suites
 
-- `e2e/package.json:1`, `e2e/Dockerfile`, and `e2e/server.js:1` explain how the Playwright smoke test runs. The local `bun run serve` uses `server.js` to serve the repo root and proxy CDN requests so `bootstrap.js` can resolve modules without CORS issues. The smoke test itself lives in `e2e/tests/page-load.spec.ts:1`, which only asserts that the hero area and CTA buttons render correctly after the bundle loads.
+- `e2e/package.json:1`, `e2e/Dockerfile`, and `server/server.js:1` explain how the Playwright smoke test runs. The local `bun run serve` now starts the shared server from the repository root to serve the repo root and proxy CDN requests so `bootstrap.js` can resolve modules without CORS issues. The smoke test itself lives in `e2e/tests/page-load.spec.ts:1`, which only asserts that the hero area and CTA buttons render correctly after the bundle loads.
 - `test-tooling/package.json:1` (with Jest + React Testing Library + TypeScript) runs unit tests via `bun test`. The package includes its own `bun.lock`/`bunfig.toml` so it can be run independently, and its `tests/linkSrcNodeModules.js` script mirrors the runtime `src` folder into the test sandbox before Jest runs. The workflow in `.github/workflows/ci.yml:1` installs Bun 1.3.4, installs dependencies in both `ci/` and `e2e/`, runs the unit tests, and then kicks off the Playwright smoke test.
 
 ## Deployment, CI, and packaging
