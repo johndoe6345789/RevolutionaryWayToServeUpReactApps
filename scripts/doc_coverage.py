@@ -206,7 +206,7 @@ def main() -> None:
 
     for path in collect_source_files(code_root):
         rel = path.relative_to(code_root)
-        summary = ModuleSummary(path=str(rel))
+        summary = ModuleSummary(path=rel.as_posix())
         text = path.read_text(encoding="utf-8", errors="ignore")
         globals_set, functions_set = extract_symbols(text)
         summary.globals = sorted(globals_set)
