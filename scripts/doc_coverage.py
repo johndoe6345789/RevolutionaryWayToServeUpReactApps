@@ -254,6 +254,11 @@ def main() -> None:
         default=None,
         help="Directory for per-module markdown templates (optional)",
     )
+    parser.add_argument(
+        "--include-digital-twin",
+        action="store_true",
+        help="Count digital-twin.md against coverage (defaults to false)",
+    )
     args = parser.parse_args()
 
     code_root = Path(args.code_root).resolve()
@@ -272,8 +277,9 @@ def main() -> None:
                 ignore_paths.append(template_root)
         except ValueError:
             pass
-    if args.write_digital_twin:
-        ignore_paths.append(doc_root / "digital-twin.md")
+    digital_twin_path = doc_root / "digital-twin.md"
+    if not args.include_digital_twin:
+        ignore_paths.append(digital_twin_path)
     existing_doc_text = load_docs(doc_root, ignore_dirs=ignore_paths)
 
     for path in collect_source_files(code_root):
@@ -327,7 +333,7 @@ def main() -> None:
     coverage_pct = (overall_docged / overall_total * 100) if overall_total else 100.0
 
     coverage_label = "Documentation coverage"
-    if args.write_digital_twin:
+    if args.include_digital_twin or args.write_digital_twin:
         coverage_label += " (with digital twin)"
 
     print()
