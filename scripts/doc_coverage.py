@@ -54,12 +54,17 @@ def extract_symbols(text: str) -> tuple[set[str], set[str]]:
     return globals_set, functions_set
 
 
-def load_docs(doc_root: Path) -> str:
+def load_docs(doc_root: Path, ignore_dirs: Sequence[Path] | None = None) -> str:
     collected = []
     if not doc_root.exists():
         return ""
 
+    ignore_paths = [ignore.resolve() for ignore in (ignore_dirs or [])]
     for path in doc_root.rglob("*.md"):
+        if ignore_paths:
+            resolved = path.resolve()
+            if any(resolved.is_relative_to(ignore) for ignore in ignore_paths):
+                continue
         collected.append(path.read_text(encoding="utf-8"))
     return "\n".join(collected)
 
@@ -166,21 +171,110 @@ def render_digital_twin(
     return "\n".join(lines).rstrip() + "\n"
 
 
+def render_module_template(module: ModuleSummary) -> str:
+    lines: list[str] = [
+        f"# Module template: `{module.path}`",
+        "",
+        "Use this document as a starting point. Replace the placeholder text with prose, examples, and links that describe the exported surface.",
+        "",
+        "## Overview",
+        "- **Purpose:**",
+        "- **Entry point / exports:**",
+        "",
+        "## Globals",
+    ]
+
+    if module.globals:
+        for name in module.globals:
+            lines.append(f"- `{name}` — describe the meaning and how callers should use it.")
+    else:
+        lines.append("- _None yet_")
+
+    lines.extend(["", "## Functions / Classes"])
+    if module.functions:
+        for name in module.functions:
+            lines.append(
+                f"- `{name}` — explain arguments, return values, and side effects; note if it is async, a class constructor, etc."
+            )
+    else:
+        lines.append("- _None yet_")
+
+    lines.extend(
+        [
+            "",
+            "## Examples",
+            "```ts",
+            "// Show a minimal snippet that exercises the module.",
+            "```",
+            "",
+            "## Related docs",
+            "- Reference other relevant markdown files if they already mention this module.",
+        ]
+    )
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def ensure_module_templates(
+    module_summaries: Sequence[ModuleSummary],
+    template_root: Path,
+    existing_doc_text: str,
+) -> list[Path]:
+    created: list[Path] = []
+    template_root.mkdir(parents=True, exist_ok=True)
+
+    for module in module_summaries:
+        if is_documented(module.path, existing_doc_text):
+            continue
+        module_path = Path(module.path)
+        target_dir = template_root / module_path.parent
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target_file = target_dir / f"{module_path.name}.md"
+
+        if target_file.exists():
+            continue
+
+        target_file.write_text(render_module_template(module), encoding="utf-8")
+        created.append(target_file)
+
+    return created
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Estimate API doc coverage")
     parser.add_argument("--code-root", default=".", help="Code root folder to scan")
     parser.add_argument("--doc-root", default="docs", help="API doc markdown folder")
+    parser.add_argument(
+        "--write-digital-twin",
+        action="store_true",
+        help="Emit docs/digital-twin.md summarizing the scanned surface",
+    )
+    parser.add_argument(
+        "--template-root",
+        default=None,
+        help="Directory for per-module markdown templates (optional)",
+    )
     args = parser.parse_args()
 
     code_root = Path(args.code_root).resolve()
     doc_root = (code_root / args.doc_root).resolve()
+    template_root = Path(args.template_root).resolve() if args.template_root else None
 
     module_summaries: list[ModuleSummary] = []
     modules: list[str] = []
     globals_names: list[str] = []
     functions_names: list[str] = []
 
-    existing_doc_text = load_docs(doc_root)
+    ignore_paths: list[Path] = []
+    if template_root:
+        try:
+            if template_root.resolve().is_relative_to(doc_root):
+                ignore_paths.append(template_root)
+        except ValueError:
+            pass
+    if args.write_digital_twin:
+        ignore_paths.append(doc_root / "digital-twin.md")
+    existing_doc_text = load_docs(doc_root, ignore_dirs=ignore_paths)
 
     for path in collect_source_files(code_root):
         rel = path.relative_to(code_root)
@@ -198,24 +292,32 @@ def main() -> None:
     existing_globals_docged, existing_globals_total = compute_coverage(globals_names, existing_doc_text)
     existing_functions_docged, existing_functions_total = compute_coverage(functions_names, existing_doc_text)
 
-    digital_twin_path = doc_root / "digital-twin.md"
-    doc_root.mkdir(parents=True, exist_ok=True)
-    try:
-        relative_digital_twin = str(digital_twin_path.relative_to(code_root))
-    except ValueError:
-        relative_digital_twin = str(digital_twin_path)
-    digital_twin_md = render_digital_twin(
-        module_summaries,
-        existing_doc_text,
-        (existing_module_docged, existing_module_total),
-        (existing_globals_docged, existing_globals_total),
-        (existing_functions_docged, existing_functions_total),
-        relative_digital_twin,
-    )
-    digital_twin_path.write_text(digital_twin_md, encoding="utf-8")
-    print(f"Digital twin documentation written to {relative_digital_twin}")
+    if template_root:
+        created_templates = ensure_module_templates(module_summaries, template_root, existing_doc_text)
+        if created_templates:
+            print(
+                f"Module templates written for {len(created_templates)} modules under {template_root}"
+            )
 
-    doc_text = load_docs(doc_root)
+    if args.write_digital_twin:
+        digital_twin_path = doc_root / "digital-twin.md"
+        doc_root.mkdir(parents=True, exist_ok=True)
+        try:
+            relative_digital_twin = str(digital_twin_path.relative_to(code_root))
+        except ValueError:
+            relative_digital_twin = str(digital_twin_path)
+        digital_twin_md = render_digital_twin(
+            module_summaries,
+            existing_doc_text,
+            (existing_module_docged, existing_module_total),
+            (existing_globals_docged, existing_globals_total),
+            (existing_functions_docged, existing_functions_total),
+            relative_digital_twin,
+        )
+        digital_twin_path.write_text(digital_twin_md, encoding="utf-8")
+        print(f"Digital twin documentation written to {relative_digital_twin}")
+
+    doc_text = load_docs(doc_root, ignore_dirs=ignore_paths)
     module_docged, module_total = compute_coverage(modules, doc_text)
     globals_docged, globals_total = compute_coverage(globals_names, doc_text)
     functions_docged, functions_total = compute_coverage(functions_names, doc_text)
@@ -224,8 +326,12 @@ def main() -> None:
     overall_docged = module_docged + globals_docged + functions_docged
     coverage_pct = (overall_docged / overall_total * 100) if overall_total else 100.0
 
+    coverage_label = "Documentation coverage"
+    if args.write_digital_twin:
+        coverage_label += " (with digital twin)"
+
     print()
-    print("Documentation coverage (with digital twin)")
+    print(coverage_label)
     print("----------------------")
     print(f"Modules:    {module_docged}/{module_total} documented")
     print(f"Globals:    {globals_docged}/{globals_total}")
