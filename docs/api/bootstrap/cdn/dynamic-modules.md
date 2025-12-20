@@ -2,29 +2,31 @@
 
 ## Overview
 
-- **Purpose:** Load dynamic libraries (icons, components, tooling) at runtime by probing CDN providers, creating namespaces, and attaching their globals. This keeps the bootstrap slim while supporting on-demand imports.
-- **Entry point:** Required by `bootstrap/local/local-loader.js` when resolving dynamic module rules defined in `config.json`.
+- **Purpose:** Resolve and load CDN-backed dynamic modules such as icon packs by probing provider fallbacks, normalizing package paths, and caching the resulting namespaces in the registry.
+- **Entry point:** Exported helpers are attached to `__rwtraBootstrap.helpers.dynamicModules` so the local loader can call `loadDynamicModule` whenever it encounters icons or other runtime rules defined under `config.dynamicModules`.
 
 ## Globals
 
-- _None_: exports functions but also registers them onto the shared bootstrap helper namespace for tests.
+- _None:_ helpers are exported through the shared `helpers.dynamicModules` namespace.
 
-## Functions / Classes
+## Functions
 
-- **`createNamespace(value)`** — Wraps a module in an `__esModule`-compliant namespace so both default/ named imports work regardless of the source format.
-- **`loadDynamicModule(name, config, registry)`** — Discovers the rule for `name`, builds candidate URLs across `ci`, `provider`, `production`, and fallback hosts, probes them with the CDN network helper, loads the first responder (via `import` for ESM or `loadScript` for globals), and records the resulting namespace in `registry`.
-- **`makeNamespace(globalObj)`** — Shortcut that reuses `createNamespace` for globally exposed modules, ensuring they keep the `default` key.
+- **`loadDynamicModule(name, config, registry)`** — Matches the requested name against `config.dynamicModules`, builds candidate URLs from configured providers/aliases, probes each endpoint, loads the module either via `import()` (for `esm` rules) or `<script>` injection, and caches the namespace so subsequent calls reuse the same exports.
+- **`makeNamespace(globalObj)`** — Safely wraps either a module namespace or an existing global object so it behaves like an ES module with a default export; promoted helper for downstream tooling.
 
 ## Examples
 
 ```ts
-const result = await loadDynamicModule("icon:test", bootstrapConfig, registry);
+const iconNamespace = await loadDynamicModule("icons/mega", config, registry);
+iconNamespace.default();
 ```
 
 ## Related docs
 
-- `docs/api/bootstrap/cdn/network.md` explains how URL probes and script injection are shared with this loader.
+- `docs/api/bootstrap/cdn/network.md` explains how the CDN helpers resolve provider fallbacks and probe URLs when `loadDynamicModule` retries across mirrors.
+- `docs/api/bootstrap/local/local-module-loader.md` shows how the local loader wires the dynamic module helper into `createRequire`.
 
 ## Navigation
 
-- [CDN Helpers index](index.md)
+- [Bootstrap CDN index](index.md)
+- [Bootstrap index](../index.md)

@@ -9,17 +9,17 @@
 
 - _None:_ each file exports a default React component.
 
-## HeroSection
+### HeroSection (`src/components/HeroSection.tsx`)
 
 - Builds a layered hero with gradient background, neon chips, call-to-action buttons, and an SVG arcade console illustration.
 - Logs interactions (`Launch Arcade Mode`, `Browse ROM Library`) via `console.log` and renders system tag chips derived from `SYSTEM_TAGS`.
 
-## FeaturedGames
+### FeaturedGames (`src/components/FeaturedGames.tsx`)
 
 - Renders a grid of cards using `FEATURED_GAMES`. Each card shows a cover image via `CardMedia`, title/badge metadata, genre chips, and quick-action buttons that log `Quick play:` or `View details` with the game ID.
 - The layout guarantees cards stretch vertically by using column flex and pushing the action row to the bottom.
 
-## FooterStrip
+### FooterStrip (`src/components/FooterStrip.tsx`)
 
 - Displays a descriptive caption plus small `Chip`s for optional features such as `CRT Shader`, `Netplay`, and `Big Screen Mode`, all styled with transparent borders matching the dark palette.
 

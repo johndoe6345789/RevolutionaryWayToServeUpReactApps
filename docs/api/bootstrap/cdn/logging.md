@@ -2,35 +2,36 @@
 
 ## Overview
 
-- **Purpose:** Buffer and serialize client telemetry for CDN probes and bootstrap errors while gating output behind the configured CI logging flag.
-- **Entry point:** Bootstrapped by `bootstrap.js` and reused inside CDN helpers for consistent logging; the module sets `window.__rwtraLog` and listens for `error`/`unhandledrejection`.
+- **Purpose:** Provide CI-aware client logging for the bootstrap runtime and CDN tooling so telemetry can be captured when needed without flooding the production console.
+- **Entry point:** Exposed on `__rwtraBootstrap.helpers.logging` so both browser entry points and server-side tools can call `logClient` and coordinate `ciLogging` decisions.
 
 ## Globals
 
-- _None_: the module exports helper functions only, but it mutates `global.__rwtraBootstrap.helpers` so tests can stub behavior.
+- _None:_ the module attaches helpers to the shared bootstrap namespace instead of leaking top-level globals.
 
-## Functions / Classes
+## Functions
 
-- **`setCiLoggingEnabled(enabled)`** — Turns on verbose logging so instrumentation is reported even when the host is non-CI.
-- **`detectCiLogging(config, locationOverride)`** — Reads `window.__RWTRA_CI_MODE__`, `ci` query params, or the host (`localhost/127.0.0.1`) to auto-enable logging; accepts a location override for deterministic tests.
-- **`serializeForLog(value)`** — Safe serializer that handles errors, nested objects, and circular structures before they are sent to the log endpoint.
-- **`logClient(event, detail, level)`** — Sends logs to `/__client-log` via `navigator.sendBeacon` or `fetch`, falls back to console output, and skips network calls unless logging is enabled or the level is warning/error.
-- **`wait(ms)`** — Simple Promise-based delay utility for the logging queue.
-- **`isCiLoggingEnabled()`** — Returns the current state so bootstrap can send the `ci:enabled` event after the first detection.
+- **`setCiLoggingEnabled(enabled)`** — Toggles logging so `logClient` only sends data when CI logging is explicit (or when developer flags enable it).
+- **`detectCiLogging(config, locationOverride)`** — Reads `window.__RWTRA_CI_MODE__`, the `ci` query parameter, or the host name (`localhost`/`127.0.0.1`) to decide whether the runtime should treat the session as CI; falls back to `config.ciLogging` when provided.
+- **`logClient(event, detail, level = "info")`** — Sends serialized payloads to `/__client-log` via `navigator.sendBeacon` or `fetch`, writes to the console, and obeys the `ciLogging` flag so only important messages ship.
+- **`wait(ms)`** — Helper used by tests and tooling for backoff delays when `logClient` needs to wait before retrying.
+- **`serializeForLog(value)`** — Normalizes `Error` objects and other payloads so the bootstrap logger can round-trip the details safely.
+- **`isCiLoggingEnabled()`** — Reports whether CI logging is currently enabled so callers can gate downstream telemetry.
 
 ## Examples
 
 ```ts
-import { setCiLoggingEnabled, logClient } from "./bootstrap/cdn/logging.js";
-
-setCiLoggingEnabled(true);
-logClient("bootstrap:started", { hostname: window.location.hostname });
+if (detectCiLogging(config)) {
+  setCiLoggingEnabled(true);
+  logClient("bootstrap:start", { config });
+}
 ```
 
 ## Related docs
 
-- `docs/api/bootstrap/core.md` shows how bootstrap wires `logClient` into the life cycle.
+- `docs/api/bootstrap/cdn/network.md` and `docs/api/bootstrap/cdn/tools.md` emit events that `logClient` surfaces, providing useful context in CI logs.
 
 ## Navigation
 
-- [CDN Helpers index](index.md)
+- [Bootstrap CDN index](index.md)
+- [Bootstrap index](../index.md)

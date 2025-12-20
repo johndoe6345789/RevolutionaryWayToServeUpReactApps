@@ -17,4 +17,8 @@ This section documents the bootstrap runtime, CDN helpers, and the loader helper
 
 - [`local/index.md`](local/index.md) – Landing page for the local loader plus Sass/TSX compiler helpers.
 
+## Script helpers
+
+- [`script-list-loader.md`](script-list-loader.md) – Loads `bootstrap/script-list.html` so helper scripts can execute in order before `bootstrap.js`.
+
 Use the links above to drill into the specific helpers you are working with.
