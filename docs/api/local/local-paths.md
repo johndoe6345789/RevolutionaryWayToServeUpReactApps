@@ -1,4 +1,4 @@
-# Module: `bootstrap/local/local-paths.js`
+# Module: `bootstrap/initializers/path-utils/local-paths.js`
 
 ## Overview
 
@@ -25,7 +25,7 @@
 import {
   resolveLocalModuleBase,
   getCandidateLocalPaths
-} from "../../bootstrap/local/local-paths.js";
+} from "../../bootstrap/initializers/path-utils/local-paths.js";
 
 const resolved = resolveLocalModuleBase("./button", "src", "https://example.com/app/index.html");
 const candidates = getCandidateLocalPaths(resolved);

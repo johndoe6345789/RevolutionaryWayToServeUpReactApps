@@ -76,7 +76,7 @@ class TestDocCoverage(unittest.TestCase):
 
     def test_symbol_detection_receives_bare_function_reference(self):
         doc_text = "The loader calls compileSCSS before injectCSS runs."
-        symbol_name = "bootstrap/local/sass-compiler.js:compileSCSS"
+        symbol_name = "bootstrap/initializers/compilers/sass-compiler.js:compileSCSS"
 
         self.assertTrue(doc_coverage.DocumentationAnalyzer.is_documented(symbol_name, doc_text))
 

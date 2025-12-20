@@ -7,7 +7,7 @@
 
 ## Behavior
 
-- Copies `src/` helpers into `test-tooling/tests/__mocks__/src` if they are missing, ensuring `bootstrap/local/local-loader.js` still finds components when Jest executes.
+- Copies `src/` helpers into `test-tooling/tests/__mocks__/src` if they are missing, ensuring `bootstrap/initializers/loaders/local-loader.js` still finds components when Jest executes.
 - Logs replaced files under `test-tooling/tests/.log` for troubleshooting.
 
 ## Navigation

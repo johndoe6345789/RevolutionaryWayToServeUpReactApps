@@ -27,11 +27,11 @@ const {
   isCiLoggingEnabled,
 } = logging;
 
-const BootstrapConfigLoader = require("./bootstrap/config-loader.js");
+const BootstrapConfigLoader = require("./bootstrap/controllers/config-loader.js");
 const BootstrapConfigLoaderConfig = require("./bootstrap/configs/bootstrap-config-loader.js");
 const LoggingManager = require("./bootstrap/services/core/logging-manager.js");
 const LoggingManagerConfig = require("./bootstrap/configs/logging-manager.js");
-const Bootstrapper = require("./bootstrap/bootstrapper.js");
+const Bootstrapper = require("./bootstrap/controllers/bootstrapper.js");
 const BootstrapperConfig = require("./bootstrap/configs/bootstrapper.js");
 
 const configLoader = new BootstrapConfigLoader(new BootstrapConfigLoaderConfig());

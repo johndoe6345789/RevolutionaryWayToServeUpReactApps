@@ -38,7 +38,10 @@ class ModuleLoaderAggregator {
     this.tools = this._requireOrHelper("../../cdn/tools.js", "tools");
     this.dynamicModules = this._requireOrHelper("../../cdn/dynamic-modules.js", "dynamicModules");
     this.sourceUtils = this._requireOrHelper("../../cdn/source-utils.js", "sourceUtils");
-    this.localLoader = this._requireOrHelper("../../local/local-loader.js", "localLoader");
+    this.localLoader = this._requireOrHelper(
+      "../../initializers/loaders/local-loader.js",
+      "localLoader"
+    );
   }
 
   _requireOrHelper(path, helperKey) {

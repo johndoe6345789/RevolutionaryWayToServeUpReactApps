@@ -7,7 +7,7 @@ This document outlines the Jest-driven unit suite housed inside `test-tooling/te
 - `test-tooling/tests/App.test.tsx` – Renders `src/App.tsx` with React Testing Library to ensure the hero, featured grid, and footer mount.
 - `test-tooling/tests/bootstrap.test.ts` – Exercises `bootstrap/bootstrap.js` helpers (`bootstrap()`, `loadModules()`) under mocked CDN helper responses.
 - `test-tooling/tests/bootstrap.cdn.test.ts` – Targets CDN exports (`logging`, `network`, `tools`) to ensure `resolveModuleUrl`, `loadTools`, and logging behave under failure/retry scenarios.
-- `test-tooling/tests/bootstrap.require-default.test.ts` – Verifies `bootstrap/local/local-loader.js` exposes a default `_async` loader that cooperates with the CDN registry.
+- `test-tooling/tests/bootstrap.require-default.test.ts` – Verifies `bootstrap/initializers/loaders/local-loader.js` exposes a default `_async` loader that cooperates with the CDN registry.
 - `test-tooling/tests/components.test.tsx` – Mounts `HeroSection`, `FeaturedGames`, and `FooterStrip` to confirm UI sections render the configured theme/data.
 - `test-tooling/tests/data.test.ts` – Confirms `src/data.ts` exports `FEATURED_GAMES`, `SYSTEM_TAGS`, and `CTA_BUTTON_STYLE` with the expected metadata.
 - `test-tooling/tests/local-paths.test.ts` – Covers path helpers (`isLocalModule`, `normalizeDir`, `getCandidateLocalPaths`).

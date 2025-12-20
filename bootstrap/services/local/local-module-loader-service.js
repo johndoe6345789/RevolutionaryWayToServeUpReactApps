@@ -29,9 +29,15 @@ class LocalModuleLoaderService {
     this.sourceUtils =
       dependencies.sourceUtils ?? (this.isCommonJs ? require("../../cdn/source-utils.js") : this.helpers.sourceUtils);
     this.tsxCompiler =
-      dependencies.tsxCompiler ?? (this.isCommonJs ? require("../../local/tsx-compiler.js") : this.helpers.tsxCompiler);
+      dependencies.tsxCompiler ??
+      (this.isCommonJs
+        ? require("../../initializers/compilers/tsx-compiler.js")
+        : this.helpers.tsxCompiler);
     this.localPaths =
-      dependencies.localPaths ?? (this.isCommonJs ? require("../../local/local-paths.js") : this.helpers.localPaths);
+      dependencies.localPaths ??
+      (this.isCommonJs
+        ? require("../../initializers/path-utils/local-paths.js")
+        : this.helpers.localPaths);
     this.logClient = (this.logging && this.logging.logClient) || (() => {});
     this.loadDynamicModule =
       (this.dynamicModules && this.dynamicModules.loadDynamicModule) ||

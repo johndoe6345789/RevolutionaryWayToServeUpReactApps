@@ -1,4 +1,4 @@
-# Module: `bootstrap/local/local-module-loader.js`
+# Module: `bootstrap/initializers/loaders/local-module-loader.js`
 
 ## Overview
 
@@ -25,7 +25,7 @@ await loadLocalModule("components/Button", "src", requireFn, registry);
 ## Related docs
 
 - `docs/api/bootstrap/local/README.md` explains how this loader composes the TSX compiler, Sass helper, and path utilities.
-- `docs/api/bootstrap/local/local-paths.js` shows how candidate paths and alias keys are generated.
+- `docs/api/local/local-paths.md` shows how candidate paths and alias keys are generated.
 
 ## Navigation
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- **Purpose:** Exercise `bootstrap/local/local-paths.js` helpers (`isLocalModule`, `normalizeDir`, `getCandidateLocalPaths`) to ensure filesystem references resolve predictably while loading modules.
+- **Purpose:** Exercise `bootstrap/initializers/path-utils/local-paths.js` helpers (`isLocalModule`, `normalizeDir`, `getCandidateLocalPaths`) to ensure filesystem references resolve predictably while loading modules.
 - **Entry point:** Calls each helper with sample paths (`./components/App`, `/src/theme`) and asserts the normalized outputs.
 
 ## Assertions
@@ -12,7 +12,7 @@
 
 ## Related docs
 
-- `docs/api/bootstrap/local/local-paths.md`
+- `docs/api/local/local-paths.md`
 
 ## Navigation
 

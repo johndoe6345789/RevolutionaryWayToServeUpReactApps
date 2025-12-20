@@ -6,7 +6,7 @@ import {
   makeAliasKey,
   normalizeDir,
   resolveLocalModuleBase
-} from "../../bootstrap/local/local-paths.js";
+} from "../../bootstrap/initializers/path-utils/local-paths.js";
 
 describe("local path helpers", () => {
   it("classifies relative and absolute modules", () => {
