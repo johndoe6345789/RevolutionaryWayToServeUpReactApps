@@ -1,10 +1,11 @@
 const LocalLoaderConfig = require("../../configs/local-loader.js");
-const helperRegistry = require("./helpers");
 
 /**
  * Combines sass/tsx/local helpers into the shared local loader surface.
  */
 class LocalLoaderService {
+  static helperRegistry = require("./helpers");
+
   constructor(config = new LocalLoaderConfig()) { this.config = config; this.initialized = false; }
 
   initialize() {
@@ -17,7 +18,7 @@ class LocalLoaderService {
     if (!this.serviceRegistry) {
       throw new Error("ServiceRegistry required for LocalLoaderService");
     }
-    const FrameworkRenderer = helperRegistry.getHelper("frameworkRenderer");
+    const FrameworkRenderer = LocalLoaderService.helperRegistry.getHelper("frameworkRenderer");
     if (!FrameworkRenderer) {
       throw new Error("FrameworkRenderer helper missing from helper registry");
     }
@@ -50,7 +51,7 @@ class LocalLoaderService {
     this.getModuleDir = this.localPaths?.getModuleDir;
     this.localModuleLoader = this.moduleLoader?.createLocalModuleLoader;
     this.fetchLocalModuleSource = this.moduleLoader?.fetchLocalModuleSource;
-    const LocalRequireBuilder = helperRegistry.getHelper("localRequireBuilder");
+    const LocalRequireBuilder = LocalLoaderService.helperRegistry.getHelper("localRequireBuilder");
     if (!LocalRequireBuilder) {
       throw new Error("LocalRequireBuilder helper missing from helper registry");
     }

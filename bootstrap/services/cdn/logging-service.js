@@ -1,13 +1,13 @@
-const {
-  ciLogQueryParam: DEFAULT_CI_LOG_QUERY_PARAM,
-  clientLogEndpoint: DEFAULT_CLIENT_LOG_ENDPOINT,
-} = require("../../constants/common.js");
 const LoggingServiceConfig = require("../../configs/logging-service.js");
 
 /**
  * Centralizes CI logging defaults, serialization helpers, and UI error forwarding.
  */
 class LoggingService {
+  static get defaults() {
+    return require("../../constants/common.js");
+  }
+
   constructor(config = new LoggingServiceConfig()) { this.config = config; this.initialized = false; }
 
   initialize() {
@@ -23,8 +23,9 @@ class LoggingService {
     this.serializeForLog = this.serializeForLog.bind(this);
     this.isCiLoggingEnabled = this.isCiLoggingEnabled.bind(this);
     const { ciLogQueryParam, clientLogEndpoint } = this.config;
-    this.ciLogQueryParam = ciLogQueryParam ?? DEFAULT_CI_LOG_QUERY_PARAM;
-    this.clientLogEndpoint = clientLogEndpoint ?? DEFAULT_CLIENT_LOG_ENDPOINT;
+    const defaults = this.constructor.defaults;
+    this.ciLogQueryParam = ciLogQueryParam ?? defaults.ciLogQueryParam;
+    this.clientLogEndpoint = clientLogEndpoint ?? defaults.clientLogEndpoint;
     this.serviceRegistry = this.config.serviceRegistry;
     if (!this.serviceRegistry) {
       throw new Error("ServiceRegistry required for LoggingService");

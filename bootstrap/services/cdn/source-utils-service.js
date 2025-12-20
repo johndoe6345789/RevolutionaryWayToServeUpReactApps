@@ -1,5 +1,4 @@
 const SourceUtilsConfig = require("../../configs/source-utils.js");
-const globalRoot = require("../../constants/global-root.js");
 
 /**
  * Parses source files for module specifiers and preloads dynamic dependencies.
@@ -12,7 +11,7 @@ class SourceUtilsService {
       throw new Error("SourceUtilsService already initialized");
     }
     this.initialized = true;
-    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
     this.serviceRegistry = this.config.serviceRegistry;
@@ -130,6 +129,14 @@ class SourceUtilsService {
     if (this.isCommonJs) {
       module.exports = exports;
     }
+  }
+
+  _resolveNamespace() {
+    const namespace = this.config.namespace;
+    if (!namespace) {
+      throw new Error("Namespace required for SourceUtilsService");
+    }
+    return namespace;
   }
 }
 

@@ -1,4 +1,3 @@
-const globalRoot = require("../../constants/global-root.js");
 const ToolsLoaderConfig = require("../../configs/tools.js");
 
 /**
@@ -13,7 +12,7 @@ class ToolsLoaderService {
     }
     this.initialized = true;
     const dependencies = this.config.dependencies || {};
-    this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+    this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
     this.serviceRegistry = this.config.serviceRegistry;
@@ -149,6 +148,14 @@ class ToolsLoaderService {
     if (this.isCommonJs) {
       module.exports = exports;
     }
+  }
+
+  _resolveNamespace() {
+    const namespace = this.config.namespace;
+    if (!namespace) {
+      throw new Error("Namespace required for ToolsLoaderService");
+    }
+    return namespace;
   }
 }
 
