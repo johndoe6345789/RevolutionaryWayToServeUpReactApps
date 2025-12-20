@@ -2,8 +2,9 @@
  * Defines dependency overrides for the module loader aggregator.
  */
 class ModuleLoaderConfig {
-  constructor({ dependencies } = {}) {
+  constructor({ dependencies, serviceRegistry } = {}) {
     this.dependencies = dependencies;
+    this.serviceRegistry = serviceRegistry;
   }
 }
 

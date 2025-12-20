@@ -15,6 +15,10 @@ class SourceUtilsService {
     this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for SourceUtilsService");
+    }
   }
 
   collectDynamicModuleImports(source, config) {
@@ -119,6 +123,10 @@ class SourceUtilsService {
     }
     const exports = this.exports;
     this.helpers.sourceUtils = exports;
+    this.serviceRegistry.register("sourceUtils", exports, {
+      folder: "services/cdn",
+      domain: "cdn",
+    });
     if (this.isCommonJs) {
       module.exports = exports;
     }

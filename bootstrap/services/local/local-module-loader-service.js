@@ -17,6 +17,10 @@ class LocalModuleLoaderService {
     this.namespace = this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for LocalModuleLoaderService");
+    }
     this.logging =
       dependencies.logging ?? (this.isCommonJs ? require("../../cdn/logging.js") : this.helpers.logging);
     this.dynamicModules =
@@ -167,6 +171,10 @@ class LocalModuleLoaderService {
     }
     const exports = this.exports;
     this.helpers.localModuleLoader = exports;
+    this.serviceRegistry.register("localModuleLoader", exports, {
+      folder: "services/local",
+      domain: "local",
+    });
     if (this.isCommonJs) {
       module.exports = exports;
     }

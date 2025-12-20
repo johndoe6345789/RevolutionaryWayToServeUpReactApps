@@ -26,6 +26,14 @@ class ModuleLoaderAggregator {
       this.sourceUtils,
       this.localLoader
     );
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for ModuleLoaderAggregator");
+    }
+    this.serviceRegistry.register("moduleLoader", this.exports, {
+      folder: "services/core",
+      domain: "core",
+    });
   }
 
   _loadDependencies() {

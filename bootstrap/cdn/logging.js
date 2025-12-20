@@ -4,8 +4,11 @@
 
   const LoggingService = require("../services/cdn/logging-service.js");
   const LoggingServiceConfig = require("../configs/logging-service.js");
+  const serviceRegistry = require("../services/service-registry-instance.js");
 
-  const loggingService = new LoggingService(new LoggingServiceConfig());
+  const loggingService = new LoggingService(
+    new LoggingServiceConfig({ serviceRegistry })
+  );
   loggingService.initialize();
 
   helpers.logging = loggingService;

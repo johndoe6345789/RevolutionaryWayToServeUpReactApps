@@ -2,8 +2,8 @@
  * Extensible hooks for parsing and preloading source modules.
  */
 class SourceUtilsConfig {
-  constructor({} = {}) {
-    // Placeholder for future dependencies if needed.
+  constructor({ serviceRegistry } = {}) {
+    this.serviceRegistry = serviceRegistry;
   }
 }
 

@@ -2,8 +2,9 @@
  * Provides the global overrides used when ensuring proxy mode is defined.
  */
 class EnvInitializerConfig {
-  constructor({ global } = {}) {
+  constructor({ global, serviceRegistry } = {}) {
     this.global = global;
+    this.serviceRegistry = serviceRegistry;
   }
 }
 

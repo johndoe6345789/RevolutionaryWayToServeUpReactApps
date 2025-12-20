@@ -2,8 +2,9 @@
  * Supplies dependency overrides for the dynamic modules loader.
  */
 class DynamicModulesConfig {
-  constructor({ dependencies } = {}) {
+  constructor({ dependencies, serviceRegistry } = {}) {
     this.dependencies = dependencies;
+    this.serviceRegistry = serviceRegistry;
   }
 }
 

@@ -25,6 +25,14 @@ class LoggingService {
     const { ciLogQueryParam, clientLogEndpoint } = this.config;
     this.ciLogQueryParam = ciLogQueryParam ?? DEFAULT_CI_LOG_QUERY_PARAM;
     this.clientLogEndpoint = clientLogEndpoint ?? DEFAULT_CLIENT_LOG_ENDPOINT;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for LoggingService");
+    }
+    this.serviceRegistry.register("logging", this, {
+      folder: "services/cdn",
+      domain: "cdn",
+    });
   }
 
   setCiLoggingEnabled(enabled) {

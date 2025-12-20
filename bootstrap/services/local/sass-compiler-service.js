@@ -12,6 +12,10 @@ class SassCompilerService {
       throw new Error("SassCompilerService already initialized");
     }
     this.initialized = true;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for SassCompilerService");
+    }
     this.fetchImpl =
       this.config.fetch ??
       (typeof globalRoot.fetch === "function" ? globalRoot.fetch.bind(globalRoot) : undefined);
@@ -105,6 +109,10 @@ class SassCompilerService {
     const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
     const helpers = namespace.helpers || (namespace.helpers = {});
     helpers.sassCompiler = exports;
+    this.serviceRegistry.register("sassCompiler", exports, {
+      folder: "services/local",
+      domain: "local",
+    });
     if (typeof module !== "undefined" && module.exports) {
       module.exports = exports;
     }

@@ -15,6 +15,14 @@ class LoggingManager {
     const { logClient, serializeForLog } = this.config;
     this.logClient = logClient;
     this.serializeForLog = serializeForLog;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for LoggingManager");
+    }
+    this.serviceRegistry.register("loggingManager", this, {
+      folder: "services/core",
+      domain: "core",
+    });
   }
 
   install(windowObj) {

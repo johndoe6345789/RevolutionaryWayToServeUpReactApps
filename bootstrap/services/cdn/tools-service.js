@@ -16,6 +16,10 @@ class ToolsLoaderService {
     this.namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for ToolsLoaderService");
+    }
     this.logging =
       dependencies.logging ??
       (this.isCommonJs ? require("../../cdn/logging.js") : this.helpers.logging);
@@ -138,6 +142,10 @@ class ToolsLoaderService {
     }
     const exports = this.exports;
     this.helpers.tools = exports;
+    this.serviceRegistry.register("tools", exports, {
+      folder: "services/cdn",
+      domain: "cdn",
+    });
     if (this.isCommonJs) {
       module.exports = exports;
     }

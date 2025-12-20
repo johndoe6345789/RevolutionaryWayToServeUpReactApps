@@ -31,12 +31,13 @@ const BootstrapConfigLoader = require("./bootstrap/controllers/config-loader.js"
 const BootstrapConfigLoaderConfig = require("./bootstrap/configs/bootstrap-config-loader.js");
 const LoggingManager = require("./bootstrap/services/core/logging-manager.js");
 const LoggingManagerConfig = require("./bootstrap/configs/logging-manager.js");
+const serviceRegistry = require("./bootstrap/services/service-registry-instance.js");
 const Bootstrapper = require("./bootstrap/controllers/bootstrapper.js");
 const BootstrapperConfig = require("./bootstrap/configs/bootstrapper.js");
 
 const configLoader = new BootstrapConfigLoader(new BootstrapConfigLoaderConfig());
 const loggingManager = new LoggingManager(
-  new LoggingManagerConfig({ logClient, serializeForLog })
+  new LoggingManagerConfig({ logClient, serializeForLog, serviceRegistry })
 );
 const bootstrapper = new Bootstrapper(
   new BootstrapperConfig({

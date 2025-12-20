@@ -12,6 +12,10 @@ class TsxCompilerService {
       throw new Error("TsxCompilerService already initialized");
     }
     this.initialized = true;
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for TsxCompilerService");
+    }
     const dependencies = this.config.dependencies || {};
     this.global = globalRoot;
     this.namespace = this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
@@ -95,6 +99,10 @@ class TsxCompilerService {
     }
     const exports = this.exports;
     this.helpers.tsxCompiler = exports;
+    this.serviceRegistry.register("tsxCompiler", exports, {
+      folder: "services/local",
+      domain: "local",
+    });
     if (this.isCommonJs) {
       module.exports = exports;
     }

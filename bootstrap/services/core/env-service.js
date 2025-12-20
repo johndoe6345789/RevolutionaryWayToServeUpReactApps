@@ -14,6 +14,14 @@ class EnvInitializer {
     this.initialized = true;
     this.global = this.config.global || globalRoot;
     this.ensureProxyMode();
+    this.serviceRegistry = this.config.serviceRegistry;
+    if (!this.serviceRegistry) {
+      throw new Error("ServiceRegistry required for EnvInitializer");
+    }
+    this.serviceRegistry.register("env", this, {
+      folder: "services/core",
+      domain: "core",
+    });
   }
 
   ensureProxyMode() {
