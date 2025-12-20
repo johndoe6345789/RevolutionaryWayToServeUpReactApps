@@ -1,24 +1,23 @@
+const BaseService = require("../base-service.js");
 const ToolsLoaderConfig = require("../../configs/tools.js");
 
 /**
  * Handles fetching globals/modules and normalizing them into namespace helpers.
  */
-class ToolsLoaderService {
-  constructor(config = new ToolsLoaderConfig()) { this.config = config; this.initialized = false; }
+class ToolsLoaderService extends BaseService {
+  constructor(config = new ToolsLoaderConfig()) { super(config); }
 
+  /**
+   * Prepares runtime dependencies and registers helpers into the namespace.
+   */
   initialize() {
-    if (this.initialized) {
-      throw new Error("ToolsLoaderService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     const dependencies = this.config.dependencies || {};
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for ToolsLoaderService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
     this.logging =
       dependencies.logging ??
       (this.isCommonJs ? require("../../cdn/logging.js") : this.helpers.logging);
@@ -30,6 +29,9 @@ class ToolsLoaderService {
     this.resolveModuleUrl = this.network?.resolveModuleUrl ?? (() => "");
   }
 
+  /**
+   * Normalizes a module export into an ESM-like namespace object.
+   */
   createNamespace(value) {
     if (value && typeof value === "object" && value.__esModule) {
       return value;
@@ -61,6 +63,9 @@ class ToolsLoaderService {
     return ns;
   }
 
+  /**
+   * Ensures the provided namespace is exposed as a window global when needed.
+   */
   async ensureGlobalFromNamespace(name, globalName, namespace) {
     if (!namespace) return;
     if (globalName && typeof window !== "undefined") {
@@ -71,10 +76,11 @@ class ToolsLoaderService {
     }
   }
 
+  /**
+   * Loads the configured CDN tools by resolving and injecting their globals.
+   */
   async loadTools(tools) {
-    if (!this.initialized) {
-      throw new Error("ToolsLoaderService not initialized");
-    }
+    this._ensureInitialized();
     return Promise.all(
       (tools || []).map(async (tool) => {
         const url = await this.resolveModuleUrl(tool);
@@ -89,14 +95,18 @@ class ToolsLoaderService {
     );
   }
 
+  /**
+   * Exposes `createNamespace` through the public API for tooling helpers.
+   */
   makeNamespace(globalObj) {
     return this.createNamespace(globalObj);
   }
 
+  /**
+   * Loads ad-hoc modules by URL, supporting both ESM and legacy globals.
+   */
   async loadModules(modules) {
-    if (!this.initialized) {
-      throw new Error("ToolsLoaderService not initialized");
-    }
+    this._ensureInitialized();
     const registry = {};
     for (const mod of modules) {
       const url = await this.resolveModuleUrl(mod);
@@ -127,6 +137,9 @@ class ToolsLoaderService {
     return registry;
   }
 
+  /**
+   * Returns the public helpers that should be exposed through the bootstrap namespace.
+   */
   get exports() {
     return {
       loadTools: this.loadTools.bind(this),
@@ -135,10 +148,11 @@ class ToolsLoaderService {
     };
   }
 
+  /**
+   * Installs the helpers into the namespace and registers the service globally.
+   */
   install() {
-    if (!this.initialized) {
-      throw new Error("ToolsLoaderService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.tools = exports;
     this.serviceRegistry.register("tools", exports, {
@@ -150,12 +164,11 @@ class ToolsLoaderService {
     }
   }
 
+  /**
+   * Validates and returns the namespace object provided via config.
+   */
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for ToolsLoaderService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
 

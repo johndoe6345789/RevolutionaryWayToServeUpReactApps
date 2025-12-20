@@ -1,25 +1,29 @@
+const BaseService = require("../base-service.js");
 const SourceUtilsConfig = require("../../configs/source-utils.js");
 
 /**
  * Parses source files for module specifiers and preloads dynamic dependencies.
  */
-class SourceUtilsService {
-  constructor(config = new SourceUtilsConfig()) { this.config = config; this.initialized = false; }
+class SourceUtilsService extends BaseService {
+  constructor(config = new SourceUtilsConfig()) {
+    super(config);
+  }
 
+  /**
+   * Ensures the namespace is available and registers this service globally.
+   */
   initialize() {
-    if (this.initialized) {
-      throw new Error("SourceUtilsService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for SourceUtilsService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
   }
 
+  /**
+   * Extracts dynamic module import specifiers that match configured prefixes.
+   */
   collectDynamicModuleImports(source, config) {
     const dynRules = config.dynamicModules || [];
     if (!dynRules.length) return [];
@@ -50,6 +54,9 @@ class SourceUtilsService {
     return Array.from(results);
   }
 
+  /**
+   * Preloads dynamic modules that were discovered inside a source file.
+   */
   async preloadDynamicModulesFromSource(source, requireFn, config) {
     if (!requireFn || typeof requireFn._async !== "function") {
       return;
@@ -67,6 +74,9 @@ class SourceUtilsService {
     );
   }
 
+  /**
+   * Returns every module specifier referenced in the provided source string.
+   */
   collectModuleSpecifiers(source) {
     const specs = new Set();
     const importRe = /import\s+(?:[^'"]+from\s+)?["']([^"']+)["']/g;
@@ -83,6 +93,9 @@ class SourceUtilsService {
     return Array.from(specs);
   }
 
+  /**
+   * Preloads both static and dynamic specifiers found in a file via requireAsync.
+   */
   async preloadModulesFromSource(source, requireFn, baseDir = "") {
     if (!requireFn || typeof requireFn._async !== "function") return;
     const specs = this.collectModuleSpecifiers(source);
@@ -107,6 +120,9 @@ class SourceUtilsService {
     }
   }
 
+  /**
+   * Exposes the helper functions for module parsing and preloading.
+   */
   get exports() {
     return {
       collectDynamicModuleImports: this.collectDynamicModuleImports.bind(this),
@@ -116,10 +132,11 @@ class SourceUtilsService {
     };
   }
 
+  /**
+   * Registers the service outputs and installs them into the helpers namespace.
+   */
   install() {
-    if (!this.initialized) {
-      throw new Error("SourceUtilsService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.sourceUtils = exports;
     this.serviceRegistry.register("sourceUtils", exports, {
@@ -131,12 +148,11 @@ class SourceUtilsService {
     }
   }
 
+  /**
+   * Validates that a namespace object was supplied through config.
+   */
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for SourceUtilsService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
 

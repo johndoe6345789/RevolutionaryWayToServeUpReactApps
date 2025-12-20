@@ -1,24 +1,25 @@
+const BaseService = require("../base-service.js");
 const DynamicModulesConfig = require("../../configs/dynamic-modules.js");
 
 /**
  * Resolves and loads icon-specific dynamic modules from configured providers.
  */
-class DynamicModulesService {
-  constructor(config = new DynamicModulesConfig()) { this.config = config; this.initialized = false; }
+class DynamicModulesService extends BaseService {
+  constructor(config = new DynamicModulesConfig()) {
+    super(config);
+  }
 
+  /**
+   * Collects dependencies, registers helpers, and prepares CDN helpers for lookup.
+   */
   initialize() {
-    if (this.initialized) {
-      throw new Error("DynamicModulesService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     const dependencies = this.config.dependencies || {};
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for DynamicModulesService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
     this.logging =
       dependencies.logging ??
       (this.isCommonJs ? require("../../cdn/logging.js") : this.helpers.logging);
@@ -34,6 +35,9 @@ class DynamicModulesService {
     this.getDefaultProviderBase = net.getDefaultProviderBase || (() => "");
   }
 
+  /**
+   * Converts legacy CommonJS/UMD exports into an ESM-like namespace object.
+   */
   createNamespace(value) {
     if (value && typeof value === "object" && value.__esModule) {
       return value;
@@ -65,10 +69,11 @@ class DynamicModulesService {
     return ns;
   }
 
+  /**
+   * Loads an icon-specific module by resolving the configured rule set and probing providers.
+   */
   async loadDynamicModule(name, config, registry) {
-    if (!this.initialized) {
-      throw new Error("DynamicModulesService not initialized");
-    }
+    this._ensureInitialized();
     const dynRules = config.dynamicModules || [];
     const rule = dynRules.find((r) => name.startsWith(r.prefix));
     if (!rule) {
@@ -194,16 +199,20 @@ class DynamicModulesService {
     return registry[name];
   }
 
+  /**
+   * Exposes the helper entrypoints that should be installed into the helpers namespace.
+   */
   get exports() {
     return {
       loadDynamicModule: this.loadDynamicModule.bind(this),
     };
   }
 
+  /**
+   * Installs the helper into the namespace and registers it with the service registry.
+   */
   install() {
-    if (!this.initialized) {
-      throw new Error("DynamicModulesService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.dynamicModules = exports;
     this.serviceRegistry.register("dynamicModules", exports, {
@@ -214,15 +223,13 @@ class DynamicModulesService {
       module.exports = exports;
     }
   }
-  
+
+  /**
+   * Ensures a namespace object was supplied via configuration.
+   */
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for DynamicModulesService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
-
 
 module.exports = DynamicModulesService;

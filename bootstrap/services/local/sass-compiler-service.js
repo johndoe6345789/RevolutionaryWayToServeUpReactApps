@@ -1,20 +1,19 @@
+const BaseService = require("../base-service.js");
 const SassCompilerConfig = require("../../configs/sass-compiler.js");
 
 /**
  * Wraps Sass compilation/injection using the configured Sass implementation.
  */
-class SassCompilerService {
-  constructor(config = new SassCompilerConfig()) { this.config = config; this.initialized = false; }
+class SassCompilerService extends BaseService {
+  constructor(config = new SassCompilerConfig()) { super(config); }
 
+  /**
+   * Prepares the Sass helpers, ensuring fetch/document hooks are available.
+   */
   initialize() {
-    if (this.initialized) {
-      throw new Error("SassCompilerService already initialized");
-    }
-    this.initialized = true;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for SassCompilerService");
-    }
+    this._ensureNotInitialized();
+    this._markInitialized();
+    this.serviceRegistry = this._requireServiceRegistry();
     this.fetchImpl = this.config.fetch;
     this.document = this.config.document;
     this.SassImpl = this.config.SassImpl;
@@ -22,6 +21,9 @@ class SassCompilerService {
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
   }
 
+  /**
+   * Compiles SCSS via the configured Sass implementation.
+   */
   async compileSCSS(scssFile) {
     if (!this.fetchImpl) {
       throw new Error("Fetch is unavailable when compiling SCSS");
@@ -84,6 +86,9 @@ class SassCompilerService {
     });
   }
 
+  /**
+   * Injects compiled CSS into the document head.
+   */
   injectCSS(css) {
     if (!this.document) {
       throw new Error("Document is unavailable when injecting CSS");
@@ -93,6 +98,9 @@ class SassCompilerService {
     this.document.head.appendChild(tag);
   }
 
+  /**
+   * Exposes the public Sass helpers for other services.
+   */
   get exports() {
     return {
       compileSCSS: this.compileSCSS.bind(this),
@@ -100,10 +108,11 @@ class SassCompilerService {
     };
   }
 
+  /**
+   * Registers the Sass helpers into the namespace and service registry.
+   */
   install() {
-    if (!this.initialized) {
-      throw new Error("SassCompilerService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     const helpers = this.namespace.helpers || (this.namespace.helpers = {});
     helpers.sassCompiler = exports;
@@ -116,12 +125,11 @@ class SassCompilerService {
     }
   }
 
+  /**
+   * Validates that a namespace object was supplied via config.
+   */
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for SassCompilerService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
 
