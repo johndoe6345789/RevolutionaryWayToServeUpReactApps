@@ -1,17 +1,20 @@
 const SassCompilerService = require("../services/local/sass-compiler-service.js");
 const SassCompilerConfig = require("../configs/sass-compiler.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
-const globalRoot = require("../constants/global-root.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
-const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
-const fetchImpl = typeof globalRoot.fetch === "function" ? globalRoot.fetch.bind(globalRoot) : undefined;
+const rootHandler = new GlobalRootHandler();
+const namespace = rootHandler.namespace;
+const globalScope = rootHandler.root;
+const fetchImpl =
+  typeof globalScope.fetch === "function" ? globalScope.fetch.bind(globalScope) : undefined;
 const sassCompilerService = new SassCompilerService(
   new SassCompilerConfig({
     serviceRegistry,
     namespace,
     fetch: fetchImpl,
-    document: globalRoot.document,
-    SassImpl: globalRoot.Sass,
+    document: globalScope.document,
+    SassImpl: globalScope.Sass,
   })
 );
 sassCompilerService.initialize();

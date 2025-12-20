@@ -1,9 +1,10 @@
 const ToolsLoaderService = require("../services/cdn/tools-service.js");
 const ToolsLoaderConfig = require("../configs/tools.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
-const globalRoot = require("../constants/global-root.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
-const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+const rootHandler = new GlobalRootHandler();
+const namespace = rootHandler.namespace;
 const toolsLoaderService = new ToolsLoaderService(
   new ToolsLoaderConfig({ serviceRegistry, namespace })
 );

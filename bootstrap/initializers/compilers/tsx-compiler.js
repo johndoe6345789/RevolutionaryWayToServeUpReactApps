@@ -1,11 +1,14 @@
 const TsxCompilerService = require("../services/local/tsx-compiler-service.js");
 const TsxCompilerConfig = require("../configs/tsx-compiler.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
-const globalRoot = require("../constants/global-root.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
-const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
-const fetchImpl = typeof globalRoot.fetch === "function" ? globalRoot.fetch.bind(globalRoot) : undefined;
-const Babel = globalRoot.Babel;
+const rootHandler = new GlobalRootHandler();
+const namespace = rootHandler.namespace;
+const globalScope = rootHandler.root;
+const fetchImpl =
+  typeof globalScope.fetch === "function" ? globalScope.fetch.bind(globalScope) : undefined;
+const Babel = globalScope.Babel;
 const tsxCompilerService = new TsxCompilerService(
   new TsxCompilerConfig({
     serviceRegistry,

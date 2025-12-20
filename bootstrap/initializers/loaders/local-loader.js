@@ -1,14 +1,16 @@
 const LocalLoaderService = require("../services/local/local-loader-service.js");
 const LocalLoaderConfig = require("../configs/local-loader.js");
 const serviceRegistry = require("../services/service-registry-instance.js");
-const globalRoot = require("../constants/global-root.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
-const namespace = globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
+const rootHandler = new GlobalRootHandler();
+const namespace = rootHandler.namespace;
+const document = rootHandler.root.document;
 const localLoaderService = new LocalLoaderService(
   new LocalLoaderConfig({
     serviceRegistry,
     namespace,
-    document: globalRoot.document,
+    document,
   })
 );
 localLoaderService.initialize();

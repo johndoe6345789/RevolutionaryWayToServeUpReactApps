@@ -1,12 +1,13 @@
-const globalRoot = require("../constants/global-root.js");
 const ModuleLoaderAggregator = require("./services/core/module-loader-service.js");
 const ModuleLoaderConfig = require("./configs/module-loader.js");
 const serviceRegistry = require("./services/service-registry-instance.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
+const rootHandler = new GlobalRootHandler();
 const moduleLoader = new ModuleLoaderAggregator(
   new ModuleLoaderConfig({
     serviceRegistry,
-    environmentRoot: globalRoot,
+    environmentRoot: rootHandler.root,
   })
 );
 moduleLoader.initialize();
