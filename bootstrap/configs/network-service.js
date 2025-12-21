@@ -5,9 +5,10 @@ class NetworkServiceConfig {
   /**
    * Initializes a new Network Service Config instance with the provided configuration.
    */
-  constructor({ logClient, wait } = {}) {
+  constructor({ logClient, wait, namespace } = {}) {
     this.logClient = logClient;
     this.wait = wait;
+    this.namespace = namespace;
   }
 }
 

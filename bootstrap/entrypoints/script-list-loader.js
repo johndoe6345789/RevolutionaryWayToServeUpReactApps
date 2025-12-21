@@ -1,4 +1,4 @@
-const ScriptListLoader = require("./services/core/script-list-loader-service.js");
+const ScriptListLoader = require("../services/core/script-list-loader-service.js");
 
 const scriptListLoader = new ScriptListLoader();
 scriptListLoader.initialize();

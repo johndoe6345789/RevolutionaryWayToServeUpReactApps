@@ -5,10 +5,11 @@ class LoggingServiceConfig {
   /**
    * Initializes a new Logging Service Config instance with the provided configuration.
    */
-  constructor({ ciLogQueryParam, clientLogEndpoint, serviceRegistry } = {}) {
+  constructor({ ciLogQueryParam, clientLogEndpoint, serviceRegistry, namespace } = {}) {
     this.ciLogQueryParam = ciLogQueryParam;
     this.clientLogEndpoint = clientLogEndpoint;
     this.serviceRegistry = serviceRegistry;
+    this.namespace = namespace;
   }
 }
 

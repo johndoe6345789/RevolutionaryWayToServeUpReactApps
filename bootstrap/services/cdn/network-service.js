@@ -59,6 +59,10 @@ class NetworkService extends BaseService {
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
+    const namespace = this.config.namespace || {};
+    this.namespace = namespace;
+    this.helpers = namespace.helpers || (namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
     const { logClient, wait } = this.config;
     this.logClient = logClient ?? (() => {});
     this.wait = wait ?? (() => Promise.resolve());

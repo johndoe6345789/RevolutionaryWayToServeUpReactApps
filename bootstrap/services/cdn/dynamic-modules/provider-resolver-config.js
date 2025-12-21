@@ -1,7 +1,7 @@
 /**
  * Configuration for the provider resolver helper.
  */
-const HelperRegistry = require("../../helpers/helper-registry.js");
+const HelperRegistry = require("../../../helpers/helper-registry.js");
 
 /**
  * Configuration for the provider resolver helper.

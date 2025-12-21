@@ -43,14 +43,15 @@ const overrideModule = (moduleId: string, mockExports: unknown) => {
     factory: () => mockExports
   });
 
-  require.cache[moduleId] = {
+  const mockModule = {
     id: moduleId,
     filename: moduleId,
     loaded: true,
     exports: mockExports,
     children: [],
     paths: []
-  } as NodeModule;
+  } as unknown as NodeModule;
+  require.cache[moduleId] = mockModule;
 };
 
 const restoreModule = (moduleId: string) => {
@@ -71,29 +72,32 @@ const restoreModule = (moduleId: string) => {
 
 const ensureJestShims = () => {
   const jestAny = baseJest as typeof baseJest & {
-    resetModules?: () => void;
-    doMock?: (moduleName: string, factory: () => unknown) => void;
-    dontMock?: (moduleName: string) => void;
+    resetModules?: typeof baseJest.resetModules;
+    doMock?: typeof baseJest.doMock;
+    dontMock?: typeof baseJest.dontMock;
   };
 
   if (typeof jestAny.resetModules !== "function") {
     jestAny.resetModules = () => {
       mockRegistry.clear();
       clearRequireCache();
+      return baseJest;
     };
   }
 
   if (typeof jestAny.doMock !== "function") {
-    jestAny.doMock = (moduleName, factory) => {
+    jestAny.doMock = (moduleName: string, factory?: () => unknown) => {
       const moduleId = resolveModuleId(moduleName);
-      overrideModule(moduleId, factory());
+      overrideModule(moduleId, factory ? factory() : undefined);
+      return baseJest;
     };
   }
 
   if (typeof jestAny.dontMock !== "function") {
-    jestAny.dontMock = (moduleName) => {
+    jestAny.dontMock = (moduleName: string) => {
       const moduleId = resolveModuleId(moduleName);
       restoreModule(moduleId);
+      return baseJest;
     };
   }
 };

@@ -20,6 +20,7 @@ class NetworkEntryPoint extends BaseEntryPoint {
         const helpers = namespace.helpers || (namespace.helpers = {});
         const logging = helpers.logging;
         return {
+          namespace,
           logClient: logging?.logClient ?? (() => {}),
           wait: logging?.wait ?? (() => Promise.resolve()),
         };

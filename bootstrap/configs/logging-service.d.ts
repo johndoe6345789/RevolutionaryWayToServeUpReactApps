@@ -7,8 +7,10 @@ declare class LoggingServiceConfig {
     ciLogQueryParam?: string;
     clientLogEndpoint?: string;
     serviceRegistry?: ServiceRegistry;
+    namespace?: Record<string, unknown>;
   });
   ciLogQueryParam?: string;
   clientLogEndpoint?: string;
   serviceRegistry?: ServiceRegistry;
+  namespace?: Record<string, unknown>;
 }

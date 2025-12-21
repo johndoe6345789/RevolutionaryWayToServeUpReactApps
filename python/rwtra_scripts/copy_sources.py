@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Copy HTML/SCSS/JSON/TSX/TS sources into a dist folder for bundling or archiving.
+Copy HTML/SCSS/JSON/JS/TSX/TS sources into a dist folder for bundling or archiving.
 """
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import shutil
 import sys
 from pathlib import Path
 
-EXTENSIONS = {".html", ".scss", ".json", ".tsx", ".ts"}
+EXTENSIONS = {".html", ".scss", ".json", ".js", ".tsx", ".ts"}
 ALWAYS_INCLUDE = {"bootstrap.js"}
 DEFAULT_EXCLUDE_DIRS = {
     ".git",
@@ -22,6 +22,7 @@ DEFAULT_EXCLUDE_DIRS = {
     "tests",
     "e2e",
     "test-tooling",
+    "server",
 }
 DEFAULT_EXCLUDE_FILES = {
     "bun.lock",
@@ -68,7 +69,7 @@ def copy_files(root: Path, dest: Path, files: list[Path]) -> int:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Copy html/scss/json/tsx/ts files into a dist directory."
+        description="Copy html/scss/json/js/tsx/ts files into a dist directory."
     )
     parser.add_argument(
         "-s",

@@ -8,7 +8,7 @@ const LoggingServiceConfig = require("../configs/logging-service.js");
 const entrypoint = new BaseEntryPoint({
   ServiceClass: LoggingService,
   ConfigClass: LoggingServiceConfig,
-  configFactory: ({ serviceRegistry }) => ({ serviceRegistry }),
+  configFactory: ({ serviceRegistry, namespace }) => ({ serviceRegistry, namespace }),
 });
 const loggingService = entrypoint.run();
 

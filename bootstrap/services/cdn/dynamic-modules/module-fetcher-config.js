@@ -1,7 +1,7 @@
 /**
  * Configures the dynamic module fetcher helper.
  */
-const HelperRegistry = require("../../helpers/helper-registry.js");
+const HelperRegistry = require("../../../helpers/helper-registry.js");
 
 /**
  * Configures the dynamic module fetcher helper.

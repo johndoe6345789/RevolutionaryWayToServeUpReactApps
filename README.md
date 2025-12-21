@@ -20,7 +20,7 @@ Revolutionary Way To Serve Up React Apps delivers a RetroDeck-style landing page
 
 ## Overview
 
-- `bootstrap.js` compiles the TSX/SCSS sources, exposes the bundle through a client-rendered entry point, and serves it with `http-server`.
+- `bootstrap.js` compiles the TSX/SCSS sources, exposes the bundle through a client-rendered entry point, and is served by the shared proxy/static server in `server/server.js`.
 - `e2e/tests/page-load.spec.ts` verifies the landing page renders and becomes interactive using the same bundle that `bootstrap.js` produces.
 - `test-tooling` hosts unit tests that run as a preliminary validation in CI.
 - `e2e/Dockerfile` builds a reproducible Playwright environment that installs Bun 1.3.4 and runs the smoke test headlessly.
@@ -61,7 +61,7 @@ cd ..
 
 ## Run locally
 
-1. Start the static server (the script lives inside `e2e/`, so it serves the repository root via `http-server ..`):
+1. Start the shared server (the script lives inside `e2e/` and runs the proxy/static server from `server/`):
 
    ```bash
    cd e2e
@@ -103,17 +103,17 @@ Reproduces the GitHub Actions environment without installing Bun locally.
    docker build -f e2e/Dockerfile -t rwtra-e2e .
    ```
 
-2. **Run the smoke test** (the container starts `http-server`, waits for `/`, and executes `bun run test --prefix e2e`):
+2. **Run the smoke test** (the container starts the proxy/static server from `server/`, waits for `/`, and executes `bun run test --prefix e2e`):
 
    ```bash
    docker run --rm rwtra-e2e
    ```
 
-   Inside the container the test targets `http://127.0.0.1:4173`, matching the default `http-server` port Bun uses in `e2e/serve`.
+   Inside the container the test targets `http://127.0.0.1:4173`, matching the default port from `config.json` used by the shared server.
 
 ## Container image
 
-The new **Package site image** workflow builds the root-level `Dockerfile` and publishes `ghcr.io/johndoe6345789/rwtra-website` with both `latest` and the commit SHA every time something lands on `main`. The container simply copies `index.html`, `bootstrap.js`, `config.json`, `styles.scss`, and the `src/` bundle, and then runs `http-server` on port `4173`.
+The new **Package site image** workflow builds the root-level `Dockerfile` and publishes `ghcr.io/johndoe6345789/rwtra-website` with both `latest` and the commit SHA every time something lands on `main`. The container copies `index.html`, `bootstrap.js`, `config.json`, `styles.scss`, `bootstrap/`, and the `src/` bundle, then runs the lightweight proxy/static server in `server/server.js` on port `4173`.
 
 ### Local container workflow
 

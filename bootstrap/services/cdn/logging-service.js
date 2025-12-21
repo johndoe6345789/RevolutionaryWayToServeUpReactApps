@@ -20,6 +20,10 @@ class LoggingService extends BaseService {
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
+    const namespace = this.config.namespace || {};
+    this.namespace = namespace;
+    this.helpers = namespace.helpers || (namespace.helpers = {});
+    this.isCommonJs = typeof module !== "undefined" && module.exports;
     this.ciLoggingEnabled = false;
     this.setCiLoggingEnabled = this.setCiLoggingEnabled.bind(this);
     this.detectCiLogging = this.detectCiLogging.bind(this);
