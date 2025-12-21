@@ -1,6 +1,6 @@
 const FrameworkRenderer = require("../../../../../bootstrap/services/local/framework-renderer.js");
 const FrameworkRendererConfig = require("../../../../../bootstrap/configs/local/framework-renderer.js");
-const ServiceRegistry = require("../../../../../bootstrap/services/service-registry.js");
+const ServiceRegistry = require("../../../../../bootstrap/registries/service-registry.js");
 
 describe("FrameworkRenderer", () => {
   describe("constructor", () => {

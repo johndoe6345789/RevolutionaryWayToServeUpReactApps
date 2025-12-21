@@ -3,7 +3,7 @@
  */
 const LocalPathsService = require("../../services/local/local-paths-service.js");
 const LocalPathsConfig = require("../../configs/local/local-paths.js");
-const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: LocalPathsService,

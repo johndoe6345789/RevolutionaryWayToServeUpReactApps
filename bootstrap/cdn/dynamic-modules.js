@@ -6,7 +6,7 @@
  */
 const DynamicModulesService = require("../services/cdn/dynamic-modules-service.js");
 const DynamicModulesConfig = require("../configs/cdn/dynamic-modules.js");
-const BaseEntryPoint = require("../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: DynamicModulesService,

@@ -1,7 +1,7 @@
 /**
  * Encapsulates the network helper entrypoint so we can reuse the BaseEntryPoint wiring.
  */
-const BaseEntryPoint = require("../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../interfaces/base-entrypoint.js");
 const NetworkService = require("../services/cdn/network-service.js");
 const NetworkServiceConfig = require("../configs/cdn/network-service.js");
 

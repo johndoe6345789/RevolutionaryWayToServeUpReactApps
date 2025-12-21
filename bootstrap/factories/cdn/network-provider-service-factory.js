@@ -1,5 +1,5 @@
-const BaseFactory = require("../registries/base-factory.js");
-const NetworkProviderService = require("../services/cdn/network/network-provider-service.js");
+const BaseFactory = require("../base-factory.js");
+const NetworkProviderService = require("../../../services/cdn/network/network-provider-service.js");
 
 /**
  * Factory for creating NetworkProviderService instances.

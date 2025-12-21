@@ -3,7 +3,7 @@
  */
 const LocalModuleLoaderService = require("../../services/local/local-module-loader-service.js");
 const LocalModuleLoaderConfig = require("../../configs/local/local-module-loader.js");
-const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: LocalModuleLoaderService,

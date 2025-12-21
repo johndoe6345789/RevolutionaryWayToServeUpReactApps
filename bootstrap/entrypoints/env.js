@@ -1,7 +1,7 @@
 /**
  * Bootstrap entrypoint responsible for establishing proxy mode via EnvInitializer.
  */
-const BaseEntryPoint = require("./base-entrypoint.js");
+const BaseEntryPoint = require("../interfaces/base-entrypoint.js");
 const EnvInitializer = require("../services/core/env-service.js");
 const EnvInitializerConfig = require("../configs/core/env.js");
 

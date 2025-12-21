@@ -1,4 +1,4 @@
-const ServiceRegistry = require("../../../bootstrap/services/service-registry.js");
+const ServiceRegistry = require("../../../bootstrap/registries/service-registry.js");
 
 describe("bootstrap/services/service-registry.js", () => {
   describe("constructor", () => {

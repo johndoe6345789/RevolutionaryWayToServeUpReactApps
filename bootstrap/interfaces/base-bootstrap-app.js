@@ -1,4 +1,4 @@
-const GlobalRootHandler = require("./constants/global-root-handler.js");
+const GlobalRootHandler = require("../constants/global-root-handler.js");
 
 /**
  * Provides the shared bootstrap scaffolding that other entrypoints rely upon.

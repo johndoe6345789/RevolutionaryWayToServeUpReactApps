@@ -1,4 +1,4 @@
-import BaseBootstrapApp from "../../bootstrap/base-bootstrap-app.js";
+import BaseBootstrapApp from "../../bootstrap/interfaces/base-bootstrap-app.js";
 
 describe("BaseBootstrapApp", () => {
   let baseBootstrapApp: any;

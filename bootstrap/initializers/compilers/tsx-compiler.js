@@ -3,7 +3,7 @@
  */
 const TsxCompilerService = require("../../services/local/tsx-compiler-service.js");
 const TsxCompilerConfig = require("../../configs/local/tsx-compiler.js");
-const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: TsxCompilerService,

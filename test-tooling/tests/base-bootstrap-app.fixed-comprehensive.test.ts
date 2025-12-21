@@ -1,4 +1,4 @@
-import BaseBootstrapApp from '../../bootstrap/base-bootstrap-app.js';
+import BaseBootstrapApp from '../../bootstrap/interfaces/base-bootstrap-app.js';
 import GlobalRootHandler from '../../bootstrap/constants/global-root-handler.js';
 
 describe('BaseBootstrapApp', () => {

@@ -3,7 +3,7 @@
  */
 const SourceUtilsService = require("../services/cdn/source-utils-service.js");
 const SourceUtilsConfig = require("../configs/cdn/source-utils.js");
-const BaseEntryPoint = require("../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: SourceUtilsService,

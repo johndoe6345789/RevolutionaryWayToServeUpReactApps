@@ -3,7 +3,7 @@
  */
 const ToolsLoaderService = require("../services/cdn/tools-service.js");
 const ToolsLoaderConfig = require("../configs/cdn/tools.js");
-const BaseEntryPoint = require("../entrypoints/base-entrypoint.js");
+const BaseEntryPoint = require("../interfaces/base-entrypoint.js");
 
 const entrypoint = new BaseEntryPoint({
   ServiceClass: ToolsLoaderService,
