@@ -246,7 +246,7 @@ describe("LoggingManager", () => {
 
     test("should handle rejection event without reason property", () => {
       const mockLogClient = createMockFunction();
-      const mockSerializeForLog = createMockFunction();
+      const mockSerializeForLog = createMockFunction().mockReturnValue("unknown");
       mockConfig.logClient = mockLogClient;
       mockConfig.serializeForLog = mockSerializeForLog;
       service = new LoggingManager(mockConfig);
@@ -267,7 +267,7 @@ describe("LoggingManager", () => {
 
     test("should handle rejection event with null reason", () => {
       const mockLogClient = createMockFunction();
-      const mockSerializeForLog = createMockFunction();
+      const mockSerializeForLog = createMockFunction().mockReturnValue("unknown");
       mockConfig.logClient = mockLogClient;
       mockConfig.serializeForLog = mockSerializeForLog;
       service = new LoggingManager(mockConfig);
@@ -282,7 +282,8 @@ describe("LoggingManager", () => {
       expect(mockLogClient.calls[0][1]).toEqual({
         reason: "unknown"
       });
-      expect(mockSerializeForLog).toHaveBeenCalledWith("unknown");
+      expect(mockSerializeForLog.calls.length).toBeGreaterThan(0);
+      expect(mockSerializeForLog.calls[0][0]).toBe("unknown");
     });
   });
 

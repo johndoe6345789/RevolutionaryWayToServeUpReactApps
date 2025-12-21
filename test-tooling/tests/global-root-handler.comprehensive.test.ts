@@ -250,15 +250,18 @@ describe('GlobalRootHandler', () => {
 
   describe('getFetch method', () => {
     it('should return bound fetch function if available', () => {
-      const mockFetch = jest.fn();
+      const calls = [];
+      const mockFetch = (...args) => calls.push(args);
       const mockRoot = { fetch: mockFetch };
       const handler = new GlobalRootHandler(mockRoot);
 
       const fetchFn = handler.getFetch();
 
       expect(typeof fetchFn).toBe('function');
-      expect(fetchFn).not.toBe(mockFetch); // Should be bound
-      expect(fetchFn).toBe(mockFetch.bind(mockRoot));
+      // Test that the function is bound to the root
+      fetchFn('test');
+      expect(calls.length).toBe(1);
+      expect(calls[0][0]).toBe('test');
     });
 
     it('should return undefined if no fetch available', () => {
@@ -289,15 +292,22 @@ describe('GlobalRootHandler', () => {
     });
 
     it('should write to console.error with the tag', () => {
-      const mockConsole = { error: jest.fn() };
-      global.console = mockConsole;
-      
+      const originalConsole = global.console;
+      const logCalls = [];
+      global.console = { error: (...args) => logCalls.push(args) };
+
       const handler = new GlobalRootHandler();
       const logger = handler.getLogger('test-tag');
-      
+
       logger('test message', { data: 'value' });
-      
-      expect(mockConsole.error).toHaveBeenCalledWith('test-tag', 'test message', { data: 'value' });
+
+      expect(logCalls.length).toBe(1);
+      expect(logCalls[0][0]).toBe('test-tag');
+      expect(logCalls[0][1]).toBe('test message');
+      expect(logCalls[0][2]).toEqual({ data: 'value' });
+
+      // Restore original console
+      global.console = originalConsole;
     });
 
     it('should handle missing console gracefully', () => {

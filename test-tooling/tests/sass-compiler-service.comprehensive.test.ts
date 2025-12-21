@@ -27,7 +27,8 @@ describe("SassCompilerService", () => {
       compile: jest.fn(),
     };
     
-    const config = new (require("../../bootstrap/configs/local/sass-compiler.js").default)({
+    const SassCompilerConfig = require("../../bootstrap/configs/local/sass-compiler.js");
+    const config = new SassCompilerConfig({
       serviceRegistry: mockServiceRegistry,
       namespace: mockNamespace,
       document: mockDocument,
@@ -74,7 +75,8 @@ describe("SassCompilerService", () => {
     });
 
     it("should require service registry", () => {
-      const config = new (require("../../bootstrap/configs/local/sass-compiler.js").default)({
+      const SassCompilerConfig = require("../../bootstrap/configs/local/sass-compiler.js");
+      const config = new SassCompilerConfig({
         serviceRegistry: null,
         namespace: mockNamespace,
         document: mockDocument,
@@ -112,14 +114,26 @@ describe("SassCompilerService", () => {
     });
 
     it("should throw an error if SassImpl is not available", async () => {
+      // Mock fetch to return a successful response first, so we get past the fetch step
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue("$test: red; .test { color: $test; }")
+      });
+
       sassCompilerService.SassImpl = null;
-      
+
       await expect(sassCompilerService.compileSCSS("test.scss")).rejects.toThrow(
         "Sass global not found (is your Sass tool loaded?)"
       );
     });
 
     it("should compile SCSS using function-based SassImpl", async () => {
+      // Mock fetch to return SCSS content
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue("$test: red; .test { color: $test; }")
+      });
+
       const mockSassConstructor = jest.fn().mockImplementation(() => {
         return {
           compile: (scss, callback) => {
@@ -127,15 +141,21 @@ describe("SassCompilerService", () => {
           }
         };
       });
-      
+
       sassCompilerService.SassImpl = mockSassConstructor;
-      
+
       const result = await sassCompilerService.compileSCSS("test.scss");
-      
+
       expect(result).toBe("compiled css");
     });
 
     it("should handle Sass compilation errors", async () => {
+      // Mock fetch to return SCSS content
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue("$test: red; .test { color: $test; }")
+      });
+
       const mockSassConstructor = jest.fn().mockImplementation(() => {
         return {
           compile: (scss, callback) => {
@@ -143,23 +163,29 @@ describe("SassCompilerService", () => {
           }
         };
       });
-      
+
       sassCompilerService.SassImpl = mockSassConstructor;
-      
+
       await expect(sassCompilerService.compileSCSS("test.scss")).rejects.toThrow("Sass error");
     });
 
     it("should compile SCSS using object callback-based SassImpl", async () => {
+      // Mock fetch to return SCSS content
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: jest.fn().mockResolvedValue("$test: red; .test { color: $test; }")
+      });
+
       const mockSassObject = {
         compile: (scss, callback) => {
           callback({ status: 0, text: "compiled css" });
         }
       };
-      
+
       sassCompilerService.SassImpl = mockSassObject;
-      
+
       const result = await sassCompilerService.compileSCSS("test.scss");
-      
+
       expect(result).toBe("compiled css");
     });
 

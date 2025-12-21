@@ -1,5 +1,5 @@
 /**
- * Tracks named controller instances so other helpers can obtain them without
+ * Track named controller instances so other controllers can obtain them without
  * re-importing deeply nested modules.
  */
 class ControllerRegistry {
@@ -17,15 +17,30 @@ class ControllerRegistry {
     if (!name) {
       throw new Error("Controller name is required");
     }
-    
+
     if (arguments.length !== 4) {
       throw new Error("ControllerRegistry.register requires exactly 4 parameters: (name, controller, metadata, requiredServices)");
     }
-    
+
     if (this._controllers.has(name)) {
       throw new Error("Controller already registered: " + name);
     }
+
     this._controllers.set(name, { controller, metadata: metadata || {} });
+
+    // Validate that required services are registered
+    if (Array.isArray(requiredServices) && requiredServices.length > 0) {
+      const missingControllers = [];
+      for (const controllerName of requiredServices) {
+        if (!this._controllers.has(controllerName)) {
+          missingControllers.push(controllerName);
+        }
+      }
+
+      if (missingControllers.length > 0) {
+        throw new Error(`Required controllers are not registered: ${missingControllers.join(', ')}`);
+      }
+    }
   }
 
   /**

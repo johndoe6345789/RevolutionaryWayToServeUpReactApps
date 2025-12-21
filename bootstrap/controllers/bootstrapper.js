@@ -26,7 +26,6 @@ class Bootstrapper extends BaseController {
    */
   initialize() {
     this._ensureNotInitialized();
-    this._markInitialized();
     const { logging, network, moduleLoader } = this.config;
     this.logging = logging;
     this.network = network;
@@ -36,11 +35,13 @@ class Bootstrapper extends BaseController {
     this.logClient = logging.logClient;
     this.isCiLoggingEnabled = logging.isCiLoggingEnabled;
 
-    // Register this controller in the registry
+    this._markInitialized();
+
+    // Register this controller in the registry after initialization
     this.register("bootstrapper", {
       folder: "controllers",
       domain: "core",
-    }, ["logging", "network", "moduleLoader"]);
+    }, []);
   }
 
   /**

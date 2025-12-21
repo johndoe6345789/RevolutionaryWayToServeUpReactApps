@@ -1,24 +1,17 @@
 import LoggingService from "../../../../../bootstrap/services/cdn/logging-service.js";
 
-// Mock dependencies
-const mockServiceRegistry = {
-  register: jest.fn()
-};
-
-const mockNamespace = {
-  helpers: {}
-};
-
 describe("LoggingService", () => {
   let originalWindow;
   let originalConsole;
   let originalNavigator;
+  let originalFetch;
 
   beforeEach(() => {
     // Save original globals
     originalWindow = global.window;
     originalConsole = global.console;
     originalNavigator = global.navigator;
+    originalFetch = global.fetch;
     
     // Set up mocks
     global.window = {
@@ -44,7 +37,7 @@ describe("LoggingService", () => {
     global.window = originalWindow;
     global.console = originalConsole;
     global.navigator = originalNavigator;
-    global.fetch = undefined;
+    global.fetch = originalFetch;
   });
 
   describe("static defaults getter", () => {
@@ -59,7 +52,7 @@ describe("LoggingService", () => {
   describe("constructor", () => {
     it("should extend BaseService", () => {
       const service = new LoggingService();
-      expect(service).toBeInstanceOf(Object); // Since BaseService is imported, we can't directly check inheritance
+      expect(service).toBeInstanceOf(Object); // Since we can't directly check BaseService
     });
 
     it("should accept a config object", () => {
@@ -80,8 +73,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry,
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() },
         ciLogQueryParam: "test-ci",
         clientLogEndpoint: "http://test-endpoint"
       };
@@ -128,7 +121,7 @@ describe("LoggingService", () => {
     it("should register the service in the service registry", () => {
       service.initialize();
 
-      expect(mockServiceRegistry.register).toHaveBeenCalledWith(
+      expect(config.serviceRegistry.register).toHaveBeenCalledWith(
         "logging",
         service,
         {
@@ -150,8 +143,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() }
       };
       service = new LoggingService(config);
       service.initialize();
@@ -198,8 +191,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry,
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() },
         ciLogQueryParam: "test-ci"
       };
       service = new LoggingService(config);
@@ -266,8 +259,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() }
       };
       service = new LoggingService(config);
       service.initialize();
@@ -334,8 +327,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() }
       };
       service = new LoggingService(config);
       service.initialize();
@@ -371,8 +364,8 @@ describe("LoggingService", () => {
       global.fetch = mockFetch;
 
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry,
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() },
         clientLogEndpoint: "http://test-endpoint"
       };
       service = new LoggingService(config);
@@ -480,8 +473,8 @@ describe("LoggingService", () => {
 
     beforeEach(() => {
       const config = {
-        namespace: mockNamespace,
-        serviceRegistry: mockServiceRegistry
+        namespace: { helpers: {} },
+        serviceRegistry: { register: jest.fn() }
       };
       service = new LoggingService(config);
       service.initialize();

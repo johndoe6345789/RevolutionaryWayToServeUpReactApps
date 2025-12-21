@@ -1,15 +1,15 @@
-import BaseBootstrapApp from '../../bootstrap/base-bootstrap-app.js';
-import GlobalRootHandler from '../../bootstrap/constants/global-root-handler.js';
+import BaseBootstrapApp from '../../../bootstrap/base-bootstrap-app.js';
+import GlobalRootHandler from '../../../bootstrap/constants/global-root-handler.js';
 
 describe('BaseBootstrapApp', () => {
-  let originalGlobal;
+  let originalModule;
   let originalWindow;
   let originalGlobalThis;
   let originalDocument;
 
   beforeEach(() => {
     // Store original values
-    originalGlobal = global.global;
+    originalModule = global.module;
     originalWindow = global.window;
     originalGlobalThis = global.globalThis;
     originalDocument = global.document;
@@ -20,7 +20,7 @@ describe('BaseBootstrapApp', () => {
 
   afterEach(() => {
     // Restore original values
-    global.global = originalGlobal;
+    global.module = originalModule;
     global.window = originalWindow;
     global.globalThis = originalGlobalThis;
     global.document = originalDocument;
@@ -50,25 +50,19 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should set isCommonJs to true when global.module exists', () => {
-      global.global = { module: { exports: {} } };
+      global.module = { exports: {} };
 
       const app = new BaseBootstrapApp();
 
       expect(app.isCommonJs).toBe(true);
     });
 
-    it('should set isCommonJs to false when module does not exist', () => {
-      // Since we can't easily delete the global module in test environment
-      // where it's already defined, we'll skip this test or create a different approach
-      // The test will check the logic in the constructor which uses:
-      // typeof module !== "undefined" && module.exports;
-      expect(!!(typeof module !== "undefined" && module.exports)).toBe(true); // In test environment, module exists
+    it('should set isCommonJs to false when global.module does not exist', () => {
+      delete global.module;
 
-      // Create a new app and check the value
       const app = new BaseBootstrapApp();
-      // In test environment, module will likely be true, so we can't test the false case easily
-      // We'll just verify the property exists
-      expect(typeof app.isCommonJs).toBe('boolean');
+
+      expect(app.isCommonJs).toBe(false);
     });
   });
 
@@ -98,16 +92,11 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should return false when global window has no document', () => {
-      // Save original window
-      const originalWindow = global.window;
       global.window = {};
 
       const result = BaseBootstrapApp.isBrowser();
 
       expect(result).toBe(false);
-
-      // Restore original window
-      global.window = originalWindow;
     });
 
     it('should return true when global globalThis has document', () => {
@@ -120,37 +109,21 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should return false when global globalThis has no document', () => {
-      // Save original values
-      const originalWindow = global.window;
-      const originalGlobalThis = global.globalThis;
-
       delete global.window;
       global.globalThis = {};
 
       const result = BaseBootstrapApp.isBrowser();
 
       expect(result).toBe(false);
-
-      // Restore original values
-      global.window = originalWindow;
-      global.globalThis = originalGlobalThis;
     });
 
     it('should return false when no window object is available', () => {
-      // Save original values
-      const originalWindow = global.window;
-      const originalGlobalThis = global.globalThis;
-
       delete global.window;
       delete global.globalThis;
 
       const result = BaseBootstrapApp.isBrowser();
 
       expect(result).toBe(false);
-
-      // Restore original values
-      global.window = originalWindow;
-      global.globalThis = originalGlobalThis;
     });
 
     it('should prioritize passed window over global window', () => {
@@ -165,10 +138,10 @@ describe('BaseBootstrapApp', () => {
 
   describe('_resolveHelper method', () => {
     it('should resolve helpers via require when in CommonJS', () => {
-      // In test environment, module already exists, so just create a new app
+      global.module = { exports: {} };
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
-
+      
       // Mock require function for this test
       const originalRequire = global.require;
       const mockHelper = { name: 'testHelper' };
@@ -184,27 +157,21 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should resolve helpers from namespace when not in CommonJS', () => {
-      // To test the namespace resolution, we need to simulate the non-CommonJS environment
-      // Since we can't easily change the isCommonJs property, we'll test the logic differently
-      // The key is that this.isCommonJs is false, so it uses namespace instead of require
-
-      // Create a mock app with isCommonJs set to false (this is a bit of a hack for testing)
+      delete global.module;
+      const mockHelper = { name: 'testHelper' };
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
-
-      // Since we can't easily change isCommonJs to false in test environment,
-      // we'll test by creating a new instance and checking if it properly accesses namespace
-      const mockHelper = { name: 'testHelper' };
 
       // Add helper to the namespace
       app.helpersNamespace.testHelper = mockHelper;
 
-      // Since in our test environment isCommonJs is likely true, we'll just check the namespace access
-      const result = app.helpersNamespace.testHelper;
+      const result = app._resolveHelper('testHelper', './path/to/helper');
+
       expect(result).toBe(mockHelper);
     });
 
     it('should return empty object when helper not found in namespace', () => {
+      delete global.module;
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
 
@@ -249,19 +216,17 @@ describe('BaseBootstrapApp', () => {
 
   describe('integration', () => {
     it('should work with CommonJS environment', () => {
-      global.global = { module: { exports: {} } };
+      global.module = { exports: {} };
       const app = new BaseBootstrapApp();
 
       expect(app.isCommonJs).toBe(true);
     });
 
     it('should work with non-CommonJS environment', () => {
-      // The test environment is likely in CommonJS, so we can't easily change that
-      // Instead, let's just verify that the app can be created
+      delete global.module;
       const app = new BaseBootstrapApp();
 
-      expect(app).toBeDefined();
-      expect(typeof app.isCommonJs).toBe('boolean');
+      expect(app.isCommonJs).toBe(false);
     });
 
     it('should handle different root handler configurations', () => {
