@@ -1,3 +1,4 @@
+const BaseService = require("../base-service.js");
 const LocalLoaderConfig = require("../../configs/local-loader.js");
 
 const LocalDependencyLoaderConfig = require("../../configs/local-dependency-loader.js");
@@ -109,17 +110,15 @@ class LocalLoaderInitializer {
 /**
  * Combines sass/tsx/local helpers into the shared local loader surface.
  */
-class LocalLoaderService {
+class LocalLoaderService extends BaseService {
   static helperRegistry = require("./helpers");
   static dependencyLoader = require("./local-dependency-loader.js");
 
-  constructor(config = new LocalLoaderConfig()) { this.config = config; this.initialized = false; }
+  constructor(config = new LocalLoaderConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("LocalLoaderService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     new LocalLoaderInitializer(this).run();
   }
 
@@ -159,9 +158,7 @@ class LocalLoaderService {
   }
 
   install() {
-    if (!this.initialized) {
-      throw new Error("LocalLoaderService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.localLoader = exports;
     if (this.isCommonJs) {

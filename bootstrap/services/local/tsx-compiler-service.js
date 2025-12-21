@@ -1,20 +1,16 @@
+const BaseService = require("../base-service.js");
 const TsxCompilerConfig = require("../../configs/tsx-compiler.js");
 
 /**
  * Transforms and executes TSX sources using Babel and inlined execution.
  */
-class TsxCompilerService {
-  constructor(config = new TsxCompilerConfig()) { this.config = config; this.initialized = false; }
+class TsxCompilerService extends BaseService {
+  constructor(config = new TsxCompilerConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("TsxCompilerService already initialized");
-    }
-    this.initialized = true;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for TsxCompilerService");
-    }
+    this._ensureNotInitialized();
+    this._markInitialized();
+    this.serviceRegistry = this._requireServiceRegistry();
     const dependencies = this.config.dependencies || {};
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
@@ -93,9 +89,7 @@ class TsxCompilerService {
   }
 
   install() {
-    if (!this.initialized) {
-      throw new Error("TsxCompilerService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.tsxCompiler = exports;
     this.serviceRegistry.register("tsxCompiler", exports, {
@@ -108,11 +102,7 @@ class TsxCompilerService {
   }
 
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for TsxCompilerService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
 

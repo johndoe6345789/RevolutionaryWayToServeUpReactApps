@@ -1,24 +1,20 @@
+const BaseService = require("../base-service.js");
 const LocalModuleLoaderConfig = require("../../configs/local-module-loader.js");
 
 /**
  * Provides asynchronous loading for local modules and caches their exports.
  */
-class LocalModuleLoaderService {
-  constructor(config = new LocalModuleLoaderConfig()) { this.config = config; this.initialized = false; }
+class LocalModuleLoaderService extends BaseService {
+  constructor(config = new LocalModuleLoaderConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("LocalModuleLoaderService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     const dependencies = this.config.dependencies || {};
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
     this.isCommonJs = typeof module !== "undefined" && module.exports;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for LocalModuleLoaderService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
     this.logging =
       dependencies.logging ?? (this.isCommonJs ? require("../../cdn/logging.js") : this.helpers.logging);
     this.dynamicModules =
@@ -122,11 +118,7 @@ class LocalModuleLoaderService {
   }
 
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for LocalModuleLoaderService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 
   async fetchLocalModuleSource(basePath) {
@@ -169,9 +161,7 @@ class LocalModuleLoaderService {
   }
 
   install() {
-    if (!this.initialized) {
-      throw new Error("LocalModuleLoaderService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.localModuleLoader = exports;
     this.serviceRegistry.register("localModuleLoader", exports, {

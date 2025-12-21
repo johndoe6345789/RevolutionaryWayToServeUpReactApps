@@ -1,3 +1,4 @@
+const BaseService = require("../base-service.js");
 const LocalPathsConfig = require("../../configs/local-paths.js");
 const { localModuleExtensions: LOCAL_MODULE_EXTENSIONS } =
   require("../../constants/common.js");
@@ -6,21 +7,16 @@ const { localModuleExtensions: LOCAL_MODULE_EXTENSIONS } =
 /**
  * Normalizes local module paths and enumerates candidate URLs/extensions.
  */
-class LocalPathsService {
-  constructor(config = new LocalPathsConfig()) { this.config = config; this.initialized = false; }
+class LocalPathsService extends BaseService {
+  constructor(config = new LocalPathsConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("LocalPathsService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     this.LOCAL_MODULE_EXTENSIONS = LOCAL_MODULE_EXTENSIONS;
     this.namespace = this._resolveNamespace();
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for LocalPathsService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
   }
 
   isLocalModule(name) {
@@ -96,9 +92,7 @@ class LocalPathsService {
   }
 
   install() {
-    if (!this.initialized) {
-      throw new Error("LocalPathsService not initialized");
-    }
+    this._ensureInitialized();
     const exports = this.exports;
     this.helpers.localPaths = exports;
     this.serviceRegistry.register("localPaths", exports, {
@@ -111,11 +105,7 @@ class LocalPathsService {
   }
 
   _resolveNamespace() {
-    const namespace = this.config.namespace;
-    if (!namespace) {
-      throw new Error("Namespace required for LocalPathsService");
-    }
-    return namespace;
+    return super._resolveNamespace();
   }
 }
 

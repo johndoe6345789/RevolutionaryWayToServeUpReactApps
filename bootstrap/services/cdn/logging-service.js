@@ -1,20 +1,19 @@
+const BaseService = require("../base-service.js");
 const LoggingServiceConfig = require("../../configs/logging-service.js");
 
 /**
  * Centralizes CI logging defaults, serialization helpers, and UI error forwarding.
  */
-class LoggingService {
+class LoggingService extends BaseService {
   static get defaults() {
     return require("../../constants/common.js");
   }
 
-  constructor(config = new LoggingServiceConfig()) { this.config = config; this.initialized = false; }
+  constructor(config = new LoggingServiceConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("LoggingService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     this.ciLoggingEnabled = false;
     this.setCiLoggingEnabled = this.setCiLoggingEnabled.bind(this);
     this.detectCiLogging = this.detectCiLogging.bind(this);
@@ -26,10 +25,7 @@ class LoggingService {
     const defaults = this.constructor.defaults;
     this.ciLogQueryParam = ciLogQueryParam ?? defaults.ciLogQueryParam;
     this.clientLogEndpoint = clientLogEndpoint ?? defaults.clientLogEndpoint;
-    this.serviceRegistry = this.config.serviceRegistry;
-    if (!this.serviceRegistry) {
-      throw new Error("ServiceRegistry required for LoggingService");
-    }
+    this.serviceRegistry = this._requireServiceRegistry();
     this.serviceRegistry.register("logging", this, {
       folder: "services/cdn",
       domain: "cdn",

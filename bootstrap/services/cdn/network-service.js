@@ -13,6 +13,7 @@ const {
   proxyModeDirect: PROXY_MODE_DIRECT,
 } = require("../../constants/common.js");
 const DEFAULT_PROVIDER_ALIASES = getDefaultProviderAliases(globalObject, isCommonJs);
+const BaseService = require("../base-service.js");
 const NetworkServiceConfig = require("../../configs/network-service.js");
 
 function normalizeProviderBaseRawValue(provider) {
@@ -43,14 +44,12 @@ function createAliasMap(source) {
 /**
  * Performs URL resolution, probing, and provider alias normalization for bootstrap modules.
  */
-class NetworkService {
-  constructor(config = new NetworkServiceConfig()) { this.config = config; this.initialized = false; }
+class NetworkService extends BaseService {
+  constructor(config = new NetworkServiceConfig()) { super(config); }
 
   initialize() {
-    if (this.initialized) {
-      throw new Error("NetworkService already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     const { logClient, wait } = this.config;
     this.logClient = logClient ?? (() => {});
     this.wait = wait ?? (() => Promise.resolve());
