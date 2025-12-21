@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/tools-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `ToolsLoaderConfig`
 ## Functions / Classes
 
 - _None yet_

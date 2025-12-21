@@ -5,9 +5,12 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `DynamicModuleFetcher`
+- `DynamicModuleFetcherConfig`
+- `DynamicModulesConfig`
+- `ProviderResolver`
+- `ProviderResolverConfig`
 ## Functions / Classes
 
 - _None yet_

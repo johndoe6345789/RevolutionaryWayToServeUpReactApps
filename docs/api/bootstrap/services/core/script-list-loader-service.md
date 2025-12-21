@@ -5,9 +5,9 @@
 - TODO: Document the responsibilities of `bootstrap/services/core/script-list-loader-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `GlobalRootHandler`
+- `ScriptListLoaderConfig`
 ## Functions / Classes
 
 - _None yet_

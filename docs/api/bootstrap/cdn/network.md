@@ -6,9 +6,7 @@
 - **Entry point:** Accessed through `__rwtraBootstrap.helpers.network` so both browser loaders and Node-based tests can negotiate providers and perform retries consistently.
 
 ## Globals
-
-- _None:_ all helpers are exported via the shared namespace.
-
+- `NetworkEntryPoint`
 ## Functions
 
 - **`setFallbackProviders(providers)` / `getFallbackProviders()`** — Manage the cached list of fallback mirrors defined by `config.fallbackProviders`, normalizing the URLs and preserving aliases.

@@ -5,13 +5,10 @@
 - TODO: Document the responsibilities of `bootstrap/entrypoints/base-entrypoint.js`.
 
 ## Globals
-
-- _None yet_
-
+- `GlobalRootHandler`
+- `serviceRegistry`
 ## Functions / Classes
-
-- _None yet_
-
+- `configFactory`
 ## Examples
 
 ```ts

@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/module-fetcher-config.js`.
 
 ## Globals
-
-- _None yet_
-
+- `HelperRegistry`
 ## Functions / Classes
 
 - _None yet_

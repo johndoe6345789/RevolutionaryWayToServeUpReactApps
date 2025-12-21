@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/local-paths-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `LocalPathsConfig`
 ## Functions / Classes
 
 - _None yet_

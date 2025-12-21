@@ -5,9 +5,15 @@
 - TODO: Document the responsibilities of `bootstrap/constants/common.js`.
 
 ## Globals
-
-- _None yet_
-
+- `ciLogQueryParam`
+- `clientLogEndpoint`
+- `defaultFallbackProviders`
+- `getDefaultProviderAliases`
+- `localModuleExtensions`
+- `proxyModeAuto`
+- `proxyModeDirect`
+- `proxyModeProxy`
+- `scriptManifestUrl`
 ## Functions / Classes
 
 - _None yet_

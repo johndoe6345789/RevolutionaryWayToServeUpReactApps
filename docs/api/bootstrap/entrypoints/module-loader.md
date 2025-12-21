@@ -6,14 +6,17 @@
 - **Entry point:** Imported by `bootstrap.js` when the bootstrap runs under CommonJS, and mirrored through the shared `__rwtraBootstrap.helpers` namespace on the client.
 
 ## Globals
-
-- _None_; the file simply re-exports helpers pulled from the CDNs and local loader layers.
-
+- `BaseEntryPoint`
+- `ModuleLoaderAggregator`
+- `ModuleLoaderConfig`
 ## Re-exported helpers
 
 - Bundles `network`, `tools`, `dynamicModules`, `sourceUtils`, and the local loader when running in Node.js so preloading code has the same API as the browser runtime.
 - Because each of these objects is merged into `helpers.moduleLoader`, downstream scripts can destructure the combined exports without manually requiring every helper file.
 
+## Functions
+
+- `configFactory`
 ## Examples
 
 ```ts

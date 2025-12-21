@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/helpers/helper-registry-instance.js`.
 
 ## Globals
-
-- _None yet_
-
+- `HelperRegistry`
 ## Functions / Classes
 
 - _None yet_

@@ -5,13 +5,11 @@
 - TODO: Document the responsibilities of `bootstrap/cdn/network-entrypoint.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseEntryPoint`
+- `NetworkService`
+- `NetworkServiceConfig`
 ## Functions / Classes
-
-- _None yet_
-
+- `configFactory`
 ## Examples
 
 ```ts

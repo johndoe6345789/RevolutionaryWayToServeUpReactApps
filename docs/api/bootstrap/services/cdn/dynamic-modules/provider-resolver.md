@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/provider-resolver.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseHelper`
+- `ProviderResolverConfig`
 ## Functions / Classes
 
 - _None yet_

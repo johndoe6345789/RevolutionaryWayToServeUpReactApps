@@ -6,14 +6,16 @@
 - **Entry point:** Exported helpers are attached to `__rwtraBootstrap.helpers.dynamicModules` so the local loader can call `loadDynamicModule` whenever it encounters icons or other runtime rules defined under `config.dynamicModules`.
 
 ## Globals
-
-- _None:_ helpers are exported through the shared `helpers.dynamicModules` namespace.
-
+- `BaseEntryPoint`
+- `DynamicModulesConfig`
+- `DynamicModulesService`
+- `dynamicModulesService`
 ## Functions
 
 - **`loadDynamicModule(name, config, registry)`** — Matches the requested name against `config.dynamicModules`, builds candidate URLs from configured providers/aliases, probes each endpoint, loads the module either via `import()` (for `esm` rules) or `<script>` injection, and caches the namespace so subsequent calls reuse the same exports.
 - **`makeNamespace(globalObj)`** — Safely wraps either a module namespace or an existing global object so it behaves like an ES module with a default export; promoted helper for downstream tooling.
 
+- `configFactory`
 ## Internals
 
 - **`addBase(base)`** — Normalizes each provider base once and avoids duplicates when building candidate URLs.

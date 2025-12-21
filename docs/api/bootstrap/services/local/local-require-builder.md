@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/local-require-builder.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseHelper`
+- `LocalRequireBuilderConfig`
 ## Functions / Classes
 
 - _None yet_

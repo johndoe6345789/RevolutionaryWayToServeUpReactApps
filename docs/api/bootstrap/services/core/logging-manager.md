@@ -5,9 +5,9 @@
 - TODO: Document the responsibilities of `bootstrap/services/core/logging-manager.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `LoggingManagerConfig`
+- `hasWindow`
 ## Functions / Classes
 
 - _None yet_

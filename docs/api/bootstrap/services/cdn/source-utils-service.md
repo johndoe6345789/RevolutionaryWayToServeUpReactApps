@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/source-utils-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `SourceUtilsConfig`
 ## Functions / Classes
 
 - _None yet_

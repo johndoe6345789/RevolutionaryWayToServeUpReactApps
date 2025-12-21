@@ -5,9 +5,12 @@
 - TODO: Document the responsibilities of `bootstrap/controllers/bootstrapper.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseController`
+- `BootstrapperConfig`
+- `GlobalRootHandler`
+- `hasDocument`
+- `hasWindow`
+- `rootHandler`
 ## Functions / Classes
 
 - _None yet_

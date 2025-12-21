@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/sass-compiler-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `SassCompilerConfig`
 ## Functions / Classes
 
 - _None yet_

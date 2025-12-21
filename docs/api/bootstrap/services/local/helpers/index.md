@@ -5,9 +5,9 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/helpers/index.js`.
 
 ## Globals
-
-- _None yet_
-
+- `FrameworkRenderer`
+- `LocalRequireBuilder`
+- `helperRegistry`
 ## Functions / Classes
 
 - _None yet_

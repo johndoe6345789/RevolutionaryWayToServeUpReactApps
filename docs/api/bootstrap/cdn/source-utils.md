@@ -6,9 +6,10 @@
 - **Entry point:** Attached to `__rwtraBootstrap.helpers.sourceUtils` so both the browser loader and the test harnesses reuse the same parsing heuristics.
 
 ## Globals
-
-- _None:_ exports are collected under the shared helpers namespace.
-
+- `BaseEntryPoint`
+- `SourceUtilsConfig`
+- `SourceUtilsService`
+- `sourceUtilsService`
 ## Functions
 
 - **`collectDynamicModuleImports(source, config)`** — Parses `import ... from` and `require()` calls, filters them against `config.dynamicModules`, and returns every matching specifier so the dynamic loader can preload icons before rendering.
@@ -17,6 +18,7 @@
 - **`collectModuleSpecifiers(source)`** — Collects every import/require specifier so the loader can detect all dependencies referenced inside a source string.
 - **`preloadModulesFromSource(source, requireFn, baseDir = "")`** — Invokes `_async` for each collected specifier, awaits the results, and throws an aggregated error if any preload fails so calling code can surface helpful diagnostics.
 
+- `configFactory`
 ## Examples
 
 ```ts

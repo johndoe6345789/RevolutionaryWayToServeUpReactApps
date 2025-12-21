@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/core/env-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `EnvInitializerConfig`
 ## Functions / Classes
 
 - _None yet_

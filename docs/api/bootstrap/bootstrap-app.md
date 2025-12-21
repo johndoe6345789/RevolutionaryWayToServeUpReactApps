@@ -5,9 +5,11 @@
 - TODO: Document the responsibilities of `bootstrap/bootstrap-app.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseBootstrapApp`
+- `Bootstrapper`
+- `BootstrapperConfig`
+- `LoggingManager`
+- `LoggingManagerConfig`
 ## Functions / Classes
 
 - _None yet_

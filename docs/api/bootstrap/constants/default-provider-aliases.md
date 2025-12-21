@@ -9,9 +9,7 @@
 - _None yet_
 
 ## Functions / Classes
-
-- _None yet_
-
+- `getDefaultProviderAliases`
 ## Examples
 
 ```ts

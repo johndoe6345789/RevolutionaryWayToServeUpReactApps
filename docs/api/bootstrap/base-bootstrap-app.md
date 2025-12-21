@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/base-bootstrap-app.js`.
 
 ## Globals
-
-- _None yet_
-
+- `GlobalRootHandler`
 ## Functions / Classes
 
 - _None yet_

@@ -13,6 +13,10 @@
 - The helper scripts are injected with `async=false` so they execute in the manifest order, and the loader stops once every script resolves or rejects with a logged error.
 - Errors are reported via `console.error` with the `rwtra:scripts` prefix so CI loggers can correlate manifest failures.
 
+## Globals
+
+- `ScriptListLoader`
+- `scriptListLoader`
 ## Examples
 
 ```html

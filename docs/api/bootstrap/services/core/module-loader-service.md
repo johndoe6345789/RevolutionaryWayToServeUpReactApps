@@ -5,9 +5,9 @@
 - TODO: Document the responsibilities of `bootstrap/services/core/module-loader-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `ModuleLoaderConfig`
+- `ModuleLoaderEnvironment`
 ## Functions / Classes
 
 - _None yet_

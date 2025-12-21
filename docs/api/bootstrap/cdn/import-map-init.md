@@ -6,9 +6,9 @@
 - **Entry point:** Safely executed inside any `<script data-rwtra-importmap>` tag so the import map is populated before `bootstrap.js` or other runtime helpers evaluate dynamic imports.
 
 ## Globals
-
-- _None:_ the script only mutates the DOM (the `<script>` element) and the shared bootstrap helper namespace.
-
+- `BaseEntryPoint`
+- `ImportMapInitConfig`
+- `ImportMapInitializer`
 ## Behavior
 
 - Reads the `<script>` tag tagged with `data-rwtra-importmap` and exits quietly if it does not exist.

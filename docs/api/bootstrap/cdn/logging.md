@@ -6,9 +6,10 @@
 - **Entry point:** Exposed on `__rwtraBootstrap.helpers.logging` so both browser entry points and server-side tools can call `logClient` and coordinate `ciLogging` decisions.
 
 ## Globals
-
-- _None:_ the module attaches helpers to the shared bootstrap namespace instead of leaking top-level globals.
-
+- `BaseEntryPoint`
+- `LoggingService`
+- `LoggingServiceConfig`
+- `loggingService`
 ## Functions
 
 - **`setCiLoggingEnabled(enabled)`** — Toggles logging so `logClient` only sends data when CI logging is explicit (or when developer flags enable it).
@@ -18,6 +19,7 @@
 - **`serializeForLog(value)`** — Normalizes `Error` objects and other payloads so the bootstrap logger can round-trip the details safely.
 - **`isCiLoggingEnabled()`** — Reports whether CI logging is currently enabled so callers can gate downstream telemetry.
 
+- `configFactory`
 ## Examples
 
 ```ts

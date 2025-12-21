@@ -6,9 +6,10 @@
 - **Entry point:** Consumers import specific helpers such as `resolveLocalModuleBase` and `getCandidateLocalPaths` when performing code analysis inside the module loader.
 
 ## Globals
-
-- _None_ — this module exports helper functions only.
-
+- `BaseEntryPoint`
+- `LocalPathsConfig`
+- `LocalPathsService`
+- `localPathsService`
 ## Functions / Classes
 
 - **`isLocalModule(name)`** — Returns `true` for paths starting with `.` or `/`, which signals the loader to treat them as filesystem-relative.
@@ -19,6 +20,7 @@
 - **`hasKnownExtension(path)`** — Detects `.tsx`, `.ts`, `.jsx`, or `.js` suffixes so the loader can avoid adding redundant fallbacks.
 - **`getCandidateLocalPaths(basePath)`** — Produces every candidate file variant (`.tsx`, `.ts`, `/index.js`, etc.) so the loader can probe for the correct module even when consumers omit extensions.
 
+- `configFactory`
 ## Examples
 
 ```ts

@@ -5,9 +5,9 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/module-fetcher.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseHelper`
+- `DynamicModuleFetcherConfig`
+- `globalScope`
 ## Functions / Classes
 
 - _None yet_

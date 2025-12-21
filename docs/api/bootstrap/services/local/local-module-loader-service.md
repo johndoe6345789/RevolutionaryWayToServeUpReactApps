@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/local-module-loader-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `LocalModuleLoaderConfig`
 ## Functions / Classes
 
 - _None yet_

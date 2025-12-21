@@ -9,11 +9,17 @@
 
 - **`__RWTRA_PROXY_MODE__`** — Set to `"auto"` when no host override is present; the CDN helpers read this value to choose between proxy/ direct routes.
 
+- `BaseEntryPoint`
+- `EnvInitializer`
+- `EnvInitializerConfig`
 ## Behavior
 
 - The script immediately defines `global.__RWTRA_PROXY_MODE__` with `"auto"` if it hasn’t been set by the hosting environment.
 - Because it runs inside an IIFE that accepts `globalThis`, it works both in Node and browser contexts without module-level dependencies.
 
+## Functions
+
+- `configFactory`
 ## Examples
 
 ```html

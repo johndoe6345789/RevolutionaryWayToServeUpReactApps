@@ -6,14 +6,16 @@
 - **Entry point:** Used by `bootstrap.js` to compile the configured styles (`styles.scss`) before the app renders.
 
 ## Globals
-
-- _None:_ exposes helpers via the shared `helpers.sassCompiler` namespace.
-
+- `BaseEntryPoint`
+- `SassCompilerConfig`
+- `SassCompilerService`
+- `sassCompilerService`
 ## Functions
 
 - **`compileSCSS(scssFile)`** — Fetches an SCSS entry file, looks for the global `Sass` implementation, and compiles the stylesheet using whichever API is available (constructor-based, callback-based, or synchronous `compile`). Rejects with descriptive errors when Sass is missing or the compiler raises a failure.
 - **`injectCSS(css)`** — Appends a `<style>` tag with the provided CSS so compiled styles get applied immediately.
 
+- `configFactory`
 ## Examples
 
 ```ts

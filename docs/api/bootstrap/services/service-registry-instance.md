@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/services/service-registry-instance.js`.
 
 ## Globals
-
-- _None yet_
-
+- `ServiceRegistry`
 ## Functions / Classes
 
 - _None yet_

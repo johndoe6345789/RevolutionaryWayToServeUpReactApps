@@ -9,12 +9,17 @@
 
 - `moduleContextStack` — Tracks the current module path/directory so diagnostic helpers can trace recursive requires; exported for debugging.
 
+- `BaseEntryPoint`
+- `TsxCompilerConfig`
+- `TsxCompilerService`
+- `tsxCompilerService`
 ## Functions
 
 - **`transformSource(source, filePath)`** — Uses Babel presets for TypeScript, React, and `env` to compile TSX to plain JS with inline source maps.
 - **`executeModuleSource(source, filePath, moduleDir, requireFn)`** — Wraps the compiled bundle with `require`, `exports`, and `module`, pushes the context onto the stack, and returns the module’s default export.
 - **`compileTSX(entryFile, requireFn, entryDir)`** — Fetches the TSX entry, preloads modules via `preloadModulesFromSource`, runs the compiled bundle, logs the compilation, and returns the rendered component.
 
+- `configFactory`
 ## Examples
 
 ```ts

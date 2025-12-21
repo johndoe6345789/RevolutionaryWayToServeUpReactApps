@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/tsx-compiler-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `TsxCompilerConfig`
 ## Functions / Classes
 
 - _None yet_

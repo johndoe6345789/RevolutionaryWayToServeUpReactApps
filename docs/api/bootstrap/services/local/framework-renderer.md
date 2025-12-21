@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/services/local/framework-renderer.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
 ## Functions / Classes
 
 - _None yet_

@@ -19,6 +19,9 @@
 - `collectModuleSpecifiers()` and `preloadModulesFromSource()` allow static analysis of source files — they are useful when the loader compiles or bundles additional entry points.
 - `loadTools()` and `makeNamespace()` let developers preload side-effectful helpers or wrap global objects inside namespace shims for regression tests.
 
+## Globals
+
+- `BootstrapApp`
 ## Examples
 
 ```ts

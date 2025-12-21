@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/import-map-init-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `ImportMapInitConfig`
 ## Functions / Classes
 
 - _None yet_

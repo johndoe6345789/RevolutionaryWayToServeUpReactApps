@@ -5,13 +5,11 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/network-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `NetworkServiceConfig`
+- `globalObject`
 ## Functions / Classes
-
-- _None yet_
-
+- `normalizeProviderBaseRawValue`
 ## Examples
 
 ```ts

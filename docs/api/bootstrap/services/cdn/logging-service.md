@@ -5,9 +5,8 @@
 - TODO: Document the responsibilities of `bootstrap/services/cdn/logging-service.js`.
 
 ## Globals
-
-- _None yet_
-
+- `BaseService`
+- `LoggingServiceConfig`
 ## Functions / Classes
 
 - _None yet_

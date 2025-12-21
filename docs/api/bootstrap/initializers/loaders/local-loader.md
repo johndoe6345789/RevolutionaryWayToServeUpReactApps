@@ -6,9 +6,10 @@
 - **Entry point:** Used by `bootstrap.js` to expose `createRequire`, `frameworkRender`, and the compiler helpers when running under CommonJS or the browser helper namespace.
 
 ## Globals
-
-- _None_: this module exports helper functions merged from the compiler, path, and module-loader layers.
-
+- `BaseEntryPoint`
+- `LocalLoaderConfig`
+- `LocalLoaderService`
+- `localLoaderService`
 ## Functions / Classes
 
 - **`frameworkRender(config, registry, App)`** — Finds the DOM root element, ensures the configured React/dom modules provide `createRoot` and `createElement`, then renders the compiled `App` component with the requested method (e.g., `render` or `hydrate`).
@@ -17,6 +18,7 @@
 - **`requireAsync(name, baseDir)`** — Internal helper that proxies all async module requests through `_async`, allowing local sources and dynamic CDN modules to be fetched with the same entry points.
 - Compiler helpers (`compileSCSS`, `injectCSS`, `compileTSX`, `transformSource`, `executeModuleSource`) and path utilities (`isLocalModule`, `normalizeDir`, `makeAliasKey`, `getModuleDir`) are re-exported so external tooling can reuse them.
 
+- `configFactory`
 ## Examples
 
 ```ts

@@ -5,9 +5,7 @@
 - TODO: Document the responsibilities of `bootstrap/configs/script-list-loader.js`.
 
 ## Globals
-
-- _None yet_
-
+- `GlobalRootHandler`
 ## Functions / Classes
 
 - _None yet_
