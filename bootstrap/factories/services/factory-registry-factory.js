@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const FactoryRegistry = require('../registries/factory-registry.js');
+const BaseFactory = require('../base-factory.js');
+const FactoryRegistry = require('../../registries/factory-registry.js');
 
 /**
  * Factory for creating FactoryRegistry instances.

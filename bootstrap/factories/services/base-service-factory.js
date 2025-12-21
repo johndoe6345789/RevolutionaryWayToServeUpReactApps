@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const BaseService = require('../services/base-service.js');
+const BaseFactory = require('../base-factory.js');
+const BaseService = require('../../services/base-service.js');
 
 /**
  * Factory for creating BaseService instances.

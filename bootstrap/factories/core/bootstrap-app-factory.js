@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const BootstrapApp = require('../bootstrap-app.js');
+const BaseFactory = require('../base-factory.js');
+const BootstrapApp = require('../../bootstrap-app.js');
 
 /**
  * Factory for creating BootstrapApp instances.

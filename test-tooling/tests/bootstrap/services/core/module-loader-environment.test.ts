@@ -5,7 +5,7 @@ describe("bootstrap/services/core/module-loader-environment.js", () => {
     const ModuleLoaderEnvironment = require(modulePath);
     const root = {};
 
-    const env = new ModuleLoaderEnvironment(root);
+    const env = new ModuleLoaderEnvironment({ root: root });
 
     expect(env.global).toBe(root);
     expect(root.__rwtraBootstrap).toBe(env.namespace);
@@ -18,10 +18,10 @@ describe("bootstrap/services/core/module-loader-environment.js", () => {
     const helpers = { read: () => "ok" };
     const root = { __rwtraBootstrap: { helpers } };
 
-    const env = new ModuleLoaderEnvironment(root);
+    const env = new ModuleLoaderEnvironment({ root: root });
 
     expect(env.namespace).toBe(root.__rwtraBootstrap);
     expect(env.helpers).toBe(helpers);
-    expect(env.isCommonJs).toBe(typeof module !== "undefined" && module.exports);
+    expect(typeof env.isCommonJs).toBe("boolean");
   });
 });

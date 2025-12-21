@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const LoggingManager = require('../services/core/logging-manager.js');
+const BaseFactory = require('../base-factory.js');
+const LoggingManager = require('../../services/core/logging-manager.js');
 
 /**
  * Factory for creating LoggingManager instances.

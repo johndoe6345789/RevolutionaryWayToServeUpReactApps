@@ -1,7 +1,7 @@
 import BaseBootstrapApp from "../../bootstrap/base-bootstrap-app.js";
 import GlobalRootHandler from "../../bootstrap/constants/global-root-handler.js";
 import ServiceRegistry from "../../bootstrap/registries/service-registry.js";
-import HelperRegistry from "../../bootstrap/helpers/helper-registry.js";
+import HelperRegistry from "../../bootstrap/registries/helper-registry.js";
 import TsxCompilerService from "../../bootstrap/services/local/tsx-compiler-service.js";
 import TsxCompilerConfig from "../../bootstrap/configs/local/tsx-compiler.js";
 
@@ -206,7 +206,7 @@ describe("Comprehensive Unit Tests for Critical Classes", () => {
       // Should not throw when required service exists
       serviceRegistry.register("serviceA", serviceA, {}, []);
       expect(() => {
-        serviceRegistry.register("serviceB", { name: "B" }, {}, ["serviceA"]);
+        serviceRegistry.register("serviceC", { name: "C" }, {}, ["serviceA"]);
       }).not.toThrow();
     });
 

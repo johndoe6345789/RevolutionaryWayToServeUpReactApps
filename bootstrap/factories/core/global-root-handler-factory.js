@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const GlobalRootHandler = require('../constants/global-root-handler.js');
+const BaseFactory = require('../base-factory.js');
+const GlobalRootHandler = require('../../constants/global-root-handler.js');
 
 /**
  * Factory for creating GlobalRootHandler instances.

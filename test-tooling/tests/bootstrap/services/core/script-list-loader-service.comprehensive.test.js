@@ -361,16 +361,27 @@ describe("ScriptListLoader", () => {
           ])
         }
       };
-      
-      mockDocument.createElement = createMockFunction()
-        .mockReturnValueOnce({ /* script element */ })
-        .mockReturnValueOnce(templateElement);
-      
+
+      let createElementCallCount3 = 0;
+      mockDocument.createElement = (...args) => {
+        mockDocument.createElement.calls.push(args);
+        createElementCallCount3++;
+        if (createElementCallCount3 === 1) {
+          return { /* script element */ };
+        } else if (createElementCallCount3 === 2) {
+          return templateElement;
+        } else {
+          return { /* another script element */ };
+        }
+      };
+      mockDocument.createElement.calls = [];
+
       service.loadScript = createMockFunction().mockResolvedValue(Promise.resolve());
-      
+
       await service.load();
-      
-      expect(service.loadScript).toHaveBeenCalledWith("/script1.js");
+
+      expect(service.loadScript.calls.length).toBeGreaterThan(0);
+      expect(service.loadScript.calls[0][0]).toBe("/script1.js");
     });
 
     test("should catch errors from loadFromManifest and log them", async () => {
@@ -380,7 +391,9 @@ describe("ScriptListLoader", () => {
       
       await service.load();
       
-      expect(mockLog).toHaveBeenCalledWith("load:error", expect.any(Error));
+      expect(mockLog.calls.length).toBeGreaterThan(0);
+      expect(mockLog.calls[0][0]).toBe("load:error");
+      expect(mockLog.calls[0][1]).toBeInstanceOf(Error);
     });
   });
 
@@ -417,19 +430,30 @@ describe("ScriptListLoader", () => {
         }
       };
       
-      mockDocument.createElement = createMockFunction()
-        .mockReturnValueOnce({ /* script element */ })
-        .mockReturnValueOnce(templateElement);
-      
+      let createElementCallCount4 = 0;
+      mockDocument.createElement = (...args) => {
+        mockDocument.createElement.calls.push(args);
+        createElementCallCount4++;
+        if (createElementCallCount4 === 1) {
+          return { /* script element */ };
+        } else if (createElementCallCount4 === 2) {
+          return templateElement;
+        } else {
+          return { /* another script element */ };
+        }
+      };
+      mockDocument.createElement.calls = [];
+
       // Mock script loading to succeed
       const originalLoadScript = service.loadScript.bind(service);
       service.loadScript = createMockFunction().mockResolvedValue(Promise.resolve());
-      
+
       // Load the manifest
       await service.loadFromManifest();
-      
+
       // Verify scripts were processed
-      expect(service.loadScript).toHaveBeenCalledWith("/integration-test.js");
+      expect(service.loadScript.calls.length).toBeGreaterThan(0);
+      expect(service.loadScript.calls[0][0]).toBe("/integration-test.js");
     });
 
     test("should handle complete load flow", async () => {
@@ -458,9 +482,19 @@ describe("ScriptListLoader", () => {
         }
       };
       
-      mockDocument.createElement = createMockFunction()
-        .mockReturnValueOnce({ /* script element */ })
-        .mockReturnValueOnce(templateElement);
+      let createElementCallCount5 = 0;
+      mockDocument.createElement = (...args) => {
+        mockDocument.createElement.calls.push(args);
+        createElementCallCount5++;
+        if (createElementCallCount5 === 1) {
+          return { /* script element */ };
+        } else if (createElementCallCount5 === 2) {
+          return templateElement;
+        } else {
+          return { /* another script element */ };
+        }
+      };
+      mockDocument.createElement.calls = [];
       
       service.loadScript = createMockFunction().mockResolvedValue(Promise.resolve());
       

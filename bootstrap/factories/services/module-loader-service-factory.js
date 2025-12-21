@@ -1,5 +1,5 @@
-const BaseFactory = require('./base-factory.js');
-const ModuleLoaderService = require('../services/core/module-loader-service.js');
+const BaseFactory = require('../base-factory.js');
+const ModuleLoaderService = require('../../services/core/module-loader-service.js');
 
 /**
  * Factory for creating ModuleLoaderService instances.

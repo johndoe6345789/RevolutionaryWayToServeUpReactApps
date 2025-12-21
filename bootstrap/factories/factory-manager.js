@@ -1,20 +1,20 @@
 const BaseFactory = require('./base-factory.js');
-const BaseBootstrapAppFactory = require('./base-bootstrap-app-factory.js');
-const GlobalRootHandlerFactory = require('./global-root-handler-factory.js');
-const BootstrapperFactory = require('./bootstrapper-factory.js');
-const BaseControllerFactory = require('./base-controller-factory.js');
-const BaseHelperFactory = require('./base-helper-factory.js');
-const BaseServiceFactory = require('./base-service-factory.js');
-const BootstrapAppFactory = require('./bootstrap-app-factory.js');
-const ServiceRegistryFactory = require('./service-registry-factory.js');
-const ControllerRegistryFactory = require('./controller-registry-factory.js');
-const FactoryRegistryFactory = require('./factory-registry-factory.js');
-const HelperRegistryFactory = require('./helper-registry-factory.js');
-const LoggingManagerFactory = require('./logging-manager-factory.js');
-const ModuleLoaderServiceFactory = require('./module-loader-service-factory.js');
-const TsxCompilerServiceFactory = require('./tsx-compiler-service-factory.js');
-const SassCompilerServiceFactory = require('./sass-compiler-service-factory.js');
-const BaseEntryPointFactory = require('./base-entrypoint-factory.js');
+const BaseBootstrapAppFactory = require('./core/base-bootstrap-app-factory.js');
+const GlobalRootHandlerFactory = require('./core/global-root-handler-factory.js');
+const BootstrapperFactory = require('./core/bootstrapper-factory.js');
+const BaseControllerFactory = require('./core/base-controller-factory.js');
+const BaseHelperFactory = require('./core/base-helper-factory.js');
+const BaseServiceFactory = require('./services/base-service-factory.js');
+const BootstrapAppFactory = require('./core/bootstrap-app-factory.js');
+const ServiceRegistryFactory = require('./services/service-registry-factory.js');
+const ControllerRegistryFactory = require('./services/controller-registry-factory.js');
+const FactoryRegistryFactory = require('./services/factory-registry-factory.js');
+const HelperRegistryFactory = require('./services/helper-registry-factory.js');
+const LoggingManagerFactory = require('./services/logging-manager-factory.js');
+const ModuleLoaderServiceFactory = require('./services/module-loader-service-factory.js');
+const TsxCompilerServiceFactory = require('./local/tsx-compiler-service-factory.js');
+const SassCompilerServiceFactory = require('./local/sass-compiler-service-factory.js');
+const BaseEntryPointFactory = require('./core/base-entrypoint-factory.js');
 
 /**
  * Factory manager that provides access to all available factories.
