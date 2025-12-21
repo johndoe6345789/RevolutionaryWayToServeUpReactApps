@@ -1,5 +1,9 @@
 const BaseService = require("../base-service.js");
 const DynamicModulesConfig = require("../../configs/dynamic-modules.js");
+const ProviderResolver = require("./dynamic-modules/provider-resolver.js");
+const ProviderResolverConfig = require("./dynamic-modules/provider-resolver-config.js");
+const DynamicModuleFetcher = require("./dynamic-modules/module-fetcher.js");
+const DynamicModuleFetcherConfig = require("./dynamic-modules/module-fetcher-config.js");
 
 /**
  * Resolves and loads icon-specific dynamic modules from configured providers.
@@ -33,6 +37,18 @@ class DynamicModulesService extends BaseService {
     this.normalizeProviderBase = net.normalizeProviderBase || (() => "");
     this.getFallbackProviders = net.getFallbackProviders || (() => []);
     this.getDefaultProviderBase = net.getDefaultProviderBase || (() => "");
+    this.providerResolver = new ProviderResolver(
+      new ProviderResolverConfig({
+        service: this,
+        helperRegistry: this.helpers,
+      })
+    );
+    this.moduleFetcher = new DynamicModuleFetcher(
+      new DynamicModuleFetcherConfig({
+        service: this,
+        helperRegistry: this.helpers,
+      })
+    );
   }
 
   /**
@@ -74,129 +90,22 @@ class DynamicModulesService extends BaseService {
    */
   async loadDynamicModule(name, config, registry) {
     this._ensureInitialized();
+    const rule = this._resolveRule(name, config);
+    const icon = name.slice(rule.prefix.length);
+    const bases = this.providerResolver.resolveBases(rule);
+    const urls = this.providerResolver.buildCandidates(rule, icon, bases);
+    const namespace = await this.moduleFetcher.fetchNamespace(rule, icon, registry, urls);
+    registry[name] = namespace;
+    return namespace;
+  }
+
+  _resolveRule(name, config) {
     const dynRules = config.dynamicModules || [];
     const rule = dynRules.find((r) => name.startsWith(r.prefix));
     if (!rule) {
       throw new Error("No dynamic rule for module: " + name);
     }
-
-    const icon = name.slice(rule.prefix.length);
-    const bases = [];
-    const addBase = (b) => {
-      if (!b) return;
-      const normalized = this.normalizeProviderBase(b);
-      if (!bases.includes(normalized)) bases.push(normalized);
-    };
-    const host = typeof window !== "undefined" ? window.location.hostname : "";
-    const isCiLike = host === "127.0.0.1" || host === "localhost";
-    const addProvidersInOrder = (providers) => {
-      for (const prov of providers) {
-        addBase(prov);
-      }
-    };
-    if (isCiLike) {
-      addProvidersInOrder([
-        rule.ci_provider,
-        rule.provider,
-        rule.production_provider,
-      ]);
-    } else {
-      addProvidersInOrder([
-        rule.production_provider,
-        rule.provider,
-        rule.ci_provider,
-      ]);
-    }
-    if (!bases.length) {
-      addBase(rule.provider || rule.production_provider || this.getDefaultProviderBase());
-    }
-    if (rule.allowJsDelivr !== false) {
-      for (const fallback of this.getFallbackProviders()) {
-        addBase(fallback);
-      }
-    }
-
-    const pkg = rule.package || rule.prefix.replace(/\/\*?$/, "");
-    const version = rule.version ? "@" + rule.version : "";
-    const rawFile = (rule.filePattern || "{icon}.js").replace("{icon}", icon);
-    const prefix = (rule.pathPrefix || "").replace(/^\/+|\/+$/g, "");
-    const combinedPath = [prefix, rawFile].filter(Boolean).join("/");
-
-    const candidates = [];
-    for (const base of bases) {
-      const packageRoot = base + pkg + version;
-      if (combinedPath) {
-        candidates.push(packageRoot + "/" + combinedPath);
-        candidates.push(packageRoot + "/umd/" + combinedPath);
-        candidates.push(packageRoot + "/dist/" + combinedPath);
-      } else {
-        candidates.push(packageRoot);
-      }
-    }
-
-    const seen = new Set();
-    const urls = [];
-    for (const c of candidates) {
-      if (!seen.has(c)) {
-        seen.add(c);
-        urls.push(c);
-      }
-    }
-
-    let foundUrl = null;
-    for (const url of urls) {
-      if (await this.probeUrl(url)) {
-        foundUrl = url;
-        break;
-      }
-    }
-
-    if (!foundUrl) {
-      throw new Error(
-        "Unable to resolve icon module " +
-          name +
-          " (tried: " +
-          urls.join(", ") +
-          ")"
-      );
-    }
-
-    const format = (rule.format || rule.type || "global").toLowerCase();
-    let namespace;
-    if (format === "esm" || format === "module") {
-      const moduleExports = await import(foundUrl);
-      namespace = this.createNamespace(moduleExports);
-      this.logClient("dynamic-module:loaded", {
-        name,
-        url: foundUrl,
-        format,
-      });
-      registry[name] = namespace;
-      return registry[name];
-    }
-
-    await this.loadScript(foundUrl);
-
-    const globalName = (rule.globalPattern || "{icon}").replace("{icon}", icon);
-    const globalObj = globalName.includes(".")
-      ? globalName.split(".").reduce((obj, part) => (obj ? obj[part] : undefined), window)
-      : window[globalName];
-
-    if (!globalObj) {
-      throw new Error(
-        "Global for icon " + name + " not found: " + globalName
-      );
-    }
-
-    namespace = this.createNamespace(globalObj);
-    registry[name] = namespace;
-    this.logClient("dynamic-module:loaded", {
-      name,
-      url: foundUrl,
-      global: globalName,
-      format,
-    });
-    return registry[name];
+    return rule;
   }
 
   /**
