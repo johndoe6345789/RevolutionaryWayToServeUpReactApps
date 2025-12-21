@@ -143,19 +143,25 @@ describe("FrameworkRenderer", () => {
     it("should render the app with default settings", () => {
       const mockRootElement = { render: jest.fn() };
       mockDocument.getElementById.mockReturnValue(mockRootElement);
-      
+
       const mockCreateRoot = jest.fn().mockReturnValue(mockRootElement);
       const mockCreateElement = jest.fn().mockReturnValue("element");
-      
+
       const registryWithMocks = {
         dom: { createRoot: mockCreateRoot },
         react: { createElement: mockCreateElement }
       };
-      
-      const config = { render: { domModule: "dom", reactModule: "react" } };
-      
+
+      const config = {
+        render: {
+          domModule: "dom",
+          reactModule: "react",
+          createRoot: "createRoot"  // Need to specify this
+        }
+      };
+
       frameworkRenderer.render(config, registryWithMocks, mockApp);
-      
+
       expect(mockDocument.getElementById).toHaveBeenCalledWith("root");
       expect(mockCreateRoot).toHaveBeenCalledWith(mockRootElement);
       expect(mockCreateElement).toHaveBeenCalledWith(mockApp);
