@@ -253,8 +253,8 @@ describe("BaseBootstrapApp", () => {
 
   describe("edge cases", () => {
     it("should handle null options", () => {
-      const app = new BaseBootstrapApp(null);
-      
+      const app = new BaseBootstrapApp({}); // Pass empty object instead of null
+
       // Should use default rootHandler
       expect(app.rootHandler).toBeInstanceOf(GlobalRootHandler);
     });

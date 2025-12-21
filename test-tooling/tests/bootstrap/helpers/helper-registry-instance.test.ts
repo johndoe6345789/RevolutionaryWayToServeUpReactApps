@@ -1,6 +1,6 @@
-describe("bootstrap/helpers/helper-registry-instance.js", () => {
-  const instancePath = '../../../../bootstrap/helpers/helper-registry-instance.js';
-  const HelperRegistry = require('../../../../bootstrap/helpers/helper-registry.js');
+describe("bootstrap/registries/helper-registry-instance.js", () => {
+  const instancePath = '../../../../bootstrap/registries/helper-registry-instance.js';
+  const HelperRegistry = require('../../../../bootstrap/registries/helper-registry.js');
 
   beforeEach(() => {
     delete require.cache[require.resolve(instancePath)];

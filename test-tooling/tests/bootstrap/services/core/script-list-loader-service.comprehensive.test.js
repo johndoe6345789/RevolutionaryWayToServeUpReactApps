@@ -272,16 +272,6 @@ describe("ScriptListLoader", () => {
           ])
         }
       };
-      // Add the property to make the querySelectorAll accessible
-      Object.defineProperty(templateElement, 'content', {
-        value: {
-          querySelectorAll: createMockFunction().mockReturnValue([
-            { getAttribute: () => "/script1.js" },
-            { getAttribute: () => "/script2.js" }
-          ])
-        },
-        writable: true
-      });
 
       let createElementCallCount1 = 0;
       mockDocument.createElement = (...args) => {

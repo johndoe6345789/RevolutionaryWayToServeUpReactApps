@@ -1,6 +1,6 @@
-describe("bootstrap/services/service-registry-instance.js", () => {
-  const instancePath = '../../../../bootstrap/services/service-registry-instance.js';
-  const ServiceRegistry = require('../../../../bootstrap/services/service-registry.js');
+describe("bootstrap/registries/service-registry-instance.js", () => {
+  const instancePath = '../../../../bootstrap/registries/service-registry-instance.js';
+  const ServiceRegistry = require('../../../../bootstrap/registries/service-registry.js');
 
   it('exports a singleton ServiceRegistry instance', () => {
     const registry = require(instancePath);
