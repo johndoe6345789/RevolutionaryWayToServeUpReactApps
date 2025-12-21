@@ -78,6 +78,16 @@ describe("bootstrap helpers", () => {
     ]);
   });
 
+  it("deduplicates module specifiers while keeping the first occurrence", () => {
+    const source = `
+      import { h } from "react";
+      const component = require("react");
+      import "./global.css";
+    `;
+
+    expect(collectModuleSpecifiers(source)).toEqual(["react", "./global.css"]);
+  });
+
   it("resolves candidate URLs by probing with HEAD requests", async () => {
     const expectedUrl = "https://cdn.example.com/pkg@1.2.3/lib/index.js";
     const fetchCalls: Array<{ url: string; method?: string }> = [];
@@ -106,6 +116,21 @@ describe("bootstrap helpers", () => {
     expect(fetchCalls.length).toBeGreaterThanOrEqual(1);
     expect(fetchCalls[0]).toMatchObject({ url: expectedUrl, method: "HEAD" });
     fetchSpy.mockRestore();
+  });
+
+  it("preloads every specifier before compiling when async loaders resolve", async () => {
+    const source = `
+      import "./theme";
+      const utils = require("./utils");
+    `;
+    const requireFn = {
+      _async: jest.fn((name: string) => Promise.resolve(name))
+    };
+
+    await expect(preloadModulesFromSource(source, requireFn as any, "src/components")).resolves.toBeUndefined();
+    expect(requireFn._async).toHaveBeenCalledTimes(2);
+    expect(requireFn._async).toHaveBeenCalledWith("./theme", "src/components");
+    expect(requireFn._async).toHaveBeenCalledWith("./utils", "src/components");
   });
 
   it("createRequire returns preloaded modules and defers dynamic ones", async () => {

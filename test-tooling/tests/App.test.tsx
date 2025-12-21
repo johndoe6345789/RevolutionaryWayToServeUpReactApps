@@ -55,4 +55,15 @@ describe("App shell", () => {
 
     logSpy.mockRestore();
   });
+
+  it("renders a card for every featured game", () => {
+    render(<App />);
+
+    FEATURED_GAMES.forEach((game) => {
+      expect(screen.getByText(game.title)).toBeInTheDocument();
+    });
+
+    const detailButtons = screen.getAllByRole("button", { name: /View details/i });
+    expect(detailButtons).toHaveLength(FEATURED_GAMES.length);
+  });
 });

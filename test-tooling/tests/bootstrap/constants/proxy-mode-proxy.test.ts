@@ -1,5 +1,17 @@
 describe("bootstrap/constants/proxy-mode-proxy.js", () => {
-  it("loads without throwing", () => {
-    expect(require("../../../../bootstrap/constants/proxy-mode-proxy.js")).toBeDefined();
+  const modulePath = '../../../../bootstrap/constants/proxy-mode-proxy.js';
+  const expectedType = 'string';
+  const expectArray = false;
+  const expectEsModule = false;
+
+  it('loads without throwing', () => {
+    expect(require(modulePath)).toBeDefined();
+  });
+
+  it('exports the expected shape', () => {
+    const moduleExports = require(modulePath);
+    expect(typeof moduleExports).toBe(expectedType);
+    expect(Array.isArray(moduleExports)).toBe(expectArray);
+    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
   });
 });
