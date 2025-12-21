@@ -1,4 +1,4 @@
-import ServiceRegistry = require("../services/service-registry.js");
+import ServiceRegistry = require("../registries/service-registry.js");
 
 export = BaseEntryPoint;
 

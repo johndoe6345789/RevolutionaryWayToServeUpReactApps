@@ -50,7 +50,7 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should set isCommonJs to true when global.module exists', () => {
-      global.global = { module: { exports: {} } };
+      global.module = { exports: {} };
 
       const app = new BaseBootstrapApp();
 
@@ -58,8 +58,7 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should set isCommonJs to false when global.module does not exist', () => {
-      global.global = {};
-      delete global.global.module;
+      delete global.module;
 
       const app = new BaseBootstrapApp();
 
@@ -145,26 +144,30 @@ describe('BaseBootstrapApp', () => {
     });
 
     it('should resolve helpers via require when in CommonJS', () => {
-      global.global.module = { exports: {} };
+      // Set up CommonJS environment
+      global.module = { exports: {} };
+
+      // Create a mock require function to spy on calls
+      const mockRequire = jest.fn().mockReturnValue({ test: 'helper' });
+      const originalRequire = global.require;
+      global.require = mockRequire;
+
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
 
-      // Mock require function for this test
-      const originalRequire = global.require;
-      const mockHelper = { name: 'testHelper' };
-      global.require = jest.fn().mockReturnValue(mockHelper);
-
+      // Call the method
       const result = app._resolveHelper('testHelper', './path/to/helper');
 
-      expect(global.require).toHaveBeenCalledWith('./path/to/helper');
-      expect(result).toBe(mockHelper);
+      // Verify that require was called with the correct path
+      expect(mockRequire).toHaveBeenCalledWith('./path/to/helper');
+      expect(result).toEqual({ test: 'helper' });
 
       // Restore original require
       global.require = originalRequire;
     });
 
     it('should resolve helpers from namespace when not in CommonJS', () => {
-      delete global.global.module;
+      delete global.module;
       const mockHelper = { name: 'testHelper' };
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
@@ -223,15 +226,14 @@ describe('BaseBootstrapApp', () => {
 
   describe('integration', () => {
     it('should work with CommonJS environment', () => {
-      global.global = { module: { exports: {} } };
+      global.module = { exports: {} };
       const app = new BaseBootstrapApp();
 
       expect(app.isCommonJs).toBe(true);
     });
 
     it('should work with non-CommonJS environment', () => {
-      global.global = {};
-      delete global.global.module;
+      delete global.module;
       const app = new BaseBootstrapApp();
 
       expect(app.isCommonJs).toBe(false);

@@ -100,10 +100,13 @@ describe("LoggingService comprehensive test", () => {
   });
 
   test("should detect CI logging from various sources", () => {
+    // Change hostname to avoid localhost detection
+    global.window.location.hostname = "example.com";
+
     const mockServiceRegistry = {
       register: jest.fn()
     };
-    
+
     const config = new LoggingServiceConfig({
       namespace: { helpers: {} },
       serviceRegistry: mockServiceRegistry

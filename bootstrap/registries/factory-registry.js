@@ -35,18 +35,19 @@ class FactoryRegistry {
     if (!entry) {
       throw new Error("Factory not found: " + name);
     }
-    
+
     // Check if required dependencies are provided
     const factoryMetadata = entry.metadata;
     const requiredDeps = factoryMetadata.required || [];
-    
+
     for (const dep of requiredDeps) {
       if (!(dep in dependencies)) {
         throw new Error(`Required dependency missing for factory ${name}: ${dep}`);
       }
     }
-    
-    return new entry.factory(dependencies);
+
+    const factory = new entry.factory(dependencies);
+    return factory.create ? factory.create(dependencies) : factory;
   }
 
   /**

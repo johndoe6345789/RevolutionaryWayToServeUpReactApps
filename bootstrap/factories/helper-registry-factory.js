@@ -1,5 +1,5 @@
 const BaseFactory = require('./base-factory.js');
-const HelperRegistry = require('../helpers/helper-registry.js');
+const HelperRegistry = require('../registries/helper-registry.js');
 
 /**
  * Factory for creating HelperRegistry instances.

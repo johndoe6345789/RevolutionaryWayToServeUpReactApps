@@ -1,4 +1,4 @@
-const BaseFactory = require('./base-factory.js');
+const BaseFactory = require('../base-factory.js');
 const BaseController = require('../controllers/base-controller.js');
 
 /**

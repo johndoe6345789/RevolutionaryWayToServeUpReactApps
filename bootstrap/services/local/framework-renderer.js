@@ -1,19 +1,8 @@
 const BaseService = require("../base-service.js");
+const FrameworkRendererConfig = require("../../configs/local/framework-renderer.js");
 
 /**
- * Handles rendering the configured entry component to the DOM.
- */
-class FrameworkRendererConfig {
-  /**
-   * Initializes a new Framework Renderer Config instance with the provided configuration.
-   */
-  constructor({ document } = {}) {
-    this.document = document;
-  }
-}
-
-/**
- * Handles DOM rendering by coordinating the configured React and DOM render helpers.
+ * Handles DOM rendering by coordinating the configured entry component to the DOM.
  */
 class FrameworkRenderer extends BaseService {
   constructor(config = new FrameworkRendererConfig()) {

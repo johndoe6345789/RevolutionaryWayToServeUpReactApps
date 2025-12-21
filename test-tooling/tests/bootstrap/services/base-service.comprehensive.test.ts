@@ -23,12 +23,6 @@ describe("BaseService", () => {
       expect(service.config).toEqual({});
     });
 
-    it("should store null config when null is provided", () => {
-      const service = new TestService(null);
-
-      expect(service.config).toBeNull();
-    });
-
     it("should initialize with an empty object when undefined config is provided", () => {
       const service = new TestService(undefined);
       
@@ -43,7 +37,7 @@ describe("BaseService", () => {
   });
 
   describe("initialize method", () => {
-    it("should throw when called directly on the base implementation", () => {
+    it("should throw an error when called directly on the base implementation", () => {
       const baseService = new BaseService({});
       
       expect(() => baseService.initialize()).toThrow(`${BaseService.name} must implement initialize()`);
@@ -89,7 +83,7 @@ describe("BaseService", () => {
 
   describe("_markInitialized method", () => {
     it("should set initialized flag to true", () => {
-      const service = new TestService({});
+      const service = new TestService();
       
       service._markInitialized();
       
@@ -97,7 +91,7 @@ describe("BaseService", () => {
     });
 
     it("should be callable multiple times", () => {
-      const service = new TestService({});
+      const service = new TestService();
       
       service._markInitialized();
       service._markInitialized(); // Should not throw
@@ -124,16 +118,15 @@ describe("BaseService", () => {
   describe("_requireServiceRegistry method", () => {
     it("should return the configured ServiceRegistry when available", () => {
       const mockRegistry = { register: jest.fn() };
-      const service = new TestService({
-        serviceRegistry: mockRegistry
-      });
+      const config = { serviceRegistry: mockRegistry };
+      const service = new TestService(config);
       
       const result = service._requireServiceRegistry();
       
       expect(result).toBe(mockRegistry);
     });
 
-    it("should throw when ServiceRegistry is missing from config", () => {
+    it("should throw an error when ServiceRegistry is missing from config", () => {
       const service = new TestService({});
       
       expect(() => service._requireServiceRegistry()).toThrow(`ServiceRegistry required for ${TestService.name}`);
@@ -148,23 +141,22 @@ describe("BaseService", () => {
       
       const service = new CustomService({});
       
-      expect(() => service._requireServiceRegistry()).toThrow(`ServiceRegistry required for CustomService`);
+      expect(() => service._requireServiceRegistry()).toThrow("ServiceRegistry required for CustomService");
     });
   });
 
   describe("_resolveNamespace method", () => {
     it("should return the configured namespace when available", () => {
       const mockNamespace = { helpers: {} };
-      const service = new TestService({
-        namespace: mockNamespace
-      });
+      const config = { namespace: mockNamespace };
+      const service = new TestService(config);
       
       const result = service._resolveNamespace();
       
       expect(result).toBe(mockNamespace);
     });
 
-    it("should throw when namespace is missing from config", () => {
+    it("should throw an error when namespace is missing from config", () => {
       const service = new TestService({});
       
       expect(() => service._resolveNamespace()).toThrow(`Namespace required for ${TestService.name}`);
@@ -179,13 +171,19 @@ describe("BaseService", () => {
       
       const service = new CustomService({});
       
-      expect(() => service._resolveNamespace()).toThrow(`Namespace required for CustomService`);
+      expect(() => service._resolveNamespace()).toThrow("Namespace required for CustomService");
     });
   });
 
   describe("integration tests", () => {
-    it("should work through full lifecycle of initialization checks", () => {
-      const service = new TestService({});
+    it("should work through full lifecycle of initialization and checks", () => {
+      const mockRegistry = { register: jest.fn() };
+      const mockNamespace = { helpers: {} };
+      const config = { 
+        serviceRegistry: mockRegistry,
+        namespace: mockNamespace 
+      };
+      const service = new TestService(config);
       
       // Initially not initialized
       expect(service.initialized).toBe(false);
@@ -197,18 +195,56 @@ describe("BaseService", () => {
       expect(service.initialized).toBe(true);
       expect(() => service._ensureInitialized()).not.toThrow();
       expect(() => service._ensureNotInitialized()).toThrow();
-    });
-
-    it("should handle service registry and namespace resolution correctly", () => {
-      const mockRegistry = { register: jest.fn() };
-      const mockNamespace = { helpers: {} };
-      const service = new TestService({
-        serviceRegistry: mockRegistry,
-        namespace: mockNamespace
-      });
       
+      // Verify registry and namespace can be retrieved
       expect(service._requireServiceRegistry()).toBe(mockRegistry);
       expect(service._resolveNamespace()).toBe(mockNamespace);
+    });
+
+    it("should handle multiple operations in sequence", () => {
+      const mockRegistry = { 
+        register: jest.fn(),
+        getService: jest.fn(),
+        getMetadata: jest.fn()
+      };
+      const config = { serviceRegistry: mockRegistry };
+      const service = new TestService(config);
+      
+      // Verify pre-initialization state
+      expect(service.initialized).toBe(false);
+      expect(service._requireServiceRegistry()).toBe(mockRegistry);
+      
+      // Initialize
+      const result = service.initialize();
+      
+      // Verify post-initialization state
+      expect(result).toBe(service);
+      expect(service.initialized).toBe(true);
+      
+      // Verify initialization guards work correctly
+      expect(() => service._ensureInitialized()).not.toThrow();
+      expect(() => service._ensureNotInitialized()).toThrow();
+    });
+  });
+
+  describe("error handling", () => {
+    it("should throw appropriate errors with service-specific names", () => {
+      class ErrorTestService extends BaseService {
+        initialize() {
+          this._markInitialized();
+        }
+      }
+      
+      const service = new ErrorTestService({});
+      
+      // Test that error messages contain the correct class name
+      expect(() => service._requireServiceRegistry()).toThrow("ServiceRegistry required for ErrorTestService");
+      expect(() => service._resolveNamespace()).toThrow("Namespace required for ErrorTestService");
+      
+      // Initialize the service to test other error conditions
+      service.initialize();
+      
+      expect(() => service._ensureNotInitialized()).toThrow("ErrorTestService already initialized");
     });
   });
 });

@@ -1,9 +1,10 @@
+const BaseFactory = require('./base-factory.js');
 const BaseEntryPoint = require('../entrypoints/base-entrypoint.js');
 
 /**
  * Factory for creating BaseEntryPoint instances.
  */
-class BaseEntryPointFactory {
+class BaseEntryPointFactory extends BaseFactory {
   /**
    * Creates a new BaseEntryPoint instance with the given options.
    */

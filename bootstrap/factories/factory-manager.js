@@ -1,3 +1,4 @@
+const BaseFactory = require('./base-factory.js');
 const BaseBootstrapAppFactory = require('./base-bootstrap-app-factory.js');
 const GlobalRootHandlerFactory = require('./global-root-handler-factory.js');
 const BootstrapperFactory = require('./bootstrapper-factory.js');
@@ -43,8 +44,13 @@ class FactoryManager {
 
   /**
    * Registers a factory with the given name.
+   * @param {string} name - The name of the factory
+   * @param {BaseFactory} factory - The factory instance
    */
   registerFactory(name, factory) {
+    if (!(factory instanceof BaseFactory)) {
+      throw new Error(`Factory must extend BaseFactory: ${factory.constructor.name}`);
+    }
     this.factories.set(name, factory);
   }
 

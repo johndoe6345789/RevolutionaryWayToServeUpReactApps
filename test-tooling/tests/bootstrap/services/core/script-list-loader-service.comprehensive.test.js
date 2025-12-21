@@ -185,10 +185,11 @@ describe("ScriptListLoader", () => {
       
       await promise;
       
-      expect(mockDocument.createElement).toHaveBeenCalledWith("script");
+      expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
+      expect(mockDocument.createElement.calls[0][0]).toBe("script");
       expect(scriptElement.src).toBe("/test.js");
       expect(scriptElement.async).toBe(false);
-      expect(mockDocument.head.appendChild).toHaveBeenCalled();
+      expect(mockDocument.head.appendChild.calls.length).toBeGreaterThan(0);
     });
 
     test("should reject when script fails to load", async () => {
@@ -271,10 +272,20 @@ describe("ScriptListLoader", () => {
           ])
         }
       };
-      
-      mockDocument.createElement = createMockFunction()
-        .mockReturnValueOnce({ /* script element */ })
-        .mockReturnValueOnce(templateElement);
+
+      let createElementCallCount1 = 0;
+      mockDocument.createElement = (...args) => {
+        mockDocument.createElement.calls.push(args);
+        createElementCallCount1++;
+        if (createElementCallCount1 === 1) {
+          return { /* script element */ };
+        } else if (createElementCallCount1 === 2) {
+          return templateElement;
+        } else {
+          return { /* another script element */ };
+        }
+      };
+      mockDocument.createElement.calls = [];
       
       // Mock script loading
       const originalLoadScript = service.loadScript;
