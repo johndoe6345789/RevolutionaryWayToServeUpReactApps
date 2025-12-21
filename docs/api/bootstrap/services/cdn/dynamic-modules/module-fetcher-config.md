@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/module-fetcher-config.js`.
+- **Purpose:** Configures the dynamic module fetcher helper.
 
 ## Globals
 - `HelperRegistry`
@@ -13,7 +13,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new DynamicModuleFetcherConfig(new DynamicModuleFetcherConfig({
+  // override defaults as needed
+}));
+service.initialize();
 ```
 
 ## Related docs

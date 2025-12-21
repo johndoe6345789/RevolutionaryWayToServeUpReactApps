@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/local-loader-service.js`.
+- **Purpose:** Coordinates the initialization steps that stitch the local loader helpers together.
 
 ## Globals
 - `BaseService`
@@ -15,7 +15,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LocalLoaderService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/module-fetcher.js`.
+- **Purpose:** Handles probing URLs and loading a namespace either as ESM or global.
 
 ## Globals
 - `BaseHelper`
@@ -15,7 +15,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new DynamicModuleFetcher({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

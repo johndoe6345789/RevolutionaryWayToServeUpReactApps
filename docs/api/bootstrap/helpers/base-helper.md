@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/helpers/base-helper.js`.
+- **Purpose:** Abstract helper logic so derived helpers can share registry wiring.
 
 ## Globals
 
@@ -15,7 +15,11 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+class CustomHelper extends BaseHelper {
+  initialize() {
+    this._registerHelper("customHelper", this);
+  }
+}
 ```
 
 ## Related docs

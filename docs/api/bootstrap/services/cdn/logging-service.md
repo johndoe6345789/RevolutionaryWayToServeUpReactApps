@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/logging-service.js`.
+- **Purpose:** Centralizes CI logging defaults, serialization helpers, and UI error forwarding.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LoggingService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

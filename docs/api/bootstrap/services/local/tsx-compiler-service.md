@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/tsx-compiler-service.js`.
+- **Purpose:** Transforms and executes TSX sources using Babel and inlined execution.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new TsxCompilerService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

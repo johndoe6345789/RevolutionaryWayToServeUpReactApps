@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/script-manifest-url.js`.
+- **Purpose:** Export the default URL for the script manifest.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const url = "bootstrap/entrypoints/script-list.html";
 ```
 
 ## Related docs

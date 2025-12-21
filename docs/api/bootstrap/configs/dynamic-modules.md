@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/dynamic-modules.js`.
+- **Purpose:** Supplies dependency overrides for the dynamic modules loader.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new DynamicModulesConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

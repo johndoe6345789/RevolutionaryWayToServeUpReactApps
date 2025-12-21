@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/local-module-extensions.js`.
+- **Purpose:** Export the list of file extensions the local loader will try.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const extensions = ["", ".tsx", ".ts", ".jsx", ".js"];
 ```
 
 ## Related docs

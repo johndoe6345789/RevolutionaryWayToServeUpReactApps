@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/service-registry.js`.
+- **Purpose:** Track named service instances so other helpers can obtain them without re-importing deeply nested modules.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const registry = new ServiceRegistry();
+registry.register("logging", loggingService);
+const logging = registry.getService("logging");
 ```
 
 ## Related docs

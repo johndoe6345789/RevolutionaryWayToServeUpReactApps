@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/local-module-loader-service.js`.
+- **Purpose:** Provides asynchronous loading for local modules and caches their exports.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LocalModuleLoaderService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

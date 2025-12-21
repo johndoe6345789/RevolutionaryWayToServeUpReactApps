@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules-service.js`.
+- **Purpose:** Resolves and loads icon-specific dynamic modules from configured providers.
 
 ## Globals
 - `BaseService`
@@ -18,7 +18,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new DynamicModulesService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

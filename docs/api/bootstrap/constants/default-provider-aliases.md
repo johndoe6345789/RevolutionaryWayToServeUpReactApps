@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/default-provider-aliases.js`.
+- **Purpose:** Provide the helper that resolves default provider aliases from config or globals.
 
 ## Globals
 
@@ -13,7 +13,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const aliases = getDefaultProviderAliases(globalThis, false);
 ```
 
 ## Related docs

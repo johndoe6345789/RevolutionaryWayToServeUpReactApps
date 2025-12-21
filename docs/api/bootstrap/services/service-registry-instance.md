@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/service-registry-instance.js`.
+- **Purpose:** Implement the service registry instance service used by the bootstrap runtime.
 
 ## Globals
 - `ServiceRegistry`
@@ -13,7 +13,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+serviceRegistry.register("logging", loggingService);
+const logging = serviceRegistry.getService("logging");
 ```
 
 ## Related docs

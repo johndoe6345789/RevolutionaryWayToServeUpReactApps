@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/tsx-compiler.js`.
+- **Purpose:** Provides overrides for the TSX compiler dependencies.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new TsxCompilerConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

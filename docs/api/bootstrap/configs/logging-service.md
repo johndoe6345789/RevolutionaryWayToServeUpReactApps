@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/logging-service.js`.
+- **Purpose:** Configuration bag for overriding the built-in logging service defaults.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LoggingServiceConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

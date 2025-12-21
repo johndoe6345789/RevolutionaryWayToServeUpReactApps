@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/network-service.js`.
+- **Purpose:** Configuration bag for wiring network service dependencies such as logging and wait helpers.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new NetworkServiceConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/core/module-loader-service.js`.
+- **Purpose:** Aggregates the CDN/local helpers and exposes the module loader façade.
 
 ## Globals
 - `BaseService`
@@ -15,7 +15,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ModuleLoaderAggregator({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/local-paths.js`.
+- **Purpose:** Controls how local paths are normalized for module loading helpers.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LocalPathsConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

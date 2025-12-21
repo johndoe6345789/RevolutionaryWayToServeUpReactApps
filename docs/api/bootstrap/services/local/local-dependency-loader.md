@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/local-dependency-loader.js`.
+- **Purpose:** Resolves the LocalLoaderService dependencies via overrides, helpers, or CommonJS fallbacks.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LocalDependencyLoader({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

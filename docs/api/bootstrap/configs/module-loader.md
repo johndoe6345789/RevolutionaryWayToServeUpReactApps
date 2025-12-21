@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/module-loader.js`.
+- **Purpose:** Defines dependency overrides for the module loader aggregator.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new ModuleLoaderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

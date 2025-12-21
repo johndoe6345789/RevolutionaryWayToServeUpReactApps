@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/source-utils.js`.
+- **Purpose:** Extensible hooks for parsing and preloading source modules.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new SourceUtilsConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

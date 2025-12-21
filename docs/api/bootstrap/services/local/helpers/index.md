@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/helpers/index.js`.
+- **Purpose:** Register local helper constructors in the shared helper registry.
 
 ## Globals
 - `FrameworkRenderer`
@@ -15,7 +15,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const registry = helperRegistry;
+const Renderer = registry.getHelper("frameworkRenderer");
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/local-require-builder.js`.
+- **Purpose:** Builds the customized require/_async helpers for local modules.
 
 ## Globals
 - `BaseHelper`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LocalRequireBuilder({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

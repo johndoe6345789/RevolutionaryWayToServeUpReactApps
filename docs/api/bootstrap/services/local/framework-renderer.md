@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/framework-renderer.js`.
+- **Purpose:** Handles rendering the configured entry component to the DOM.
 
 ## Globals
 - `BaseService`
@@ -13,7 +13,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new FrameworkRenderer(new FrameworkRendererConfig({
+  // override defaults as needed
+}));
+service.initialize();
 ```
 
 ## Related docs

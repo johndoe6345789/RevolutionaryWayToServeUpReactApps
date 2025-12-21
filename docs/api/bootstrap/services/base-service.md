@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/base-service.js`.
+- **Purpose:** Provides a lifecycle stub that other bootstrap services can extend.
 
 ## Globals
 
@@ -15,7 +15,12 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+class CustomService extends BaseService {
+  initialize() {
+    this._ensureNotInitialized();
+    this._markInitialized();
+  }
+}
 ```
 
 ## Related docs

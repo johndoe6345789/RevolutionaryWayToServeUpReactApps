@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/provider-resolver-config.js`.
+- **Purpose:** Configuration for the provider resolver helper.
 
 ## Globals
 - `HelperRegistry`
@@ -13,7 +13,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ProviderResolverConfig(new ProviderResolverConfig({
+  // override defaults as needed
+}));
+service.initialize();
 ```
 
 ## Related docs

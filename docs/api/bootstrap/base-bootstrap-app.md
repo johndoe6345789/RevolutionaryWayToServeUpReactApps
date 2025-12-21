@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/base-bootstrap-app.js`.
+- **Purpose:** Provides the shared bootstrap scaffolding that other entrypoints rely upon.
 
 ## Globals
 - `GlobalRootHandler`
@@ -13,7 +13,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const app = new BaseBootstrapApp();
+const namespace = app.bootstrapNamespace;
 ```
 
 ## Related docs

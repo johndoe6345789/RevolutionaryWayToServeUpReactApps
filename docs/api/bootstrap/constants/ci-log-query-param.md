@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/ci-log-query-param.js`.
+- **Purpose:** Export the query parameter key that enables CI logging.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const value = "ci";
 ```
 
 ## Related docs

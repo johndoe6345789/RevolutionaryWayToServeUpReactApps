@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/helpers/helper-registry-instance.js`.
+- **Purpose:** Provide the helper registry instance helper used by bootstrap services.
 
 ## Globals
 - `HelperRegistry`
@@ -13,7 +13,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+helperRegistry.register("renderer", ExampleHelper);
+const renderer = helperRegistry.getHelper("renderer");
 ```
 
 ## Related docs

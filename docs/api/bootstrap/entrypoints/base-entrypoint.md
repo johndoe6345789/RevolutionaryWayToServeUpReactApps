@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/entrypoints/base-entrypoint.js`.
+- **Purpose:** Consolidates the repetitive entrypoint wiring for bootstrap services/helpers.
 
 ## Globals
 - `GlobalRootHandler`
@@ -12,7 +12,11 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const entrypoint = new BaseEntryPoint({
+  ServiceClass,
+  ConfigClass,
+});
+entrypoint.run();
 ```
 
 ## Related docs

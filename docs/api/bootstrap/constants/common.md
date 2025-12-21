@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/common.js`.
+- **Purpose:** Bundle shared bootstrap constants and helper defaults into one module.
 
 ## Globals
 - `ciLogQueryParam`
@@ -21,7 +21,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const common = require("./common");
+const { ciLogQueryParam, proxyModeAuto } = common;
 ```
 
 ## Related docs

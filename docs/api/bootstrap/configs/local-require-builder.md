@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/local-require-builder.js`.
+- **Purpose:** Config for the LocalRequireBuilder helper.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LocalRequireBuilderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

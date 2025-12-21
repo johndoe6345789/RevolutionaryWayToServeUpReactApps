@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/cdn/network-entrypoint.js`.
+- **Purpose:** Encapsulates the network helper entrypoint so we can reuse the BaseEntryPoint wiring.
 
 ## Globals
 - `BaseEntryPoint`
@@ -13,7 +13,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const entrypoint = new NetworkEntryPoint();
+entrypoint.run();
 ```
 
 ## Related docs

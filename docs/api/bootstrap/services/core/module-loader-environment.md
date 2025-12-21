@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/core/module-loader-environment.js`.
+- **Purpose:** Captures the shared runtime environment bootstrap helpers rely upon.
 
 ## Globals
 
@@ -15,7 +15,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const env = new ModuleLoaderEnvironment(globalThis);
+const helpers = env.helpers;
 ```
 
 ## Related docs

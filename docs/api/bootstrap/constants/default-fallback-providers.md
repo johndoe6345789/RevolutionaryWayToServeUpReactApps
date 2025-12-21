@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/default-fallback-providers.js`.
+- **Purpose:** Export the default list of fallback CDN providers.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const providers = [];
 ```
 
 ## Related docs

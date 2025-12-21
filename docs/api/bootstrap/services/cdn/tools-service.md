@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/tools-service.js`.
+- **Purpose:** Handles fetching globals/modules and normalizing them into namespace helpers.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ToolsLoaderService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

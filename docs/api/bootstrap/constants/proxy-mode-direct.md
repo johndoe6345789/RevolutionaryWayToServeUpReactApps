@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/proxy-mode-direct.js`.
+- **Purpose:** Export the proxy mode string used for direct CDN access.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const mode = "direct";
 ```
 
 ## Related docs

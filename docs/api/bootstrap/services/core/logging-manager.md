@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/core/logging-manager.js`.
+- **Purpose:** Wraps telemetry wiring for window-level error/unhandled rejection logging.
 
 ## Globals
 - `BaseService`
@@ -15,7 +15,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LoggingManager({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/core/env-service.js`.
+- **Purpose:** Ensures the runtime proxy-mode flag is always defined.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new EnvInitializer({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

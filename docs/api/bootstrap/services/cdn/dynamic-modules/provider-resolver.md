@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/dynamic-modules/provider-resolver.js`.
+- **Purpose:** Helps determine provider bases and candidate URLs for an icon module.
 
 ## Globals
 - `BaseHelper`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ProviderResolver({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

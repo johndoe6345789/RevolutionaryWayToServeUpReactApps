@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/helpers/helper-registry.js`.
+- **Purpose:** Tracks reusable helper constructors so they can be shared across services.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const registry = new HelperRegistry();
+registry.register("renderer", ExampleHelper);
+const renderer = registry.getHelper("renderer");
 ```
 
 ## Related docs

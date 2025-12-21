@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/source-utils-service.js`.
+- **Purpose:** Parses source files for module specifiers and preloads dynamic dependencies.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new SourceUtilsService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

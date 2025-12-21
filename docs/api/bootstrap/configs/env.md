@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/env.js`.
+- **Purpose:** Provides the global overrides used when ensuring proxy mode is defined.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new EnvInitializerConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

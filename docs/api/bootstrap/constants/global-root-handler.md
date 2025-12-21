@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/global-root-handler.js`.
+- **Purpose:** Encapsulate access to the current global object and its bootstrap namespace.
 
 ## Globals
 
@@ -15,7 +15,8 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const handler = new GlobalRootHandler();
+const root = handler.root;
 ```
 
 ## Related docs

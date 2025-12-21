@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/network-service.js`.
+- **Purpose:** Normalize Provider Base Raw Value for Network service.
 
 ## Globals
 - `BaseService`
@@ -13,7 +13,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new NetworkService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

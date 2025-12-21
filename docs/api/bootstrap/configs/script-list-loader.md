@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/script-list-loader.js`.
+- **Purpose:** Configures where the script manifest is loaded from and how scripts are injected.
 
 ## Globals
 - `GlobalRootHandler`
@@ -13,7 +13,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new ScriptListLoaderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

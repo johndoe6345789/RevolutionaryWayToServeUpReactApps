@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/sass-compiler-service.js`.
+- **Purpose:** Wraps Sass compilation/injection using the configured Sass implementation.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new SassCompilerService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

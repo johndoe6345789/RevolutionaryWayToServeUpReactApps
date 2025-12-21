@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/tools.js`.
+- **Purpose:** Holds runtime overrides for how CDN tools are loaded and named.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new ToolsLoaderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

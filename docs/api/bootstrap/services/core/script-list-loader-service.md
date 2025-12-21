@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/core/script-list-loader-service.js`.
+- **Purpose:** Loads the script manifest and sequentially injects each referenced script tag.
 
 ## Globals
 - `BaseService`
@@ -15,7 +15,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ScriptListLoader({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

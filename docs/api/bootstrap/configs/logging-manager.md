@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/logging-manager.js`.
+- **Purpose:** Holds the logging hooks injected into the logging manager.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LoggingManagerConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/import-map-init.js`.
+- **Purpose:** Configures how the import-map initializer fetches config.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new ImportMapInitConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/local-loader.js`.
+- **Purpose:** Aggregates dependency overrides for the local loader surface.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LocalLoaderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

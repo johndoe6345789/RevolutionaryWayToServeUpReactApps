@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/controllers/bootstrapper.js`.
+- **Purpose:** Drives the overall bootstrap workflow (config, module loading, rendering, logging).
 
 ## Globals
 - `BaseController`
@@ -18,7 +18,13 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const bootstrapper = new Bootstrapper(new BootstrapperConfig({
+  logging,
+  network,
+  moduleLoader,
+}));
+bootstrapper.initialize();
+bootstrapper.bootstrap();
 ```
 
 ## Related docs

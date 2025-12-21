@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/cdn/import-map-init-service.js`.
+- **Purpose:** Populates the import map element by resolving each configured module URL.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new ImportMapInitializer({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

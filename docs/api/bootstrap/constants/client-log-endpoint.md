@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/constants/client-log-endpoint.js`.
+- **Purpose:** Export the default endpoint used for client log POSTs.
 
 ## Globals
 
@@ -15,7 +15,7 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const value = "/__client-log";
 ```
 
 ## Related docs

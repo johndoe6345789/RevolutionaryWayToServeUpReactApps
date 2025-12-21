@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/services/local/local-paths-service.js`.
+- **Purpose:** Normalizes local module paths and enumerates candidate URLs/extensions.
 
 ## Globals
 - `BaseService`
@@ -14,7 +14,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const service = new LocalPathsService({
+  // override defaults as needed
+});
+service.initialize();
 ```
 
 ## Related docs

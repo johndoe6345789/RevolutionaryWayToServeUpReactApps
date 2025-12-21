@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/sass-compiler.js`.
+- **Purpose:** Carries the fetch/document/Sass overrides for the compiler.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new SassCompilerConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

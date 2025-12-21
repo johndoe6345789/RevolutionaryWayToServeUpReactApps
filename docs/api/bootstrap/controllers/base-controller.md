@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/controllers/base-controller.js`.
+- **Purpose:** Provides a lightweight lifecycle guard shared by bootstrap controllers.
 
 ## Globals
 
@@ -15,7 +15,12 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+class CustomController extends BaseController {
+  initialize() {
+    this._ensureNotInitialized();
+    this._markInitialized();
+  }
+}
 ```
 
 ## Related docs

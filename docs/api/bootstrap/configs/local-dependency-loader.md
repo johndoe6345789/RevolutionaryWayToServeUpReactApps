@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/local-dependency-loader.js`.
+- **Purpose:** Configures how LocalDependencyLoader resolves helper modules.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new LocalDependencyLoaderConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs

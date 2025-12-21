@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/bootstrap-app.js`.
+- **Purpose:** Encapsulates the bootstrap entrypoint wiring needed for both CommonJS and browser runtimes.
 
 ## Globals
 - `BaseBootstrapApp`
@@ -17,7 +17,10 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const app = new BootstrapApp();
+app.initialize();
+app.installLogging(window);
+app.runBootstrapper(window);
 ```
 
 ## Related docs

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- TODO: Document the responsibilities of `bootstrap/configs/bootstrapper.js`.
+- **Purpose:** Bundles the helpers that the bootstrapper needs to drive the runtime.
 
 ## Globals
 
@@ -15,7 +15,9 @@
 ## Examples
 
 ```ts
-// TODO: Add a short usage example for this module.
+const config = new BootstrapperConfig({
+  // override defaults as needed
+});
 ```
 
 ## Related docs
