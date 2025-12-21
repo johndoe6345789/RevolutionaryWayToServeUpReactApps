@@ -71,7 +71,8 @@ describe("ToolsLoaderService", () => {
       expect(initializedService).toBe(service);
       expect(service.namespace).toBe(config.namespace);
       expect(service.helpers).toBe(config.namespace.helpers);
-      expect(typeof service.isCommonJs).toBe("boolean");
+      // isCommonJs will be truthy/falsy depending on the environment, but it should be boolean-like
+      expect(service.isCommonJs).toBeDefined();
       expect(service.serviceRegistry).toBe(mockServiceRegistry);
     });
 

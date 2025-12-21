@@ -1,6 +1,6 @@
-const SourceUtilsService = require("../../../../bootstrap/services/cdn/source-utils-service.js");
-const SourceUtilsConfig = require("../../../../bootstrap/configs/cdn/source-utils.js");
-const ServiceRegistry = require("../../../../bootstrap/services/service-registry.js");
+const SourceUtilsService = require("../../../../../bootstrap/services/cdn/source-utils-service.js");
+const SourceUtilsConfig = require("../../../../../bootstrap/configs/cdn/source-utils.js");
+const ServiceRegistry = require("../../../../../bootstrap/services/service-registry.js");
 
 describe("SourceUtilsService", () => {
   describe("constructor", () => {
