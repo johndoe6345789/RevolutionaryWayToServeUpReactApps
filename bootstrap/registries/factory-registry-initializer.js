@@ -15,7 +15,7 @@ const HelperRegistryFactory = require('../factories/services/helper-registry-fac
 const LoggingManagerFactory = require('../factories/services/logging-manager-factory.js');
 const ModuleLoaderServiceFactory = require('../factories/services/module-loader-service-factory.js');
 const TsxCompilerServiceFactory = require('../factories/local/tsx-compiler-service-factory.js');
-const SassCompilerServiceFactory = require('../factories/sass-compiler-service-factory.js');
+const SassCompilerServiceFactory = require('../factories/local/sass-compiler-service-factory.js');
 const BaseEntryPointFactory = require('../factories/base-entrypoint-factory.js');
 
 /**

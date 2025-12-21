@@ -1,15 +1,15 @@
 const LoggingService = require("../../../../bootstrap/services/cdn/logging-service.js");
 
 describe("bootstrap/services/cdn/logging-service.js", () => {
-  let service;
-  let registry;
-  let originalWindow;
-  let originalNavigator;
-  let originalFetch;
-  let originalBlob;
-  let consoleInfoMock;
-  let consoleErrorMock;
-  let consoleWarnMock;
+  let service: any;
+  let registry: any;
+  let originalWindow: any;
+  let originalNavigator: any;
+  let originalFetch: any;
+  let originalBlob: any;
+  let consoleInfoMock: jest.Mock;
+  let consoleErrorMock: jest.Mock;
+  let consoleWarnMock: jest.Mock;
 
   beforeEach(() => {
     originalWindow = globalThis.window;
@@ -28,7 +28,9 @@ describe("bootstrap/services/cdn/logging-service.js", () => {
       })
     );
     globalThis.Blob = class DummyBlob {
-      constructor(parts, opts) {
+      parts: any;
+      opts: any;
+      constructor(parts: any, opts: any) {
         this.parts = parts;
         this.opts = opts;
       }
