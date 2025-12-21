@@ -328,11 +328,16 @@ describe("LocalRequireBuilder", () => {
       const registry = {};
       const config = {};
       const requireFn = () => {};
-      const requireAsync = initializedBuilder._createRequireAsync({
+      // Use a localModuleLoader that doesn't interfere
+      const localModuleLoader = async (name, baseDir, fn, reg) => {
+        // This won't be called since isLocalModule will return false for "unregistered-module"
+        return "local-content";
+      };
+      const requireAsync = initializedBuilderForDynamic._createRequireAsync({
         registry,
         config,
         resolvedEntryDir: "",
-        localModuleLoader: () => {},
+        localModuleLoader,
         resolvedDynamicModuleLoader: () => {},
         requireFn
       });

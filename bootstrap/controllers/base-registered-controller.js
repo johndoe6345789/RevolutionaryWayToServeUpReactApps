@@ -1,7 +1,9 @@
+const ControllerRegistry = require("../registries/controller-registry.js");
+
 /**
- * Provides a lightweight lifecycle guard shared by bootstrap controllers.
+ * Provides a lightweight lifecycle guard shared by bootstrap controllers with registry integration.
  */
-class BaseController {
+class BaseRegisteredController {
   /**
    * Stores the provided configuration and tracks whether initialization has run.
    */
@@ -62,4 +64,4 @@ class BaseController {
   }
 }
 
-module.exports = BaseController;
+module.exports = BaseRegisteredController;

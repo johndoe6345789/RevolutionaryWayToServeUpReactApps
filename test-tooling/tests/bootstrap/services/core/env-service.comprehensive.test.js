@@ -1,6 +1,6 @@
-const EnvInitializer = require("../../../../bootstrap/services/core/env-service.js");
-const EnvInitializerConfig = require("../../../../bootstrap/configs/core/env.js");
-const ServiceRegistry = require("../../../../bootstrap/services/service-registry.js");
+const EnvInitializer = require("../../../../../bootstrap/services/core/env-service.js");
+const EnvInitializerConfig = require("../../../../../bootstrap/configs/core/env.js");
+const ServiceRegistry = require("../../../../../bootstrap/services/service-registry.js");
 
 describe("EnvInitializer", () => {
   describe("constructor", () => {

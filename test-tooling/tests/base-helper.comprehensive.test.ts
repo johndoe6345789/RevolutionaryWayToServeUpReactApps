@@ -90,7 +90,7 @@ describe("BaseHelper", () => {
       helper._registerHelper("testHelper", mockHelper);
       
       expect(mockRegistry.isRegistered).toHaveBeenCalledWith("testHelper");
-      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", mockHelper, {});
+      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", mockHelper, {}, []);
     });
 
     it("should register the helper with provided metadata", () => {
@@ -106,7 +106,7 @@ describe("BaseHelper", () => {
       
       helper._registerHelper("testHelper", mockHelper, metadata);
       
-      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", mockHelper, metadata);
+      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", mockHelper, metadata, []);
     });
 
     it("should skip registration if helper already exists", () => {
@@ -158,7 +158,7 @@ describe("BaseHelper", () => {
       const mockHelper = { someMethod: jest.fn() };
       helper._registerHelper("myHelper", mockHelper);
       
-      expect(registry.register).toHaveBeenCalledWith("myHelper", mockHelper, {});
+      expect(registry.register).toHaveBeenCalledWith("myHelper", mockHelper, {}, []);
     });
 
     it("should handle registration scenarios correctly", () => {

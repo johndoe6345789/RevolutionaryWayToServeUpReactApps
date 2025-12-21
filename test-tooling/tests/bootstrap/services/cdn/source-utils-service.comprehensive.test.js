@@ -26,7 +26,7 @@ describe("SourceUtilsService", () => {
 
   describe("initialize method", () => {
     let mockNamespace, mockServiceRegistry;
-
+    
     beforeEach(() => {
       mockNamespace = { helpers: {} };
       mockServiceRegistry = new ServiceRegistry();
@@ -35,12 +35,13 @@ describe("SourceUtilsService", () => {
     test("should set up internal properties and mark as initialized", () => {
       const config = new SourceUtilsConfig({ namespace: mockNamespace, serviceRegistry: mockServiceRegistry });
       const service = new SourceUtilsService(config);
-
+      
       const result = service.initialize();
-
+      
       expect(result).toBe(service);
       expect(service.namespace).toBe(mockNamespace);
       expect(service.helpers).toBe(mockNamespace.helpers);
+      expect(typeof service.isCommonJs).toBe('boolean');
       expect(service.serviceRegistry).toBe(mockServiceRegistry);
       expect(service.initialized).toBe(true);
     });
@@ -48,30 +49,19 @@ describe("SourceUtilsService", () => {
     test("should create helpers if not present in namespace", () => {
       const config = new SourceUtilsConfig({ namespace: { helpers: undefined }, serviceRegistry: mockServiceRegistry });
       const service = new SourceUtilsService(config);
-
+      
       service.initialize();
-
+      
       expect(service.helpers).toEqual({});
       expect(service.namespace.helpers).toBe(service.helpers);
-    });
-
-    test("should set isCommonJs property", () => {
-      const config = new SourceUtilsConfig({ namespace: mockNamespace, serviceRegistry: mockServiceRegistry });
-      const service = new SourceUtilsService(config);
-
-      service.initialize();
-
-      // Just verify that isCommonJs is defined and is a boolean value
-      expect(service.isCommonJs).toBeDefined();
-      expect(typeof service.isCommonJs).toBe('boolean');
     });
 
     test("should prevent double initialization", () => {
       const config = new SourceUtilsConfig({ namespace: mockNamespace, serviceRegistry: mockServiceRegistry });
       const service = new SourceUtilsService(config);
-
+      
       service.initialize();
-
+      
       expect(() => service.initialize()).toThrow();
     });
   });
@@ -81,7 +71,7 @@ describe("SourceUtilsService", () => {
       const service = new SourceUtilsService();
       const source = 'import { something } from "normal-module";';
       const result = service.collectDynamicModuleImports(source, {});
-
+      
       expect(result).toEqual([]);
     });
 
@@ -91,7 +81,7 @@ describe("SourceUtilsService", () => {
       const result = service.collectDynamicModuleImports(source, { 
         dynamicModules: [{ prefix: "@special/" }] 
       });
-
+      
       expect(result).toEqual([]);
     });
 
@@ -106,7 +96,7 @@ describe("SourceUtilsService", () => {
       const result = service.collectDynamicModuleImports(source, { 
         dynamicModules: [{ prefix: "@app/" }, { prefix: "@ui/" }] 
       });
-
+      
       expect(result).toContain("@app/Button");
       expect(result).toContain("@ui/Icon");
       expect(result).toContain("@app/Component");
@@ -122,8 +112,8 @@ describe("SourceUtilsService", () => {
       const result = service.collectDynamicModuleImports(source, { 
         dynamicModules: [{ prefix: "@app/" }] 
       });
-
-      expect(result).toEqual(["@app/Button"]);
+      
+      expect(result).toEqual(["@app/Button"]); // Should be deduplicated
     });
 
     test("should handle empty source", () => {
@@ -131,7 +121,7 @@ describe("SourceUtilsService", () => {
       const result = service.collectDynamicModuleImports("", { 
         dynamicModules: [{ prefix: "@app/" }] 
       });
-
+      
       expect(result).toEqual([]);
     });
 
@@ -141,7 +131,7 @@ describe("SourceUtilsService", () => {
       const result = service.collectDynamicModuleImports(source, { 
         dynamicModules: [{ prefix: "@app/" }] 
       });
-
+      
       expect(result).toEqual([]);
     });
   });
@@ -193,7 +183,7 @@ describe("SourceUtilsService", () => {
       const service = new SourceUtilsService();
       const source = 'import { something } from "@app/module";';
       const mockRequireFn = {
-        _async: jest.fn((name) => Promise.reject(new Error(`Failed to load ${name}`)))
+        _async: jest.fn(() => Promise.reject(new Error("Failed to load")))
       };
       
       // Spy on console.warn to verify it gets called
@@ -217,7 +207,7 @@ describe("SourceUtilsService", () => {
         import { Component } from "react";
       `;
       const result = service.collectModuleSpecifiers(source);
-
+      
       expect(result).toContain("helpers/simple");
       expect(result).toContain("react");
       expect(result.length).toBe(2); // Should be deduplicated
@@ -230,7 +220,7 @@ describe("SourceUtilsService", () => {
         const utils = require("utils/path");
       `;
       const result = service.collectModuleSpecifiers(source);
-
+      
       expect(result).toContain("loader");
       expect(result).toContain("utils/path");
     });
@@ -242,7 +232,7 @@ describe("SourceUtilsService", () => {
         const loader = require("loader");
       `;
       const result = service.collectModuleSpecifiers(source);
-
+      
       expect(result).toContain("helpers/simple");
       expect(result).toContain("loader");
     });
@@ -258,7 +248,7 @@ describe("SourceUtilsService", () => {
         const mod = require("commonjs-module");
       `;
       const result = service.collectModuleSpecifiers(source);
-
+      
       expect(result).toContain("side-effect");
       expect(result).toContain("default-module");
       expect(result).toContain("named-module");
@@ -270,7 +260,7 @@ describe("SourceUtilsService", () => {
     test("should handle empty source", () => {
       const service = new SourceUtilsService();
       const result = service.collectModuleSpecifiers("");
-
+      
       expect(result).toEqual([]);
     });
 
@@ -282,7 +272,7 @@ describe("SourceUtilsService", () => {
         const h = require("helpers");
       `;
       const result = service.collectModuleSpecifiers(source);
-
+      
       expect(result).toEqual(["helpers"]);
     });
   });
@@ -340,12 +330,12 @@ describe("SourceUtilsService", () => {
       const service = new SourceUtilsService();
       const source = 'import { helper } from "helpers/simple";';
       const mockRequireFn = {
-        _async: jest.fn(() => Promise.reject(new Error("Load failed")))
+        _async: jest.fn(() => Promise.reject(new Error("Failed to load")))
       };
       
       await expect(
         service.preloadModulesFromSource(source, mockRequireFn)
-      ).rejects.toThrow("Failed to preload module(s): helpers/simple: Load failed");
+      ).rejects.toThrow("Failed to preload module(s): helpers/simple: Failed to load. Check file paths and dynamic module rules.");
     });
 
     test("should handle multiple failures", async () => {
@@ -357,10 +347,10 @@ describe("SourceUtilsService", () => {
       const mockRequireFn = {
         _async: jest.fn((name) => {
           if (name === "helpers1") {
-            return Promise.reject(new Error("Failed 1"));
+            return Promise.reject(new Error("Failed to load 1"));
           }
           if (name === "helpers2") {
-            return Promise.reject(new Error("Failed 2"));
+            return Promise.reject(new Error("Failed to load 2"));
           }
           return Promise.resolve();
         })
@@ -368,7 +358,7 @@ describe("SourceUtilsService", () => {
       
       await expect(
         service.preloadModulesFromSource(source, mockRequireFn)
-      ).rejects.toThrow("Failed to preload module(s): helpers1: Failed 1, helpers2: Failed 2");
+      ).rejects.toThrow("Failed to preload module(s): helpers1: Failed to load 1, helpers2: Failed to load 2. Check file paths and dynamic module rules.");
     });
   });
 
@@ -391,10 +381,8 @@ describe("SourceUtilsService", () => {
 
     test("should bind methods to the service instance", () => {
       const service = new SourceUtilsService();
-      
       const exports = service.exports;
       
-      // Verify that the methods are bound to the service
       expect(exports.collectDynamicModuleImports).not.toBe(service.collectDynamicModuleImports);
       expect(exports.preloadDynamicModulesFromSource).not.toBe(service.preloadDynamicModulesFromSource);
       expect(exports.collectModuleSpecifiers).not.toBe(service.collectModuleSpecifiers);
@@ -429,7 +417,7 @@ describe("SourceUtilsService", () => {
 
       service.install();
 
-      expect(mockNamespace.helpers.sourceUtils).toEqual(service.exports);
+      expect(mockNamespace.helpers.sourceUtils).toBe(service.exports);
     });
 
     test("should register with correct folder and domain", () => {

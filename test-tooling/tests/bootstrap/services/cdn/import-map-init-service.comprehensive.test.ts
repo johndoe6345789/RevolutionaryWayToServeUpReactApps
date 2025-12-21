@@ -177,26 +177,31 @@ describe("ImportMapInitializer", () => {
     });
 
     it("should handle modules without importSpecifiers", async () => {
+      const mockWindowNoSpecifiers = new MockWindow();
+      const mockImportMapScriptNoSpecifiers = new MockImportMapScript();
+      mockWindowNoSpecifiers.document.querySelector = jest.fn().mockReturnValue(mockImportMapScriptNoSpecifiers);
+
       const configWithModules = new ImportMapInitConfig({
-        window: mockWindow,
+        window: mockWindowNoSpecifiers,
         fetch: () => Promise.resolve({
           ok: true,
           status: 200,
           json: () => Promise.resolve({
             modules: [
-              { name: 'test-module' }
+              { name: 'test-module', url: 'https://example.com/test-module.js' }
             ]
           })
         })
       });
-      
+
       const service = new ImportMapInitializer(configWithModules);
-      mockWindow.document.querySelector = jest.fn().mockReturnValue(mockImportMapScript);
-      
+
       await service.initialize();
-      await mockWindow.__rwtraConfigPromise;
-      
-      expect(mockImportMapScript.textContent).toContain('test-module');
+      if (mockWindowNoSpecifiers.__rwtraConfigPromise) {
+        await mockWindowNoSpecifiers.__rwtraConfigPromise;
+      }
+
+      expect(mockImportMapScriptNoSpecifiers.textContent).toContain('test-module');
     });
 
     it("should prevent double initialization", async () => {
@@ -228,6 +233,7 @@ describe("ImportMapInitializer", () => {
     });
 
     it("should throw error when fetch fails", async () => {
+      importMapInitializer.fetchImpl = mockFetch;
       await expect(importMapInitializer._fetchConfig("error.json"))
         .rejects.toThrow("Failed to fetch error.json: 404");
     });

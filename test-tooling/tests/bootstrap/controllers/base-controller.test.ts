@@ -2,6 +2,18 @@ const BaseController = require("../../../../bootstrap/controllers/base-controlle
 
 describe("bootstrap/controllers/base-controller.js", () => {
   class TestController extends BaseController {
+    constructor(config = {}) {
+      // Provide a minimal mock registry for testing
+      const mockRegistry = {
+        register: () => {},
+        isRegistered: () => false,
+        getController: () => null,
+        listControllers: () => [],
+        getMetadata: () => null,
+      };
+      super({ ...config, controllerRegistry: mockRegistry });
+    }
+
     initialize() {
       this._ensureNotInitialized();
       this._markInitialized();
@@ -9,7 +21,14 @@ describe("bootstrap/controllers/base-controller.js", () => {
   }
 
   it("throws when the base implementation is used directly", () => {
-    const controller = new BaseController();
+    const mockRegistry = {
+      register: () => {},
+      isRegistered: () => false,
+      getController: () => null,
+      listControllers: () => [],
+      getMetadata: () => null,
+    };
+    const controller = new BaseController({ controllerRegistry: mockRegistry });
     expect(() => controller.initialize()).toThrow("BaseController must implement initialize()");
   });
 

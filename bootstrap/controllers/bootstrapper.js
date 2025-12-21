@@ -35,6 +35,12 @@ class Bootstrapper extends BaseController {
     this.detectCiLogging = logging.detectCiLogging;
     this.logClient = logging.logClient;
     this.isCiLoggingEnabled = logging.isCiLoggingEnabled;
+
+    // Register this controller in the registry
+    this.register("bootstrapper", {
+      folder: "controllers",
+      domain: "core",
+    }, ["logging", "network", "moduleLoader"]);
   }
 
   /**

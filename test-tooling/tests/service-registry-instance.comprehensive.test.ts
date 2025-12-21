@@ -17,23 +17,23 @@ describe("ServiceRegistryInstance", () => {
   it("should maintain the same registry between imports", () => {
     // Register a service
     const service1 = { name: "service1" };
-    serviceRegistry.register("testService", service1);
-    
+    serviceRegistry.register("testService", service1, {}, []);
+
     // Verify it's registered
     expect(serviceRegistry.getService("testService")).toBe(service1);
-    
+
     // The same instance should be accessible
     expect(serviceRegistry.getService("testService")).toBe(service1);
   });
 
   it("should support reset functionality", () => {
     const service1 = { name: "service1" };
-    serviceRegistry.register("testService", service1);
-    
+    serviceRegistry.register("testService", service1, {}, []);
+
     expect(serviceRegistry.getService("testService")).toBe(service1);
-    
+
     serviceRegistry.reset();
-    
+
     expect(serviceRegistry.getService("testService")).toBeUndefined();
   });
 
@@ -41,8 +41,8 @@ describe("ServiceRegistryInstance", () => {
     const service1 = { name: "service1" };
     const service2 = { name: "service2" };
     
-    serviceRegistry.register("service1", service1, { folder: "test", domain: "test" });
-    serviceRegistry.register("service2", service2, { folder: "other", domain: "other" });
+    serviceRegistry.register("service1", service1, { folder: "test", domain: "test" }, []);
+    serviceRegistry.register("service2", service2, { folder: "other", domain: "other" }, []);
     
     expect(serviceRegistry.getService("service1")).toBe(service1);
     expect(serviceRegistry.getService("service2")).toBe(service2);
@@ -51,10 +51,10 @@ describe("ServiceRegistryInstance", () => {
   });
 
   it("should throw error when registering duplicate services", () => {
-    serviceRegistry.register("testService", { name: "service" });
-    
+    serviceRegistry.register("testService", { name: "service" }, {}, []);
+
     expect(() => {
-      serviceRegistry.register("testService", { name: "anotherService" });
+      serviceRegistry.register("testService", { name: "anotherService" }, {}, []);
     }).toThrow("Service already registered: testService");
   });
 
@@ -65,8 +65,8 @@ describe("ServiceRegistryInstance", () => {
 
   it("should use empty metadata when not provided", () => {
     const service = { name: "test" };
-    serviceRegistry.register("testService", service);
-    
+    serviceRegistry.register("testService", service, {}, []); // Pass empty metadata and empty required services
+
     expect(serviceRegistry.getService("testService")).toBe(service);
     expect(serviceRegistry.getMetadata("testService")).toEqual({});
   });

@@ -18,7 +18,6 @@ describe("GlobalRootHandler", () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
     // Clean up any bootstrap properties from previous tests
     if (global.window) {
       delete global.window.__rwtraBootstrap;
@@ -29,11 +28,14 @@ describe("GlobalRootHandler", () => {
     if (global.document) {
       delete global.document.__rwtraBootstrap;
     }
+    if (global.__rwtraBootstrap) {
+      delete global.__rwtraBootstrap;
+    }
   });
 
   describe("constructor", () => {
     it("should initialize with provided root", () => {
-      const mockRoot = { document: {}, fetch: jest.fn() };
+      const mockRoot = { document: {}, fetch: () => {} };
       const handler = new GlobalRootHandler(mockRoot);
 
       expect(handler.root).toBe(mockRoot);

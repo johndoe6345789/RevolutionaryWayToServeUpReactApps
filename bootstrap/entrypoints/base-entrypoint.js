@@ -1,4 +1,5 @@
 const serviceRegistry = require("../services/service-registry-instance.js");
+const entrypointRegistry = require("../registries/entrypoint-registry-instance.js");
 const GlobalRootHandler = require("../constants/global-root-handler.js");
 
 /**
@@ -18,12 +19,14 @@ class BaseEntryPoint {
   _createConfig() {
     const overrides = this.configFactory({
       serviceRegistry,
+      entrypointRegistry,
       root: this.rootHandler.root,
       namespace: this.rootHandler.getNamespace(),
       document: this.rootHandler.getDocument(),
     });
     return new this.ConfigClass({
       serviceRegistry,
+      entrypointRegistry,
       ...overrides,
     });
   }

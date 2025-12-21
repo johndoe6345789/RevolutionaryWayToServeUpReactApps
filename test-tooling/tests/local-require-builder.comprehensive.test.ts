@@ -56,7 +56,8 @@ describe("LocalRequireBuilder", () => {
       expect(mockHelperRegistry.register).toHaveBeenCalledWith(
         "localRequireBuilderInstance",
         localRequireBuilder,
-        { folder: "services/local/helpers", domain: "helpers" }
+        { folder: "services/local/helpers", domain: "helpers" },
+        []
       );
     });
 

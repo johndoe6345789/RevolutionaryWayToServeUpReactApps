@@ -12,7 +12,7 @@ class BaseBootstrapApp {
     this.globalRoot = this.rootHandler.root;
     this.bootstrapNamespace = this.rootHandler.getNamespace();
     this.helpersNamespace = this.rootHandler.helpers;
-    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.isCommonJs = typeof global !== "undefined" && global.module !== undefined;
   }
 
   /**

@@ -449,6 +449,7 @@ describe("LoggingService", () => {
       });
       const service = new LoggingService(config);
       service.initialize();
+      service.setCiLoggingEnabled(true); // Enable CI logging to ensure console logging happens
 
       service.logClient("test-error", { data: "value" }, "error");
       expect(global.console.error).toHaveBeenCalledWith("[bootstrap]", "test-error", { data: "value" });

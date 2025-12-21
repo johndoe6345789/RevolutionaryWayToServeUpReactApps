@@ -25,6 +25,7 @@ class BootstrapApp extends BaseBootstrapApp {
         logging: this._loggingBindings(),
         network: this.network,
         moduleLoader: this.moduleLoader,
+        controllerRegistry: require("./registries/controller-registry-instance.js"),
       })
     );
   }
