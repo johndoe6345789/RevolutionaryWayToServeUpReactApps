@@ -1,5 +1,5 @@
 // Mock GlobalRootHandler before importing ScriptListLoader
-jest.mock("../../../bootstrap/constants/global-root-handler.js", () => {
+jest.mock("../../bootstrap/constants/global-root-handler.js", () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {
@@ -15,7 +15,7 @@ jest.mock("../../../bootstrap/constants/global-root-handler.js", () => {
   };
 });
 
-import ScriptListLoader from "../../../bootstrap/services/core/script-list-loader-service.js";
+import ScriptListLoader from "../../bootstrap/services/core/script-list-loader-service.js";
 
 // Mock dependencies
 const mockDocument = {

@@ -1,4 +1,4 @@
-const LoggingManagerConfig = require("../../../../bootstrap/configs/core/logging-manager.js");
+const LoggingManagerConfig = require("../../../../../bootstrap/configs/core/logging-manager.js");
 
 describe("LoggingManagerConfig", () => {
   describe("constructor", () => {

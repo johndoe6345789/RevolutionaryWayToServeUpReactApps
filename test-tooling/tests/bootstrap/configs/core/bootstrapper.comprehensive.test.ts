@@ -1,4 +1,4 @@
-const BootstrapperConfig = require("../../../../bootstrap/configs/core/bootstrapper.js");
+const BootstrapperConfig = require("../../../../../bootstrap/configs/core/bootstrapper.js");
 
 describe("BootstrapperConfig", () => {
   describe("constructor", () => {
