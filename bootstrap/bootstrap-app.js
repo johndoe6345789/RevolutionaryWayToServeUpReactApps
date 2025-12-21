@@ -1,10 +1,8 @@
 const BaseBootstrapApp = require("./interfaces/base-bootstrap-app.js");
-const LoggingManager = require("./services/core/logging-manager.js");
 const LoggingManagerConfig = require("./configs/core/logging-manager.js");
-const Bootstrapper = require("./controllers/bootstrapper.js");
 const BootstrapperConfig = require("./configs/core/bootstrapper.js");
 const factoryRegistry = require("./registries/factory-registry-instance.js");
-const LoggingServiceFactory = require("./factories/cdn/logging-service-factory.js");
+const { registerBootstrapFactoryLoaders } = require("./registries/bootstrap-factory-loaders.js");
 
 /**
  * Encapsulates the bootstrap entrypoint wiring needed for both CommonJS and browser runtimes.
@@ -12,27 +10,30 @@ const LoggingServiceFactory = require("./factories/cdn/logging-service-factory.j
 class BootstrapApp extends BaseBootstrapApp {
   constructor(options = {}) {
     super(options);
+    
+    // Register factory loaders once
+    registerBootstrapFactoryLoaders();
+    
     this.logging = this._resolveHelper("logging", "./cdn/logging.js");
     this.network = this._resolveHelper("network", "./cdn/network.js");
     this.moduleLoader = this._resolveHelper("moduleLoader", "./entrypoints/module-loader.js");
-    this.loggingManager = new LoggingManager(
-      new LoggingManagerConfig({
-        logClient: this.logging.logClient,
-        serializeForLog: this.logging.serializeForLog,
-        serviceRegistry: require("./registries/service-registry-instance.js"),
-      })
-    );
-    this.bootstrapper = new Bootstrapper(
-      new BootstrapperConfig({
-        logging: this._loggingBindings(),
-        network: this.network,
-        moduleLoader: this.moduleLoader,
-        controllerRegistry: require("./registries/controller-registry-instance.js"),
-      })
-    );
-
-    // Factory registration should happen at the entrypoint level, not in constructor
-    // This prevents duplicate registrations when multiple instances are created during testing
+    
+    // Create LoggingManager using factory with proper config
+    const loggingManagerConfig = new LoggingManagerConfig({
+      logClient: this.logging.logClient,
+      serializeForLog: this.logging.serializeForLog,
+      serviceRegistry: require("./registries/service-registry-instance.js"),
+    });
+    this.loggingManager = factoryRegistry.create('loggingManager', loggingManagerConfig);
+    
+    // Create Bootstrapper using factory with proper config
+    const bootstrapperConfig = new BootstrapperConfig({
+      logging: this._loggingBindings(),
+      network: this.network,
+      moduleLoader: this.moduleLoader,
+      controllerRegistry: require("./registries/controller-registry-instance.js"),
+    });
+    this.bootstrapper = factoryRegistry.create('bootstrapper', bootstrapperConfig);
   }
 
   /**
