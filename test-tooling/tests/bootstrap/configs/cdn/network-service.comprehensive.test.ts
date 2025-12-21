@@ -1,4 +1,4 @@
-import NetworkServiceConfig from "../../../../bootstrap/configs/cdn/network-service.js";
+const NetworkServiceConfig = require("../../../../bootstrap/configs/cdn/network-service.js");
 
 describe("NetworkServiceConfig", () => {
   describe("constructor", () => {
@@ -118,9 +118,9 @@ describe("NetworkServiceConfig", () => {
   describe("edge cases", () => {
     it("should handle null values in configuration", () => {
       const config = new NetworkServiceConfig({
-        logClient: null as any,
-        namespace: null as any,
-        providerConfig: null as any
+        logClient: null,
+        namespace: null,
+        providerConfig: null
       });
 
       expect(config.logClient).toBeNull();
@@ -130,9 +130,9 @@ describe("NetworkServiceConfig", () => {
 
     it("should handle primitive values in configuration", () => {
       const config = new NetworkServiceConfig({
-        logClient: "notAFunction" as any,
-        namespace: "notAnObject" as any,
-        providerConfig: 42 as any
+        logClient: "notAFunction",
+        namespace: "notAnObject",
+        providerConfig: 42
       });
 
       expect(config.logClient).toBe("notAFunction");
@@ -155,7 +155,7 @@ describe("NetworkServiceConfig", () => {
     it("should work with realistic network service configuration", () => {
       const realisticConfig = new NetworkServiceConfig({
         logClient: jest.fn(),
-        wait: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
+        wait: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
         namespace: { helpers: {} },
         providerConfig: {
           providers: ["https://cdn1.example.com", "https://cdn2.example.com"],
