@@ -1,17 +1,30 @@
-describe("bootstrap/configs/local/local-loader.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/local/local-loader.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LocalLoaderConfig = require("../../../../bootstrap/configs/local/local-loader.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/local/local-loader.js", () => {
+  it("captures dependencies, registry, namespace, and document references", () => {
+    const dependencies = { helper: true };
+    const registry = { register: jest.fn() };
+    const namespace = { helpers: {} };
+    const document = { body: {} };
+
+    const config = new LocalLoaderConfig({
+      dependencies,
+      serviceRegistry: registry,
+      namespace,
+      document,
+    });
+
+    expect(config.dependencies).toBe(dependencies);
+    expect(config.serviceRegistry).toBe(registry);
+    expect(config.namespace).toBe(namespace);
+    expect(config.document).toBe(document);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("allows undefined values when optional data is missing", () => {
+    const config = new LocalLoaderConfig();
+    expect(config.dependencies).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.namespace).toBeUndefined();
+    expect(config.document).toBeUndefined();
   });
 });

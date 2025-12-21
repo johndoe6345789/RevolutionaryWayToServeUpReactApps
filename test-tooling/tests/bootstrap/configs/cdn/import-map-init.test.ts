@@ -1,17 +1,18 @@
-describe("bootstrap/configs/cdn/import-map-init.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/cdn/import-map-init.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const ImportMapInitConfig = require("../../../../../bootstrap/configs/cdn/import-map-init.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/cdn/import-map-init.js", () => {
+  it("defaults to undefined runtime globals", () => {
+    const config = new ImportMapInitConfig();
+    expect(config.window).toBeUndefined();
+    expect(config.fetch).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided window and fetch references", () => {
+    const windowRef = { document: {} };
+    const fetchRef = jest.fn();
+    const config = new ImportMapInitConfig({ window: windowRef, fetch: fetchRef });
+
+    expect(config.window).toBe(windowRef);
+    expect(config.fetch).toBe(fetchRef);
   });
 });

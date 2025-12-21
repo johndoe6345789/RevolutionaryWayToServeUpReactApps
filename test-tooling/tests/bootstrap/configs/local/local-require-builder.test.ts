@@ -1,17 +1,15 @@
-describe("bootstrap/configs/local/local-require-builder.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/local/local-require-builder.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LocalRequireBuilderConfig = require("../../../../bootstrap/configs/local/local-require-builder.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/local/local-require-builder.js", () => {
+  it("captures the helper registry that was provided", () => {
+    const helperRegistry = { resolve: jest.fn() };
+    const config = new LocalRequireBuilderConfig({ helperRegistry });
+
+    expect(config.helperRegistry).toBe(helperRegistry);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("leaves the helper registry undefined when omitted", () => {
+    const config = new LocalRequireBuilderConfig();
+    expect(config.helperRegistry).toBeUndefined();
   });
 });

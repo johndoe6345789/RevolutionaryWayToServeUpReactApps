@@ -1,17 +1,30 @@
-describe("bootstrap/configs/core/bootstrapper.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/core/bootstrapper.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const BootstrapperConfig = require("../../../../../bootstrap/configs/core/bootstrapper.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/core/bootstrapper.js", () => {
+  it("sets defaults when constructed with no overrides", () => {
+    const config = new BootstrapperConfig();
+    expect(config.configUrl).toBe("config.json");
+    expect(config.fetch).toBeUndefined();
+    expect(config.logging).toBeUndefined();
+    expect(config.network).toBeUndefined();
+    expect(config.moduleLoader).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided overrides", () => {
+    const overrides = {
+      configUrl: "/custom-config.json",
+      fetch: jest.fn(),
+      logging: { logClient: jest.fn() },
+      network: { normalizeProviderBase: jest.fn() },
+      moduleLoader: { loadModules: jest.fn() },
+    };
+
+    const config = new BootstrapperConfig(overrides);
+
+    expect(config.configUrl).toBe("/custom-config.json");
+    expect(config.fetch).toBe(overrides.fetch);
+    expect(config.logging).toBe(overrides.logging);
+    expect(config.network).toBe(overrides.network);
+    expect(config.moduleLoader).toBe(overrides.moduleLoader);
   });
 });

@@ -1,17 +1,21 @@
-describe("bootstrap/configs/core/logging-manager.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/core/logging-manager.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LoggingManagerConfig = require("../../../../../bootstrap/configs/core/logging-manager.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/core/logging-manager.js", () => {
+  it("defaults to undefined logging hooks", () => {
+    const config = new LoggingManagerConfig();
+    expect(config.logClient).toBeUndefined();
+    expect(config.serializeForLog).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores the provided logging hooks", () => {
+    const logClient = jest.fn();
+    const serializeForLog = jest.fn();
+    const serviceRegistry = { register: jest.fn() };
+    const config = new LoggingManagerConfig({ logClient, serializeForLog, serviceRegistry });
+
+    expect(config.logClient).toBe(logClient);
+    expect(config.serializeForLog).toBe(serializeForLog);
+    expect(config.serviceRegistry).toBe(serviceRegistry);
   });
 });

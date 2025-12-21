@@ -1,17 +1,26 @@
-describe("bootstrap/configs/core/module-loader.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/core/module-loader.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const ModuleLoaderConfig = require("../../../../../bootstrap/configs/core/module-loader.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/core/module-loader.js", () => {
+  it("stores the provided dependencies, registry, and environment root", () => {
+    const dependencies = { helper: true };
+    const registry = { register: jest.fn() };
+    const envRoot = { name: "env" };
+
+    const config = new ModuleLoaderConfig({
+      dependencies,
+      serviceRegistry: registry,
+      environmentRoot: envRoot,
+    });
+
+    expect(config.dependencies).toBe(dependencies);
+    expect(config.serviceRegistry).toBe(registry);
+    expect(config.environmentRoot).toBe(envRoot);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("leaves values undefined when not provided", () => {
+    const config = new ModuleLoaderConfig();
+    expect(config.dependencies).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.environmentRoot).toBeUndefined();
   });
 });

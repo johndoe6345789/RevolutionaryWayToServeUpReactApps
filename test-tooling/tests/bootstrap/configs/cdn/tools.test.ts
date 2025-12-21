@@ -1,17 +1,23 @@
-describe("bootstrap/configs/cdn/tools.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/cdn/tools.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const ToolsLoaderConfig = require("../../../../../bootstrap/configs/cdn/tools.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/cdn/tools.js", () => {
+  it("defaults to undefined dependencies", () => {
+    const config = new ToolsLoaderConfig();
+    expect(config.dependencies).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.namespace).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided dependencies", () => {
+    const overrides = {
+      dependencies: { logging: {} },
+      serviceRegistry: { register: jest.fn() },
+      namespace: { helpers: {} },
+    };
+    const config = new ToolsLoaderConfig(overrides);
+
+    expect(config.dependencies).toBe(overrides.dependencies);
+    expect(config.serviceRegistry).toBe(overrides.serviceRegistry);
+    expect(config.namespace).toBe(overrides.namespace);
   });
 });

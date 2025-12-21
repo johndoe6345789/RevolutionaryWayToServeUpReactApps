@@ -1,17 +1,22 @@
-describe("bootstrap/configs/cdn/network-module-resolver.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/cdn/network-module-resolver.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const NetworkModuleResolverConfig = require("../../../../../bootstrap/configs/cdn/network-module-resolver.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/cdn/network-module-resolver.js", () => {
+  it("defaults to a no-op logger", () => {
+    const config = new NetworkModuleResolverConfig();
+    expect(config.providerService).toBeUndefined();
+    expect(config.probeService).toBeUndefined();
+    expect(typeof config.logClient).toBe("function");
+    expect(() => config.logClient("message")).not.toThrow();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided services and logger", () => {
+    const providerService = { resolveProvider: jest.fn() };
+    const probeService = { probeUrl: jest.fn() };
+    const logClient = jest.fn();
+    const config = new NetworkModuleResolverConfig({ providerService, probeService, logClient });
+
+    expect(config.providerService).toBe(providerService);
+    expect(config.probeService).toBe(probeService);
+    expect(config.logClient).toBe(logClient);
   });
 });

@@ -1,17 +1,34 @@
-describe("bootstrap/configs/local/sass-compiler.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/local/sass-compiler.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const SassCompilerConfig = require("../../../../bootstrap/configs/local/sass-compiler.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/local/sass-compiler.js", () => {
+  it("stores fetch, document, Sass implementation, registry, and namespace", () => {
+    const fetch = jest.fn();
+    const document = { head: {} };
+    const SassImpl = jest.fn();
+    const registry = { register: jest.fn() };
+    const namespace = { helpers: {} };
+
+    const config = new SassCompilerConfig({
+      fetch,
+      document,
+      SassImpl,
+      serviceRegistry: registry,
+      namespace,
+    });
+
+    expect(config.fetch).toBe(fetch);
+    expect(config.document).toBe(document);
+    expect(config.SassImpl).toBe(SassImpl);
+    expect(config.serviceRegistry).toBe(registry);
+    expect(config.namespace).toBe(namespace);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("allows undefined values when constructors omit optional helpers", () => {
+    const config = new SassCompilerConfig();
+    expect(config.fetch).toBeUndefined();
+    expect(config.document).toBeUndefined();
+    expect(config.SassImpl).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.namespace).toBeUndefined();
   });
 });

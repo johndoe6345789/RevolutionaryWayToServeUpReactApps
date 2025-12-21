@@ -1,17 +1,22 @@
-describe("bootstrap/configs/cdn/network-probe-service.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/cdn/network-probe-service.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const NetworkProbeServiceConfig = require("../../../../../bootstrap/configs/cdn/network-probe-service.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/cdn/network-probe-service.js", () => {
+  it("defaults to a global object and no-op helpers", async () => {
+    const config = new NetworkProbeServiceConfig();
+    expect(config.globalObject).toBeDefined();
+    expect(typeof config.logClient).toBe("function");
+    expect(typeof config.wait).toBe("function");
+    await expect(config.wait()).resolves.toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided globals and helpers", () => {
+    const globalObject = { document: {} };
+    const logClient = jest.fn();
+    const wait = jest.fn(() => Promise.resolve("done"));
+    const config = new NetworkProbeServiceConfig({ globalObject, logClient, wait });
+
+    expect(config.globalObject).toBe(globalObject);
+    expect(config.logClient).toBe(logClient);
+    expect(config.wait).toBe(wait);
   });
 });

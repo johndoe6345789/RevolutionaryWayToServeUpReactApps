@@ -1,17 +1,29 @@
-describe("bootstrap/configs/local/local-dependency-loader.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/local/local-dependency-loader.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LocalDependencyLoaderConfig = require("../../../../bootstrap/configs/local/local-dependency-loader.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/local/local-dependency-loader.js", () => {
+  it("stores overrides, helpers, helper registry, and CommonJS flag", () => {
+    const overrides = { logging: true };
+    const helpers = { logging: { ready: true } };
+    const registry = { register: jest.fn() };
+
+    const config = new LocalDependencyLoaderConfig({
+      overrides,
+      helpers,
+      helperRegistry: registry,
+      isCommonJs: true,
+    });
+
+    expect(config.overrides).toBe(overrides);
+    expect(config.helpers).toBe(helpers);
+    expect(config.helperRegistry).toBe(registry);
+    expect(config.isCommonJs).toBe(true);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("defaults to empty overrides/helpers and false CommonJS flag when not provided", () => {
+    const config = new LocalDependencyLoaderConfig();
+    expect(config.overrides).toEqual({});
+    expect(config.helpers).toEqual({});
+    expect(config.helperRegistry).toBeNull();
+    expect(config.isCommonJs).toBe(false);
   });
 });

@@ -1,17 +1,26 @@
-describe("bootstrap/configs/cdn/logging-service.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/cdn/logging-service.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LoggingServiceConfig = require("../../../../../bootstrap/configs/cdn/logging-service.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/cdn/logging-service.js", () => {
+  it("defaults to undefined logging configuration", () => {
+    const config = new LoggingServiceConfig();
+    expect(config.ciLogQueryParam).toBeUndefined();
+    expect(config.clientLogEndpoint).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.namespace).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores provided logging configuration values", () => {
+    const overrides = {
+      ciLogQueryParam: "ci",
+      clientLogEndpoint: "/logs",
+      serviceRegistry: { register: jest.fn() },
+      namespace: { helpers: {} },
+    };
+    const config = new LoggingServiceConfig(overrides);
+
+    expect(config.ciLogQueryParam).toBe("ci");
+    expect(config.clientLogEndpoint).toBe("/logs");
+    expect(config.serviceRegistry).toBe(overrides.serviceRegistry);
+    expect(config.namespace).toBe(overrides.namespace);
   });
 });

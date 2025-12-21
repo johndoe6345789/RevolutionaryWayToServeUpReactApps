@@ -1,17 +1,22 @@
-describe("bootstrap/configs/local/local-paths.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/local/local-paths.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const LocalPathsConfig = require("../../../../bootstrap/configs/local/local-paths.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/local/local-paths.js", () => {
+  it("stores the provided service registry and namespace", () => {
+    const registry = { register: jest.fn() };
+    const namespace = { helpers: {} };
+
+    const config = new LocalPathsConfig({
+      serviceRegistry: registry,
+      namespace,
+    });
+
+    expect(config.serviceRegistry).toBe(registry);
+    expect(config.namespace).toBe(namespace);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("keeps properties undefined when not supplied", () => {
+    const config = new LocalPathsConfig();
+    expect(config.serviceRegistry).toBeUndefined();
+    expect(config.namespace).toBeUndefined();
   });
 });

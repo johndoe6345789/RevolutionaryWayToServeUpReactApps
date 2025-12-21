@@ -1,17 +1,18 @@
-describe("bootstrap/configs/core/env.js", () => {
-  const modulePath = '../../../../../bootstrap/configs/core/env.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const EnvInitializerConfig = require("../../../../../bootstrap/configs/core/env.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/configs/core/env.js", () => {
+  it("leaves properties undefined by default", () => {
+    const config = new EnvInitializerConfig();
+    expect(config.global).toBeUndefined();
+    expect(config.serviceRegistry).toBeUndefined();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("stores the provided global and service registry", () => {
+    const globalObj = {};
+    const serviceRegistry = { register: jest.fn() };
+    const config = new EnvInitializerConfig({ global: globalObj, serviceRegistry });
+
+    expect(config.global).toBe(globalObj);
+    expect(config.serviceRegistry).toBe(serviceRegistry);
   });
 });
