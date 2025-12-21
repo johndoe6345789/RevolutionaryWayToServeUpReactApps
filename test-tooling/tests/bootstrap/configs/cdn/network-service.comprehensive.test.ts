@@ -1,4 +1,4 @@
-const NetworkServiceConfig = require("../../../../bootstrap/configs/cdn/network-service.js");
+const NetworkServiceConfig = require("../../../../../bootstrap/configs/cdn/network-service.js");
 
 describe("NetworkServiceConfig", () => {
   describe("constructor", () => {
