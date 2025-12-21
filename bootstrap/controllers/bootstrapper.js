@@ -1,23 +1,24 @@
 const hasDocument = typeof document !== "undefined";
 const hasWindow = typeof window !== "undefined";
+const BaseController = require("./base-controller.js");
 
 /**
  * Drives the overall bootstrap workflow (config, module loading, rendering, logging).
  */
-class Bootstrapper {
+class Bootstrapper extends BaseController {
   /**
    * Initializes a new Bootstrapper instance with the provided configuration.
    */
-  constructor(config) { this.config = config; this.initialized = false; }
+  constructor(config) {
+    super(config);
+  }
 
   /**
    * Sets up the Bootstrapper instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("Bootstrapper already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     const { configLoader, logging, network, moduleLoader } = this.config;
     this.configLoader = configLoader;
     this.logging = logging;
@@ -44,9 +45,7 @@ class Bootstrapper {
    * Performs the internal bootstrap steps for Bootstrapper.
    */
   async _bootstrap() {
-    if (!this.initialized) {
-      throw new Error("Bootstrapper not initialized");
-    }
+    this._ensureInitialized();
     const config = await this.configLoader.loadConfig();
     this._configureProviders(config);
     const entryFile = config.entry || "main.tsx";

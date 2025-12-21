@@ -1,31 +1,26 @@
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : {};
 const hasWindow = typeof window !== "undefined";
+const BaseController = require("./base-controller.js");
+const BootstrapConfigLoaderConfig = require("../configs/bootstrap-config-loader.js");
 
 /**
  * Loads config.json once and caches the promise/results for reuse.
  */
-class BootstrapConfigLoader {
+class BootstrapConfigLoader extends BaseController {
   /**
    * Initializes a new Bootstrap Config Loader instance with the provided configuration.
    */
-  constructor({ fetch } = {}) { this.config = { fetch }; this.initialized = false; this.cachedPromise = null; }
+  constructor(config = new BootstrapConfigLoaderConfig()) {
+    super(config);
+    this.cachedPromise = null;
+  }
 
   /**
    * Sets up the Bootstrap Config Loader instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("BootstrapConfigLoader already initialized");
-    }
-    this.initialized = true;
-    const fallbackFetch =
-      typeof globalRoot.fetch === "function" ? globalRoot.fetch.bind(globalRoot) : undefined;
-    this.fetchImpl = this.config.fetch ?? fallbackFetch;
+    this._ensureNotInitialized();
+    this._markInitialized();
+    this.fetchImpl = this.config.fetch;
   }
 
   /**
@@ -40,9 +35,7 @@ class BootstrapConfigLoader {
         return window.__rwtraConfigPromise;
       }
     }
-    if (!this.initialized) {
-      throw new Error("BootstrapConfigLoader not initialized");
-    }
+    this._ensureInitialized();
     if (!this.cachedPromise) {
       this.cachedPromise = this._fetchConfig();
       if (hasWindow) {
