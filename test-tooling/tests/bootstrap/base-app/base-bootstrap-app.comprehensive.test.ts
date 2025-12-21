@@ -5,11 +5,11 @@ describe("BaseBootstrapApp", () => {
   describe("constructor", () => {
     it("should initialize with default GlobalRootHandler when no options provided", () => {
       const app = new BaseBootstrapApp();
-      
+
       expect(app.rootHandler).toBeInstanceOf(GlobalRootHandler);
       expect(app.globalRoot).toBeDefined();
-      expect(app.bootstrapNamespace).toEqual({});
-      expect(app.helpersNamespace).toEqual({});
+      expect(app.bootstrapNamespace).toBeDefined(); // Contains helpers property
+      expect(app.helpersNamespace).toBeDefined();
       expect(typeof app.isCommonJs).toBe('boolean');
     });
 

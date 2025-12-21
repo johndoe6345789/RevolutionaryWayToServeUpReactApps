@@ -43,7 +43,7 @@ describe("bootstrap/services/cdn/tools-service.js", () => {
     const tool = { name: "widget", global: "WidgetGlobal" };
     mockLoadScript.mockImplementation(() => {
       globalThis.window = globalThis.window || {};
-      globalThis.window[tool.global] = { default: "ready" };
+      (globalThis.window as any)[tool.global] = { default: "ready" };
       return Promise.resolve();
     });
 
@@ -56,7 +56,7 @@ describe("bootstrap/services/cdn/tools-service.js", () => {
     const mod = { name: "module", global: "ModuleGlobal" };
     mockLoadScript.mockImplementation(() => {
       globalThis.window = globalThis.window || {};
-      globalThis.window[mod.global] = { default: "module" };
+      (globalThis.window as any)[mod.global] = { default: "module" };
       return Promise.resolve();
     });
 
