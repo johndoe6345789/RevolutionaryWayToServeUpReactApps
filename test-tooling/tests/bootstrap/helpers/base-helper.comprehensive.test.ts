@@ -15,9 +15,9 @@ describe("BaseHelper", () => {
       expect(helper.initialized).toBe(false);
     });
 
-    it("should initialize with empty object when null config provided", () => {
+    it("should store null config when null is explicitly provided", () => {
       const helper = new BaseHelper(null);
-      expect(helper.config).toEqual({});
+      expect(helper.config).toBeNull();
       expect(helper.initialized).toBe(false);
     });
 
@@ -84,7 +84,7 @@ describe("BaseHelper", () => {
       helper._registerHelper("testHelper", testHelper, metadata);
       
       expect(mockRegistry.isRegistered).toHaveBeenCalledWith("testHelper");
-      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", testHelper, metadata);
+      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", testHelper, metadata, []);
     });
 
     it("should register helper with default empty metadata", () => {
@@ -95,7 +95,7 @@ describe("BaseHelper", () => {
       
       helper._registerHelper("testHelper", testHelper);
       
-      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", testHelper, {});
+      expect(mockRegistry.register).toHaveBeenCalledWith("testHelper", testHelper, {}, []);
     });
 
     it("should skip registration when helper is already registered", () => {
@@ -182,9 +182,10 @@ describe("BaseHelper", () => {
       
       expect(result).toBe(helper);
       expect(mockRegistry.register).toHaveBeenCalledWith(
-        "test", 
-        { value: "test" }, 
-        { type: "integration" }
+        "test",
+        { value: "test" },
+        { type: "integration" },
+        []
       );
     });
 

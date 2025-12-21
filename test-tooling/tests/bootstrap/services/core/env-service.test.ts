@@ -14,7 +14,7 @@ describe("bootstrap/services/core/env-service.js", () => {
 
   it("ensures proxy mode defaults to auto and registers itself", () => {
     const globalObj: Record<string, unknown> = {};
-    const serviceRegistry = { register: jest.fn() };
+    const serviceRegistry = { register: jest.fn((name, service, metadata, requiredServices) => {}) };
     const env = new EnvInitializer(new EnvConfig({ global: globalObj, serviceRegistry }));
 
     const result = env.initialize();
@@ -30,7 +30,7 @@ describe("bootstrap/services/core/env-service.js", () => {
 
   it("does not override a proxy mode that was already set", () => {
     const globalObj = { __RWTRA_PROXY_MODE__: "proxy" };
-    const serviceRegistry = { register: jest.fn() };
+    const serviceRegistry = { register: jest.fn((name, service, metadata, requiredServices) => {}) };
     const env = new EnvInitializer(new EnvConfig({ global: globalObj, serviceRegistry }));
 
     env.initialize();

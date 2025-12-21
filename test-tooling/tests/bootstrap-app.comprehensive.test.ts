@@ -1,7 +1,7 @@
 import BootstrapApp from "../../bootstrap/bootstrap-app.js";
 
 // Mock the dependencies
-jest.mock("../../bootstrap/base-bootstrap-app.js", () => {
+jest.mock("../../bootstrap/interfaces/base-bootstrap-app.js", () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {

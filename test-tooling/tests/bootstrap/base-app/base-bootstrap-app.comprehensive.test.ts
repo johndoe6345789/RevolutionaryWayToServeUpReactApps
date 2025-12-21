@@ -1,4 +1,4 @@
-const BaseBootstrapApp = require("../../../../bootstrap/base-bootstrap-app.js");
+const BaseBootstrapApp = require("../../../../bootstrap/interfaces/base-bootstrap-app.js");
 const GlobalRootHandler = require("../../../../bootstrap/constants/global-root-handler.js");
 
 describe("BaseBootstrapApp", () => {

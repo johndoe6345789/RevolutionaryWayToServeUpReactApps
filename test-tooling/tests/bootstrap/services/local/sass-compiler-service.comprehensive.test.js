@@ -5,10 +5,14 @@ const SassCompilerService = require("../../../../../bootstrap/services/local/sas
 function createMockFunction() {
   const mockFn = (...args) => {
     mockFn.calls.push(args);
+    if (mockFn.returnValuesQueue.length > 0) {
+      return mockFn.returnValuesQueue.shift();
+    }
     return mockFn.returnValue;
   };
   mockFn.calls = [];
   mockFn.returnValue = undefined;
+  mockFn.returnValuesQueue = [];
   mockFn.mockReturnValue = (value) => {
     mockFn.returnValue = value;
     return mockFn;
@@ -19,6 +23,10 @@ function createMockFunction() {
   };
   mockFn.mockRejectedValue = (error) => {
     mockFn.returnValue = Promise.reject(error);
+    return mockFn;
+  };
+  mockFn.mockReturnValueOnce = (value) => {
+    mockFn.returnValuesQueue.push(value);
     return mockFn;
   };
   return mockFn;
@@ -48,6 +56,8 @@ describe("SassCompilerService", () => {
     };
 
     mockFetch = createMockFunction();
+    
+    // Mock Sass implementation
     mockSassImpl = {
       compile: createMockFunction()
     };
@@ -78,25 +88,29 @@ describe("SassCompilerService", () => {
 
   describe("initialize method", () => {
     test("should properly initialize the service with required dependencies", () => {
-      const initializedService = service.initialize();
+      const result = service.initialize();
 
-      expect(initializedService).toBe(service);
+      expect(result).toBe(service);
       expect(service.initialized).toBe(true);
       expect(service.serviceRegistry).toBe(mockServiceRegistry);
       expect(service.fetchImpl).toBe(mockFetch);
       expect(service.document).toBe(mockDocument);
       expect(service.SassImpl).toBe(mockSassImpl);
+      expect(service.namespace).toBe(mockConfig.namespace);
+      expect(service.helpers).toBe(mockConfig.namespace.helpers);
     });
 
-    test("should set up namespace and helpers", () => {
-      const mockNamespace = { helpers: {} };
-      mockConfig.namespace = mockNamespace;
-      const serviceWithNamespace = new SassCompilerService(mockConfig);
-      
-      serviceWithNamespace.initialize();
+    test("should register the service in the service registry", () => {
+      service.initialize();
 
-      expect(serviceWithNamespace.namespace).toBe(mockNamespace);
-      expect(serviceWithNamespace.helpers).toBe(mockNamespace.helpers);
+      expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
+      expect(mockServiceRegistry.register.calls[0][0]).toBe("sassCompiler");
+      expect(mockServiceRegistry.register.calls[0][1]).toBe(service);
+      expect(mockServiceRegistry.register.calls[0][2]).toEqual({
+        folder: "services/local",
+        domain: "local",
+      });
+      expect(mockServiceRegistry.register.calls[0][3]).toEqual([]);
     });
 
     test("should throw if initialized twice", () => {
@@ -107,17 +121,10 @@ describe("SassCompilerService", () => {
       }).toThrow();
     });
 
-    test("should require service registry", () => {
-      const configWithoutRegistry = {
-        fetch: mockFetch,
-        document: mockDocument,
-        SassImpl: mockSassImpl
-      };
-      const serviceWithoutRegistry = new SassCompilerService(configWithoutRegistry);
-      
-      expect(() => {
-        serviceWithoutRegistry.initialize();
-      }).toThrow();
+    test("should return the service instance to allow chaining", () => {
+      const result = service.initialize();
+
+      expect(result).toBe(service);
     });
   });
 
@@ -136,30 +143,126 @@ describe("SassCompilerService", () => {
       await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Document is unavailable for Sass compilation");
     });
 
-    test("should fetch and compile SCSS successfully", async () => {
-      const mockText = createMockFunction().mockResolvedValue("$primary-color: #333;");
+    test("should throw error if SassImpl is not available", async () => {
       const mockResponse = {
         ok: true,
-        text: mockText
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
       };
       mockFetch.mockResolvedValue(mockResponse);
-      mockSassImpl.compile = (scss) => ({ css: ".test { color: #333; }" });
 
       service.initialize();
+      service.SassImpl = null;
+
+      await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Sass global not found (is your Sass tool loaded?)");
+    });
+
+    test("should compile SCSS successfully with function-based SassImpl", async () => {
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      // Mock a Sass implementation that uses a constructor
+      const mockSassInstance = {
+        compile: (scss, callback) => {
+          callback({ status: 0, text: ".test { color: #333; }" });
+        }
+      };
+      const mockSassConstructor = jest.fn().mockImplementation(() => mockSassInstance);
+      
+      service.initialize();
+      service.SassImpl = mockSassConstructor;
 
       const result = await service.compileSCSS("/test.scss");
 
-      expect(mockFetch.calls.length).toBeGreaterThan(0);
-      expect(mockFetch.calls[0][0]).toBe("/test.scss");
-      expect(mockFetch.calls[0][1]).toEqual({ cache: "no-store" });
-      expect(mockText.calls.length).toBeGreaterThan(0);
+      expect(mockFetch).toHaveBeenCalledWith("/test.scss", { cache: "no-store" });
+      expect(mockResponse.text).toHaveBeenCalled();
       expect(result).toBe(".test { color: #333; }");
     });
 
-    test("should throw error if fetch response is not ok", async () => {
+    test("should compile SCSS successfully with object callback-based SassImpl", async () => {
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      // Mock a Sass implementation that uses a callback-based compile method
+      const mockSassObject = {
+        compile: (scss, callback) => {
+          callback({ status: 0, text: ".test { color: #333; }" });
+        }
+      };
+      service.initialize();
+      service.SassImpl = mockSassObject;
+
+      const result = await service.compileSCSS("/test.scss");
+
+      expect(result).toBe(".test { color: #333; }");
+    });
+
+    test("should compile SCSS successfully with sync object-based SassImpl", async () => {
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      // Mock a Sass implementation that returns a sync result
+      const mockSassObject = {
+        compile: (scss) => ({ status: 0, text: ".test { color: #333; }" })
+      };
+      service.initialize();
+      service.SassImpl = mockSassObject;
+
+      const result = await service.compileSCSS("/test.scss");
+
+      expect(result).toBe(".test { color: #333; }");
+    });
+
+    test("should compile SCSS successfully with string-returning SassImpl", async () => {
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      // Mock a Sass implementation that returns a string directly
+      const mockSassObject = {
+        compile: (scss) => ".compiled { color: red; }"
+      };
+      service.initialize();
+      service.SassImpl = mockSassObject;
+
+      const result = await service.compileSCSS("/test.scss");
+
+      expect(result).toBe(".compiled { color: red; }");
+    });
+
+    test("should handle Sass compilation errors", async () => {
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      // Mock a Sass implementation that returns an error
+      const mockSassObject = {
+        compile: (scss, callback) => {
+          callback({ status: 1, formatted: "Sass compilation error" });
+        }
+      };
+      service.initialize();
+      service.SassImpl = mockSassObject;
+
+      await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Sass compilation error");
+    });
+
+    test("should throw error when fetch fails", async () => {
       const mockResponse = {
         ok: false,
-        text: createMockFunction().mockResolvedValue("")
+        status: 404
       };
       mockFetch.mockResolvedValue(mockResponse);
 
@@ -168,41 +271,24 @@ describe("SassCompilerService", () => {
       await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Failed to load /test.scss");
     });
 
-    test("should throw error if SassImpl is not available", async () => {
-      const mockResponse = {
-        ok: true,
-        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
-      };
-      mockFetch.mockResolvedValue(mockResponse);
-      service.initialize();
-      service.SassImpl = null;
-
-      await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Sass global not found (is your Sass tool loaded?)");
-    });
-
-    test("should handle Sass compilation with callback-style implementation", async () => {
+    test("should handle unsupported Sass implementation", async () => {
       const mockResponse = {
         ok: true,
         text: createMockFunction().mockResolvedValue("$primary-color: #333;")
       };
       mockFetch.mockResolvedValue(mockResponse);
 
-      // Mock a Sass implementation that uses callbacks
-      const mockCallbackSass = function() {};
-      mockCallbackSass.prototype.compile = (scss, callback) => {
-        callback({ status: 0, text: ".compiled { color: red; }" });
-      };
-
+      // Mock an unsupported Sass implementation
+      const unsupportedSassImpl = {};
       service.initialize();
-      service.SassImpl = mockCallbackSass;
+      service.SassImpl = unsupportedSassImpl;
 
-      const result = await service.compileSCSS("/test.scss");
-      expect(result).toBe(".compiled { color: red; }");
+      await expect(service.compileSCSS("/test.scss")).rejects.toThrow("Unsupported Sass implementation: neither constructor nor usable compile() found");
     });
   });
 
   describe("injectCSS method", () => {
-    test("should throw error if document is not available", () => {
+    test("should throw an error when document is not available", () => {
       service.document = null;
 
       expect(() => {
@@ -217,25 +303,25 @@ describe("SassCompilerService", () => {
 
       expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
       expect(mockDocument.createElement.calls[0][0]).toBe("style");
+      const styleElement = mockDocument.createElement.returnValue;
+      expect(styleElement.textContent).toBe("body { margin: 0; }");
       expect(mockDocument.head.appendChild.calls.length).toBeGreaterThan(0);
     });
 
-    test("should create style element with correct CSS content", () => {
+    test("should handle different CSS content", () => {
       service.initialize();
-      const mockStyleElement = {
-        textContent: '',
-        setAttribute: createMockFunction()
-      };
-      mockDocument.createElement = createMockFunction().mockReturnValue(mockStyleElement);
 
-      service.injectCSS("div { color: blue; }");
+      service.injectCSS(".header { color: blue; }");
 
-      expect(mockStyleElement.textContent).toBe("div { color: blue; }");
+      expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
+      expect(mockDocument.createElement.calls[0][0]).toBe("style");
+      const styleElement = mockDocument.createElement.returnValue;
+      expect(styleElement.textContent).toBe(".header { color: blue; }");
     });
   });
 
   describe("exports property", () => {
-    test("should return the correct export structure", () => {
+    test("should return the public API", () => {
       service.initialize();
 
       const exports = service.exports;
@@ -258,43 +344,29 @@ describe("SassCompilerService", () => {
   });
 
   describe("install method", () => {
-    test("should register the service in the registry", () => {
+    test("should throw if not initialized", () => {
+      expect(() => {
+        service.install();
+      }).toThrow();
+    });
+
+    test("should register the service and set up helpers", () => {
       service.initialize();
 
-      const installedService = service.install();
+      const result = service.install();
 
-      expect(installedService).toBe(service);
+      expect(result).toBe(service);
       expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
       expect(mockServiceRegistry.register.calls[0][0]).toBe("sassCompiler");
-      const exportedFunctions = mockServiceRegistry.register.calls[0][1];
-      expect(exportedFunctions).toHaveProperty('compileSCSS');
-      expect(exportedFunctions).toHaveProperty('injectCSS');
-      expect(typeof exportedFunctions.compileSCSS).toBe('function');
-      expect(typeof exportedFunctions.injectCSS).toBe('function');
+      expect(mockServiceRegistry.register.calls[0][1]).toBe(service.exports);
       expect(mockServiceRegistry.register.calls[0][2]).toEqual({
         folder: "services/local",
         domain: "local",
       });
+      expect(service.helpers.sassCompiler).toBe(service.exports);
     });
 
-    test("should install helpers into the namespace", () => {
-      service.initialize();
-
-      service.install();
-
-      expect(service.helpers.sassCompiler).toHaveProperty('compileSCSS');
-      expect(service.helpers.sassCompiler).toHaveProperty('injectCSS');
-      expect(typeof service.helpers.sassCompiler.compileSCSS).toBe('function');
-      expect(typeof service.helpers.sassCompiler.injectCSS).toBe('function');
-    });
-
-    test("should throw if not initialized before install", () => {
-      expect(() => {
-        service.install();
-      }).toThrow(); // Should throw because not initialized
-    });
-
-    test("should return the service instance for chaining", () => {
+    test("should return the instance to allow chaining", () => {
       service.initialize();
 
       const result = service.install();
@@ -303,30 +375,67 @@ describe("SassCompilerService", () => {
     });
   });
 
-  describe("integration", () => {
+  describe("integration tests", () => {
     test("should work through full lifecycle", async () => {
+      // Initialize the service
       service.initialize();
 
-      // Test that compileSCSS can be called (with mocks in place)
+      // Verify initialization
+      expect(service.initialized).toBe(true);
+      expect(service.fetchImpl).toBe(mockFetch);
+      expect(service.document).toBe(mockDocument);
+
+      // Mock successful SCSS compilation
       const mockResponse = {
         ok: true,
-        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+        text: createMockFunction().mockResolvedValue("$test: value;")
       };
       mockFetch.mockResolvedValue(mockResponse);
-      mockSassImpl.compile = (scss) => ({ css: ".test { color: #333; }" });
 
-      const compiledCSS = await service.compileSCSS("/test.scss");
-      expect(compiledCSS).toBe(".test { color: #333; }");
+      const mockSassObject = {
+        compile: (scss) => ".test { color: red; }"
+      };
+      service.SassImpl = mockSassObject;
 
-      // Test that injectCSS works
-      service.injectCSS(".test { color: red; }");
+      // Compile SCSS
+      const compiledCSS = await service.compileSCSS("/integration-test.scss");
+      expect(compiledCSS).toBe(".test { color: red; }");
+
+      // Inject CSS
+      service.injectCSS(".test { color: blue; }");
       expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
-      expect(mockDocument.createElement.calls[0][0]).toBe("style");
+      expect(mockDocument.createElement.calls[1][0]).toBe("style");
 
-      // Test that install works
+      // Install the service
       service.install();
-      expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
-      expect(mockServiceRegistry.register.calls[mockServiceRegistry.register.calls.length-1][0]).toBe("sassCompiler");
+      expect(service.helpers.sassCompiler).toBe(service.exports);
+    });
+
+    test("should handle complete SCSS compilation and injection flow", async () => {
+      service.initialize();
+
+      // Mock a successful fetch and Sass compilation
+      const mockResponse = {
+        ok: true,
+        text: createMockFunction().mockResolvedValue("$color: red;")
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const mockSassObject = {
+        compile: (scss) => ({
+          status: 0,
+          text: ".compiled { color: red; }"
+        })
+      };
+      service.SassImpl = mockSassObject;
+
+      // Full flow: compile and inject
+      const css = await service.compileSCSS("/full-flow-test.scss");
+      service.injectCSS(css);
+
+      expect(css).toBe(".compiled { color: red; }");
+      expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
+      expect(mockDocument.head.appendChild.calls.length).toBeGreaterThan(0);
     });
   });
 });

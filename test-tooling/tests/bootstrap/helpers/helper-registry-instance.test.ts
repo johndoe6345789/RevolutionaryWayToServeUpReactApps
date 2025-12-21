@@ -16,7 +16,7 @@ describe("bootstrap/registries/helper-registry-instance.js", () => {
   it('persists registrations across multiple imports', () => {
     const registry = require(instancePath);
 
-    registry.register("shared:clock", { now: () => 123 });
+    registry.register("shared:clock", { now: () => 123 }, {}, []);
 
     const reimported = require(instancePath);
     expect(reimported.getHelper("shared:clock")).toBeDefined();

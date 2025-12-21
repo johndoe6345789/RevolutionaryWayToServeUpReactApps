@@ -139,10 +139,18 @@ describe("FrameworkRenderer", () => {
 
       const App = () => "App";
 
-      // We need to fix the implementation to properly handle the render method
-      // Since the original implementation has issues, we'll test the fixed version
-      // This test is based on the implementation logic
-      expect(() => renderer.render(renderConfig, registry, App)).toThrow(); // Will throw due to undefined variables in implementation
+      // Mock the _getModuleExport method to return the proper functions
+      const originalGetModuleExport = renderer._getModuleExport;
+      renderer._getModuleExport = jest.fn((mod, name) => {
+        if (name === "createRoot") return mockDomModule.createRoot;
+        if (name === "createElement") return mockReactModule.createElement;
+        return null;
+      });
+
+      expect(() => renderer.render(renderConfig, registry, App)).not.toThrow();
+
+      // Restore the original method
+      renderer._getModuleExport = originalGetModuleExport;
     });
 
     test("should use default rootId when not provided", () => {

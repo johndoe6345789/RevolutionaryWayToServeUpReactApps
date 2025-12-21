@@ -1,4 +1,4 @@
-import BaseBootstrapApp from "../../bootstrap/base-bootstrap-app.js";
+import BaseBootstrapApp from "../../bootstrap/interfaces/base-bootstrap-app.js";
 import GlobalRootHandler from "../../bootstrap/constants/global-root-handler.js";
 import ServiceRegistry from "../../bootstrap/registries/service-registry.js";
 import HelperRegistry from "../../bootstrap/registries/helper-registry.js";

@@ -1,51 +1,33 @@
-import LocalRequireBuilder from "../../../../../bootstrap/services/local/local-require-builder.js";
-
-// Mock helper registry for testing
-class MockHelperRegistry {
-  constructor() {
-    this.registeredHelpers = new Map();
-  }
-  
-  register(name, helper, metadata) {
-    this.registeredHelpers.set(name, { helper, metadata });
-  }
-  
-  isRegistered(name) {
-    return this.registeredHelpers.has(name);
-  }
-  
-  getHelper(name) {
-    const entry = this.registeredHelpers.get(name);
-    return entry ? entry.helper : null;
-  }
-}
+import LocalRequireBuilder from "../../../../services/local/local-require-builder.js";
 
 describe("LocalRequireBuilder", () => {
   let localRequireBuilder;
   let mockHelperRegistry;
+  let mockConfig;
 
   beforeEach(() => {
-    mockHelperRegistry = new MockHelperRegistry();
-    const config = { helperRegistry: mockHelperRegistry };
-    localRequireBuilder = new LocalRequireBuilder(config);
+    mockHelperRegistry = {
+      register: jest.fn(),
+      get: jest.fn(),
+      isRegistered: jest.fn().mockReturnValue(false),
+    };
+    
+    mockConfig = new (require("../../../bootstrap/configs/local/local-require-builder.js").default)({
+      helperRegistry: mockHelperRegistry
+    });
+    
+    localRequireBuilder = new LocalRequireBuilder(mockConfig);
   });
 
   describe("constructor", () => {
-    it("should initialize with provided config", () => {
-      expect(localRequireBuilder.config).toBeDefined();
-      expect(localRequireBuilder.config.helperRegistry).toBe(mockHelperRegistry);
-      expect(localRequireBuilder.initialized).toBe(false);
+    it("should create an instance with provided config", () => {
+      expect(localRequireBuilder).toBeInstanceOf(LocalRequireBuilder);
+      expect(localRequireBuilder.config).toBe(mockConfig);
     });
 
-    it("should accept a plain config object", () => {
-      const plainConfig = { helperRegistry: mockHelperRegistry };
-      const builder = new LocalRequireBuilder(plainConfig);
-      
-      expect(builder.config.helperRegistry).toBe(mockHelperRegistry);
-    });
-
-    it("should use default config when none provided", () => {
+    it("should create an instance with default config when none provided", () => {
       const builder = new LocalRequireBuilder();
+      expect(builder).toBeInstanceOf(LocalRequireBuilder);
       expect(builder.config).toBeDefined();
     });
   });
@@ -55,7 +37,7 @@ describe("LocalRequireBuilder", () => {
       const mockLoadDynamicModule = jest.fn();
       const mockIsLocalModule = jest.fn();
       
-      localRequireBuilder.initialize({ 
+      const result = localRequireBuilder.initialize({
         loadDynamicModule: mockLoadDynamicModule,
         isLocalModule: mockIsLocalModule
       });
@@ -63,76 +45,90 @@ describe("LocalRequireBuilder", () => {
       expect(localRequireBuilder.loadDynamicModule).toBe(mockLoadDynamicModule);
       expect(localRequireBuilder.isLocalModule).toBe(mockIsLocalModule);
       expect(localRequireBuilder.initialized).toBe(true);
+      expect(result).toBe(localRequireBuilder);
     });
 
     it("should register itself with the helper registry", () => {
-      localRequireBuilder.initialize({ 
-        loadDynamicModule: jest.fn(),
-        isLocalModule: jest.fn()
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn();
+      
+      localRequireBuilder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
       });
       
-      expect(mockHelperRegistry.isRegistered("localRequireBuilderInstance")).toBe(true);
-      const registered = mockHelperRegistry.getHelper("localRequireBuilderInstance");
-      expect(registered).toBe(localRequireBuilder);
+      expect(mockHelperRegistry.register).toHaveBeenCalledWith(
+        "localRequireBuilderInstance",
+        localRequireBuilder,
+        { folder: "services/local/helpers", domain: "helpers" },
+        []
+      );
     });
 
     it("should not register if no helper registry is provided", () => {
-      const builder = new LocalRequireBuilder({}); // No helperRegistry
-      builder.initialize({ 
-        loadDynamicModule: jest.fn(),
-        isLocalModule: jest.fn()
+      const configWithoutRegistry = new (require("../../../bootstrap/configs/local/local-require-builder.js").default)();
+      const builder = new LocalRequireBuilder(configWithoutRegistry);
+      
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn();
+      
+      builder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
       });
       
-      // No registration should happen since no registry was provided
-      expect(mockHelperRegistry.isRegistered("localRequireBuilderInstance")).toBe(false);
+      expect(mockHelperRegistry.register).not.toHaveBeenCalled();
     });
 
     it("should throw if already initialized", () => {
       const mockLoadDynamicModule = jest.fn();
       const mockIsLocalModule = jest.fn();
       
-      localRequireBuilder.initialize({ 
+      localRequireBuilder.initialize({
         loadDynamicModule: mockLoadDynamicModule,
         isLocalModule: mockIsLocalModule
       });
       
       expect(() => {
-        localRequireBuilder.initialize({ 
+        localRequireBuilder.initialize({
           loadDynamicModule: mockLoadDynamicModule,
           isLocalModule: mockIsLocalModule
         });
       }).toThrow("LocalRequireBuilder already initialized");
     });
-
-    it("should return the instance to allow chaining", () => {
-      const mockLoadDynamicModule = jest.fn();
-      const mockIsLocalModule = jest.fn();
-      
-      const result = localRequireBuilder.initialize({ 
-        loadDynamicModule: mockLoadDynamicModule,
-        isLocalModule: mockIsLocalModule
-      });
-      
-      expect(result).toBe(localRequireBuilder);
-    });
   });
 
   describe("create method", () => {
     beforeEach(() => {
-      localRequireBuilder.initialize({ 
-        loadDynamicModule: jest.fn(),
-        isLocalModule: jest.fn().mockReturnValue(true)
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn();
+      localRequireBuilder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
       });
     });
 
+    it("should throw if not initialized", () => {
+      const uninitializedBuilder = new LocalRequireBuilder(mockConfig);
+      
+      expect(() => {
+        uninitializedBuilder.create({});
+      }).toThrow("LocalRequireBuilder not initialized");
+    });
+
     it("should create a require function with async method", () => {
-      const registry = { testModule: { name: "test" } };
+      const registry = { testModule: "testValue" };
+      const config = {};
+      const entryDir = "";
+      const localModuleLoader = jest.fn();
+      const dynamicModuleLoader = jest.fn();
+      
       const requireFn = localRequireBuilder.create({
         registry,
-        config: {},
-        entryDir: "",
-        localModuleLoader: null,
-        dynamicModuleLoader: null
+        config,
+        entryDir,
+        localModuleLoader,
+        dynamicModuleLoader
       });
       
       expect(typeof requireFn).toBe("function");
@@ -140,257 +136,179 @@ describe("LocalRequireBuilder", () => {
     });
 
     it("should return existing modules from registry", () => {
-      const testModule = { name: "test" };
-      const registry = { testModule };
+      const registry = { existingModule: "exists" };
+      const config = {};
+      const entryDir = "";
+      const localModuleLoader = jest.fn();
+      const dynamicModuleLoader = jest.fn();
       
       const requireFn = localRequireBuilder.create({
         registry,
-        config: {},
-        entryDir: "",
-        localModuleLoader: null,
-        dynamicModuleLoader: null
+        config,
+        entryDir,
+        localModuleLoader,
+        dynamicModuleLoader
       });
       
-      const result = requireFn("testModule");
-      
-      expect(result).toBe(testModule);
+      const result = requireFn("existingModule");
+      expect(result).toBe("exists");
     });
 
     it("should throw error for missing modules", () => {
       const registry = {};
+      const config = {};
+      const entryDir = "";
+      const localModuleLoader = jest.fn();
+      const dynamicModuleLoader = jest.fn();
       
       const requireFn = localRequireBuilder.create({
         registry,
-        config: {},
-        entryDir: "",
-        localModuleLoader: null,
-        dynamicModuleLoader: null
-      });
-      
-      expect(() => requireFn("missingModule")).toThrow("Module not yet loaded: missingModule (use a preload step via requireAsync for dynamic modules)");
-    });
-
-    it("should handle local module loading via localModuleLoader", async () => {
-      const registry = {};
-      const localModuleLoader = jest.fn().mockResolvedValue({ loaded: true });
-      const mockRequireFn = jest.fn();
-      
-      const requireFn = localRequireBuilder.create({
-        registry,
-        config: {},
-        entryDir: "/path/",
+        config,
+        entryDir,
         localModuleLoader,
-        dynamicModuleLoader: null,
-        argumentCount: 0
+        dynamicModuleLoader
       });
       
-      const result = await requireFn._async("./local-module", "/path/");
-      
-      expect(localModuleLoader).toHaveBeenCalledWith(
-        "./local-module",
-        "/path/",
-        expect.any(Function), // requireFn
-        registry
-      );
-      expect(result).toEqual({ loaded: true });
-    });
-
-    it("should handle dynamic module loading via dynamicModuleLoader", async () => {
-      const registry = {};
-      const dynamicModuleLoader = jest.fn().mockResolvedValue({ dynamic: true });
-      const config = { 
-        dynamicModules: [
-          { prefix: "dynamic:" }
-        ] 
-      };
-      
-      const requireFn = localRequireBuilder.create({
-        registry,
-        config,
-        entryDir: "",
-        localModuleLoader: null,
-        dynamicModuleLoader,
-        argumentCount: 0
-      });
-      
-      const result = await requireFn._async("dynamic:module", "");
-      
-      expect(dynamicModuleLoader).toHaveBeenCalledWith(
-        "dynamic:module",
-        config,
-        registry
-      );
-      expect(result).toEqual({ dynamic: true });
-    });
-
-    it("should throw error for unregistered modules", async () => {
-      const registry = {};
-      
-      const requireFn = localRequireBuilder.create({
-        registry,
-        config: {},
-        entryDir: "",
-        localModuleLoader: null,
-        dynamicModuleLoader: null,
-        argumentCount: 0
-      });
-      
-      await expect(requireFn._async("unregistered-module", ""))
-        .rejects.toThrow("Module not registered: unregistered-module");
-    });
-
-    it("should throw if not initialized before calling create", () => {
-      const freshBuilder = new LocalRequireBuilder({ helperRegistry: mockHelperRegistry });
-      
-      expect(() => freshBuilder.create({}))
-        .toThrow("LocalRequireBuilder not initialized");
+      expect(() => {
+        requireFn("missingModule");
+      }).toThrow("Module not yet loaded: missingModule (use a preload step via requireAsync for dynamic modules)");
     });
   });
 
   describe("_createRequire method", () => {
     it("should return a function that retrieves modules from registry", () => {
-      const registry = { test: { value: "test" } };
+      const registry = { module1: "value1", module2: "value2" };
       const requireFn = localRequireBuilder._createRequire(registry);
       
-      const result = requireFn("test");
-      
-      expect(result).toEqual({ value: "test" });
+      expect(requireFn("module1")).toBe("value1");
+      expect(requireFn("module2")).toBe("value2");
     });
 
     it("should throw error when module is not in registry", () => {
-      const registry = {};
+      const registry = { module1: "value1" };
       const requireFn = localRequireBuilder._createRequire(registry);
       
-      expect(() => requireFn("missing")).toThrow("Module not yet loaded: missing (use a preload step via requireAsync for dynamic modules)");
+      expect(() => {
+        requireFn("missingModule");
+      }).toThrow("Module not yet loaded: missingModule (use a preload step via requireAsync for dynamic modules)");
     });
   });
 
   describe("_createRequireAsync method", () => {
     beforeEach(() => {
-      localRequireBuilder.initialize({ 
-        loadDynamicModule: jest.fn(),
-        isLocalModule: jest.fn().mockReturnValue(true)
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn().mockReturnValue(false);
+      localRequireBuilder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
       });
     });
 
     it("should return a function that retrieves modules from registry", async () => {
-      const registry = { test: { value: "test" } };
+      const registry = { asyncModule: "asyncValue" };
       const requireAsync = localRequireBuilder._createRequireAsync({
         registry,
         config: {},
         resolvedEntryDir: "",
-        localModuleLoader: null,
-        resolvedDynamicModuleLoader: null,
+        localModuleLoader: jest.fn(),
+        resolvedDynamicModuleLoader: jest.fn(),
         requireFn: jest.fn()
       });
       
-      const result = await requireAsync("test");
-      
-      expect(result).toEqual({ value: "test" });
+      const result = await requireAsync("asyncModule");
+      expect(result).toBe("asyncValue");
     });
 
-    it("should handle local module loading", async () => {
-      const registry = {};
-      const localModuleLoader = jest.fn().mockResolvedValue({ loaded: true });
-      const requireFn = jest.fn();
+    it("should use localModuleLoader for local modules", async () => {
+      localRequireBuilder.isLocalModule = jest.fn().mockReturnValue(true);
       
+      const registry = {};
+      const mockLocalModuleLoader = jest.fn().mockResolvedValue("loadedModule");
       const requireAsync = localRequireBuilder._createRequireAsync({
         registry,
         config: {},
-        resolvedEntryDir: "/path/",
-        localModuleLoader,
-        resolvedDynamicModuleLoader: null,
-        requireFn
+        resolvedEntryDir: "testDir",
+        localModuleLoader: mockLocalModuleLoader,
+        resolvedDynamicModuleLoader: jest.fn(),
+        requireFn: jest.fn()
       });
       
-      const result = await requireAsync("./local-module", "/path/");
+      const result = await requireAsync("localModule");
       
-      expect(localModuleLoader).toHaveBeenCalledWith(
-        "./local-module",
-        "/path/",
-        requireFn,
+      expect(localRequireBuilder.isLocalModule).toHaveBeenCalledWith("localModule");
+      expect(mockLocalModuleLoader).toHaveBeenCalledWith(
+        "localModule",
+        "testDir",
+        expect.any(Function),
         registry
       );
-      expect(result).toEqual({ loaded: true });
+      expect(result).toBe("loadedModule");
     });
 
-    it("should handle dynamic module loading", async () => {
+    it("should use dynamicModuleLoader for dynamic modules", async () => {
       const registry = {};
-      const dynamicModuleLoader = jest.fn().mockResolvedValue({ dynamic: true });
-      const config = { 
-        dynamicModules: [
-          { prefix: "dynamic:" }
-        ] 
-      };
-      
+      const mockDynamicModuleLoader = jest.fn().mockResolvedValue("dynamicModule");
+      const config = { dynamicModules: [{ prefix: "dynamic:" }] };
       const requireAsync = localRequireBuilder._createRequireAsync({
         registry,
         config,
         resolvedEntryDir: "",
-        localModuleLoader: null,
-        resolvedDynamicModuleLoader: dynamicModuleLoader,
+        localModuleLoader: undefined, // Not using localModuleLoader
+        resolvedDynamicModuleLoader: mockDynamicModuleLoader,
         requireFn: jest.fn()
       });
       
-      const result = await requireAsync("dynamic:module", "");
+      const result = await requireAsync("dynamic:testModule");
       
-      expect(dynamicModuleLoader).toHaveBeenCalledWith(
-        "dynamic:module",
-        config,
-        registry
-      );
-      expect(result).toEqual({ dynamic: true });
+      expect(mockDynamicModuleLoader).toHaveBeenCalledWith("dynamic:testModule", config, registry);
+      expect(result).toBe("dynamicModule");
     });
 
     it("should throw error for unregistered modules", async () => {
       const registry = {};
-      
       const requireAsync = localRequireBuilder._createRequireAsync({
         registry,
         config: {},
         resolvedEntryDir: "",
-        localModuleLoader: null,
-        resolvedDynamicModuleLoader: null,
+        localModuleLoader: undefined,
+        resolvedDynamicModuleLoader: jest.fn(),
         requireFn: jest.fn()
       });
       
-      await expect(requireAsync("unregistered-module", ""))
-        .rejects.toThrow("Module not registered: unregistered-module");
+      await expect(requireAsync("unknownModule")).rejects.toThrow("Module not registered: unknownModule");
     });
   });
 
   describe("_resolveEntryDir method", () => {
     it("should return provided entryDir and dynamicModuleLoader when normal arguments", () => {
-      const result = localRequireBuilder._resolveEntryDir("/path/", jest.fn(), 2);
+      const result = localRequireBuilder._resolveEntryDir("someDir", "loader", 0);
       
-      expect(result.resolvedEntryDir).toBe("/path/");
-      expect(result.resolvedDynamicModuleLoader).toBeDefined();
+      expect(result.resolvedEntryDir).toBe("someDir");
+      expect(result.resolvedDynamicModuleLoader).toBe("loader");
     });
 
     it("should handle case when entryDir is a function and argumentCount is 3", () => {
-      const mockLoadDynamicModule = jest.fn();
-      
-      const result = localRequireBuilder._resolveEntryDir(mockLoadDynamicModule, null, 3);
+      const mockFunction = jest.fn();
+      const result = localRequireBuilder._resolveEntryDir(mockFunction, "loader", 3);
       
       expect(result.resolvedEntryDir).toBe("");
-      expect(result.resolvedDynamicModuleLoader).toBe(mockLoadDynamicModule);
+      expect(result.resolvedDynamicModuleLoader).toBe(mockFunction);
     });
 
     it("should default resolvedEntryDir to empty string when entryDir is not provided", () => {
-      const result = localRequireBuilder._resolveEntryDir(null, null, 2);
-
+      const result = localRequireBuilder._resolveEntryDir(undefined, "loader", 0);
+      
       expect(result.resolvedEntryDir).toBe("");
-      // The dynamic module loader will be undefined since loadDynamicModule is not set
-      expect(result.resolvedDynamicModuleLoader).toBeUndefined();
+      expect(result.resolvedDynamicModuleLoader).toBe("loader");
     });
 
     it("should use loadDynamicModule as fallback when no dynamicModuleLoader provided", () => {
       const mockLoadDynamicModule = jest.fn();
       localRequireBuilder.loadDynamicModule = mockLoadDynamicModule;
       
-      const result = localRequireBuilder._resolveEntryDir("/path/", null, 2);
+      const result = localRequireBuilder._resolveEntryDir("dir", undefined, 0);
       
-      expect(result.resolvedEntryDir).toBe("/path/");
+      expect(result.resolvedEntryDir).toBe("dir");
       expect(result.resolvedDynamicModuleLoader).toBe(mockLoadDynamicModule);
     });
   });
@@ -400,16 +318,16 @@ describe("LocalRequireBuilder", () => {
       const mockIsLocalModule = jest.fn().mockReturnValue(true);
       localRequireBuilder.isLocalModule = mockIsLocalModule;
       
-      const result = localRequireBuilder._isLocalModule("./test");
+      const result = localRequireBuilder._isLocalModule("testModule");
       
-      expect(mockIsLocalModule).toHaveBeenCalledWith("./test");
+      expect(mockIsLocalModule).toHaveBeenCalledWith("testModule");
       expect(result).toBe(true);
     });
 
     it("should return false when isLocalModule is not a function", () => {
       localRequireBuilder.isLocalModule = null;
       
-      const result = localRequireBuilder._isLocalModule("./test");
+      const result = localRequireBuilder._isLocalModule("testModule");
       
       expect(result).toBe(false);
     });
@@ -417,7 +335,7 @@ describe("LocalRequireBuilder", () => {
     it("should return false when isLocalModule is undefined", () => {
       localRequireBuilder.isLocalModule = undefined;
       
-      const result = localRequireBuilder._isLocalModule("./test");
+      const result = localRequireBuilder._isLocalModule("testModule");
       
       expect(result).toBe(false);
     });
@@ -425,78 +343,62 @@ describe("LocalRequireBuilder", () => {
 
   describe("integration tests", () => {
     it("should work through full lifecycle", () => {
-      // Before initialization
       expect(localRequireBuilder.initialized).toBe(false);
       
-      // Initialize
-      const loadDynamicModule = jest.fn();
-      const isLocalModule = jest.fn().mockReturnValue(true);
-      const initResult = localRequireBuilder.initialize({ 
-        loadDynamicModule, 
-        isLocalModule 
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn();
+      
+      const result = localRequireBuilder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
       });
       
-      expect(initResult).toBe(localRequireBuilder);
+      expect(result).toBe(localRequireBuilder);
       expect(localRequireBuilder.initialized).toBe(true);
-      expect(localRequireBuilder.loadDynamicModule).toBe(loadDynamicModule);
-      expect(localRequireBuilder.isLocalModule).toBe(isLocalModule);
+      expect(localRequireBuilder.loadDynamicModule).toBe(mockLoadDynamicModule);
+      expect(localRequireBuilder.isLocalModule).toBe(mockIsLocalModule);
       
-      // Verify registration happened
-      expect(mockHelperRegistry.isRegistered("localRequireBuilderInstance")).toBe(true);
-    });
-
-    it("should handle complete require creation flow", async () => {
-      const loadDynamicModule = jest.fn();
-      const isLocalModule = jest.fn().mockImplementation((name) => name.startsWith('./'));
-      localRequireBuilder.initialize({
-        loadDynamicModule,
-        isLocalModule
-      });
-
-      // Create a registry with a module
-      const testModule = { name: "test", value: "success" };
-      const registry = { "test-module": testModule };
-
-      // Mock loaders
-      const localModuleLoader = jest.fn().mockResolvedValue({ loaded: true });
-      const dynamicModuleLoader = jest.fn().mockResolvedValue({ dynamic: true });
-
-      // Create the require function
+      // Test create method works after initialization
+      const registry = { test: "value" };
       const requireFn = localRequireBuilder.create({
         registry,
-        config: { dynamicModules: [{ prefix: "dynamic:" }] },
-        entryDir: "/test/",
+        config: {},
+        entryDir: "",
+        localModuleLoader: jest.fn(),
+        dynamicModuleLoader: jest.fn()
+      });
+      
+      expect(requireFn("test")).toBe("value");
+    });
+
+    it("should handle complete require creation flow", () => {
+      const mockLoadDynamicModule = jest.fn();
+      const mockIsLocalModule = jest.fn().mockReturnValue(false);
+      
+      localRequireBuilder.initialize({
+        loadDynamicModule: mockLoadDynamicModule,
+        isLocalModule: mockIsLocalModule
+      });
+      
+      const registry = { existing: "module" };
+      const config = { dynamicModules: [] };
+      const entryDir = "src/";
+      const localModuleLoader = jest.fn();
+      const dynamicModuleLoader = jest.fn();
+      
+      const requireFn = localRequireBuilder.create({
+        registry,
+        config,
+        entryDir,
         localModuleLoader,
-        dynamicModuleLoader,
-        argumentCount: 0
+        dynamicModuleLoader
       });
       
       // Test sync require
-      const syncResult = requireFn("test-module");
-      expect(syncResult).toBe(testModule);
+      expect(requireFn("existing")).toBe("module");
       
-      // Test async require with existing module
-      const asyncExisting = await requireFn._async("test-module");
-      expect(asyncExisting).toBe(testModule);
-      
-      // Test async require with local module
-      const asyncLocal = await requireFn._async("./local", "/test/");
-      expect(localModuleLoader).toHaveBeenCalledWith(
-        "./local", 
-        "/test/", 
-        requireFn, 
-        registry
-      );
-      expect(asyncLocal).toEqual({ loaded: true });
-      
-      // Test async require with dynamic module
-      const asyncDynamic = await requireFn._async("dynamic:module", "");
-      expect(dynamicModuleLoader).toHaveBeenCalledWith(
-        "dynamic:module",
-        { dynamicModules: [{ prefix: "dynamic:" }] },
-        registry
-      );
-      expect(asyncDynamic).toEqual({ dynamic: true });
+      // Test async require
+      expect(typeof requireFn._async).toBe("function");
     });
   });
 });

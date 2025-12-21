@@ -77,14 +77,9 @@ class FactoryRegistry {
       }
     }
 
-    // For BaseFactory subclasses, call the factory function (which returns create function)
-    // For other factories, create an instance and call its create method if it exists
-    if (typeof entry.factory === 'function') {
-      return entry.factory(dependencies);
-    } else {
-      const factoryInstance = new entry.factory();
-      return factoryInstance.create ? factoryInstance.create(dependencies) : new factoryInstance(dependencies);
-    }
+    // For factory constructors (like BaseFactory subclasses), create an instance and call its create method if it exists
+    const factoryInstance = new entry.factory(dependencies);
+    return factoryInstance.create ? factoryInstance.create(dependencies) : factoryInstance;
   }
 
   /**

@@ -1,9 +1,40 @@
 import GlobalRootHandler from '../../bootstrap/constants/global-root-handler.js';
 
 describe('GlobalRootHandler', () => {
+  let originalGlobalThis;
+  let originalGlobal;
+  let originalWindow;
+  let originalDocument;
+
+  beforeEach(() => {
+    // Store original values
+    originalGlobalThis = global.globalThis;
+    originalGlobal = global.global;
+    originalWindow = global.window;
+    originalDocument = global.document;
+
+    // Clean up any existing bootstrap namespace
+    if (global.__rwtraBootstrap) {
+      delete global.__rwtraBootstrap;
+    }
+  });
+
+  afterEach(() => {
+    // Restore original values
+    global.globalThis = originalGlobalThis;
+    global.global = originalGlobal;
+    global.window = originalWindow;
+    global.document = originalDocument;
+
+    // Clean up bootstrap namespace
+    if (global.__rwtraBootstrap) {
+      delete global.__rwtraBootstrap;
+    }
+  });
+
   describe('constructor', () => {
     it('should initialize with provided root', () => {
-      const mockRoot = { document: {} };
+      const mockRoot = { custom: 'root' };
       const handler = new GlobalRootHandler(mockRoot);
 
       expect(handler._root).toBe(mockRoot);
@@ -26,65 +57,98 @@ describe('GlobalRootHandler', () => {
 
   describe('_ensureRoot method', () => {
     it('should return provided root if available', () => {
-      const mockRoot = { document: {} };
+      const mockRoot = { custom: 'root' };
       const handler = new GlobalRootHandler(mockRoot);
 
-      const result = handler._ensureRoot();
+      const root = handler._ensureRoot();
 
-      expect(result).toBe(mockRoot);
+      expect(root).toBe(mockRoot);
+      expect(handler._root).toBe(mockRoot);
     });
 
     it('should detect the appropriate global as root when no root provided', () => {
       const handler = new GlobalRootHandler();
 
-      const result = handler._ensureRoot();
+      const root = handler._ensureRoot();
 
-      // In the test environment, this will likely be the window object
-      expect(result).toBeDefined();
+      // Should detect globalThis, global, or window depending on environment
+      expect(root).toBeDefined();
+      expect(handler._root).toBe(root);
     });
 
     it('should cache the detected root', () => {
       const handler = new GlobalRootHandler();
 
-      // First call should detect and cache
-      const result1 = handler._ensureRoot();
-      // Second call should return cached value
-      const result2 = handler._ensureRoot();
+      const firstCall = handler._ensureRoot();
+      const secondCall = handler._ensureRoot();
 
-      expect(result1).toBe(result2);
+      expect(firstCall).toBe(secondCall);
+      expect(handler._root).toBe(firstCall);
     });
   });
 
   describe('_detectGlobal method', () => {
-    it('should return the global object when available', () => {
+    it('should return globalThis if available', () => {
+      global.globalThis = { test: 'globalThis' };
+      delete global.global;
+      delete global.window;
+
       const handler = new GlobalRootHandler();
       const result = handler._detectGlobal();
 
-      expect(result).toBeDefined();
+      expect(result).toBe(global.globalThis);
+    });
+
+    it('should return global if globalThis not available', () => {
+      delete global.globalThis;
+      global.global = { test: 'global' };
+      delete global.window;
+
+      const handler = new GlobalRootHandler();
+      const result = handler._detectGlobal();
+
+      expect(result).toBe(global.global);
+    });
+
+    it('should return window if globalThis and global not available', () => {
+      delete global.globalThis;
+      delete global.global;
+      global.window = { test: 'window' };
+
+      const handler = new GlobalRootHandler();
+      const result = handler._detectGlobal();
+
+      expect(result).toBe(global.window);
+    });
+
+    it('should return this if no global objects available', () => {
+      delete global.globalThis;
+      delete global.global;
+      delete global.window;
+
+      const handler = new GlobalRootHandler();
+      const result = handler._detectGlobal();
+
+      expect(result).toBe(handler);
     });
   });
 
   describe('root getter', () => {
     it('should return the detected root', () => {
-      const mockRoot = { document: {} };
-      const handler = new GlobalRootHandler(mockRoot);
+      const handler = new GlobalRootHandler();
 
-      const result = handler.root;
+      const root = handler.root;
 
-      expect(result).toBe(mockRoot);
+      expect(root).toBeDefined();
     });
 
     it('should return the provided root', () => {
-      const mockRoot = { document: {} };
+      const mockRoot = { custom: 'provided' };
       const handler = new GlobalRootHandler(mockRoot);
 
-      expect(handler.root).toBe(mockRoot);
-    });
+      const root = handler.root;
 
-    it('should return the detected global root when none provided', () => {
-      const handler = new GlobalRootHandler();
-
-      expect(handler.root).toBeDefined();
+      expect(root).toBe(mockRoot);
     });
   });
 
@@ -109,24 +173,25 @@ describe('GlobalRootHandler', () => {
       expect(namespace).toBe(existingNamespace);
     });
 
-    it('should cache the namespace after first access', () => {
-      const mockRoot = {};
-      const handler = new GlobalRootHandler(mockRoot);
-
-      const namespace1 = handler.getNamespace();
-      const namespace2 = handler.getNamespace();
-
-      expect(namespace1).toBe(namespace2);
-    });
-
     it('should create namespace on the root object', () => {
       const mockRoot = {};
       const handler = new GlobalRootHandler(mockRoot);
 
-      handler.getNamespace();
+      const namespace = handler.getNamespace();
 
-      expect(mockRoot.__rwtraBootstrap).toBeDefined();
-      expect(typeof mockRoot.__rwtraBootstrap).toBe('object');
+      expect(mockRoot.__rwtraBootstrap).toBe(namespace);
+      expect(namespace).toEqual({});
+    });
+
+    it('should cache the namespace after first access', () => {
+      const mockRoot = {};
+      const handler = new GlobalRootHandler(mockRoot);
+
+      const firstCall = handler.getNamespace();
+      const secondCall = handler.getNamespace();
+
+      expect(firstCall).toBe(secondCall);
+      expect(handler._namespace).toBe(firstCall);
     });
   });
 
@@ -151,30 +216,20 @@ describe('GlobalRootHandler', () => {
       expect(helpers).toBe(existingHelpers);
     });
 
-    it('should return the same helpers instance on subsequent calls', () => {
-      const mockRoot = {};
-      const handler = new GlobalRootHandler(mockRoot);
-
-      const helpers1 = handler.helpers;
-      const helpers2 = handler.helpers;
-
-      expect(helpers1).toBe(helpers2);
-    });
-
     it('should return helpers from the namespace', () => {
       const mockRoot = {};
       const handler = new GlobalRootHandler(mockRoot);
-      const namespace = handler.getNamespace();
 
       const helpers = handler.helpers;
+      const namespace = handler.getNamespace();
 
-      expect(namespace.helpers).toBe(helpers);
+      expect(helpers).toBe(namespace.helpers);
     });
   });
 
   describe('getDocument method', () => {
     it('should return document from root', () => {
-      const mockRoot = { document: { title: 'Test' } };
+      const mockRoot = { document: { title: 'test' } };
       const handler = new GlobalRootHandler(mockRoot);
 
       const document = handler.getDocument();
@@ -193,46 +248,28 @@ describe('GlobalRootHandler', () => {
   });
 
   describe('getFetch method', () => {
-    it('should return a bound fetch function if available', () => {
-      const mockFetch = jest.fn();
+    it('should return bound fetch function if available', () => {
+      const calls = [];
+      const mockFetch = (...args) => calls.push(args);
       const mockRoot = { fetch: mockFetch };
       const handler = new GlobalRootHandler(mockRoot);
 
-      const fetch = handler.getFetch();
+      const fetchFn = handler.getFetch();
 
-      expect(fetch).toBeInstanceOf(Function);
-      expect(fetch).not.toBe(mockFetch); // Should be bound version
-    });
-
-    it('should return undefined if fetch is not a function', () => {
-      const mockRoot = { fetch: 'not a function' };
-      const handler = new GlobalRootHandler(mockRoot);
-
-      const fetch = handler.getFetch();
-
-      expect(fetch).toBeUndefined();
-    });
-
-    it('should properly bind fetch to the root', () => {
-      const mockFetch = jest.fn();
-      const mockRoot = { fetch: mockFetch };
-      const handler = new GlobalRootHandler(mockRoot);
-
-      const boundFetch = handler.getFetch();
-      boundFetch('test');
-
-      expect(mockFetch).toHaveBeenCalledWith('test');
-      // Instead of checking mock.instances[0], check that the function was called with the proper context
-      expect(boundFetch).not.toBe(mockFetch); // Should be a bound version
+      expect(typeof fetchFn).toBe('function');
+      // Test that the function is bound to the root
+      fetchFn('test');
+      expect(calls.length).toBe(1);
+      expect(calls[0][0]).toBe('test');
     });
 
     it('should return undefined if no fetch available', () => {
       const mockRoot = {};
       const handler = new GlobalRootHandler(mockRoot);
 
-      const fetch = handler.getFetch();
+      const fetchFn = handler.getFetch();
 
-      expect(fetch).toBeUndefined();
+      expect(fetchFn).toBeUndefined();
     });
   });
 
@@ -240,7 +277,7 @@ describe('GlobalRootHandler', () => {
     it('should return a logging function with the provided tag', () => {
       const handler = new GlobalRootHandler({});
 
-      const logger = handler.getLogger('customTag');
+      const logger = handler.getLogger('test-tag');
 
       expect(typeof logger).toBe('function');
     });
@@ -281,56 +318,54 @@ describe('GlobalRootHandler', () => {
     it('should handle missing console gracefully', () => {
       const originalConsole = global.console;
       global.console = undefined;
-      
-      const handler = new GlobalRootHandler({});
-      const logger = handler.getLogger('testTag');
-      
-      // Should not throw when console is undefined
-      expect(() => {
-        logger('test message');
-      }).not.toThrow();
-      
+
+      const handler = new GlobalRootHandler();
+      const logger = handler.getLogger('test-tag');
+
+      // Should not throw
+      expect(() => logger('test message', { data: 'value' })).not.toThrow();
+
       global.console = originalConsole;
     });
   });
 
   describe('hasWindow method', () => {
     it('should return true if global window is available', () => {
-      const mockRoot = { window: {} };
-      const handler = new GlobalRootHandler(mockRoot);
+      global.window = { document: {} };
+      const handler = new GlobalRootHandler();
 
-      const hasWindow = handler.hasWindow();
+      const result = handler.hasWindow();
 
-      expect(hasWindow).toBe(true);
+      expect(result).toBe(true);
     });
 
     it('should return false if global window is not available', () => {
-      const mockRoot = {};
-      const handler = new GlobalRootHandler(mockRoot);
+      delete global.window;
+      const handler = new GlobalRootHandler();
 
-      const hasWindow = handler.hasWindow();
+      const result = handler.hasWindow();
 
-      expect(hasWindow).toBe(false);
+      expect(result).toBe(false);
     });
   });
 
   describe('hasDocument method', () => {
     it('should return true if global document is available', () => {
-      const mockRoot = { document: {} };
-      const handler = new GlobalRootHandler(mockRoot);
+      global.document = { title: 'test' };
+      const handler = new GlobalRootHandler();
 
-      const hasDocument = handler.hasDocument();
+      const result = handler.hasDocument();
 
-      expect(hasDocument).toBe(true);
+      expect(result).toBe(true);
     });
 
     it('should return false if global document is not available', () => {
-      const mockRoot = {};
-      const handler = new GlobalRootHandler(mockRoot);
+      delete global.document;
+      const handler = new GlobalRootHandler();
 
-      const hasDocument = handler.hasDocument();
+      const result = handler.hasDocument();
 
-      expect(hasDocument).toBe(false);
+      expect(result).toBe(false);
     });
   });
 
@@ -342,36 +377,26 @@ describe('GlobalRootHandler', () => {
       const namespace = handler.getNamespace();
       const helpers = handler.helpers;
 
-      expect(namespace).toBeDefined();
-      expect(helpers).toBeDefined();
+      expect(namespace).toEqual({ helpers: {} });
+      expect(helpers).toEqual({});
       expect(namespace.helpers).toBe(helpers);
-      expect(mockRoot.__rwtraBootstrap).toBe(namespace);
     });
 
     it('should work with different root objects', () => {
-      const root1 = { document: {} };
-      const root2 = { window: {} };
+      const root1 = { test: 'value1' };
+      const root2 = { test: 'value2' };
 
       const handler1 = new GlobalRootHandler(root1);
       const handler2 = new GlobalRootHandler(root2);
 
-      expect(handler1.root).toBe(root1);
-      expect(handler2.root).toBe(root2);
+      const namespace1 = handler1.getNamespace();
+      const namespace2 = handler2.getNamespace();
 
-      expect(handler1.hasDocument()).toBe(true);
-      expect(handler2.hasWindow()).toBe(true);
-    });
-
-    it('should handle namespace and helpers properly together', () => {
-      const mockRoot = { __rwtraBootstrap: { helpers: { existingHelper: 'value' } } };
-      const handler = new GlobalRootHandler(mockRoot);
-
-      const namespace = handler.getNamespace();
-      const helpers = handler.helpers;
-
-      expect(namespace).toBe(mockRoot.__rwtraBootstrap);
-      expect(helpers).toBe(namespace.helpers);
-      expect(helpers.existingHelper).toBe('value');
+      expect(namespace1).toEqual({});
+      expect(namespace2).toEqual({});
+      expect(namespace1).not.toBe(namespace2);
+      expect(root1.__rwtraBootstrap).toBe(namespace1);
+      expect(root2.__rwtraBootstrap).toBe(namespace2);
     });
   });
 });

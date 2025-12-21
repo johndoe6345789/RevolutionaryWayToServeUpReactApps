@@ -12,7 +12,7 @@ describe("bootstrap/registries/service-registry-instance.js", () => {
   it('reuses the same registry between imports and supports reset', () => {
     const registry = require(instancePath);
 
-    registry.register("router", { navigate: () => "/home" });
+    registry.register("router", { navigate: () => "/home" }, {}, []);
 
     const secondImport = require(instancePath);
     expect(secondImport.getService("router")).toBeDefined();

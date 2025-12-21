@@ -1,4 +1,4 @@
-const BaseBootstrapApp = require("../../../bootstrap/base-bootstrap-app.js");
+const BaseBootstrapApp = require("../../../bootstrap/interfaces/base-bootstrap-app.js");
 
 describe("bootstrap/base-bootstrap-app.js", () => {
   it("detects browser-like wrappers by examining document presence", () => {

@@ -1,4 +1,4 @@
-const BaseFactory = require('../base-factory.js');
+const BaseFactory = require('../../interfaces/base-factory.js');
 const BaseBootstrapApp = require('../../interfaces/base-bootstrap-app.js');
 
 /**

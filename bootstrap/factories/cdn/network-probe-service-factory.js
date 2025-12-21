@@ -1,5 +1,5 @@
-const BaseFactory = require("../registries/base-factory.js");
-const NetworkProbeService = require("../services/cdn/network/network-probe-service.js");
+const BaseFactory = require('../../interfaces/base-factory.js');
+const NetworkProbeService = require("../../../services/cdn/network/network-probe-service.js");
 
 /**
  * Factory for creating NetworkProbeService instances.

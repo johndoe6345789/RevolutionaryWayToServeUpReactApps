@@ -1,5 +1,5 @@
-const BaseFactory = require('../base-factory.js');
-const BaseEntryPoint = require('../../entrypoints/base-entrypoint.js');
+const BaseFactory = require('../../interfaces/base-factory.js');
+const BaseEntryPoint = require('../../interfaces/base-entrypoint.js');
 
 /**
  * Factory for creating BaseEntryPoint instances.

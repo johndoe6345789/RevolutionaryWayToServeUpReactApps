@@ -2,14 +2,16 @@ import BaseBootstrapApp from '../../bootstrap/base-bootstrap-app.js';
 import GlobalRootHandler from '../../bootstrap/constants/global-root-handler.js';
 
 describe('BaseBootstrapApp', () => {
-  let originalGlobal;
+  let originalModule;
+  let originalRequire;
   let originalWindow;
   let originalGlobalThis;
   let originalDocument;
 
   beforeEach(() => {
     // Store original values
-    originalGlobal = global.global;
+    originalModule = global.module;
+    originalRequire = global.require;
     originalWindow = global.window;
     originalGlobalThis = global.globalThis;
     originalDocument = global.document;
@@ -20,7 +22,8 @@ describe('BaseBootstrapApp', () => {
 
   afterEach(() => {
     // Restore original values
-    global.global = originalGlobal;
+    global.module = originalModule;
+    global.require = originalRequire;
     global.window = originalWindow;
     global.globalThis = originalGlobalThis;
     global.document = originalDocument;
@@ -141,7 +144,7 @@ describe('BaseBootstrapApp', () => {
       global.module = { exports: {} };
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
-      
+
       // Mock require function for this test
       const originalRequire = global.require;
       const mockHelper = { name: 'testHelper' };

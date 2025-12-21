@@ -1,4 +1,4 @@
-const BaseController = require("../../../../bootstrap/controllers/base-controller.js");
+const BaseController = require("../../../../bootstrap/interfaces/base-controller.js");
 
 describe("bootstrap/controllers/base-controller.js", () => {
   class TestController extends BaseController {
