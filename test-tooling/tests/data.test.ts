@@ -1,7 +1,7 @@
 import { FEATURED_GAMES, SYSTEM_TAGS } from "../../src/data";
 
 describe("shared data", () => {
-  it("exports a rich featured list", () => {
+  it("exposes featured games with core fields and genres", () => {
     expect(FEATURED_GAMES.length).toBeGreaterThanOrEqual(1);
     for (const game of FEATURED_GAMES) {
       expect(game.id).toBeTruthy();
@@ -14,7 +14,7 @@ describe("shared data", () => {
     }
   });
 
-  it("documents the system tags that the UI advertises", () => {
+  it("includes arcade and SNES tags used by the UI filter chips", () => {
     expect(SYSTEM_TAGS).toContain("Arcade");
     expect(SYSTEM_TAGS).toContain("SNES");
   });
