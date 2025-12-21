@@ -89,6 +89,10 @@ jest.mock("../../bootstrap/services/service-registry-instance.js", () => {
 });
 
 describe("BootstrapApp", () => {
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+  });
   let bootstrapApp: any;
   let originalConsoleError;
 

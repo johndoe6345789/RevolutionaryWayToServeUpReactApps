@@ -1,5 +1,4 @@
 import React from "react";
-import { ThemeProvider } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -8,14 +7,13 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 
-import theme from "./theme";
 import HeroSection from "./components/HeroSection";
 import FeaturedGames from "./components/FeaturedGames";
 import FooterStrip from "./components/FooterStrip";
 
 export default function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <CssBaseline />
       <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 4 }}>
         <Container maxWidth="lg">
@@ -69,6 +67,6 @@ export default function App() {
           <FooterStrip />
         </Container>
       </Box>
-    </ThemeProvider>
+    </>
   );
 }

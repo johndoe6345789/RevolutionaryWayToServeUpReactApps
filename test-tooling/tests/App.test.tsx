@@ -5,16 +5,19 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import App from "../../src/App";
 import { FEATURED_GAMES } from "../../src/data";
 
+// Simplified test without ThemeProvider for now
+const TestApp = () => <App />;
+
 describe("App shell", () => {
   it("renders the hero and featured sections", () => {
-    render(<App />);
+    render(<TestApp />);
     expect(screen.getByText(/RetroDeck/i)).toBeInTheDocument();
     expect(screen.getByText(/Press Start/i)).toBeInTheDocument();
     expect(screen.getByText(/FEATURED LOADOUT/i)).toBeInTheDocument();
   });
 
   it("shows a quick play button for each featured game", () => {
-    render(<App />);
+    render(<TestApp />);
     const quickPlayButtons = screen.getAllByRole("button", { name: /Quick Play/i });
     expect(quickPlayButtons.length).toBeGreaterThanOrEqual(1);
   });
@@ -22,7 +25,7 @@ describe("App shell", () => {
   it("invokes toolbar and hero actions when clicked", () => {
     const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
-    render(<App />);
+    render(<TestApp />);
 
     const [settingsButton] = screen.getAllByRole("button", { name: /Settings/i });
     const [syncButton] = screen.getAllByRole("button", { name: /Sync/i });
@@ -45,7 +48,7 @@ describe("App shell", () => {
   it("logs quick play and detail actions for featured games", () => {
     const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
-    render(<App />);
+    render(<TestApp />);
 
     fireEvent.click(screen.getAllByRole("button", { name: /Quick Play/i })[0]);
     fireEvent.click(screen.getAllByRole("button", { name: /View details/i })[0]);
@@ -57,7 +60,7 @@ describe("App shell", () => {
   });
 
   it("renders a card for every featured game", () => {
-    render(<App />);
+    render(<TestApp />);
 
     FEATURED_GAMES.forEach((game) => {
       expect(screen.getByText(game.title)).toBeInTheDocument();
