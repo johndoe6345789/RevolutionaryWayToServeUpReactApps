@@ -1,7 +1,8 @@
 const BaseService = require("../base-service.js");
 const LocalLoaderConfig = require("../../configs/local-loader.js");
-
 const LocalDependencyLoaderConfig = require("../../configs/local-dependency-loader.js");
+const helperRegistry = require("../../helpers/helper-registry-instance.js");
+const LocalHelpers = require("../../helpers/local-helpers.js");
 
 /**
  * Coordinates the initialization steps that stitch the local loader helpers together.
@@ -21,6 +22,7 @@ class LocalLoaderInitializer {
   run() {
     this.service.overrides = this.config.dependencies || {};
     this._validateRegistry();
+    this._registerLocalHelpers();
     this._initRenderer();
     this._loadDependencies();
     this._wireLogging();
@@ -38,6 +40,17 @@ class LocalLoaderInitializer {
     if (!this.service.serviceRegistry) {
       throw new Error("ServiceRegistry required for LocalLoaderService");
     }
+  }
+
+  /**
+   * Performs the internal register local helpers step for Local Loader Initializer.
+   */
+  _registerLocalHelpers() {
+    new LocalHelpers(
+      new LocalHelpers.Config({
+        helperRegistry: LocalLoaderService.helperRegistry,
+      })
+    ).initialize();
   }
 
   /**
@@ -144,7 +157,7 @@ class LocalLoaderInitializer {
  * Combines sass/tsx/local helpers into the shared local loader surface.
  */
 class LocalLoaderService extends BaseService {
-  static helperRegistry = require("./helpers");
+  static helperRegistry = helperRegistry;
   static dependencyLoader = require("./local-dependency-loader.js");
 
   constructor(config = new LocalLoaderConfig()) { super(config); }

@@ -1,6 +1,6 @@
-const GlobalRootHandler = require("../constants/global-root-handler.js");
+const GlobalRootHandler = require("../../constants/global-root-handler.js");
 const { scriptManifestUrl: SCRIPT_MANIFEST_URL } =
-  require("../constants/common.js");
+  require("../../constants/common.js");
 
 /**
  * Configures where the script manifest is loaded from and how scripts are injected.
