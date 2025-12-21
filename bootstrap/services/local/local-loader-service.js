@@ -17,19 +17,56 @@ class LocalLoaderInitializer {
   }
 
   /**
+   * Validates that required dependencies are available before initialization.
+   * @throws Error if validation fails
+   */
+  validateDependencies() {
+    this._validateRegistry();
+  }
+
+  /**
+   * Performs any cleanup or finalization steps after initialization.
+   */
+  finalize() {
+    // No cleanup needed for this initializer
+  }
+
+  /**
+   * Gets the initialization status.
+   * @returns True if initialization is complete, false otherwise
+   */
+  isInitialized() {
+    return this.service && this.service.initialized;
+  }
+
+  /**
+   * Gets any errors that occurred during initialization.
+   * @returns Array of error messages or empty array if no errors
+   */
+  getErrors() {
+    return this._errors || [];
+  }
+
+  /**
    * Executes the Local Loader Initializer run lifecycle.
    */
   run() {
-    this.service.overrides = this.config.dependencies || {};
-    this._validateRegistry();
-    this._registerLocalHelpers();
-    this._initRenderer();
-    this._loadDependencies();
-    this._wireLogging();
-    this._wireCompilers();
-    this._wireLocalHelpers();
-    this._setupRequireBuilder();
-    this._registerService();
+    this._errors = [];
+    try {
+      this.service.overrides = this.config.dependencies || {};
+      this._validateRegistry();
+      this._registerLocalHelpers();
+      this._initRenderer();
+      this._loadDependencies();
+      this._wireLogging();
+      this._wireCompilers();
+      this._wireLocalHelpers();
+      this._setupRequireBuilder();
+      this._registerService();
+    } catch (error) {
+      this._errors.push(error.message);
+      throw error;
+    }
   }
 
   /**

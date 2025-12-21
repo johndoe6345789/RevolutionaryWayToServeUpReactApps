@@ -15,6 +15,36 @@ class ConfigJsonParser {
   }
 
   /**
+   * Validates that the configuration is properly set up.
+   * @throws Error if configuration is invalid
+   */
+  validate() {
+    if (typeof this.configJson !== 'object' || this.configJson === null) {
+      throw new Error('configJson must be a valid object');
+    }
+  }
+
+  /**
+   * Merges additional configuration properties into this instance.
+   * @param additional - Additional configuration to merge
+   * @returns A new configuration instance with merged properties
+   */
+  merge(additional) {
+    return new ConfigJsonParser({
+      ...this.configJson,
+      ...additional,
+    });
+  }
+
+  /**
+   * Serializes the configuration to a plain object.
+   * @returns The configuration as a plain object
+   */
+  toObject() {
+    return this.configJson;
+  }
+
+  /**
    * Creates NetworkProviderServiceConfig from config.json providers section.
    */
   createNetworkProviderConfig() {

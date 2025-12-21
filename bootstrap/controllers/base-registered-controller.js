@@ -1,7 +1,7 @@
 const ControllerRegistry = require("../registries/controller-registry.js");
 
 /**
- * Provides a lightweight lifecycle guard shared by bootstrap controllers with registry integration.
+ * Provides a base class for controllers with registry integration.
  */
 class BaseRegisteredController {
   /**
@@ -61,6 +61,22 @@ class BaseRegisteredController {
     if (!this.initialized) {
       throw new Error(`${this.constructor.name} not initialized`);
     }
+  }
+
+  /**
+   * Gets the initialization status.
+   * @returns True if initialized, false otherwise
+   */
+  get isInitialized() {
+    return this.initialized;
+  }
+
+  /**
+   * Gets the configuration object.
+   * @returns The configuration object
+   */
+  get configuration() {
+    return this.config;
   }
 }
 
