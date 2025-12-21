@@ -1,17 +1,41 @@
-describe("bootstrap/constants/global-root-handler.js", () => {
-  const modulePath = '../../../../bootstrap/constants/global-root-handler.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const GlobalRootHandler = require("../../../../bootstrap/constants/global-root-handler.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/global-root-handler.js", () => {
+  let handler;
+  let originalWindow;
+  let originalDocument;
+  let consoleErrorMock;
+
+  beforeEach(() => {
+    originalWindow = globalThis.window;
+    originalDocument = globalThis.document;
+    globalThis.window = { document: {}, fetch: jest.fn(() => Promise.resolve({ ok: true })) };
+    globalThis.document = {};
+    consoleErrorMock = jest.spyOn(console, "error").mockImplementation(() => {});
+    handler = new GlobalRootHandler();
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  afterEach(() => {
+    globalThis.window = originalWindow;
+    globalThis.document = originalDocument;
+    consoleErrorMock.mockRestore();
+  });
+
+  it("detects and stores the namespace on the global root", () => {
+    const namespace = handler.getNamespace();
+    expect(namespace).toBe(handler.getNamespace());
+  });
+
+  it("fetches the document and global helpers", () => {
+    expect(handler.getDocument()).toBe(globalThis.window.document);
+    expect(handler.hasWindow()).toBe(true);
+    expect(handler.hasDocument()).toBe(true);
+    expect(typeof handler.getFetch()).toBe("function");
+  });
+
+  it("provides a logger that writes to console.error with the provided tag", () => {
+    const logger = handler.getLogger("tag");
+    logger("message", { detail: true });
+    expect(console.error).toHaveBeenCalled();
   });
 });

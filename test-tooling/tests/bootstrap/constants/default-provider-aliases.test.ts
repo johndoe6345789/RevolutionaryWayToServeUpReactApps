@@ -1,17 +1,25 @@
-describe("bootstrap/constants/default-provider-aliases.js", () => {
-  const modulePath = '../../../../bootstrap/constants/default-provider-aliases.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const getDefaultProviderAliases = require("../../../../bootstrap/constants/default-provider-aliases.js");
+const config = require("../../../../config.json");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/default-provider-aliases.js", () => {
+  it("reads aliases from config when running in CommonJS mode", () => {
+    const aliases = getDefaultProviderAliases(null, true);
+    expect(aliases).toEqual(config.providers.aliases);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("falls back to the global root config when provided", () => {
+    const globalRoot = {
+      __rwtraConfig: {
+        providers: {
+          aliases: { custom: "https://example.com/" },
+        },
+      },
+    };
+    const aliases = getDefaultProviderAliases(globalRoot, false);
+    expect(aliases.custom).toBe("https://example.com/");
+  });
+
+  it("returns an empty object when no aliases are configured", () => {
+    expect(getDefaultProviderAliases({}, false)).toEqual({});
   });
 });

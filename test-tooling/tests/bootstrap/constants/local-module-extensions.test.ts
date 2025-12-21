@@ -1,17 +1,13 @@
-describe("bootstrap/constants/local-module-extensions.js", () => {
-  const modulePath = '../../../../bootstrap/constants/local-module-extensions.js';
-  const expectedType = 'object';
-  const expectArray = true;
-  const expectEsModule = false;
+const localModuleExtensions = require("../../../../bootstrap/constants/local-module-extensions.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/local-module-extensions.js", () => {
+  it("publishes the supported source extensions", () => {
+    expect(Array.isArray(localModuleExtensions)).toBe(true);
+    expect(localModuleExtensions).toContain(".tsx");
+    expect(localModuleExtensions).toContain(".js");
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("includes an empty string to allow bare require/dir matches", () => {
+    expect(localModuleExtensions[0]).toBe("");
   });
 });

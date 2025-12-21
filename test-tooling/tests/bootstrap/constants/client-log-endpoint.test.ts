@@ -1,17 +1,11 @@
-describe("bootstrap/constants/client-log-endpoint.js", () => {
-  const modulePath = '../../../../bootstrap/constants/client-log-endpoint.js';
-  const expectedType = 'string';
-  const expectArray = false;
-  const expectEsModule = false;
+const clientLogEndpoint = require("../../../../bootstrap/constants/client-log-endpoint.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/client-log-endpoint.js", () => {
+  it("exports the configured client log endpoint path", () => {
+    expect(clientLogEndpoint).toBe("/__client-log");
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("produces a string that can be concatenated with query data", () => {
+    expect(`${clientLogEndpoint}?event=bootstrap`).toContain("bootstrap");
   });
 });

@@ -1,17 +1,11 @@
-describe("bootstrap/constants/proxy-mode-proxy.js", () => {
-  const modulePath = '../../../../bootstrap/constants/proxy-mode-proxy.js';
-  const expectedType = 'string';
-  const expectArray = false;
-  const expectEsModule = false;
+const proxyModeProxy = require("../../../../bootstrap/constants/proxy-mode-proxy.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/proxy-mode-proxy.js", () => {
+  it("exports the proxy-only proxy mode token", () => {
+    expect(proxyModeProxy).toBe("proxy");
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("does not change when normalized to lower case", () => {
+    expect(proxyModeProxy).toBe(proxyModeProxy.toLowerCase());
   });
 });

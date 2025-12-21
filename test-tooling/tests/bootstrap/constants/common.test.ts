@@ -1,17 +1,29 @@
-describe("bootstrap/constants/common.js", () => {
-  const modulePath = '../../../../bootstrap/constants/common.js';
-  const expectedType = 'object';
-  const expectArray = false;
-  const expectEsModule = false;
+const common = require("../../../../bootstrap/constants/common.js");
+const ciLogQueryParam = require("../../../../bootstrap/constants/ci-log-query-param.js");
+const clientLogEndpoint = require("../../../../bootstrap/constants/client-log-endpoint.js");
+const defaultFallbackProviders = require("../../../../bootstrap/constants/default-fallback-providers.js");
+const getDefaultProviderAliases = require("../../../../bootstrap/constants/default-provider-aliases.js");
+const proxyModeAuto = require("../../../../bootstrap/constants/proxy-mode-auto.js");
+const proxyModeDirect = require("../../../../bootstrap/constants/proxy-mode-direct.js");
+const proxyModeProxy = require("../../../../bootstrap/constants/proxy-mode-proxy.js");
+const scriptManifestUrl = require("../../../../bootstrap/constants/script-manifest-url.js");
+const localModuleExtensions = require("../../../../bootstrap/constants/local-module-extensions.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/common.js", () => {
+  it("re-exports the shared bootstrap constants", () => {
+    expect(common.ciLogQueryParam).toBe(ciLogQueryParam);
+    expect(common.clientLogEndpoint).toBe(clientLogEndpoint);
+    expect(common.defaultFallbackProviders).toEqual(defaultFallbackProviders);
+    expect(common.getDefaultProviderAliases).toBe(getDefaultProviderAliases);
+    expect(common.proxyModeAuto).toBe(proxyModeAuto);
+    expect(common.proxyModeDirect).toBe(proxyModeDirect);
+    expect(common.proxyModeProxy).toBe(proxyModeProxy);
+    expect(common.scriptManifestUrl).toBe(scriptManifestUrl);
+    expect(common.localModuleExtensions).toEqual(localModuleExtensions);
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("describes the expected defaults for fallback providers and extensions", () => {
+    expect(Array.isArray(common.defaultFallbackProviders)).toBe(true);
+    expect(common.localModuleExtensions).toContain(".js");
   });
 });

@@ -1,17 +1,11 @@
-describe("bootstrap/constants/script-manifest-url.js", () => {
-  const modulePath = '../../../../bootstrap/constants/script-manifest-url.js';
-  const expectedType = 'string';
-  const expectArray = false;
-  const expectEsModule = false;
+const scriptManifestUrl = require("../../../../bootstrap/constants/script-manifest-url.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/constants/script-manifest-url.js", () => {
+  it("exports the bootstrap script manifest path", () => {
+    expect(scriptManifestUrl).toBe("bootstrap/entrypoints/script-list.html");
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("can be resolved relative to the bootstrap asset path", () => {
+    expect(scriptManifestUrl.startsWith("bootstrap/")).toBe(true);
   });
 });

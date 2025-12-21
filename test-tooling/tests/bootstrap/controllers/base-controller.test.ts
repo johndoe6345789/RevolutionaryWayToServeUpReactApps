@@ -1,17 +1,35 @@
-describe("bootstrap/controllers/base-controller.js", () => {
-  const modulePath = '../../../../bootstrap/controllers/base-controller.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const BaseController = require("../../../../bootstrap/controllers/base-controller.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/controllers/base-controller.js", () => {
+  class TestController extends BaseController {
+    initialize() {
+      this._ensureNotInitialized();
+      this._markInitialized();
+    }
+  }
+
+  it("throws when the base implementation is used directly", () => {
+    const controller = new BaseController();
+    expect(() => controller.initialize()).toThrow("BaseController must implement initialize()");
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("tracks initialization state via _markInitialized", () => {
+    const controller = new TestController();
+    expect(controller.initialized).toBe(false);
+    controller._markInitialized();
+    expect(controller.initialized).toBe(true);
+  });
+
+  it("prevents repeated initialization attempts", () => {
+    const controller = new TestController();
+    controller._markInitialized();
+    expect(() => controller._ensureNotInitialized()).toThrow("TestController already initialized");
+  });
+
+  it("requires initialization before usage", () => {
+    const controller = new TestController();
+    expect(() => controller._ensureInitialized()).toThrow("TestController not initialized");
+    controller._markInitialized();
+    expect(() => controller._ensureInitialized()).not.toThrow();
   });
 });

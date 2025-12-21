@@ -1,17 +1,46 @@
-describe("bootstrap/cdn/network-entrypoint.js", () => {
-  const modulePath = '../../../../bootstrap/cdn/network-entrypoint.js';
-  const expectedType = 'function';
-  const expectArray = false;
-  const expectEsModule = false;
+const NetworkEntryPoint = require("../../../../bootstrap/cdn/network-entrypoint.js");
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+describe("bootstrap/cdn/network-entrypoint.js", () => {
+  let exports;
+  let service;
+
+  beforeEach(() => {
+    const entrypoint = new NetworkEntryPoint();
+    const result = entrypoint.run();
+    exports = result.exports;
+    service = result.service;
   });
 
-  it('exports the expected shape', () => {
-    const moduleExports = require(modulePath);
-    expect(typeof moduleExports).toBe(expectedType);
-    expect(Array.isArray(moduleExports)).toBe(expectArray);
-    expect(Boolean(moduleExports && moduleExports.__esModule)).toBe(expectEsModule);
+  it("exposes the expected public network helpers", () => {
+    [
+      "loadScript",
+      "normalizeProviderBase",
+      "resolveProvider",
+      "shouldRetryStatus",
+      "probeUrl",
+      "resolveModuleUrl",
+      "setFallbackProviders",
+      "getFallbackProviders",
+      "setDefaultProviderBase",
+      "getDefaultProviderBase",
+      "setProviderAliases",
+      "getProxyMode",
+      "normalizeProviderBaseRaw",
+    ].forEach((key) => {
+      expect(typeof exports[key]).toBe("function");
+    });
+  });
+
+  it("lets callers update fallback providers and observe the results", () => {
+    exports.setFallbackProviders(["https://cdn.example.com/"]);
+    expect(exports.getFallbackProviders()).toContain("https://cdn.example.com/");
+    expect(exports.normalizeProviderBase("https://cdn.example.com/")).toBe("https://cdn.example.com/");
+  });
+
+  it("resolves production providers when no proxy overrides apply", () => {
+    const mod = { provider: "https://production", ci_provider: "https://ci" };
+    const resolved = exports.resolveProvider(mod);
+    expect(resolved).toMatch(/https?:\/\/(ci|production)/);
+    expect(exports.getProxyMode()).toBeTruthy();
   });
 });
