@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Dependency Analysis Tool
+ * Dependency Analyzer Plugin
  * Analyzes dependency relationships across the bootstrap system to identify:
  * - Circular dependencies
  * - Missing dependencies
@@ -12,25 +12,25 @@
 
 const fs = require('fs');
 const path = require('path');
+const BasePlugin = require('../lib/base-plugin');
 
-const colors = {
-  reset: '\x1b[0m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  white: '\x1b[37m'
-};
-
-function colorize(text, color) {
-  return `${color}${text}${colors.reset}`;
-}
-
-class DependencyAnalyzer {
+class DependencyAnalyzerPlugin extends BasePlugin {
   constructor() {
-    this.bootstrapPath = path.join(__dirname, '..', 'bootstrap');
+    super({
+      name: 'dependency-analyzer',
+      description: 'Analyzes dependency relationships and detects issues',
+      version: '1.0.0',
+      author: 'RWTRA',
+      category: 'analysis',
+      commands: [
+        {
+          name: 'dependency-analyze',
+          description: 'Run dependency analysis on the bootstrap system'
+        }
+      ],
+      dependencies: []
+    });
+
     this.results = {
       totalFiles: 0,
       circularDependencies: [],
@@ -45,20 +45,36 @@ class DependencyAnalyzer {
   }
 
   /**
-   * Runs comprehensive dependency analysis.
+   * Main plugin execution method
+   * @param {Object} context - Execution context
+   * @returns {Promise<Object>} - Analysis results
    */
-  async analyze() {
-    console.log(colorize('\n🔗 Revolutionary Way To Serve Up React Apps', colors.cyan));
-    console.log(colorize('📊 Dependency Analysis Tool', colors.blue));
-    console.log(colorize('=' .repeat(50), colors.white));
+  async execute(context) {
+    await this.initialize(context);
+    
+    this.log('Starting dependency analysis...', 'info');
+    this.log(this.colorize('\n🔗 Revolutionary Way To Serve Up React Apps', context.colors.cyan));
+    this.log(this.colorize('📊 Dependency Analysis Tool', context.colors.blue));
+    this.log(this.colorize('='.repeat(50), context.colors.white));
+    
+    const bootstrapPath = context.options['bootstrap-path'] || path.join(context.bootstrapPath, 'bootstrap');
+    this.bootstrapPath = bootstrapPath;
     
     await this._scanAllFiles();
     await this._buildDependencyGraph();
     await this._detectCircularDependencies();
     await this._findMissingDependencies();
     await this._detectBrokenLinks();
+    await this._detectOrphanedModules();
+    await this._detectVersionConflicts();
     
-    this._generateReport();
+    this._generateReport(context);
+    
+    // Save results if output directory specified
+    if (context.options.output) {
+      await this._saveResults(context);
+    }
+    
     return this.results;
   }
 
@@ -66,7 +82,7 @@ class DependencyAnalyzer {
    * Scans all JavaScript files in the bootstrap system.
    */
   async _scanAllFiles() {
-    console.log(colorize('\n📂 Scanning Files for Dependencies...', colors.blue));
+    this.log('Scanning Files for Dependencies...', 'info');
     
     const jsFiles = await this._findAllJSFiles();
     
@@ -74,7 +90,7 @@ class DependencyAnalyzer {
       await this._analyzeFile(file);
     }
     
-    console.log(colorize(`   Analyzed ${this.results.totalFiles} files`, colors.green));
+    this.log(`Analyzed ${this.results.totalFiles} files`, 'info');
   }
 
   /**
@@ -84,6 +100,8 @@ class DependencyAnalyzer {
     const files = [];
     
     const scanDirectory = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      
       const items = fs.readdirSync(dir);
       
       for (const item of items) {
@@ -121,7 +139,7 @@ class DependencyAnalyzer {
       this._addFileToGraph(relativePath, imports, exports);
       
     } catch (error) {
-      console.log(colorize(`   ❌ Error analyzing ${filePath}: ${error.message}`, colors.red));
+      this.log(`Error analyzing ${filePath}: ${error.message}`, 'error');
     }
   }
 
@@ -136,10 +154,12 @@ class DependencyAnalyzer {
     while ((match = importRegex.exec(content)) !== null) {
       const moduleName = match[1];
       const importPath = match[2];
+      const lineNumber = content.substring(0, content.indexOf(match[0])).split('\n').length;
+      
       imports.push({
         module: moduleName,
         path: importPath,
-        line: content.substring(0, content.indexOf(match[0])).split('\n')[match[0].split('\n').length
+        line: lineNumber
       });
     }
     
@@ -151,15 +171,18 @@ class DependencyAnalyzer {
    */
   _extractExports(content) {
     const exports = [];
-    const exportRegex = /module\.exports\s*=\s*require\s*\((['"][^'"]+)['"]\s*\)/g;
     
+    // Check for module.exports
+    const exportRegex = /module\.exports\s*=\s*require\s*\((['"][^'"]+)['"]\s*\)/g;
     let match;
     while ((match = exportRegex.exec(content)) !== null) {
       const moduleName = match[1];
+      const lineNumber = content.substring(0, content.indexOf(match[0])).split('\n').length;
+      
       exports.push({
         module: moduleName,
         path: null, // Direct export
-        line: content.substring(0, content.indexOf(match[0])).split('\n')[match[0].split('\n').length
+        line: lineNumber
       });
     }
     
@@ -167,10 +190,11 @@ class DependencyAnalyzer {
     const classExportRegex = /class\s+(\w+)\s*{/g;
     const classMatch = classExportRegex.exec(content);
     if (classMatch) {
+      const lineNumber = content.substring(0, content.indexOf(classMatch[0])).split('\n').length;
       exports.push({
         module: classMatch[1],
         path: null, // Class export
-        line: content.substring(0, content.indexOf(classMatch[0])).split('\n')[classMatch[0].split('\n').length
+        line: lineNumber
       });
     }
     
@@ -185,8 +209,8 @@ class DependencyAnalyzer {
     
     // Add nodes for imported modules
     for (const imp of imports) {
-      if (!this.dependencyGraph.has(imp.module)) {
-        this.dependencyGraph.set(imp.module, {
+      if (!this.results.dependencyGraph.has(imp.module)) {
+        this.results.dependencyGraph.set(imp.module, {
           type: 'module',
           imports: [],
           exportedBy: [],
@@ -194,16 +218,17 @@ class DependencyAnalyzer {
         });
       }
       
-      this.dependencyGraph.get(imp.module).imports.push({
+      this.results.dependencyGraph.get(imp.module).imports.push({
         from: fileName,
-        path: imp.path
+        path: imp.path,
+        line: imp.line
       });
     }
     
     // Add nodes for exported modules
     for (const exp of exports) {
-      if (!this.dependencyGraph.has(exp.module)) {
-        this.dependencyGraph.set(exp.module, {
+      if (!this.results.dependencyGraph.has(exp.module)) {
+        this.results.dependencyGraph.set(exp.module, {
           type: 'module',
           imports: [],
           exportedBy: [fileName],
@@ -211,7 +236,7 @@ class DependencyAnalyzer {
         });
       }
       
-      this.dependencyGraph.get(exp.module).exportedBy.push(fileName);
+      this.results.dependencyGraph.get(exp.module).exportedBy.push(fileName);
     }
     
     // Link imports to exports
@@ -222,21 +247,43 @@ class DependencyAnalyzer {
           continue;
         }
         
-        if (!this.dependencyGraph.get(imp.module).importedBy.includes(exp.module) &&
-            !this.dependencyGraph.get(imp.module).importedBy.includes(fileName)) {
-          this.dependencyGraph.get(imp.module).importedBy.push(exp.module);
+        const node = this.results.dependencyGraph.get(imp.module);
+        if (node && !node.importedBy.includes(exp.module) && !node.importedBy.includes(fileName)) {
+          node.importedBy.push(exp.module);
         }
       }
     }
   }
 
   /**
+   * Detects circular dependencies across the entire graph.
+   */
+  async _detectCircularDependencies() {
+    this.log('Detecting Circular Dependencies...', 'info');
+    
+    for (const [module, node] of this.results.dependencyGraph) {
+      const visited = new Set();
+      const hasCircular = this._detectCircularDependency(module, visited);
+      
+      if (hasCircular) {
+        const cycle = this._getCircularPath(module, visited);
+        this.results.circularDependencies.push({
+          cycle: cycle.join(' → '),
+          file: node.importedBy[0] || 'unknown'
+        });
+      }
+    }
+    
+    this.log(`Detected ${this.results.circularDependencies.length} circular dependencies`, 'warn');
+  }
+
+  /**
    * Builds the dependency graph and detects circular dependencies.
    */
   async _buildDependencyGraph() {
-    console.log(colorize('\n🔗 Building Dependency Graph...', colors.blue));
+    this.log('Building Dependency Graph...', 'info');
     
-    for (const [module, node] of this.dependencyGraph) {
+    for (const [module, node] of this.results.dependencyGraph) {
       // Check for circular dependencies
       const visited = new Set();
       const hasCircular = this._detectCircularDependency(module, visited);
@@ -250,7 +297,7 @@ class DependencyAnalyzer {
       }
     }
     
-    console.log(colorize(`   Processed ${this.dependencyGraph.size} modules`, colors.green));
+    this.log(`Processed ${this.results.dependencyGraph.size} modules`, 'info');
   }
 
   /**
@@ -263,7 +310,8 @@ class DependencyAnalyzer {
     
     visited.add(module);
     
-    const node = this.dependencyGraph.get(module);
+    const node = this.results.dependencyGraph.get(module);
+    if (!node) return false;
     
     for (const dependency of node.imports) {
       if (this._detectCircularDependency(dependency.module, visited, [...path, module])) {
@@ -278,7 +326,8 @@ class DependencyAnalyzer {
    * Gets the circular path for a module.
    */
   _getCircularPath(module, visited) {
-    const node = this.dependencyGraph.get(module);
+    const node = this.results.dependencyGraph.get(module);
+    if (!node) return [];
     
     for (const imp of node.imports) {
       if (visited.has(imp.module)) {
@@ -290,23 +339,23 @@ class DependencyAnalyzer {
       }
     }
     
-    return null;
+    return [];
   }
 
   /**
    * Finds missing dependencies.
    */
   async _findMissingDependencies() {
-    console.log(colorize('\n🔍 Checking for Missing Dependencies...', colors.yellow));
+    this.log('Checking for Missing Dependencies...', 'info');
     
-    for (const [module, node] of this.dependencyGraph) {
+    for (const [module, node] of this.results.dependencyGraph) {
       for (const imp of node.imports) {
-        const impModule = this.dependencyGraph.get(imp.module);
+        const impModule = this.results.dependencyGraph.get(imp.module);
         
         if (!impModule) {
           this.results.missingDependencies.push({
             requiredIn: module,
-            requiredFrom: node.file,
+            requiredFrom: node.importedBy[0] || 'unknown',
             importPath: imp.path,
             type: 'missing_module'
           });
@@ -314,26 +363,26 @@ class DependencyAnalyzer {
       }
     }
     
-    console.log(colorize(`   Found ${this.results.missingDependencies.length} missing dependencies`, colors.red));
+    this.log(`Found ${this.results.missingDependencies.length} missing dependencies`, 'warn');
   }
 
   /**
    * Detects broken import/export links.
    */
   async _detectBrokenLinks() {
-    console.log(colorize('\n🔗 Checking for Broken Links...', colors.magenta));
+    this.log('Checking for Broken Links...', 'info');
     
-    for (const [module, node] of this.dependencyGraph) {
+    for (const [module, node] of this.results.dependencyGraph) {
       for (const imp of node.imports) {
-        const impModule = this.dependencyGraph.get(imp.module);
+        const impModule = this.results.dependencyGraph.get(imp.module);
         
         if (!impModule) {
           // Try to resolve the import path
-          const fullPath = path.resolve(path.dirname(node.file), imp.path);
+          const fullPath = path.resolve(path.dirname(module), imp.path);
           
           if (!fs.existsSync(fullPath)) {
             this.results.brokenLinks.push({
-              from: node.file,
+              from: module,
               to: imp.path,
               type: 'broken_import',
               resolvedPath: fullPath
@@ -355,43 +404,46 @@ class DependencyAnalyzer {
       }
     }
     
-    console.log(colorize(`   Found ${this.results.brokenLinks.length} broken links`, colors.red));
+    this.log(`Found ${this.results.brokenLinks.length} broken links`, 'warn');
   }
 
   /**
    * Detects orphaned modules (modules that are never imported).
    */
   async _detectOrphanedModules() {
-    console.log(colorize('\n👻 Checking for Orphaned Modules...', colors.cyan));
+    this.log('Checking for Orphaned Modules...', 'info');
     
-    const allModules = new Set(this.dependencyGraph.keys());
+    const allModules = new Set(this.results.dependencyGraph.keys());
     const importedModules = new Set();
     
-    for (const [, node] of this.dependencyGraph) {
+    for (const [, node] of this.results.dependencyGraph) {
       for (const imp of node.imports) {
         importedModules.add(imp.module);
       }
     }
     
     for (const module of allModules) {
-      if (!importedModules.has(module) && node.exportedBy.length === 0) {
-        this.results.orphanedModules.push({
-          module: module,
-          file: node.importedBy[0] || 'unknown',
-          exports: node.exportedBy.length,
-          reason: 'Never imported but has exports'
-        });
+      if (!importedModules.has(module)) {
+        const node = this.results.dependencyGraph.get(module);
+        if (node.exportedBy.length > 0) {
+          this.results.orphanedModules.push({
+            module: module,
+            file: node.importedBy[0] || 'unknown',
+            exports: node.exportedBy.length,
+            reason: 'Never imported but has exports'
+          });
+        }
       }
     }
     
-    console.log(colorize(`   Found ${this.results.orphanedModules.length} orphaned modules`, colors.yellow));
+    this.log(`Found ${this.results.orphanedModules.length} orphaned modules`, 'warn');
   }
 
   /**
    * Detects version conflicts in dependencies.
    */
   async _detectVersionConflicts() {
-    console.log(colorize('\n⚠ Checking for Version Conflicts...', colors.red));
+    this.log('Checking for Version Conflicts...', 'info');
     
     // This would require package.json analysis
     // For now, just note that we should check this
@@ -401,53 +453,53 @@ class DependencyAnalyzer {
   /**
    * Generates comprehensive dependency analysis report.
    */
-  _generateReport() {
-    console.log(colorize('\n🔗 DEPENDENCY ANALYSIS REPORT', colors.cyan));
-    console.log(colorize('================================', colors.white));
+  _generateReport(context) {
+    console.log(context.colors.reset + '\n🔗 DEPENDENCY ANALYSIS REPORT');
+    console.log('================================');
     
     // Summary
-    console.log(colorize(`\n📈 SUMMARY:`, colors.green));
-    console.log(colorize(`   Total Files Analyzed: ${this.results.totalFiles}`));
-    console.log(colorize(`   Total Modules: ${this.dependencyGraph.size}`));
-    console.log(colorize(`   Circular Dependencies: ${this.results.circularDependencies.length}`));
-    console.log(colorize(`   Missing Dependencies: ${this.results.missingDependencies.length}`));
-    console.log(colorize(`   Broken Links: ${this.results.brokenLinks.length}`));
-    console.log(colorize(`   Orphaned Modules: ${this.results.orphanedModules.length}`));
+    console.log('\n📈 SUMMARY:');
+    console.log(`   Total Files Analyzed: ${this.results.totalFiles}`);
+    console.log(`   Total Modules: ${this.results.dependencyGraph.size}`);
+    console.log(`   Circular Dependencies: ${this.results.circularDependencies.length}`);
+    console.log(`   Missing Dependencies: ${this.results.missingDependencies.length}`);
+    console.log(`   Broken Links: ${this.results.brokenLinks.length}`);
+    console.log(`   Orphaned Modules: ${this.results.orphanedModules.length}`);
     
     // Detailed Issues
     if (this.results.circularDependencies.length > 0) {
-      console.log(colorize(`\n🔄 CIRCULAR DEPENDENCIES:`, colors.red));
+      console.log('\n🔄 CIRCULAR DEPENDENCIES:');
       for (const issue of this.results.circularDependencies) {
-        console.log(colorize(`   ${issue.cycle}`), colors.red);
+        console.log(context.colors.red + `   ${issue.cycle}` + context.colors.reset);
       }
     }
     
     if (this.results.missingDependencies.length > 0) {
-      console.log(colorize(`\n❌ MISSING DEPENDENCIES:`, colors.red));
+      console.log('\n❌ MISSING DEPENDENCIES:');
       for (const issue of this.results.missingDependencies) {
-        console.log(colorize(`   ${issue.requiredIn} requires ${issue.requiredFrom} (${issue.importPath})`, colors.red));
+        console.log(context.colors.red + `   ${issue.requiredIn} requires ${issue.requiredFrom} (${issue.importPath})` + context.colors.reset);
       }
     }
     
     if (this.results.brokenLinks.length > 0) {
-      console.log(colorize(`\n🔗 BROKEN LINKS:`, colors.magenta));
+      console.log('\n🔗 BROKEN LINKS:');
       for (const issue of this.results.brokenLinks) {
-        console.log(colorize(`   ${issue.from} → ${issue.to} (${issue.type})`, colors.red));
+        console.log(context.colors.magenta + `   ${issue.from} → ${issue.to} (${issue.type})` + context.colors.reset);
         if (issue.resolvedPath) {
-          console.log(colorize(`     Expected at: ${issue.resolvedPath}`, colors.yellow));
+          console.log(context.colors.yellow + `     Expected at: ${issue.resolvedPath}` + context.colors.reset);
         }
       }
     }
     
     if (this.results.orphanedModules.length > 0) {
-      console.log(colorize(`\n👻 ORPHANED MODULES:`, colors.yellow));
+      console.log('\n👻 ORPHANED MODULES:');
       for (const issue of this.results.orphanedModules) {
-        console.log(colorize(`   ${issue.module} (${issue.file}) - ${issue.exports} exports`, colors.yellow));
+        console.log(context.colors.yellow + `   ${issue.module} (${issue.file}) - ${issue.exports} exports` + context.colors.reset);
       }
     }
     
     // Recommendations
-    console.log(colorize(`\n🎯 RECOMMENDATIONS:`, colors.green));
+    console.log('\n🎯 RECOMMENDATIONS:');
     
     if (this.results.circularDependencies.length > 0) {
       this.results.recommendations.push('Resolve circular dependencies by refactoring to use dependency injection');
@@ -469,7 +521,7 @@ class DependencyAnalyzer {
     this.results.recommendations.push('Use dependency injection pattern to reduce circular dependencies');
     
     for (const recommendation of this.results.recommendations) {
-      console.log(colorize(`   - ${recommendation}`, colors.cyan));
+      console.log(context.colors.cyan + `   - ${recommendation}` + context.colors.reset);
     }
     
     // Overall Health
@@ -479,33 +531,49 @@ class DependencyAnalyzer {
                         this.results.orphanedModules.length;
     
     if (totalIssues === 0) {
-      console.log(colorize(`\n✅ DEPENDENCY HEALTH: EXCELLENT`, colors.green));
+      console.log('\n✅ DEPENDENCY HEALTH: EXCELLENT');
     } else if (totalIssues <= 5) {
-      console.log(colorize(`\n✅ DEPENDENCY HEALTH: GOOD (${totalIssues} issues)`, colors.yellow));
+      console.log('\n✅ DEPENDENCY HEALTH: GOOD (' + totalIssues + ' issues)');
     } else {
-      console.log(colorize(`\n❌ DEPENDENCY HEALTH: POOR (${totalIssues} issues)`, colors.red));
+      console.log('\n❌ DEPENDENCY HEALTH: POOR (' + totalIssues + ' issues)');
     }
+  }
+
+  /**
+   * Saves analysis results to file
+   */
+  async _saveResults(context) {
+    const outputDir = context.options['output-dir'] || path.join(context.bootstrapPath, 'reports');
+    
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    
+    const resultsPath = path.join(outputDir, 'dependency-analysis-results.json');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    const reportData = {
+      timestamp,
+      summary: {
+        totalFiles: this.results.totalFiles,
+        totalModules: this.results.dependencyGraph.size,
+        circularDependencies: this.results.circularDependencies.length,
+        missingDependencies: this.results.missingDependencies.length,
+        brokenLinks: this.results.brokenLinks.length,
+        orphanedModules: this.results.orphanedModules.length
+      },
+      issues: {
+        circularDependencies: this.results.circularDependencies,
+        missingDependencies: this.results.missingDependencies,
+        brokenLinks: this.results.brokenLinks,
+        orphanedModules: this.results.orphanedModules
+      },
+      recommendations: this.results.recommendations
+    };
+    
+    fs.writeFileSync(resultsPath, JSON.stringify(reportData, null, 2), 'utf8');
+    this.log(`Results saved to: ${resultsPath}`, 'info');
   }
 }
 
-// CLI execution
-if (require.main === module) {
-  const analyzer = new DependencyAnalyzer();
-  
-  analyzer.analyze().then(results => {
-    console.log(colorize('\n🎉 Dependency Analysis Complete!', colors.green));
-    
-    if (results.circularDependencies.length > 0 || results.missingDependencies.length > 0) {
-      console.log(colorize('\n⚠️  ACTION REQUIRED: Fix dependency issues before refactoring', colors.yellow));
-      process.exit(1);
-    } else {
-      console.log(colorize('\n✅ Dependencies look clean for refactoring', colors.green));
-      process.exit(0);
-    }
-  }).catch(error => {
-    console.error(colorize('❌ Dependency analysis failed:', colors.red), error.message);
-    process.exit(1);
-  });
-}
-
-module.exports = DependencyAnalyzer;
+module.exports = DependencyAnalyzerPlugin;
