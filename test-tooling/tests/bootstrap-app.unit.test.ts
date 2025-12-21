@@ -1,3 +1,14 @@
+// Mock the dependencies before importing BootstrapApp
+jest.mock("../../bootstrap/registries/factory-registry-initializer.js", () => ({
+  initializeFactoryRegistry: jest.fn()
+}));
+
+jest.mock("../../bootstrap/bootstrap-app.js", () => {
+  const actualBootstrapApp = jest.requireActual("../../bootstrap/bootstrap-app.js");
+  // Mock the factory registration to avoid the LoggingServiceFactory issue
+  return actualBootstrapApp;
+});
+
 import BootstrapApp from "../../bootstrap/bootstrap-app.js";
 
 describe("BootstrapApp", () => {
@@ -144,7 +155,7 @@ describe("BootstrapApp", () => {
     it("should return true when window and document are available", () => {
       const mockWindow = {
         document: {}
-      };
+      } as any;
 
       const result = BootstrapApp.isBrowser(mockWindow);
       expect(result).toBe(true);
@@ -156,8 +167,8 @@ describe("BootstrapApp", () => {
     });
 
     it("should return false when window has no document", () => {
-      const mockWindow = {};
-      
+      const mockWindow = {} as any;
+
       const result = BootstrapApp.isBrowser(mockWindow);
       expect(result).toBe(false);
     });

@@ -360,7 +360,12 @@ describe("ScriptListLoader", () => {
       mockFetch.mockResolvedValue(mockResponse);
       
       const templateElement = {
-        innerHTML: '',
+        set innerHTML(value) {
+          this._innerHTML = value;
+        },
+        get innerHTML() {
+          return this._innerHTML;
+        },
         content: {
           querySelectorAll: createMockFunction().mockReturnValue([
             { getAttribute: () => "/script1.js" }
@@ -428,7 +433,12 @@ describe("ScriptListLoader", () => {
       mockFetch.mockResolvedValue(mockResponse);
       
       const templateElement = {
-        innerHTML: '',
+        set innerHTML(value) {
+          this._innerHTML = value;
+        },
+        get innerHTML() {
+          return this._innerHTML;
+        },
         content: {
           querySelectorAll: createMockFunction().mockReturnValue([
             { getAttribute: () => "/integration-test.js" }

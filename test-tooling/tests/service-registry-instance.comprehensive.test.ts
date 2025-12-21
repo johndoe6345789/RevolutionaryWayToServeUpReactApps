@@ -1,4 +1,4 @@
-import serviceRegistry from "../../bootstrap/services/service-registry-instance.js";
+import serviceRegistry from "../../bootstrap/registries/service-registry-instance.js";
 
 describe("ServiceRegistryInstance", () => {
   // Since this is a singleton, we need to reset it between tests to avoid conflicts

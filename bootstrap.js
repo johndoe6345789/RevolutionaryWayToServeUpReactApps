@@ -1,3 +1,6 @@
+// Register factory loaders for lazy loading
+require("./bootstrap/registries/register-factory-loaders.js").registerFactoryLoaders();
+
 const BootstrapApp = require("./bootstrap/bootstrap-app.js");
 
 const app = new BootstrapApp();
