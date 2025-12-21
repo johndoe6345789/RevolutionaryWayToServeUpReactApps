@@ -246,9 +246,10 @@ describe("BaseHelper", () => {
       helper._registerHelper("complexHelper", { complex: true }, complexMetadata);
       
       expect(mockRegistry.register).toHaveBeenCalledWith(
-        "complexHelper", 
-        { complex: true }, 
-        complexMetadata
+        "complexHelper",
+        { complex: true },
+        complexMetadata,
+        []
       );
     });
 
@@ -263,8 +264,8 @@ describe("BaseHelper", () => {
       helper._registerHelper("nullHelper", null);
       helper._registerHelper("undefinedHelper", undefined);
       
-      expect(mockRegistry.register).toHaveBeenNthCalledWith(1, "nullHelper", null, {});
-      expect(mockRegistry.register).toHaveBeenNthCalledWith(2, "undefinedHelper", undefined, {});
+      expect(mockRegistry.register).toHaveBeenNthCalledWith(1, "nullHelper", null, {}, []);
+      expect(mockRegistry.register).toHaveBeenNthCalledWith(2, "undefinedHelper", undefined, {}, []);
     });
 
     it("should handle registry that throws during isRegistered", () => {

@@ -2,7 +2,7 @@ const NetworkServiceConfig = require("../../../../../bootstrap/configs/cdn/netwo
 
 describe("bootstrap/configs/cdn/network-service.js", () => {
   it("defaults isCommonJs to the module environment", () => {
-    const expected = typeof module !== "undefined" && module.exports;
+    const expected = typeof module !== "undefined" && typeof module.exports !== "undefined";
     const config = new NetworkServiceConfig();
 
     expect(config.isCommonJs).toBe(expected);

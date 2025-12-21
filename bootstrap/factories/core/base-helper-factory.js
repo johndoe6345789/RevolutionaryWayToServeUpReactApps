@@ -1,5 +1,5 @@
-const BaseFactory = require('../base-factory.js');
-const BaseHelper = require('../../helpers/base-helper.js');
+const BaseFactory = require('../../interfaces/base-factory.js');
+const BaseHelper = require('../../interfaces/base-helper.js');
 
 /**
  * Factory for creating BaseHelper instances.

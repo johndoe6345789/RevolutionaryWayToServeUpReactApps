@@ -1,4 +1,4 @@
-import LocalRequireBuilder from "../../../../services/local/local-require-builder.js";
+import LocalRequireBuilder from "../../../../bootstrap/services/local/local-require-builder.js";
 
 describe("LocalRequireBuilder", () => {
   let localRequireBuilder;
@@ -12,7 +12,7 @@ describe("LocalRequireBuilder", () => {
       isRegistered: jest.fn().mockReturnValue(false),
     };
     
-    mockConfig = new (require("../../../bootstrap/configs/local/local-require-builder.js").default)({
+    mockConfig = new (require("../../../../configs/local/local-require-builder.js").default)({
       helperRegistry: mockHelperRegistry
     });
     
@@ -66,7 +66,7 @@ describe("LocalRequireBuilder", () => {
     });
 
     it("should not register if no helper registry is provided", () => {
-      const configWithoutRegistry = new (require("../../../bootstrap/configs/local/local-require-builder.js").default)();
+      const configWithoutRegistry = new (require("../../../../configs/local/local-require-builder.js").default)();
       const builder = new LocalRequireBuilder(configWithoutRegistry);
       
       const mockLoadDynamicModule = jest.fn();

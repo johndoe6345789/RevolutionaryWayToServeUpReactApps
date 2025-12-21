@@ -1,4 +1,4 @@
-const BaseHelper = require("../../../helpers/base-helper.js");
+const BaseHelper = require("../../../../interfaces/base-helper.js");
 const DynamicModuleFetcherConfig = require("./module-fetcher-config.js");
 
 const globalScope =

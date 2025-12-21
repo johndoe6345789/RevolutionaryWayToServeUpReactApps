@@ -1,4 +1,4 @@
-const HelperBase = require("./base-helper.js");
+const HelperBase = require("../interfaces/base-helper.js");
 const helperRegistry = require("../registries/helper-registry-instance.js");
 const LocalHelpersConfig = require("../configs/helpers/local-helpers.js");
 const FrameworkRenderer = require("../services/local/framework-renderer.js");

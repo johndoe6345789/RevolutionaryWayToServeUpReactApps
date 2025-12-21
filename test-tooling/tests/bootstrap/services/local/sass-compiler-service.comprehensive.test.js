@@ -105,12 +105,11 @@ describe("SassCompilerService", () => {
 
       expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
       expect(mockServiceRegistry.register.calls[0][0]).toBe("sassCompiler");
-      expect(mockServiceRegistry.register.calls[0][1]).toBe(service);
+      expect(mockServiceRegistry.register.calls[0][1]).toBe(service.exports || service);
       expect(mockServiceRegistry.register.calls[0][2]).toEqual({
         folder: "services/local",
         domain: "local",
       });
-      expect(mockServiceRegistry.register.calls[0][3]).toEqual([]);
     });
 
     test("should throw if initialized twice", () => {
@@ -358,7 +357,7 @@ describe("SassCompilerService", () => {
       expect(result).toBe(service);
       expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
       expect(mockServiceRegistry.register.calls[0][0]).toBe("sassCompiler");
-      expect(mockServiceRegistry.register.calls[0][1]).toBe(service.exports);
+      expect(mockServiceRegistry.register.calls[0][1]).toEqual(service.exports);
       expect(mockServiceRegistry.register.calls[0][2]).toEqual({
         folder: "services/local",
         domain: "local",

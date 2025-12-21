@@ -1,4 +1,4 @@
-const BaseFactory = require('./base-factory.js');
+const BaseFactory = require('../interfaces/base-factory.js');
 const BaseBootstrapAppFactory = require('./core/base-bootstrap-app-factory.js');
 const GlobalRootHandlerFactory = require('./core/global-root-handler-factory.js');
 const BootstrapperFactory = require('./core/bootstrapper-factory.js');

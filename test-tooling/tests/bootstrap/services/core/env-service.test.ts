@@ -23,7 +23,8 @@ describe("bootstrap/services/core/env-service.js", () => {
     expect(serviceRegistry.register).toHaveBeenCalledWith(
       "env",
       env,
-      expect.objectContaining({ folder: "services/core", domain: "core" })
+      expect.objectContaining({ folder: "services/core", domain: "core" }),
+      []
     );
     expect(result).toBe(env);
   });

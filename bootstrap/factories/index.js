@@ -1,5 +1,5 @@
 // Main factories index
-const BaseFactory = require('./base-factory.js');
+const BaseFactory = require('../interfaces/base-factory.js');
 const core = require('./core/');
 const services = require('./services/');
 const local = require('./local/');
