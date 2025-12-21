@@ -6,8 +6,10 @@ describe("bootstrap/services/cdn/tools-service.js", () => {
   let mockResolveModuleUrl;
   let network;
   let logging;
+  let originalWindow;
 
   beforeEach(() => {
+    originalWindow = globalThis.window;
     globalThis.window = {};
     mockLoadScript = jest.fn(() => Promise.resolve());
     mockResolveModuleUrl = jest.fn(() => Promise.resolve("https://cdn.tools/tool.js"));
@@ -25,7 +27,7 @@ describe("bootstrap/services/cdn/tools-service.js", () => {
   });
 
   afterEach(() => {
-    delete globalThis.window;
+    globalThis.window = originalWindow;
   });
 
   it("creates namespaces from legacy globals", () => {

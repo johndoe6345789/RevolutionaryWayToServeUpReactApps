@@ -39,16 +39,8 @@ const withBootstrapper = ({
   const originalWindow = globalThis.window;
   const originalDocument = globalThis.document;
 
-  if (windowObj !== undefined) {
-    globalThis.window = windowObj;
-  } else {
-    delete globalThis.window;
-  }
-  if (documentObj !== undefined) {
-    globalThis.document = documentObj;
-  } else {
-    delete globalThis.document;
-  }
+  globalThis.window = windowObj !== undefined ? windowObj : originalWindow;
+  globalThis.document = documentObj !== undefined ? documentObj : originalDocument;
 
   const Bootstrapper = require(modulePath);
   const logging = createLogging(loggingOverrides);

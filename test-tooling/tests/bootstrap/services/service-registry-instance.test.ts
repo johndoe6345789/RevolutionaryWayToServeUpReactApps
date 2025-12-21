@@ -1,17 +1,23 @@
 describe("bootstrap/services/service-registry-instance.js", () => {
-  const modulePath = '../../../../bootstrap/services/service-registry-instance.js';
-  const moduleName = 'service-registry-instance.js';
+  const instancePath = '../../../../bootstrap/services/service-registry-instance.js';
+  const ServiceRegistry = require('../../../../bootstrap/services/service-registry.js');
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+  it('exports a singleton ServiceRegistry instance', () => {
+    const registry = require(instancePath);
+
+    expect(registry).toBeInstanceOf(ServiceRegistry);
+    expect(registry).toBe(require(instancePath));
   });
 
-  it('registers the module in require.cache', () => {
-    const moduleExports = require(modulePath);
-    const resolved = require.resolve(modulePath);
-    const cacheEntry = require.cache[resolved];
-    expect(cacheEntry).toBeDefined();
-    expect(cacheEntry.filename.endsWith(moduleName)).toBe(true);
-    expect(moduleExports).toBe(require(resolved));
+  it('reuses the same registry between imports and supports reset', () => {
+    const registry = require(instancePath);
+
+    registry.register("router", { navigate: () => "/home" });
+
+    const secondImport = require(instancePath);
+    expect(secondImport.getService("router")).toBeDefined();
+
+    secondImport.reset();
+    expect(registry.listServices()).toEqual([]);
   });
 });

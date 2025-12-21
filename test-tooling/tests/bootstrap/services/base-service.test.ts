@@ -1,17 +1,27 @@
 describe("bootstrap/services/base-service.js", () => {
   const modulePath = '../../../../bootstrap/services/base-service.js';
-  const moduleName = 'base-service.js';
+  const BaseService = require(modulePath);
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+  it('throws when initialize is not implemented', () => {
+    const service = new BaseService();
+
+    expect(() => service.initialize()).toThrow("BaseService must implement initialize()");
   });
 
-  it('registers the module in require.cache', () => {
-    const moduleExports = require(modulePath);
-    const resolved = require.resolve(modulePath);
-    const cacheEntry = require.cache[resolved];
-    expect(cacheEntry).toBeDefined();
-    expect(cacheEntry.filename.endsWith(moduleName)).toBe(true);
-    expect(moduleExports).toBe(require(resolved));
+  it('enforces initialization lifecycle guards', () => {
+    const service = new BaseService();
+
+    expect(() => service._ensureInitialized()).toThrow("BaseService not initialized");
+    service._markInitialized();
+    expect(() => service._ensureNotInitialized()).toThrow("BaseService already initialized");
+  });
+
+  it('requires a service registry and namespace when accessed', () => {
+    const service = new BaseService();
+
+    expect(() => service._requireServiceRegistry())
+      .toThrow("ServiceRegistry required for BaseService");
+    expect(() => service._resolveNamespace())
+      .toThrow("Namespace required for BaseService");
   });
 });

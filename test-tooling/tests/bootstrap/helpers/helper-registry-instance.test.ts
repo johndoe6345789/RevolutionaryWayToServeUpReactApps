@@ -1,17 +1,25 @@
 describe("bootstrap/helpers/helper-registry-instance.js", () => {
-  const modulePath = '../../../../bootstrap/helpers/helper-registry-instance.js';
-  const moduleName = 'helper-registry-instance.js';
+  const instancePath = '../../../../bootstrap/helpers/helper-registry-instance.js';
+  const HelperRegistry = require('../../../../bootstrap/helpers/helper-registry.js');
 
-  it('loads without throwing', () => {
-    expect(require(modulePath)).toBeDefined();
+  beforeEach(() => {
+    delete require.cache[require.resolve(instancePath)];
   });
 
-  it('registers the module in require.cache', () => {
-    const moduleExports = require(modulePath);
-    const resolved = require.resolve(modulePath);
-    const cacheEntry = require.cache[resolved];
-    expect(cacheEntry).toBeDefined();
-    expect(cacheEntry.filename.endsWith(moduleName)).toBe(true);
-    expect(moduleExports).toBe(require(resolved));
+  it('exports a singleton HelperRegistry instance', () => {
+    const registry = require(instancePath);
+
+    expect(registry).toBeInstanceOf(HelperRegistry);
+    expect(registry).toBe(require(instancePath));
+  });
+
+  it('persists registrations across multiple imports', () => {
+    const registry = require(instancePath);
+
+    registry.register("shared:clock", { now: () => 123 });
+
+    const reimported = require(instancePath);
+    expect(reimported.getHelper("shared:clock")).toBeDefined();
+    expect(reimported.getHelper("shared:clock")).toBe(registry.getHelper("shared:clock"));
   });
 });
