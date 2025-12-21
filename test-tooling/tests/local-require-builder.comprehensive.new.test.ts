@@ -225,14 +225,26 @@ describe("LocalRequireBuilder", () => {
 
   describe("_createRequireAsync method", () => {
     let initializedBuilder;
+    let initializedBuilderForDynamic;
 
     beforeEach(() => {
       const config = new LocalRequireBuilderConfig();
       config.helperRegistry = mockRegistry;
+
+      // Initialize one builder for local modules
       initializedBuilder = new LocalRequireBuilder(config);
       initializedBuilder.initialize({
         loadDynamicModule: () => {},
         isLocalModule: () => true // Mock isLocalModule to return true
+      });
+
+      // Initialize another builder for dynamic modules
+      const config2 = new LocalRequireBuilderConfig();
+      config2.helperRegistry = mockRegistry;
+      initializedBuilderForDynamic = new LocalRequireBuilder(config2);
+      initializedBuilderForDynamic.initialize({
+        loadDynamicModule: () => {},
+        isLocalModule: (name) => name.startsWith('.') || name.startsWith('/') // Only actual local modules
       });
     });
 

@@ -26,8 +26,10 @@ describe("bootstrap/helpers/base-helper.js", () => {
     expect(registry.register).toHaveBeenCalledWith(
       "sample",
       { ok: true },
-      { scope: "local" }
+      { scope: "local" },
+      []
     );
+  });
   });
 
   it("skips registration if the helper already exists", () => {
