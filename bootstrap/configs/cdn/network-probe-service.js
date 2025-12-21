@@ -1,17 +1,23 @@
-const GlobalRootHandler = require("../../constants/global-root-handler.js");
-const DEFAULT_GLOBAL_OBJECT = new GlobalRootHandler().root;
-
 /**
- * Configuration bag for script injection and probing helpers.
+ * Configuration for NetworkProbeService instances.
+ * Provides network probing and endpoint validation settings.
  */
 class NetworkProbeServiceConfig {
   /**
    * Initializes a new Network Probe Service Config instance with the provided configuration.
    */
-  constructor({ globalObject, logClient, wait } = {}) {
-    this.globalObject = globalObject ?? DEFAULT_GLOBAL_OBJECT;
-    this.logClient = logClient ?? (() => {});
-    this.wait = wait ?? (() => Promise.resolve());
+  constructor({
+    timeout = 5000,
+    retryAttempts = 3,
+    retryDelay = 1000,
+    enableHttpsOnly = false,
+    userAgent = 'RWTRA-Network-Probe/1.0',
+  } = {}) {
+    this.timeout = timeout;
+    this.retryAttempts = retryAttempts;
+    this.retryDelay = retryDelay;
+    this.enableHttpsOnly = enableHttpsOnly;
+    this.userAgent = userAgent;
   }
 }
 

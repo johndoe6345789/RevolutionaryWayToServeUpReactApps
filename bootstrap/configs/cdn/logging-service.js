@@ -1,15 +1,25 @@
 /**
- * Configuration bag for overriding the built-in logging service defaults.
+ * Configuration for LoggingService instances.
+ * Provides logging client settings and endpoint configuration.
  */
 class LoggingServiceConfig {
   /**
    * Initializes a new Logging Service Config instance with the provided configuration.
    */
-  constructor({ ciLogQueryParam, clientLogEndpoint, serviceRegistry, namespace } = {}) {
-    this.ciLogQueryParam = ciLogQueryParam;
-    this.clientLogEndpoint = clientLogEndpoint;
-    this.serviceRegistry = serviceRegistry;
-    this.namespace = namespace;
+  constructor({
+    logEndpoint,
+    logClient,
+    serializeForLog,
+    batchSize = 10,
+    flushInterval = 5000,
+    enableConsole = true,
+  } = {}) {
+    this.logEndpoint = logEndpoint;
+    this.logClient = logClient;
+    this.serializeForLog = serializeForLog;
+    this.batchSize = batchSize;
+    this.flushInterval = flushInterval;
+    this.enableConsole = enableConsole;
   }
 }
 
