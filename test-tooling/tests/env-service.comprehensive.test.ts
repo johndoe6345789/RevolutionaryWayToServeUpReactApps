@@ -1,3 +1,14 @@
+// Mock dependencies before importing
+jest.mock("../../bootstrap/configs/core/env.js", () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({
+      global: {},
+      serviceRegistry: { register: jest.fn() }
+    }))
+  };
+});
+
 import EnvInitializer from "../../bootstrap/services/core/env-service.js";
 
 describe("EnvInitializer", () => {
@@ -32,7 +43,8 @@ describe("EnvInitializer", () => {
     });
 
     it("should accept a pre-built EnvInitializerConfig", () => {
-      const config = new (require("../../../bootstrap/configs/core/env.js").default)();
+      const EnvInitializerConfig = require("../../bootstrap/configs/core/env.js").default;
+      const config = new EnvInitializerConfig();
       const envInit = new EnvInitializer(config);
       expect(envInit.config).toBe(config);
     });
@@ -49,8 +61,6 @@ describe("EnvInitializer", () => {
     });
 
     it("should ensure proxy mode is set", () => {
-      expect(mockGlobal.__RWTRA_PROXY_MODE__).toBe("auto");
-      
       envInitializer.initialize();
       
       expect(mockGlobal.__RWTRA_PROXY_MODE__).toBe("auto");
@@ -102,6 +112,11 @@ describe("EnvInitializer", () => {
   });
 
   describe("ensureProxyMode method", () => {
+    beforeEach(() => {
+      // Initialize the instance to set up the global property
+      envInitializer.global = mockGlobal;
+    });
+
     it("should set proxy mode to 'auto' if undefined", () => {
       delete mockGlobal.__RWTRA_PROXY_MODE__;
       

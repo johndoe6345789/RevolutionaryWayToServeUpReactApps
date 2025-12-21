@@ -22,13 +22,19 @@ describe("TsxCompilerService", () => {
 
   describe("initialize method", () => {
     test("should properly initialize the service with required dependencies", () => {
-      // Create a mock service registry since it's required
+      // Create a mock service registry and namespace since they're required
       const mockServiceRegistry = {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       const initializedService = service.initialize();
@@ -43,8 +49,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -61,8 +73,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -75,8 +93,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -95,8 +119,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -111,8 +141,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -125,8 +161,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -135,7 +177,7 @@ describe("TsxCompilerService", () => {
 
       expect(() => {
         service.compileTSX("entry.tsx", () => {});
-      }).toThrow();
+      }).toThrow("Fetch is unavailable when compiling TSX");
     });
   });
 
@@ -145,8 +187,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       service.initialize();
@@ -171,8 +219,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
       expect(typeof service.install).toBe('function');
@@ -185,8 +239,14 @@ describe("TsxCompilerService", () => {
         register: () => {}
       };
 
-      const config = new TsxCompilerConfig();
-      config.serviceRegistry = mockServiceRegistry;
+      const mockNamespace = {
+        helpers: {}
+      };
+
+      const config = new TsxCompilerConfig({
+        serviceRegistry: mockServiceRegistry,
+        namespace: mockNamespace
+      });
 
       const service = new TsxCompilerService(config);
 

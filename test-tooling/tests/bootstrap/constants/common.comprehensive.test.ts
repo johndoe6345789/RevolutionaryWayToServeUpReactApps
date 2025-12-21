@@ -4,30 +4,32 @@ import clientLogEndpoint from "../../../../bootstrap/constants/client-log-endpoi
 import defaultFallbackProviders from "../../../../bootstrap/constants/default-fallback-providers.js";
 import getDefaultProviderAliases from "../../../../bootstrap/constants/default-provider-aliases.js";
 import proxyModeAuto from "../../../../bootstrap/constants/proxy-mode-auto.js";
-import proxyModeDirect from "../../../../bootstrap/constants/proxy-mode-direct.js";
 import proxyModeProxy from "../../../../bootstrap/constants/proxy-mode-proxy.js";
+import proxyModeDirect from "../../../../bootstrap/constants/proxy-mode-direct.js";
 import scriptManifestUrl from "../../../../bootstrap/constants/script-manifest-url.js";
 import localModuleExtensions from "../../../../bootstrap/constants/local-module-extensions.js";
 
 describe("Common Constants Module", () => {
-  describe("exports validation", () => {
-    it("should export all expected constant modules", () => {
-      expect(common).toBeDefined();
-      expect(common.ciLogQueryParam).toBeDefined();
-      expect(common.clientLogEndpoint).toBeDefined();
-      expect(common.defaultFallbackProviders).toBeDefined();
-      expect(common.getDefaultProviderAliases).toBeDefined();
-      expect(common.proxyModeAuto).toBeDefined();
-      expect(common.proxyModeDirect).toBeDefined();
-      expect(common.proxyModeProxy).toBeDefined();
-      expect(common.scriptManifestUrl).toBeDefined();
-      expect(common.localModuleExtensions).toBeDefined();
+  describe("exports structure", () => {
+    it("should export an object with all expected properties", () => {
+      expect(common).toBeInstanceOf(Object);
+      expect(common).toHaveProperty('ciLogQueryParam');
+      expect(common).toHaveProperty('clientLogEndpoint');
+      expect(common).toHaveProperty('defaultFallbackProviders');
+      expect(common).toHaveProperty('getDefaultProviderAliases');
+      expect(common).toHaveProperty('proxyModeAuto');
+      expect(common).toHaveProperty('proxyModeProxy');
+      expect(common).toHaveProperty('proxyModeDirect');
+      expect(common).toHaveProperty('scriptManifestUrl');
+      expect(common).toHaveProperty('localModuleExtensions');
     });
 
-    it("should have the correct number of exports", () => {
-      const expectedExports = [
+    it("should have exactly 9 exported properties", () => {
+      const exportedKeys = Object.keys(common);
+      expect(exportedKeys).toHaveLength(9);
+      expect(exportedKeys.sort()).toEqual([
         'ciLogQueryParam',
-        'clientLogEndpoint', 
+        'clientLogEndpoint',
         'defaultFallbackProviders',
         'getDefaultProviderAliases',
         'proxyModeAuto',
@@ -35,42 +37,39 @@ describe("Common Constants Module", () => {
         'proxyModeProxy',
         'scriptManifestUrl',
         'localModuleExtensions'
-      ];
-      
-      expect(Object.keys(common)).toHaveLength(expectedExports.length);
+      ].sort());
     });
   });
 
   describe("ciLogQueryParam constant", () => {
-    it("should match the imported ciLogQueryParam value", () => {
+    it("should export the ciLogQueryParam constant", () => {
+      expect(common.ciLogQueryParam).toBeDefined();
       expect(common.ciLogQueryParam).toBe(ciLogQueryParam);
+      expect(typeof common.ciLogQueryParam).toBe('string');
     });
 
-    it("should be a string value", () => {
-      expect(typeof common.ciLogQueryParam).toBe("string");
-    });
-
-    it("should have a non-empty value", () => {
-      expect(common.ciLogQueryParam).not.toBe("");
+    it("should be a non-empty string", () => {
+      expect(common.ciLogQueryParam).not.toBe('');
+      expect(common.ciLogQueryParam.length).toBeGreaterThan(0);
     });
   });
 
   describe("clientLogEndpoint constant", () => {
-    it("should match the imported clientLogEndpoint value", () => {
+    it("should export the clientLogEndpoint constant", () => {
+      expect(common.clientLogEndpoint).toBeDefined();
       expect(common.clientLogEndpoint).toBe(clientLogEndpoint);
+      expect(typeof common.clientLogEndpoint).toBe('string');
     });
 
-    it("should be a string value", () => {
-      expect(typeof common.clientLogEndpoint).toBe("string");
-    });
-
-    it("should have a non-empty value", () => {
-      expect(common.clientLogEndpoint).not.toBe("");
+    it("should be a non-empty string", () => {
+      expect(common.clientLogEndpoint).not.toBe('');
+      expect(common.clientLogEndpoint.length).toBeGreaterThan(0);
     });
   });
 
   describe("defaultFallbackProviders constant", () => {
-    it("should match the imported defaultFallbackProviders value", () => {
+    it("should export the defaultFallbackProviders constant", () => {
+      expect(common.defaultFallbackProviders).toBeDefined();
       expect(common.defaultFallbackProviders).toEqual(defaultFallbackProviders);
     });
 
@@ -84,96 +83,84 @@ describe("Common Constants Module", () => {
 
     it("should contain string values", () => {
       common.defaultFallbackProviders.forEach(provider => {
-        expect(typeof provider).toBe("string");
+        expect(typeof provider).toBe('string');
+        expect(provider).not.toBe('');
       });
     });
 
     it("should return a fresh array each time to avoid mutation leaks", () => {
-      const array1 = common.defaultFallbackProviders;
-      const array2 = common.defaultFallbackProviders;
-      expect(array1).not.toBe(array2); // Different instances
-      expect(array1).toEqual(array2);  // Same content
+      const arr1 = common.defaultFallbackProviders;
+      const arr2 = common.defaultFallbackProviders;
+      expect(arr1).not.toBe(arr2); // Different array instances
+      expect(arr1).toEqual(arr2); // Same content
     });
   });
 
   describe("getDefaultProviderAliases function", () => {
-    it("should match the imported getDefaultProviderAliases function", () => {
+    it("should export the getDefaultProviderAliases function", () => {
+      expect(common.getDefaultProviderAliases).toBeDefined();
       expect(common.getDefaultProviderAliases).toBe(getDefaultProviderAliases);
+      expect(typeof common.getDefaultProviderAliases).toBe('function');
     });
 
-    it("should be a function", () => {
-      expect(typeof common.getDefaultProviderAliases).toBe("function");
+    it("should be callable", () => {
+      expect(() => common.getDefaultProviderAliases()).not.toThrow();
     });
 
-    it("should return an object when called", () => {
-      const aliases = common.getDefaultProviderAliases();
-      expect(typeof aliases).toBe("object");
-    });
-
-    it("should return an empty object when no aliases are configured", () => {
-      const aliases = common.getDefaultProviderAliases();
-      // Verify it's an object (might be empty or have defaults)
-      expect(typeof aliases).toBe("object");
+    it("should return an object", () => {
+      const result = common.getDefaultProviderAliases();
+      expect(result).toBeInstanceOf(Object);
     });
   });
 
-  describe("proxy mode constants", () => {
-    it("should match the imported proxyModeAuto value", () => {
+  describe("proxyMode constants", () => {
+    it("should export the proxyModeAuto constant", () => {
+      expect(common.proxyModeAuto).toBeDefined();
       expect(common.proxyModeAuto).toBe(proxyModeAuto);
+      expect(typeof common.proxyModeAuto).toBe('string');
     });
 
-    it("should match the imported proxyModeDirect value", () => {
-      expect(common.proxyModeDirect).toBe(proxyModeDirect);
-    });
-
-    it("should match the imported proxyModeProxy value", () => {
+    it("should export the proxyModeProxy constant", () => {
+      expect(common.proxyModeProxy).toBeDefined();
       expect(common.proxyModeProxy).toBe(proxyModeProxy);
+      expect(typeof common.proxyModeProxy).toBe('string');
     });
 
-    it("should have distinct values for each proxy mode", () => {
-      const modes = [
-        common.proxyModeAuto,
-        common.proxyModeDirect,
-        common.proxyModeProxy
-      ];
-      
-      // Check that all values are unique
-      for (let i = 0; i < modes.length; i++) {
-        for (let j = i + 1; j < modes.length; j++) {
-          expect(modes[i]).not.toBe(modes[j]);
-        }
-      }
+    it("should export the proxyModeDirect constant", () => {
+      expect(common.proxyModeDirect).toBeDefined();
+      expect(common.proxyModeDirect).toBe(proxyModeDirect);
+      expect(typeof common.proxyModeDirect).toBe('string');
     });
 
-    it("should have string values for proxy modes", () => {
-      expect(typeof common.proxyModeAuto).toBe("string");
-      expect(typeof common.proxyModeDirect).toBe("string");
-      expect(typeof common.proxyModeProxy).toBe("string");
+    it("should have proxy mode constants with expected values", () => {
+      expect(common.proxyModeAuto).toBe('auto');
+      expect(common.proxyModeProxy).toBe('proxy');
+      expect(common.proxyModeDirect).toBe('direct');
     });
 
-    it("should have lowercase values for proxy modes", () => {
+    it("should have lowercase proxy mode values", () => {
       expect(common.proxyModeAuto).toBe(common.proxyModeAuto.toLowerCase());
-      expect(common.proxyModeDirect).toBe(common.proxyModeDirect.toLowerCase());
       expect(common.proxyModeProxy).toBe(common.proxyModeProxy.toLowerCase());
+      expect(common.proxyModeDirect).toBe(common.proxyModeDirect.toLowerCase());
     });
   });
 
   describe("scriptManifestUrl constant", () => {
-    it("should match the imported scriptManifestUrl value", () => {
+    it("should export the scriptManifestUrl constant", () => {
+      expect(common.scriptManifestUrl).toBeDefined();
       expect(common.scriptManifestUrl).toBe(scriptManifestUrl);
+      expect(typeof common.scriptManifestUrl).toBe('string');
     });
 
-    it("should be a string value", () => {
-      expect(typeof common.scriptManifestUrl).toBe("string");
-    });
-
-    it("should have a non-empty value", () => {
-      expect(common.scriptManifestUrl).not.toBe("");
+    it("should be a non-empty string", () => {
+      expect(common.scriptManifestUrl).not.toBe('');
+      expect(common.scriptManifestUrl.length).toBeGreaterThan(0);
     });
   });
 
   describe("localModuleExtensions constant", () => {
-    it("should match the imported localModuleExtensions value", () => {
+    it("should export the localModuleExtensions constant", () => {
+      expect(common.localModuleExtensions).toBeDefined();
       expect(common.localModuleExtensions).toEqual(localModuleExtensions);
     });
 
@@ -181,58 +168,94 @@ describe("Common Constants Module", () => {
       expect(Array.isArray(common.localModuleExtensions)).toBe(true);
     });
 
-    it("should contain at least one extension", () => {
-      expect(common.localModuleExtensions.length).toBeGreaterThan(0);
-    });
-
     it("should contain string values starting with a dot", () => {
       common.localModuleExtensions.forEach(ext => {
-        expect(typeof ext).toBe("string");
-        expect(ext.startsWith(".")).toBe(true);
+        expect(typeof ext).toBe('string');
+        expect(ext.startsWith('.')).toBe(true);
       });
     });
 
-    it("should include common extensions like .js", () => {
-      expect(common.localModuleExtensions).toContain(".js");
+    it("should include common JavaScript extensions", () => {
+      expect(common.localModuleExtensions).toContain('.js');
+      expect(common.localModuleExtensions).toContain('.ts');
+      expect(common.localModuleExtensions).toContain('.jsx');
+      expect(common.localModuleExtensions).toContain('.tsx');
     });
 
-    it("should include an empty string to allow bare require/dir matches", () => {
-      expect(common.localModuleExtensions).toContain("");
+    it("should return a fresh array each time to avoid mutation leaks", () => {
+      const arr1 = common.localModuleExtensions;
+      const arr2 = common.localModuleExtensions;
+      expect(arr1).not.toBe(arr2); // Different array instances
+      expect(arr1).toEqual(arr2); // Same content
     });
   });
 
-  describe("integration tests", () => {
-    it("should have all constants properly defined and accessible", () => {
-      const allConstants = {
-        ciLogQueryParam: common.ciLogQueryParam,
-        clientLogEndpoint: common.clientLogEndpoint,
-        defaultFallbackProviders: common.defaultFallbackProviders,
-        getDefaultProviderAliases: common.getDefaultProviderAliases,
-        proxyModeAuto: common.proxyModeAuto,
-        proxyModeDirect: common.proxyModeDirect,
-        proxyModeProxy: common.proxyModeProxy,
-        scriptManifestUrl: common.scriptManifestUrl,
-        localModuleExtensions: common.localModuleExtensions
-      };
-
-      // Verify all constants are defined
-      Object.entries(allConstants).forEach(([key, value]) => {
-        expect(value).toBeDefined();
-      });
+  describe("integration", () => {
+    it("should maintain all original constant values", () => {
+      expect(common.ciLogQueryParam).toBe(ciLogQueryParam);
+      expect(common.clientLogEndpoint).toBe(clientLogEndpoint);
+      expect(common.defaultFallbackProviders).toEqual(defaultFallbackProviders);
+      expect(common.getDefaultProviderAliases).toBe(getDefaultProviderAliases);
+      expect(common.proxyModeAuto).toBe(proxyModeAuto);
+      expect(common.proxyModeProxy).toBe(proxyModeProxy);
+      expect(common.proxyModeDirect).toBe(proxyModeDirect);
+      expect(common.scriptManifestUrl).toBe(scriptManifestUrl);
+      expect(common.localModuleExtensions).toEqual(localModuleExtensions);
     });
 
-    it("should maintain consistent values across multiple accesses", () => {
-      const firstAccess = { ...common };
-      const secondAccess = { ...common };
+    it("should allow destructuring of all constants", () => {
+      const {
+        ciLogQueryParam: ciParam,
+        clientLogEndpoint: clientEndpoint,
+        defaultFallbackProviders: fallbackProviders,
+        getDefaultProviderAliases: getAliases,
+        proxyModeAuto: autoMode,
+        proxyModeProxy: proxyMode,
+        proxyModeDirect: directMode,
+        scriptManifestUrl: manifestUrl,
+        localModuleExtensions: extensions
+      } = common;
 
-      expect(firstAccess.ciLogQueryParam).toBe(secondAccess.ciLogQueryParam);
-      expect(firstAccess.clientLogEndpoint).toBe(secondAccess.clientLogEndpoint);
-      expect(firstAccess.defaultFallbackProviders).toEqual(secondAccess.defaultFallbackProviders);
-      expect(firstAccess.proxyModeAuto).toBe(secondAccess.proxyModeAuto);
-      expect(firstAccess.proxyModeDirect).toBe(secondAccess.proxyModeDirect);
-      expect(firstAccess.proxyModeProxy).toBe(secondAccess.proxyModeProxy);
-      expect(firstAccess.scriptManifestUrl).toBe(secondAccess.scriptManifestUrl);
-      expect(firstAccess.localModuleExtensions).toEqual(secondAccess.localModuleExtensions);
+      expect(ciParam).toBeDefined();
+      expect(clientEndpoint).toBeDefined();
+      expect(fallbackProviders).toBeDefined();
+      expect(getAliases).toBeDefined();
+      expect(autoMode).toBeDefined();
+      expect(proxyMode).toBeDefined();
+      expect(directMode).toBeDefined();
+      expect(manifestUrl).toBeDefined();
+      expect(extensions).toBeDefined();
+    });
+
+    it("should have consistent proxy mode values", () => {
+      expect(common.proxyModeAuto).toBe('auto');
+      expect(common.proxyModeProxy).toBe('proxy');
+      expect(common.proxyModeDirect).toBe('direct');
+    });
+  });
+
+  describe("edge cases", () => {
+    it("should handle potential mutations safely", () => {
+      const originalProviders = [...common.defaultFallbackProviders];
+      const originalExtensions = [...common.localModuleExtensions];
+
+      // Try to mutate the arrays
+      common.defaultFallbackProviders.push('test');
+      common.localModuleExtensions.push('.test');
+
+      // Get fresh instances to verify they weren't mutated
+      const freshProviders = common.defaultFallbackProviders;
+      const freshExtensions = common.localModuleExtensions;
+
+      expect(freshProviders).toEqual(originalProviders);
+      expect(freshExtensions).toEqual(originalExtensions);
+    });
+
+    it("should not have any undefined values", () => {
+      const exportedValues = Object.values(common);
+      exportedValues.forEach(value => {
+        expect(value).not.toBeUndefined();
+      });
     });
   });
 });

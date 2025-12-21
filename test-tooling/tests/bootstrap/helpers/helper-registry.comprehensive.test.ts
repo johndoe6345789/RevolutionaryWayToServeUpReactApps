@@ -69,15 +69,15 @@ describe("HelperRegistry", () => {
       registry.register("stringHelper", helper1);
       expect(registry.getHelper("stringHelper")).toBe(helper1);
 
-      // Test with number - it should be converted to string internally
+      // Test with number - in JavaScript Maps, keys keep their type
       const helper2 = { type: "number" };
       registry.register(123, helper2);
-      expect(registry.getHelper("123")).toBe(helper2);  // Keys are converted to strings in JavaScript Maps
+      expect(registry.getHelper(123)).toBe(helper2);  // Use same type for retrieval
 
-      // Test with boolean - it should be converted to string internally
+      // Test with boolean - in JavaScript Maps, keys keep their type
       const helper3 = { type: "boolean" };
       registry.register(true, helper3);
-      expect(registry.getHelper("true")).toBe(helper3);  // Keys are converted to strings in JavaScript Maps
+      expect(registry.getHelper(true)).toBe(helper3);  // Use same type for retrieval
     });
   });
 
