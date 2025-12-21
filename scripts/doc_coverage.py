@@ -37,7 +37,7 @@ STRINGS = {
     "missing_readme_title": "Missing README.md in these directories:",
     "missing_readme_links_title": "README files missing links to local docs:",
     "missing_globals_title": "Missing documented globals:",
-    "missing_functions_title": "Missing documented functions:",
+    "missing_functions_title": "Missing documented functions / classes:",
     "bootstrap_unmatched_title": "Bootstrap docs without matching source files:",
     "extra_docs_title": "Documented modules without matching source files:",
     "misplaced_docs_title": "Documented modules not located at expected path:",
@@ -80,7 +80,7 @@ PATH_CONFIG = {
 MODULE_HEADING_RE = re.compile(r"#\s*Module:\s*`([^`]+)`", re.IGNORECASE)
 LINK_TARGET_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 MISSING_GLOBALS_TITLE = "Missing documented globals:"
-MISSING_FUNCTIONS_TITLE = "Missing documented functions:"
+MISSING_FUNCTIONS_TITLE = "Missing documented functions / classes:"
 
 
 @dataclass
@@ -154,7 +154,7 @@ class TextUtils:
 SUMMARY_ROWS = [
     ("Modules", lambda metrics: f"{metrics.module_docged}/{metrics.module_total} documented"),
     ("Globals", lambda metrics: f"{metrics.globals_docged}/{metrics.globals_total}"),
-    ("Functions", lambda metrics: f"{metrics.functions_docged}/{metrics.functions_total}"),
+    ("Functions / Classes", lambda metrics: f"{metrics.functions_docged}/{metrics.functions_total}"),
 ]
 
 PENALTY_CONFIG = [
@@ -322,6 +322,17 @@ class PenaltyCalculatorConfig:
 
 
 class DocumentationAnalyzer:
+    CLASS_DECL_RE = re.compile(r"^\s*(?:export\s+)?class\s+[A-Za-z_]\w*")
+    METHOD_DECL_RE = re.compile(
+        r"^\s*(?:(?:static|async|get|set)\s+)*\*?\s*([A-Za-z_]\w*)\s*\("
+    )
+    FIELD_ARROW_RE = re.compile(
+        r"^\s*(?:static\s+)?([A-Za-z_]\w*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>"
+    )
+    FIELD_FUNC_RE = re.compile(
+        r"^\s*(?:static\s+)?([A-Za-z_]\w*)\s*=\s*(?:async\s*)?function\b"
+    )
+
     @staticmethod
     def collect_source_files(
         code_root: Path, extensions: set[str] | None = None, ignore_dirs: set[str] | None = None
@@ -341,22 +352,102 @@ class DocumentationAnalyzer:
 
     @staticmethod
     def extract_symbols(text: str) -> tuple[set[str], set[str]]:
-        """Return the set of globals and functions declared in the provided source."""
+        """Return the set of globals and functions/classes declared in the provided source."""
         globals_set: set[str] = set()
         functions_set: set[str] = set()
-        for match in re.finditer(r"^(?:const|let|var)\s+([A-Za-z_]\w*)", text, re.MULTILINE):
+        for match in re.finditer(
+            r"^(?:export\s+)?(?:const|let|var)\s+([A-Za-z_]\w*)",
+            text,
+            re.MULTILINE,
+        ):
             globals_set.add(match.group(1))
+        lines = text.splitlines()
+        class_depths = DocumentationAnalyzer._class_depths(lines)
+        functions_set.update(DocumentationAnalyzer._extract_class_methods(lines, class_depths))
         patterns = [
-            re.compile(r"\bfunction\s+([A-Za-z_]\w*)\s*\("),
+            re.compile(r"\bfunction\s*\*?\s*([A-Za-z_]\w*)\s*\("),
             re.compile(r"\b([A-Za-z_]\w*)\s*=\s*function\b"),
             re.compile(r"\b([A-Za-z_]\w*)\s*=\s*async\s*\("),
             re.compile(r"\b([A-Za-z_]\w*)\s*=\s*\([^)]*\)\s*=>"),
             re.compile(r"\b([A-Za-z_]\w*)\s*:\s*(?:async\s*)?\([^)]*\)\s*=>"),
         ]
-        for pattern in patterns:
-            for match in pattern.finditer(text):
-                functions_set.add(match.group(1))
+        for index, line in enumerate(lines):
+            if class_depths[index] > 0:
+                continue
+            for pattern in patterns:
+                match = pattern.search(line)
+                if match:
+                    functions_set.add(match.group(1))
+        for match in re.finditer(
+            r"^(?:export\s+(?:default\s+)?)?class\s+([A-Za-z_]\w*)",
+            text,
+            re.MULTILINE,
+        ):
+            functions_set.add(match.group(1))
         return globals_set, functions_set
+
+    @staticmethod
+    def _class_depths(lines: list[str]) -> list[int]:
+        depths = [0] * len(lines)
+        class_depth = 0
+        pending_class = False
+        for idx, line in enumerate(lines):
+            depths[idx] = class_depth
+            if pending_class:
+                if "{" in line:
+                    pending_class = False
+                    class_depth += line.count("{") - line.count("}")
+                    if class_depth < 0:
+                        class_depth = 0
+                continue
+            if class_depth == 0 and DocumentationAnalyzer.CLASS_DECL_RE.search(line):
+                pending_class = True
+                if "{" in line:
+                    pending_class = False
+                    class_depth += line.count("{") - line.count("}")
+                    if class_depth < 0:
+                        class_depth = 0
+                continue
+            if class_depth > 0:
+                class_depth += line.count("{") - line.count("}")
+                if class_depth < 0:
+                    class_depth = 0
+        return depths
+
+    @staticmethod
+    def _extract_class_methods(lines: list[str], class_depths: list[int]) -> set[str]:
+        methods: set[str] = set()
+        for idx, line in enumerate(lines):
+            if class_depths[idx] != 1:
+                continue
+            for pattern in (
+                DocumentationAnalyzer.METHOD_DECL_RE,
+                DocumentationAnalyzer.FIELD_ARROW_RE,
+                DocumentationAnalyzer.FIELD_FUNC_RE,
+            ):
+                match = pattern.search(line)
+                if not match:
+                    continue
+                if DocumentationAnalyzer._has_jsdoc(lines, idx):
+                    methods.add(match.group(1))
+                break
+        return methods
+
+    @staticmethod
+    def _has_jsdoc(lines: list[str], index: int) -> bool:
+        cursor = index - 1
+        while cursor >= 0:
+            stripped = lines[cursor].strip()
+            if not stripped:
+                cursor -= 1
+                continue
+            if stripped.startswith("/**"):
+                return True
+            if stripped.startswith("*") or stripped.startswith("*/") or stripped.startswith("//"):
+                cursor -= 1
+                continue
+            return False
+        return False
 
     @staticmethod
     def load_docs(doc_root: Path, ignore_dirs: Sequence[Path] | None = None) -> tuple[str, list[tuple[Path, str]]]:

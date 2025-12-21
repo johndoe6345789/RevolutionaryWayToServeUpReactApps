@@ -10,7 +10,8 @@
 - `LocalLoaderConfig`
 ## Functions / Classes
 
-- _None yet_
+- `LocalLoaderInitializer` — internal coordinator that wires renderer, dependency loader, logging, compilers, and registry bindings.
+- `LocalLoaderService` — public service that initializes local helpers and exposes the local loader API.
 
 ## Examples
 
