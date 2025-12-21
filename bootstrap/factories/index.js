@@ -6,19 +6,17 @@ const HelperFactory = require('./helper-factory.js');
 /**
  * GlobalFactory - Main factory instance for the application
  */
-class GlobalFactory extends BaseFactory {
+class GlobalFactory {
   /**
    * Creates a new GlobalFactory instance
    * @param {Object} [config={}] Configuration for the factory
    */
   constructor(config = {}) {
-    super(config);
-    
     // Initialize sub-factories
     this.services = new ServiceFactory(config.serviceConfig || {});
     this.configs = new ConfigFactory(config.configConfig || {});
     this.helpers = new HelperFactory(config.helperConfig || {});
-    
+
     this._initializeSubFactories();
   }
 
