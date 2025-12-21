@@ -1,13 +1,23 @@
 const SourceUtilsService = require("../../../../bootstrap/services/cdn/source-utils-service.js");
 
+// Mock the dependencies
+jest.mock("../../../../bootstrap/configs/cdn/source-utils.js", () => {
+  return jest.fn().mockImplementation(() => ({}));
+});
+
 describe("bootstrap/services/cdn/source-utils-service.js", () => {
   let service;
+  let mockNamespace;
+  let mockServiceRegistry;
   const dynamicRules = [{ prefix: "@app/" }];
 
   beforeEach(() => {
+    mockNamespace = { helpers: {} };
+    mockServiceRegistry = { register: jest.fn() };
+
     service = new SourceUtilsService({
-      namespace: { helpers: {} },
-      serviceRegistry: { register: jest.fn() },
+      namespace: mockNamespace,
+      serviceRegistry: mockServiceRegistry
     });
     service.initialize();
   });

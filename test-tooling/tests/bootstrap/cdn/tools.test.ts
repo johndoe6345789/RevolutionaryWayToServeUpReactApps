@@ -31,10 +31,11 @@ describe("bootstrap/services/cdn/tools-service.js", () => {
   });
 
   it("creates namespaces from legacy globals", () => {
-    const globalObj = { default: "value", helper: true };
+    const globalObj = { method: () => "test", helper: true };
     const ns = service.makeNamespace(globalObj);
     expect(ns.__esModule).toBe(true);
     expect(ns.default).toBe(globalObj);
+    expect(ns.method).toBe(globalObj.method);
     expect(ns.helper).toBe(true);
   });
 

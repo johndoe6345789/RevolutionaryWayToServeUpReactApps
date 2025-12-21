@@ -23,7 +23,7 @@ class NetworkServiceConfig {
     this.isCommonJs =
       typeof isCommonJs === "boolean"
         ? isCommonJs
-        : typeof module !== "undefined" && module.exports;
+        : typeof module !== "undefined" && typeof module.exports !== "undefined";
   }
 }
 

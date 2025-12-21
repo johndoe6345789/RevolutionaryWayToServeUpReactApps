@@ -13,7 +13,7 @@ class ModuleLoaderEnvironment {
     this.namespace =
       this.global.__rwtraBootstrap || (this.global.__rwtraBootstrap = {});
     this.helpers = this.namespace.helpers || (this.namespace.helpers = {});
-    this.isCommonJs = typeof module !== "undefined" && module.exports;
+    this.isCommonJs = typeof module !== "undefined" && typeof module.exports !== "undefined";
   }
 }
 
