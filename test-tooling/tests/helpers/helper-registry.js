@@ -61,7 +61,7 @@ describe("bootstrap/helpers/helper-registry.js", () => {
   describe("isRegistered", () => {
     test("reports registered and missing helpers", () => {
       const registry = new HelperRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
       expect(registry.isRegistered("alpha")).toBe(true);
       expect(registry.isRegistered("missing")).toBe(false);
     });
