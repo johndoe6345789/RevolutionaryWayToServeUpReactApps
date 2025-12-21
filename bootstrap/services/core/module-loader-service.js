@@ -76,7 +76,7 @@ class ModuleLoaderAggregator extends BaseService {
     this.serviceRegistry.register("moduleLoader", this.exports, {
       folder: "services/core",
       domain: "core",
-    });
+    }, ["logging", "tools", "dynamicModules", "sourceUtils"]);
   }
 
   /**

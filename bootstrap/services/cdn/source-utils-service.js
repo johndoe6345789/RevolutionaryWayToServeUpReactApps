@@ -143,7 +143,7 @@ class SourceUtilsService extends BaseService {
     this.serviceRegistry.register("sourceUtils", exports, {
       folder: "services/cdn",
       domain: "cdn",
-    });
+    }, ["logging"]);
     if (this.isCommonJs) {
       module.exports = exports;
     }

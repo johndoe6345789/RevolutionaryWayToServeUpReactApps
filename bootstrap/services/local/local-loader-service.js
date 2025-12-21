@@ -149,7 +149,7 @@ class LocalLoaderInitializer {
     this.service.serviceRegistry.register("localLoader", this.service.exports, {
       folder: "services/local",
       domain: "local",
-    });
+    }, ["logging", "dynamicModules", "sassCompiler", "tsxCompiler", "localPaths"]);
   }
 }
 

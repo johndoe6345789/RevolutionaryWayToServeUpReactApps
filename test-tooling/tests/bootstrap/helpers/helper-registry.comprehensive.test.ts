@@ -63,7 +63,7 @@ describe("HelperRegistry", () => {
       }).toThrow("Helper already registered: testHelper");
     });
 
-    it("should handle different name types correctly", () => {
+    it("should handle different name types", () => {
       // Test with string name
       const helper1 = { type: "string" };
       registry.register("stringHelper", helper1);
@@ -209,8 +209,28 @@ describe("HelperRegistry", () => {
       expect(typeof registry.getHelper("functionHelper")).toBe("function");
       expect(typeof registry.getHelper("objectHelper")).toBe("object");
       expect(typeof registry.getHelper("classHelper")).toBe("function"); // class is function in JS
-      expect(registry.getHelper("primitiveHelper")).toBe("stringHelper"); // The actual value, not its name
+      expect(registry.getHelper("primitiveHelper")).toBe("stringHelper"); // The actual value, not its type name
       expect(registry.getHelper("nullHelper")).toBeNull();
+    });
+
+    it("should handle complex metadata scenarios", () => {
+      const complexMetadata = {
+        version: "1.0.0",
+        dependencies: ["helper1", "helper2"],
+        config: {
+          enabled: true,
+          options: { timeout: 5000 }
+        },
+        author: {
+          name: "test",
+          email: "test@example.com"
+        }
+      };
+
+      registry.register("complexHelper", { name: "complex" }, complexMetadata);
+
+      expect(registry.getHelper("complexHelper").name).toBe("complex");
+      expect(registry.getMetadata("complexHelper")).toEqual(complexMetadata);
     });
   });
 });

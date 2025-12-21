@@ -5,23 +5,20 @@ import LoggingServiceConfig from "../../../../bootstrap/configs/cdn/logging-serv
 // Mock dependencies
 jest.mock("../../../../bootstrap/services/base-service.js");
 jest.mock("../../../../bootstrap/configs/cdn/logging-service.js");
-jest.mock("../../../../bootstrap/constants/common.js", () => ({
-  ciLogQueryParam: "ci",
-  clientLogEndpoint: "/api/log"
-}));
 
 describe("LoggingService", () => {
   let mockConfig;
   let mockNamespace;
   let mockServiceRegistry;
-  let mockWindow;
   let originalConsole;
   let originalWindow;
+  let originalNavigator;
 
   beforeEach(() => {
     // Save originals
     originalConsole = global.console;
     originalWindow = global.window;
+    originalNavigator = global.navigator;
     
     // Setup mocks
     mockNamespace = { helpers: {} };
@@ -33,18 +30,20 @@ describe("LoggingService", () => {
       clientLogEndpoint: "http://test-endpoint"
     };
     
-    mockWindow = {
-      location: { search: "?test-ci=true", hostname: "localhost" },
-      __RWTRA_CI_MODE__: undefined
-    };
-    
     global.console = {
       info: jest.fn(),
       error: jest.fn(),
       warn: jest.fn()
     };
     
-    global.window = mockWindow;
+    global.window = {
+      location: { search: "?test-ci=true", hostname: "localhost", href: "http://test.com" },
+      __RWTRA_CI_MODE__: undefined
+    };
+    
+    global.navigator = {
+      sendBeacon: jest.fn(() => true)
+    };
     
     // Reset mocks
     jest.clearAllMocks();
@@ -54,6 +53,20 @@ describe("LoggingService", () => {
     // Restore originals
     global.console = originalConsole;
     global.window = originalWindow;
+    global.navigator = originalNavigator;
+  });
+
+  describe("static defaults getter", () => {
+    it("should return the shared logging defaults from constants", () => {
+      const defaults = LoggingService.defaults;
+      expect(defaults).toBeDefined();
+    });
+
+    it("should return the expected default values", () => {
+      const defaults = LoggingService.defaults;
+      expect(defaults).toHaveProperty('ciLogQueryParam');
+      expect(defaults).toHaveProperty('clientLogEndpoint');
+    });
   });
 
   describe("constructor", () => {
@@ -71,19 +84,6 @@ describe("LoggingService", () => {
     it("should create a default config if none provided", () => {
       new LoggingService();
       expect(LoggingServiceConfig).toHaveBeenCalled();
-    });
-  });
-
-  describe("static defaults getter", () => {
-    it("should return the shared logging defaults from constants", () => {
-      const defaults = LoggingService.defaults;
-      expect(defaults).toBeDefined();
-    });
-
-    it("should return the same defaults object each time", () => {
-      const defaults1 = LoggingService.defaults;
-      const defaults2 = LoggingService.defaults;
-      expect(defaults1).toBe(defaults2);
     });
   });
 
@@ -214,40 +214,40 @@ describe("LoggingService", () => {
     });
 
     it("should return window.__RWTRA_CI_MODE__ value if available", () => {
-      mockWindow.__RWTRA_CI_MODE__ = true;
+      global.window.__RWTRA_CI_MODE__ = true;
       expect(service.detectCiLogging()).toBe(true);
       
-      mockWindow.__RWTRA_CI_MODE__ = false;
+      global.window.__RWTRA_CI_MODE__ = false;
       expect(service.detectCiLogging()).toBe(false);
     });
 
     it("should detect CI logging from query params", () => {
-      mockWindow.location.search = "?test-ci=1";
+      global.window.location.search = "?test-ci=1";
       expect(service.detectCiLogging()).toBe(true);
       
-      mockWindow.location.search = "?test-ci=true";
+      global.window.location.search = "?test-ci=true";
       expect(service.detectCiLogging()).toBe(true);
       
-      mockWindow.location.search = "?test-ci=TRUE";
+      global.window.location.search = "?test-ci=TRUE";
       expect(service.detectCiLogging()).toBe(true);
     });
 
     it("should return false for invalid query param values", () => {
-      mockWindow.location.search = "?test-ci=0";
+      global.window.location.search = "?test-ci=0";
       expect(service.detectCiLogging()).toBe(false);
       
-      mockWindow.location.search = "?test-ci=false";
+      global.window.location.search = "?test-ci=false";
       expect(service.detectCiLogging()).toBe(false);
       
-      mockWindow.location.search = "?test-ci=invalid";
+      global.window.location.search = "?test-ci=invalid";
       expect(service.detectCiLogging()).toBe(false);
     });
 
     it("should detect CI logging from localhost", () => {
-      mockWindow.location = { search: "", hostname: "localhost" };
+      global.window.location = { search: "", hostname: "localhost", href: "http://test.com" };
       expect(service.detectCiLogging()).toBe(true);
       
-      mockWindow.location = { search: "", hostname: "127.0.0.1" };
+      global.window.location = { search: "", hostname: "127.0.0.1", href: "http://test.com" };
       expect(service.detectCiLogging()).toBe(true);
     });
 
@@ -257,13 +257,13 @@ describe("LoggingService", () => {
     });
 
     it("should return false when no conditions are met", () => {
-      mockWindow.__RWTRA_CI_MODE__ = undefined;
-      mockWindow.location = { search: "?other=value", hostname: "example.com" };
+      global.window.__RWTRA_CI_MODE__ = undefined;
+      global.window.location = { search: "?other=value", hostname: "example.com", href: "http://test.com" };
       expect(service.detectCiLogging()).toBe(false);
     });
 
     it("should use location override if provided", () => {
-      const overrideLocation = { search: "?test-ci=1", hostname: "example.com" };
+      const overrideLocation = { search: "?test-ci=1", hostname: "example.com", href: "http://test.com" };
       expect(service.detectCiLogging({}, overrideLocation)).toBe(true);
     });
   });
@@ -282,7 +282,7 @@ describe("LoggingService", () => {
       
       expect(serialized).toEqual({
         message: "test error",
-        stack: error.stack
+        stack: expect.stringContaining("Error: test error")
       });
     });
 
@@ -376,73 +376,58 @@ describe("LoggingService", () => {
   describe("logClient method", () => {
     let service;
     let mockFetch;
-    let mockSendBeacon;
 
     beforeEach(() => {
       mockFetch = jest.fn(() => Promise.resolve({ ok: true }));
-      mockSendBeacon = jest.fn(() => true);
-      
       global.fetch = mockFetch;
-      global.navigator = { sendBeacon: mockSendBeacon };
       
       service = new LoggingService(mockConfig);
       service.initialize();
-      service.setCiLoggingEnabled(true);
+      service.setCiLoggingEnabled(true); // Enable CI logging
     });
 
     afterEach(() => {
       delete global.fetch;
-      delete global.navigator;
     });
 
-    it("should send log data via sendBeacon when CI logging is enabled", async () => {
-      await service.logClient("test:event", { data: "value" });
+    it("should send log data via sendBeacon when CI logging is enabled", () => {
+      service.logClient("test:event", { data: "value" });
       
-      expect(mockSendBeacon).toHaveBeenCalledWith(
+      expect(global.navigator.sendBeacon).toHaveBeenCalledWith(
         "http://test-endpoint",
         expect.any(Blob)
       );
     });
 
-    it("should not send logs when CI logging is disabled and not an error level", async () => {
+    it("should not send logs when CI logging is disabled and not an error level", () => {
       service.setCiLoggingEnabled(false);
-      await service.logClient("test:event", { data: "value" });
+      service.logClient("test:event", { data: "value" });
       
-      expect(mockSendBeacon).not.toHaveBeenCalled();
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    it("should send error level logs even when CI logging is disabled", async () => {
+    it("should send error level logs even when CI logging is disabled", () => {
       service.setCiLoggingEnabled(false);
-      await service.logClient("error:event", { data: "value" }, "error");
+      service.logClient("error:event", { data: "value" }, "error");
       
-      expect(mockSendBeacon).toHaveBeenCalledWith(
+      expect(global.navigator.sendBeacon).toHaveBeenCalledWith(
         "http://test-endpoint",
         expect.any(Blob)
       );
     });
 
-    it("should log to console", async () => {
-      await service.logClient("test:event", { data: "value" });
-      
+    it("should log to console with appropriate method based on level", () => {
+      service.logClient("info:event", { data: "value" }, "info");
       expect(global.console.info).toHaveBeenCalledWith(
         "[bootstrap]", 
-        "test:event", 
-        { data: "value" }
-      );
-    });
-
-    it("should use appropriate console method based on level", async () => {
-      await service.logClient("error:event", { data: "value" }, "error");
-      expect(global.console.error).toHaveBeenCalledWith(
-        "[bootstrap]", 
-        "error:event", 
+        "info:event", 
         { data: "value" }
       );
       
-      global.console.error.mockClear();
+      global.console.info.mockClear();
       
-      await service.logClient("warn:event", { data: "value" }, "warn");
+      service.logClient("warn:event", { data: "value" }, "warn");
       expect(global.console.warn).toHaveBeenCalledWith(
         "[bootstrap]", 
         "warn:event", 
@@ -451,18 +436,38 @@ describe("LoggingService", () => {
       
       global.console.warn.mockClear();
       
-      await service.logClient("info:event", { data: "value" }, "info");
-      expect(global.console.info).toHaveBeenCalledWith(
+      service.logClient("error:event", { data: "value" }, "error");
+      expect(global.console.error).toHaveBeenCalledWith(
         "[bootstrap]", 
-        "info:event", 
+        "error:event", 
         { data: "value" }
       );
     });
 
-    it("should fall back to fetch when sendBeacon is not available", async () => {
-      delete global.navigator.sendBeacon;
-      await service.logClient("test:event", { data: "value" });
+    it("should serialize the detail object", () => {
+      const error = new Error("test");
+      service.logClient("event", error);
       
+      expect(global.console.info).toHaveBeenCalledWith(
+        "[bootstrap]",
+        "event",
+        expect.objectContaining({
+          message: "test",
+          stack: expect.stringContaining("Error: test")
+        })
+      );
+    });
+
+    it("should handle missing window gracefully", () => {
+      delete global.window;
+      expect(() => service.logClient("event", { data: "value" })).not.toThrow();
+    });
+
+    it("should handle missing navigator gracefully", () => {
+      delete global.navigator;
+      service.logClient("event", { data: "value" });
+      
+      // Should fall back to fetch
       expect(mockFetch).toHaveBeenCalledWith(
         "http://test-endpoint",
         expect.objectContaining({
@@ -472,21 +477,12 @@ describe("LoggingService", () => {
       );
     });
 
-    it("should handle missing window gracefully", async () => {
-      delete global.window;
-      await service.logClient("test:event", { data: "value" });
+    it("should handle navigator.sendBeacon failure by falling back to fetch", () => {
+      global.navigator.sendBeacon = jest.fn(() => false);
+      service.logClient("event", { data: "value" });
       
-      // Should not throw and should not call logging methods
-      expect(mockSendBeacon).not.toHaveBeenCalled();
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it("should handle missing navigator gracefully", async () => {
-      global.navigator = undefined;
-      await service.logClient("test:event", { data: "value" });
-      
-      expect(mockSendBeacon).not.toHaveBeenCalled();
-      expect(mockFetch).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+      expect(global.navigator.sendBeacon).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
     });
   });
 

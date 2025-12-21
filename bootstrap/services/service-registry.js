@@ -11,16 +11,54 @@ class ServiceRegistry {
   }
 
   /**
-   * Registers a named service instance with optional metadata.
+   * Registers a named service instance with optional metadata and required services validation.
    */
-  register(name, service, metadata = {}) {
+  register(name, service, metadata, requiredServices) {
     if (!name) {
       throw new Error("Service name is required");
     }
+
+    // Handle backward compatibility with different argument lengths
+    let finalMetadata = {};
+    let finalRequiredServices = [];
+
+    if (arguments.length === 2) {
+      // register(name, service)
+      finalMetadata = {};
+      finalRequiredServices = [];
+    } else if (arguments.length === 3) {
+      // register(name, service, metadata) - existing usage
+      finalMetadata = metadata || {};
+      finalRequiredServices = [];
+    } else if (arguments.length === 4) {
+      // register(name, service, metadata, requiredServices) - new usage
+      finalMetadata = metadata || {};
+      finalRequiredServices = requiredServices || [];
+    } else {
+      // Default case
+      finalMetadata = {};
+      finalRequiredServices = [];
+    }
+
     if (this._services.has(name)) {
       throw new Error("Service already registered: " + name);
     }
-    this._services.set(name, { service, metadata });
+
+    this._services.set(name, { service, metadata: finalMetadata });
+
+    // Validate that required services are registered
+    if (Array.isArray(finalRequiredServices) && finalRequiredServices.length > 0) {
+      const missingServices = [];
+      for (const serviceName of finalRequiredServices) {
+        if (!this._services.has(serviceName)) {
+          missingServices.push(serviceName);
+        }
+      }
+
+      if (missingServices.length > 0) {
+        throw new Error(`Required services are not registered: ${missingServices.join(', ')}`);
+      }
+    }
   }
 
   /**

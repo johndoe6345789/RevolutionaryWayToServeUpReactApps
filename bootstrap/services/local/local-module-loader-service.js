@@ -186,7 +186,7 @@ class LocalModuleLoaderService extends BaseService {
     this.serviceRegistry.register("localModuleLoader", exports, {
       folder: "services/local",
       domain: "local",
-    });
+    }, ["logging", "dynamicModules", "sourceUtils", "tsxCompiler", "localPaths"]);
     if (this.isCommonJs) {
       module.exports = exports;
     }

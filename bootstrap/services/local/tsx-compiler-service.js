@@ -114,7 +114,7 @@ class TsxCompilerService extends BaseService {
     this.serviceRegistry.register("tsxCompiler", exports, {
       folder: "services/local",
       domain: "local",
-    });
+    }, ["logging", "sourceUtils"]);
     if (this.isCommonJs) {
       module.exports = exports;
     }

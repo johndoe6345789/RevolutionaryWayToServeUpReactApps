@@ -133,7 +133,7 @@ class DynamicModulesService extends BaseService {
     this.serviceRegistry.register("dynamicModules", exports, {
       folder: "services/cdn",
       domain: "cdn",
-    });
+    }, ["logging"]);
     if (this.isCommonJs) {
       module.exports = exports;
     }

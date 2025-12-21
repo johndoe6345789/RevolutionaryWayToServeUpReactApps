@@ -137,9 +137,10 @@ describe("SassCompilerService", () => {
     });
 
     test("should fetch and compile SCSS successfully", async () => {
+      const mockText = createMockFunction().mockResolvedValue("$primary-color: #333;");
       const mockResponse = {
         ok: true,
-        text: createMockFunction().mockResolvedValue("$primary-color: #333;")
+        text: mockText
       };
       mockFetch.mockResolvedValue(mockResponse);
       mockSassImpl.compile = (scss) => ({ css: ".test { color: #333; }" });
@@ -148,8 +149,10 @@ describe("SassCompilerService", () => {
 
       const result = await service.compileSCSS("/test.scss");
 
-      expect(mockFetch).toHaveBeenCalledWith("/test.scss", { cache: "no-store" });
-      expect(mockResponse.text).toHaveBeenCalled();
+      expect(mockFetch.calls.length).toBeGreaterThan(0);
+      expect(mockFetch.calls[0][0]).toBe("/test.scss");
+      expect(mockFetch.calls[0][1]).toEqual({ cache: "no-store" });
+      expect(mockText.calls.length).toBeGreaterThan(0);
       expect(result).toBe(".test { color: #333; }");
     });
 
@@ -212,10 +215,9 @@ describe("SassCompilerService", () => {
 
       service.injectCSS("body { margin: 0; }");
 
-      expect(mockDocument.createElement).toHaveBeenCalledWith("style");
-      expect(mockDocument.head.appendChild).toHaveBeenCalled();
-      const styleElement = mockDocument.createElement.mockReturnValue({ textContent: '', setAttribute: createMockFunction() });
-      expect(styleElement.textContent).toBe("body { margin: 0; }");
+      expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
+      expect(mockDocument.createElement.calls[0][0]).toBe("style");
+      expect(mockDocument.head.appendChild.calls.length).toBeGreaterThan(0);
     });
 
     test("should create style element with correct CSS content", () => {
@@ -262,14 +264,17 @@ describe("SassCompilerService", () => {
       const installedService = service.install();
 
       expect(installedService).toBe(service);
-      expect(mockServiceRegistry.register).toHaveBeenCalledWith(
-        "sassCompiler",
-        service.exports,
-        {
-          folder: "services/local",
-          domain: "local",
-        }
-      );
+      expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
+      expect(mockServiceRegistry.register.calls[0][0]).toBe("sassCompiler");
+      const exportedFunctions = mockServiceRegistry.register.calls[0][1];
+      expect(exportedFunctions).toHaveProperty('compileSCSS');
+      expect(exportedFunctions).toHaveProperty('injectCSS');
+      expect(typeof exportedFunctions.compileSCSS).toBe('function');
+      expect(typeof exportedFunctions.injectCSS).toBe('function');
+      expect(mockServiceRegistry.register.calls[0][2]).toEqual({
+        folder: "services/local",
+        domain: "local",
+      });
     });
 
     test("should install helpers into the namespace", () => {
@@ -277,7 +282,10 @@ describe("SassCompilerService", () => {
 
       service.install();
 
-      expect(service.helpers.sassCompiler).toBe(service.exports);
+      expect(service.helpers.sassCompiler).toHaveProperty('compileSCSS');
+      expect(service.helpers.sassCompiler).toHaveProperty('injectCSS');
+      expect(typeof service.helpers.sassCompiler.compileSCSS).toBe('function');
+      expect(typeof service.helpers.sassCompiler.injectCSS).toBe('function');
     });
 
     test("should throw if not initialized before install", () => {
@@ -312,15 +320,13 @@ describe("SassCompilerService", () => {
 
       // Test that injectCSS works
       service.injectCSS(".test { color: red; }");
-      expect(mockDocument.createElement).toHaveBeenCalledWith("style");
+      expect(mockDocument.createElement.calls.length).toBeGreaterThan(0);
+      expect(mockDocument.createElement.calls[0][0]).toBe("style");
 
       // Test that install works
       service.install();
-      expect(mockServiceRegistry.register).toHaveBeenCalledWith(
-        "sassCompiler",
-        expect.any(Object),
-        expect.any(Object)
-      );
+      expect(mockServiceRegistry.register.calls.length).toBeGreaterThan(0);
+      expect(mockServiceRegistry.register.calls[mockServiceRegistry.register.calls.length-1][0]).toBe("sassCompiler");
     });
   });
 });

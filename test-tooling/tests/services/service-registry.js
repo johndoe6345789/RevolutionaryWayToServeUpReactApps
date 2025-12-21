@@ -31,6 +31,52 @@ describe("bootstrap/services/service-registry.js", () => {
       registry.register("alpha", {});
       expect(() => registry.register("alpha", {})).toThrow("Service already registered: alpha");
     });
+
+    test("validates required services when provided", () => {
+      const registry = new ServiceRegistry();
+      registry.register("alpha", {});
+      registry.register("beta", {});
+
+      // Should not throw when all required services are present
+      expect(() => {
+        registry.register("gamma", {}, {}, ["alpha", "beta"]);
+      }).not.toThrow();
+
+      expect(registry.isRegistered("gamma")).toBe(true);
+    });
+
+    test("throws when required services are missing", () => {
+      const registry = new ServiceRegistry();
+      registry.register("alpha", {});
+
+      // Should throw when required service is missing
+      expect(() => {
+        registry.register("beta", {}, {}, ["missing"]);
+      }).toThrow("Required services are not registered: missing");
+
+      expect(() => {
+        registry.register("gamma", {}, {}, ["alpha", "missing"]);
+      }).toThrow("Required services are not registered: missing");
+
+      expect(() => {
+        registry.register("delta", {}, {}, ["missing1", "missing2"]);
+      }).toThrow("Required services are not registered: missing1, missing2");
+    });
+
+    test("does not validate when no required services provided", () => {
+      const registry = new ServiceRegistry();
+      registry.register("alpha", {});
+
+      // Should work normally when no required services are specified
+      expect(() => {
+        registry.register("beta", {});
+      }).not.toThrow();
+
+      // Should work when empty array is passed as required services
+      expect(() => {
+        registry.register("gamma", {}, {}, []);
+      }).not.toThrow();
+    });
   });
 
   describe("getService", () => {

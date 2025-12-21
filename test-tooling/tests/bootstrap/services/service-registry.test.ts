@@ -29,4 +29,28 @@ describe("bootstrap/services/service-registry.js", () => {
     expect(registry.listServices()).toEqual([]);
     expect(registry.isRegistered("network")).toBe(false);
   });
+
+  it('validates required services', () => {
+    const registry = new ServiceRegistry();
+
+    // Register initial services
+    registry.register("logger", { log: () => {} });
+    registry.register("config", { get: () => {} });
+
+    // Should succeed when all required services are registered
+    expect(() => {
+      registry.register("database", { connect: () => {} }, {}, ["logger", "config"]);
+    }).not.toThrow();
+
+    expect(registry.isRegistered("database")).toBe(true);
+
+    // Should fail when required services are missing
+    expect(() => {
+      registry.register("api", { call: () => {} }, {}, ["missing-service"]);
+    }).toThrow("Required services are not registered: missing-service");
+
+    expect(() => {
+      registry.register("cache", { get: () => {} }, {}, ["logger", "missing1", "missing2"]);
+    }).toThrow("Required services are not registered: missing1, missing2");
+  });
 });
