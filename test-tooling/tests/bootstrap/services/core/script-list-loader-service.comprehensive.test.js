@@ -263,13 +263,19 @@ describe("ScriptListLoader", () => {
       mockFetch.mockResolvedValue(mockResponse);
       
       // Mock document methods
+      const mockScripts = [
+        { getAttribute: () => "/script1.js" },
+        { getAttribute: () => "/script2.js" }
+      ];
       const templateElement = {
-        innerHTML: '',
+        set innerHTML(value) {
+          this._innerHTML = value;
+        },
+        get innerHTML() {
+          return this._innerHTML;
+        },
         content: {
-          querySelectorAll: createMockFunction().mockReturnValue([
-            { getAttribute: () => "/script1.js" },
-            { getAttribute: () => "/script2.js" }
-          ])
+          querySelectorAll: createMockFunction().mockReturnValue(mockScripts)
         }
       };
 

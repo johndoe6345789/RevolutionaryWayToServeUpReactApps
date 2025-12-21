@@ -1,4 +1,4 @@
-import ServiceRegistry from "../../bootstrap/services/service-registry.js";
+import ServiceRegistry from "../../bootstrap/registries/service-registry.js";
 
 describe("ServiceRegistry", () => {
   let serviceRegistry;

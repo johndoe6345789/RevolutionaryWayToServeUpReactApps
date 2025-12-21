@@ -144,11 +144,10 @@ describe('BaseBootstrapApp', () => {
       // Set up CommonJS environment
       global.module = { exports: {} };
 
-      // Mock the require function before creating the app
-      const mockHelper = { test: 'helper' };
-      const mockRequire = jest.fn().mockReturnValue(mockHelper);
+      // Store original require and set up mock
       const originalRequire = global.require;
-      global.require = mockRequire;
+      const mockHelper = { test: 'helper' };
+      global.require = jest.fn().mockReturnValue(mockHelper);
 
       const mockRootHandler = new GlobalRootHandler();
       const app = new BaseBootstrapApp({ rootHandler: mockRootHandler });
@@ -157,7 +156,7 @@ describe('BaseBootstrapApp', () => {
       const result = app._resolveHelper('testHelper', './path/to/helper');
 
       // Verify that require was called with the correct path
-      expect(mockRequire).toHaveBeenCalledWith('./path/to/helper');
+      expect(global.require).toHaveBeenCalledWith('./path/to/helper');
       expect(result).toEqual(mockHelper);
 
       // Restore original require
