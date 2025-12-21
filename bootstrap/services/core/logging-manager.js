@@ -7,6 +7,9 @@ const LoggingManagerConfig = require("../../configs/logging-manager.js");
 class LoggingManager {
   constructor(config = new LoggingManagerConfig()) { this.config = config; this.initialized = false; }
 
+  /**
+   * Sets up the Logging Manager instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("LoggingManager already initialized");
@@ -26,6 +29,9 @@ class LoggingManager {
     return this;
   }
 
+  /**
+   * Registers Logging Manager with the runtime service registry.
+   */
   install(windowObj) {
     if (!hasWindow || !windowObj) {
       return this;
@@ -36,6 +42,9 @@ class LoggingManager {
     return this;
   }
 
+  /**
+   * Performs the internal handle window error step for Logging Manager.
+   */
   _handleWindowError(event) {
     this.logClient("window:error", {
       message: event.message,
@@ -45,6 +54,9 @@ class LoggingManager {
     });
   }
 
+  /**
+   * Performs the internal handle unhandled rejection step for Logging Manager.
+   */
   _handleUnhandledRejection(event) {
     const reason = event && event.reason ? event.reason : "unknown";
     this.logClient("window:unhandledrejection", {

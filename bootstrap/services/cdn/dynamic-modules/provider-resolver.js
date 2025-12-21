@@ -10,6 +10,9 @@ class ProviderResolver extends BaseHelper {
     this.service = config.service;
   }
 
+  /**
+   * Sets up the Provider Resolver instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       return this;
@@ -24,6 +27,9 @@ class ProviderResolver extends BaseHelper {
     return this;
   }
 
+  /**
+   * Resolve Bases for Provider Resolver.
+   */
   resolveBases(rule) {
     const bases = [];
     const addBase = (value) => {
@@ -45,6 +51,9 @@ class ProviderResolver extends BaseHelper {
     return bases;
   }
 
+  /**
+   * Build Candidates for Provider Resolver.
+   */
   buildCandidates(rule, icon, bases) {
     const pkg = rule.package || rule.prefix.replace(/\/\*?$/, "");
     const version = rule.version ? "@" + rule.version : "";
@@ -68,6 +77,9 @@ class ProviderResolver extends BaseHelper {
     return candidates;
   }
 
+  /**
+   * Performs the internal add candidate step for Provider Resolver.
+   */
   _addCandidate(candidate, candidates, seen) {
     if (!candidate || seen.has(candidate)) return;
     seen.add(candidate);

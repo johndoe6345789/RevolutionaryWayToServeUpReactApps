@@ -16,6 +16,9 @@ const DEFAULT_PROVIDER_ALIASES = getDefaultProviderAliases(globalObject, isCommo
 const BaseService = require("../base-service.js");
 const NetworkServiceConfig = require("../../configs/network-service.js");
 
+/**
+ * Normalize Provider Base Raw Value for Network service.
+ */
 function normalizeProviderBaseRawValue(provider) {
   if (!provider) return "";
   if (provider.startsWith("/")) {
@@ -27,6 +30,9 @@ function normalizeProviderBaseRawValue(provider) {
   return "https://" + provider.replace(/\/+$/, "") + "/";
 }
 
+/**
+ * Create Alias Map for Network service.
+ */
 function createAliasMap(source) {
   const map = new Map();
   if (source && typeof source === "object") {
@@ -47,6 +53,9 @@ function createAliasMap(source) {
 class NetworkService extends BaseService {
   constructor(config = new NetworkServiceConfig()) { super(config); }
 
+  /**
+   * Sets up the Network Service instance before it handles requests.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -72,6 +81,9 @@ class NetworkService extends BaseService {
     return this;
   }
 
+  /**
+   * Overrides the fallback network providers used by Network Service.
+   */
   setFallbackProviders(providers) {
     if (!Array.isArray(providers) || !providers.length) {
       this.fallbackProviders = [...DEFAULT_FALLBACK_PROVIDERS];
@@ -85,18 +97,30 @@ class NetworkService extends BaseService {
     }
   }
 
+  /**
+   * Returns the fallback network providers registered with Network Service.
+   */
   getFallbackProviders() {
     return [...this.fallbackProviders];
   }
 
+  /**
+   * Sets the default provider base URL for Network Service.
+   */
   setDefaultProviderBase(provider) {
     this.defaultProviderBase = normalizeProviderBaseRawValue(provider);
   }
 
+  /**
+   * Resolves the default provider base that Network Service will use.
+   */
   getDefaultProviderBase() {
     return this.defaultProviderBase;
   }
 
+  /**
+   * Configures provider aliases for Network Service.
+   */
   setProviderAliases(aliases) {
     this.providerAliases = createAliasMap({
       ...DEFAULT_PROVIDER_ALIASES,
@@ -104,6 +128,9 @@ class NetworkService extends BaseService {
     });
   }
 
+  /**
+   * Normalizes the proxy mode before Network Service consumes it.
+   */
   normalizeProxyMode(mode) {
     if (!mode) return PROXY_MODE_AUTO;
     const normalized = String(mode).trim().toLowerCase();
@@ -112,6 +139,9 @@ class NetworkService extends BaseService {
       : PROXY_MODE_AUTO;
   }
 
+  /**
+   * Returns the normalized proxy mode for Network Service.
+   */
   getProxyMode() {
     const globalMode = this.normalizeProxyMode(globalObject.__RWTRA_PROXY_MODE__);
     if (globalMode !== PROXY_MODE_AUTO) {
@@ -132,6 +162,9 @@ class NetworkService extends BaseService {
     return PROXY_MODE_AUTO;
   }
 
+  /**
+   * Is Ci Like Host for Network Service.
+   */
   isCiLikeHost() {
     if (typeof globalObject.window === "undefined") return false;
     const host =
@@ -139,6 +172,9 @@ class NetworkService extends BaseService {
     return host === "127.0.0.1" || host === "localhost";
   }
 
+  /**
+   * Loads a script from the network on behalf of Network Service.
+   */
   loadScript(url) {
     const document = globalObject.document;
     if (!document) {
@@ -159,6 +195,9 @@ class NetworkService extends BaseService {
     });
   }
 
+  /**
+   * Normalize Provider Base for Network Service.
+   */
   normalizeProviderBase(provider) {
     if (!provider) return "";
     const alias = this.providerAliases.get(provider);
@@ -166,10 +205,16 @@ class NetworkService extends BaseService {
     return normalizeProviderBaseRawValue(provider);
   }
 
+  /**
+   * Normalize Provider Base Raw for Network Service.
+   */
   normalizeProviderBaseRaw(provider) {
     return normalizeProviderBaseRawValue(provider);
   }
 
+  /**
+   * Resolve Provider for Network Service.
+   */
   resolveProvider(mod) {
     const hasDualProviders = mod.ci_provider || mod.production_provider;
     if (hasDualProviders) {
@@ -190,10 +235,16 @@ class NetworkService extends BaseService {
     );
   }
 
+  /**
+   * Should Retry Status for Network Service.
+   */
   shouldRetryStatus(status) {
     return status === 0 || status >= 500 || status === 429;
   }
 
+  /**
+   * Probe Url for Network Service.
+   */
   async probeUrl(url, opts = {}) {
     let { retries = 2, backoffMs = 300, allowGetFallback = true } = opts;
     let attempt = 0;
@@ -238,6 +289,9 @@ class NetworkService extends BaseService {
     }
   }
 
+  /**
+   * Resolve Module Url for Network Service.
+   */
   async resolveModuleUrl(mod) {
     if (mod.url) return mod.url;
 
@@ -290,6 +344,9 @@ class NetworkService extends BaseService {
     );
   }
 
+  /**
+   * Performs the internal collect bases step for Network Service.
+   */
   _collectBases(mod) {
     const bases = [];
     const addBase = (b) => {

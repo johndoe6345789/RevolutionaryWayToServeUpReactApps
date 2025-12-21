@@ -2,6 +2,9 @@
  * Handles rendering the configured entry component to the DOM.
  */
 class FrameworkRendererConfig {
+  /**
+   * Initializes a new Framework Renderer Config instance with the provided configuration.
+   */
   constructor({ document } = {}) {
     this.document = document;
   }
@@ -14,6 +17,9 @@ class FrameworkRenderer {
     this.document = null;
   }
 
+  /**
+   * Sets up the Framework Renderer instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("FrameworkRenderer already initialized");
@@ -26,6 +32,9 @@ class FrameworkRenderer {
     return this;
   }
 
+  /**
+   * Render for Framework Renderer.
+   */
   render(config, registry, App) {
     if (!this.initialized) {
       throw new Error("FrameworkRenderer not initialized");
@@ -67,6 +76,9 @@ class FrameworkRenderer {
     root[renderMethod](createElementFn(App));
   }
 
+  /**
+   * Returns the exported value for Framework Renderer modules.
+   */
   _getModuleExport(mod, name) {
     if (!mod) return null;
     if (Object.prototype.hasOwnProperty.call(mod, name)) {

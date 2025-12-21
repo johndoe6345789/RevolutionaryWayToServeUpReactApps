@@ -7,6 +7,9 @@ const ModuleLoaderEnvironment = require("./module-loader-environment.js");
 class ModuleLoaderAggregator {
   constructor(config = new ModuleLoaderConfig()) { this.config = config; this.initialized = false; }
 
+  /**
+   * Sets up the Module Loader Aggregator instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("ModuleLoaderAggregator already initialized");
@@ -27,6 +30,9 @@ class ModuleLoaderAggregator {
     return this;
   }
 
+  /**
+   * Performs the internal load dependencies step for Module Loader Aggregator.
+   */
   _loadDependencies() {
     this.network = this._requireOrHelper("../../cdn/network.js", "network");
     this.tools = this._requireOrHelper("../../cdn/tools.js", "tools");
@@ -44,6 +50,9 @@ class ModuleLoaderAggregator {
     );
   }
 
+  /**
+   * Performs the internal build exports step for Module Loader Aggregator.
+   */
   _buildExports() {
     this.exports = Object.assign(
       {},
@@ -55,6 +64,9 @@ class ModuleLoaderAggregator {
     );
   }
 
+  /**
+   * Performs the internal register with service registry step for Module Loader Aggregator.
+   */
   _registerWithServiceRegistry() {
     this.serviceRegistry = this.config.serviceRegistry;
     if (!this.serviceRegistry) {
@@ -66,6 +78,9 @@ class ModuleLoaderAggregator {
     });
   }
 
+  /**
+   * Performs the internal require or helper step for Module Loader Aggregator.
+   */
   _requireOrHelper(path, helperKey) {
     if (this.isCommonJs) {
       return require(path);
@@ -73,6 +88,9 @@ class ModuleLoaderAggregator {
     return this.dependencies[helperKey] || this.helpers[helperKey] || {};
   }
 
+  /**
+   * Registers Module Loader Aggregator with the runtime service registry.
+   */
   install() {
     if (!this.initialized) {
       throw new Error("ModuleLoaderAggregator not initialized");

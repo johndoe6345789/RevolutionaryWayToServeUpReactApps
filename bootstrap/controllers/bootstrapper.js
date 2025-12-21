@@ -5,8 +5,14 @@ const hasWindow = typeof window !== "undefined";
  * Drives the overall bootstrap workflow (config, module loading, rendering, logging).
  */
 class Bootstrapper {
+  /**
+   * Initializes a new Bootstrapper instance with the provided configuration.
+   */
   constructor(config) { this.config = config; this.initialized = false; }
 
+  /**
+   * Sets up the Bootstrapper instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("Bootstrapper already initialized");
@@ -23,6 +29,9 @@ class Bootstrapper {
     this.isCiLoggingEnabled = logging.isCiLoggingEnabled;
   }
 
+  /**
+   * Runs the bootstrap flow for Bootstrapper.
+   */
   async bootstrap() {
     try {
       await this._bootstrap();
@@ -31,6 +40,9 @@ class Bootstrapper {
     }
   }
 
+  /**
+   * Performs the internal bootstrap steps for Bootstrapper.
+   */
   async _bootstrap() {
     if (!this.initialized) {
       throw new Error("Bootstrapper not initialized");
@@ -61,6 +73,9 @@ class Bootstrapper {
     this.logClient("bootstrap:success", { entryFile, scssFile });
   }
 
+  /**
+   * Configures the providers that Bootstrapper will use.
+   */
   _configureProviders(config) {
     this.network.setFallbackProviders(config.fallbackProviders);
     this.network.setDefaultProviderBase(config.providers && config.providers.default);
@@ -68,6 +83,9 @@ class Bootstrapper {
     this._enableCiLogging(config);
   }
 
+  /**
+   * Enables CI logging helpers for Bootstrapper.
+   */
   _enableCiLogging(config) {
     this.setCiLoggingEnabled(this.detectCiLogging(config));
     if (this.isCiLoggingEnabled()) {
@@ -78,6 +96,9 @@ class Bootstrapper {
     }
   }
 
+  /**
+   * Performs the internal window href step for Bootstrapper.
+   */
   _windowHref() {
     if (hasWindow && window.location) {
       return window.location.href;
@@ -85,6 +106,9 @@ class Bootstrapper {
     return undefined;
   }
 
+  /**
+   * Performs the internal determine entry dir step for Bootstrapper.
+   */
   _determineEntryDir(entryFile) {
     if (!entryFile.includes("/")) {
       return "";
@@ -92,6 +116,9 @@ class Bootstrapper {
     return entryFile.slice(0, entryFile.lastIndexOf("/"));
   }
 
+  /**
+   * Handles bootstrap failures for Bootstrapper.
+   */
   _handleBootstrapError(err) {
     console.error(err);
     this.logClient("bootstrap:error", {
@@ -101,6 +128,9 @@ class Bootstrapper {
     this._renderBootstrapError(err);
   }
 
+  /**
+   * Renders the bootstrap error UI for Bootstrapper.
+   */
   _renderBootstrapError(err) {
     if (!hasDocument) {
       return;

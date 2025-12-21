@@ -7,6 +7,9 @@ const LocalModuleLoaderConfig = require("../../configs/local-module-loader.js");
 class LocalModuleLoaderService extends BaseService {
   constructor(config = new LocalModuleLoaderConfig()) { super(config); }
 
+  /**
+   * Sets up the Local Module Loader Service instance before it handles requests.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -47,6 +50,9 @@ class LocalModuleLoaderService extends BaseService {
     return this;
   }
 
+  /**
+   * Creates the local module loader for Local Module Loader Service.
+   */
   createLocalModuleLoader(entryDir) {
     const moduleCache = new Map();
     const modulePromises = new Map();
@@ -118,10 +124,16 @@ class LocalModuleLoaderService extends BaseService {
     };
   }
 
+  /**
+   * Ensures the namespace value is resolved for Local Module Loader Service.
+   */
   _resolveNamespace() {
     return super._resolveNamespace();
   }
 
+  /**
+   * Fetches local module source code for Local Module Loader Service.
+   */
   async fetchLocalModuleSource(basePath) {
     if (!this.fetchImpl) {
       throw new Error("Fetch unavailable for local modules");
@@ -154,6 +166,9 @@ class LocalModuleLoaderService extends BaseService {
     );
   }
 
+  /**
+   * Exposes the public Local Module Loader Service API.
+   */
   get exports() {
     return {
       createLocalModuleLoader: this.createLocalModuleLoader.bind(this),
@@ -161,6 +176,9 @@ class LocalModuleLoaderService extends BaseService {
     };
   }
 
+  /**
+   * Registers Local Module Loader Service with the runtime service registry.
+   */
   install() {
     this._ensureInitialized();
     const exports = this.exports;

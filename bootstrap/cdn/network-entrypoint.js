@@ -6,6 +6,9 @@ const NetworkService = require("../services/cdn/network-service.js");
 const NetworkServiceConfig = require("../configs/network-service.js");
 
 class NetworkEntryPoint extends BaseEntryPoint {
+  /**
+   * Initializes a new Network Entry Point instance with the provided configuration.
+   */
   constructor() {
     super({
       ServiceClass: NetworkService,

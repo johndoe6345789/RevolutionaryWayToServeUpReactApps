@@ -10,6 +10,9 @@ const { localModuleExtensions: LOCAL_MODULE_EXTENSIONS } =
 class LocalPathsService extends BaseService {
   constructor(config = new LocalPathsConfig()) { super(config); }
 
+  /**
+   * Sets up the Local Paths Service instance before it handles requests.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -20,19 +23,31 @@ class LocalPathsService extends BaseService {
     return this;
   }
 
+  /**
+   * Is Local Module for Local Paths Service.
+   */
   isLocalModule(name) {
     return name.startsWith(".") || name.startsWith("/");
   }
 
+  /**
+   * Normalize Dir for Local Paths Service.
+   */
   normalizeDir(dir) {
     if (!dir) return "";
     return dir.replace(/^\/+/, "").replace(/\/+$/, "");
   }
 
+  /**
+   * Make Alias Key for Local Paths Service.
+   */
   makeAliasKey(name, baseDir) {
     return this.normalizeDir(baseDir) + "|" + name;
   }
 
+  /**
+   * Resolve Local Module Base for Local Paths Service.
+   */
   resolveLocalModuleBase(name, baseDir, currentHref) {
     const normalizedBase = this.normalizeDir(baseDir);
     const href =
@@ -46,15 +61,24 @@ class LocalPathsService extends BaseService {
     return resolvedUrl.pathname.replace(/^\/+/, "").replace(/\/+$/, "");
   }
 
+  /**
+   * Get Module Dir for Local Paths Service.
+   */
   getModuleDir(filePath) {
     const idx = filePath.lastIndexOf("/");
     return idx === -1 ? "" : filePath.slice(0, idx);
   }
 
+  /**
+   * Has Known Extension for Local Paths Service.
+   */
   hasKnownExtension(path) {
     return /\.(tsx|ts|jsx|js)$/.test(path);
   }
 
+  /**
+   * Get Candidate Local Paths for Local Paths Service.
+   */
   getCandidateLocalPaths(basePath) {
     const normalizedBase = basePath.replace(/\/+$/, "");
     const seen = new Set();
@@ -80,6 +104,9 @@ class LocalPathsService extends BaseService {
     return candidates;
   }
 
+  /**
+   * Exposes the public Local Paths Service API.
+   */
   get exports() {
     return {
       isLocalModule: this.isLocalModule.bind(this),
@@ -92,6 +119,9 @@ class LocalPathsService extends BaseService {
     };
   }
 
+  /**
+   * Registers Local Paths Service with the runtime service registry.
+   */
   install() {
     this._ensureInitialized();
     const exports = this.exports;
@@ -106,6 +136,9 @@ class LocalPathsService extends BaseService {
     return this;
   }
 
+  /**
+   * Ensures the namespace value is resolved for Local Paths Service.
+   */
   _resolveNamespace() {
     return super._resolveNamespace();
   }

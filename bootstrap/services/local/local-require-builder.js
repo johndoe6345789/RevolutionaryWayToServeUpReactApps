@@ -7,6 +7,9 @@ const LocalRequireBuilderConfig = require("../../configs/local-require-builder.j
 class LocalRequireBuilder extends BaseHelper {
   constructor(config = new LocalRequireBuilderConfig()) { super(config); }
 
+  /**
+   * Sets up the Local Require Builder instance before it handles requests.
+   */
   initialize({ loadDynamicModule, isLocalModule }) {
     if (this.initialized) {
       throw new Error("LocalRequireBuilder already initialized");
@@ -53,6 +56,9 @@ class LocalRequireBuilder extends BaseHelper {
     return requireFn;
   }
 
+  /**
+   * Builds the custom require function that Local Require Builder needs.
+   */
   _createRequire(registry) {
     return (name) => {
       if (registry[name]) return registry[name];
@@ -90,6 +96,9 @@ class LocalRequireBuilder extends BaseHelper {
     };
   }
 
+  /**
+   * Determines the entry directory of Local Require Builder.
+   */
   _resolveEntryDir(entryDir, dynamicModuleLoader, argumentCount) {
     let resolvedEntryDir = "";
     let resolvedDynamicModuleLoader = dynamicModuleLoader;
@@ -103,6 +112,9 @@ class LocalRequireBuilder extends BaseHelper {
     return { resolvedEntryDir, resolvedDynamicModuleLoader };
   }
 
+  /**
+   * Checks whether a module belongs to the local build for Local Require Builder.
+   */
   _isLocalModule(name) {
     return typeof this.isLocalModule === "function" && this.isLocalModule(name);
   }

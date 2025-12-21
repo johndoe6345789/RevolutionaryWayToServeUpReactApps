@@ -8,6 +8,9 @@ class LocalDependencyLoader {
     this.config = config;
   }
 
+  /**
+   * Sets up the Local Dependency Loader instance before it handles requests.
+   */
   initialize(serviceRegistry) {
     if (this.initialized) {
       throw new Error("LocalDependencyLoader already initialized");
@@ -30,6 +33,9 @@ class LocalDependencyLoader {
     return dependencies;
   }
 
+  /**
+   * Resolves dependency descriptors for Local Dependency Loader.
+   */
   _dependencyDescriptors() {
     return [
       { name: "logging", fallback: "../../cdn/logging.js", helper: "logging" },
@@ -61,6 +67,9 @@ class LocalDependencyLoader {
     ];
   }
 
+  /**
+   * Resolves dependencies for Local Dependency Loader from configured locations.
+   */
   _resolve(descriptor, serviceRegistry) {
     const { overrides, helperRegistry, isCommonJs, helpers } = this.config;
     const { name, fallback, helper } = descriptor;

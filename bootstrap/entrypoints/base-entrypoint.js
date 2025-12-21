@@ -12,6 +12,9 @@ class BaseEntryPoint {
     this.rootHandler = new GlobalRootHandler();
   }
 
+  /**
+   * Performs the internal create config step for Base Entry Point.
+   */
   _createConfig() {
     const overrides = this.configFactory({
       serviceRegistry,

@@ -7,6 +7,9 @@ const TsxCompilerConfig = require("../../configs/tsx-compiler.js");
 class TsxCompilerService extends BaseService {
   constructor(config = new TsxCompilerConfig()) { super(config); }
 
+  /**
+   * Sets up the Tsx Compiler Service instance before it handles requests.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -29,6 +32,9 @@ class TsxCompilerService extends BaseService {
     return this;
   }
 
+  /**
+   * Transforms source files for Tsx Compiler Service.
+   */
   transformSource(source, filePath) {
     if (!this.Babel) {
       throw new Error("Babel is unavailable when transforming TSX");
@@ -44,6 +50,9 @@ class TsxCompilerService extends BaseService {
     }).code;
   }
 
+  /**
+   * Executes compiled module code for Tsx Compiler Service.
+   */
   executeModuleSource(source, filePath, moduleDir, requireFn) {
     const compiled = this.transformSource(source, filePath);
     const exports = {};
@@ -63,6 +72,9 @@ class TsxCompilerService extends BaseService {
     return module.exports.default || module.exports;
   }
 
+  /**
+   * Compiles TSX sources for Tsx Compiler Service.
+   */
   async compileTSX(entryFile, requireFn, entryDir = "") {
     if (typeof this.fetchImpl !== "function") {
       throw new Error("Fetch is unavailable when compiling TSX");
@@ -80,6 +92,9 @@ class TsxCompilerService extends BaseService {
     return compiled;
   }
 
+  /**
+   * Exposes the public Tsx Compiler Service API.
+   */
   get exports() {
     return {
       compileTSX: this.compileTSX.bind(this),
@@ -89,6 +104,9 @@ class TsxCompilerService extends BaseService {
     };
   }
 
+  /**
+   * Registers Tsx Compiler Service with the runtime service registry.
+   */
   install() {
     this._ensureInitialized();
     const exports = this.exports;
@@ -103,6 +121,9 @@ class TsxCompilerService extends BaseService {
     return this;
   }
 
+  /**
+   * Ensures the namespace value is resolved for Tsx Compiler Service.
+   */
   _resolveNamespace() {
     return super._resolveNamespace();
   }

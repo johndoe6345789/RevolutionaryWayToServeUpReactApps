@@ -6,6 +6,9 @@ const EnvInitializerConfig = require("../../configs/env.js");
 class EnvInitializer {
   constructor(config = new EnvInitializerConfig()) { this.config = config; }
 
+  /**
+   * Sets up the Env Initializer instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("EnvInitializer already initialized");
@@ -27,6 +30,9 @@ class EnvInitializer {
     return this;
   }
 
+  /**
+   * Ensure Proxy Mode for Env Initializer.
+   */
   ensureProxyMode() {
     if (typeof this.global.__RWTRA_PROXY_MODE__ === "undefined") {
       this.global.__RWTRA_PROXY_MODE__ = "auto";

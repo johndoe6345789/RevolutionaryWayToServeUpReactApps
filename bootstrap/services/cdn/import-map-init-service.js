@@ -6,6 +6,9 @@ const ImportMapInitConfig = require("../../configs/import-map-init.js");
 class ImportMapInitializer {
   constructor(config = new ImportMapInitConfig()) { this.config = config; this.initialized = false; }
 
+  /**
+   * Sets up the Import Map Initializer instance before it handles requests.
+   */
   async initialize() {
     if (this.initialized) {
       throw new Error("ImportMapInitializer already initialized");
@@ -90,6 +93,9 @@ class ImportMapInitializer {
     return this;
   }
 
+  /**
+   * Fetches the configuration data that Import Map Initializer depends on.
+   */
   async _fetchConfig(configUrl) {
     if (!this.fetchImpl) {
       throw new Error("Fetch unavailable when initializing import map");

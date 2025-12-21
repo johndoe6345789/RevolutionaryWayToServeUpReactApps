@@ -20,6 +20,9 @@ class DynamicModuleFetcher extends BaseHelper {
     this.service = config.service;
   }
 
+  /**
+   * Sets up the Dynamic Module Fetcher instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       return this;
@@ -34,11 +37,17 @@ class DynamicModuleFetcher extends BaseHelper {
     return this;
   }
 
+  /**
+   * Fetch Namespace for Dynamic Module Fetcher.
+   */
   async fetchNamespace(rule, icon, registry, urls) {
     const foundUrl = await this._findUrl(urls);
     return this._loadNamespace(foundUrl, rule, icon, registry);
   }
 
+  /**
+   * Performs the internal find url step for Dynamic Module Fetcher.
+   */
   async _findUrl(urls) {
     for (const url of urls) {
       if (await this.service.probeUrl(url)) {
@@ -48,6 +57,9 @@ class DynamicModuleFetcher extends BaseHelper {
     throw new Error("No candidate resolved: " + urls.join(", "));
   }
 
+  /**
+   * Performs the internal load namespace step for Dynamic Module Fetcher.
+   */
   async _loadNamespace(url, rule, icon, registry) {
     const format = (rule.format || rule.type || "global").toLowerCase();
     if (format === "esm" || format === "module") {
@@ -56,6 +68,9 @@ class DynamicModuleFetcher extends BaseHelper {
     return this._loadGlobal(url, rule, icon, registry);
   }
 
+  /**
+   * Performs the internal load esm step for Dynamic Module Fetcher.
+   */
   async _loadEsm(url, rule, icon, registry) {
     const moduleExports = await import(url);
     const namespace = this.service.createNamespace(moduleExports);
@@ -68,6 +83,9 @@ class DynamicModuleFetcher extends BaseHelper {
     return namespace;
   }
 
+  /**
+   * Performs the internal load global step for Dynamic Module Fetcher.
+   */
   async _loadGlobal(url, rule, icon, registry) {
     await this.service.loadScript(url);
     const globalName = this._resolveGlobalName(rule, icon);
@@ -86,10 +104,16 @@ class DynamicModuleFetcher extends BaseHelper {
     return namespace;
   }
 
+  /**
+   * Performs the internal resolve global name step for Dynamic Module Fetcher.
+   */
   _resolveGlobalName(rule, icon) {
     return (rule.globalPattern || "{icon}").replace("{icon}", icon);
   }
 
+  /**
+   * Performs the internal resolve global object step for Dynamic Module Fetcher.
+   */
   _resolveGlobalObject(globalName) {
     if (!globalName) return null;
     if (globalName.includes(".")) {

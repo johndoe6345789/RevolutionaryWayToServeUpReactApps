@@ -10,8 +10,14 @@ const hasWindow = typeof window !== "undefined";
  * Loads config.json once and caches the promise/results for reuse.
  */
 class BootstrapConfigLoader {
+  /**
+   * Initializes a new Bootstrap Config Loader instance with the provided configuration.
+   */
   constructor({ fetch } = {}) { this.config = { fetch }; this.initialized = false; this.cachedPromise = null; }
 
+  /**
+   * Sets up the Bootstrap Config Loader instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("BootstrapConfigLoader already initialized");
@@ -22,6 +28,9 @@ class BootstrapConfigLoader {
     this.fetchImpl = this.config.fetch ?? fallbackFetch;
   }
 
+  /**
+   * Loads the runtime configuration for Bootstrap Config Loader.
+   */
   async loadConfig() {
     if (hasWindow) {
       if (window.__rwtraConfig) {
@@ -46,6 +55,9 @@ class BootstrapConfigLoader {
     }
     return config;
   }
+  /**
+   * Fetches the configuration data that Bootstrap Config Loader depends on.
+   */
   async _fetchConfig() {
     if (!this.fetchImpl) {
       throw new Error("Fetch is unavailable when loading config.json");

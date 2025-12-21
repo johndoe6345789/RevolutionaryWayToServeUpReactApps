@@ -5,12 +5,18 @@ const LoggingServiceConfig = require("../../configs/logging-service.js");
  * Centralizes CI logging defaults, serialization helpers, and UI error forwarding.
  */
 class LoggingService extends BaseService {
+  /**
+   * Returns the shared logging defaults defined in `constants/common.js`.
+   */
   static get defaults() {
     return require("../../constants/common.js");
   }
 
   constructor(config = new LoggingServiceConfig()) { super(config); }
 
+  /**
+   * Sets up bindings, configuration fallbacks, and registers the logging service.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -33,10 +39,16 @@ class LoggingService extends BaseService {
     return this;
   }
 
+  /**
+   * Toggles the flag that controls whether CI logging traffic is emitted.
+   */
   setCiLoggingEnabled(enabled) {
     this.ciLoggingEnabled = !!enabled;
   }
 
+  /**
+   * Determines whether CI logging should be enabled by checking globals, query params, and overrides.
+   */
   detectCiLogging(config, locationOverride) {
     if (typeof window !== "undefined") {
       if (typeof window.__RWTRA_CI_MODE__ === "boolean") {
@@ -62,6 +74,9 @@ class LoggingService extends BaseService {
     return false;
   }
 
+  /**
+   * Converts the provided value into a JSON-friendly structure for client logs.
+   */
   serializeForLog(value) {
     if (value instanceof Error) {
       return { message: value.message, stack: value.stack };
@@ -76,10 +91,16 @@ class LoggingService extends BaseService {
     return value;
   }
 
+  /**
+   * Returns a Promise that resolves after the specified number of milliseconds.
+   */
   wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  /**
+   * Sends the event payload to the configured logging endpoint (or console) if logging is enabled.
+   */
   logClient(event, detail, level = "info") {
     const isErrorLevel = level === "error" || level === "warn";
     if (!this.ciLoggingEnabled && !isErrorLevel) return;
@@ -122,6 +143,9 @@ class LoggingService extends BaseService {
     }
   }
 
+  /**
+   * Indicates whether CI logging has been toggled on.
+   */
   isCiLoggingEnabled() {
     return this.ciLoggingEnabled;
   }

@@ -4,11 +4,17 @@ const LocalLoaderConfig = require("../../configs/local-loader.js");
 const LocalDependencyLoaderConfig = require("../../configs/local-dependency-loader.js");
 
 class LocalLoaderInitializer {
+  /**
+   * Initializes a new Local Loader Initializer instance with the provided configuration.
+   */
   constructor(service) {
     this.service = service;
     this.config = service.config;
   }
 
+  /**
+   * Executes the Local Loader Initializer run lifecycle.
+   */
   run() {
     this.service.overrides = this.config.dependencies || {};
     this._validateRegistry();
@@ -21,6 +27,9 @@ class LocalLoaderInitializer {
     this._registerService();
   }
 
+  /**
+   * Performs the internal validate registry step for Local Loader Initializer.
+   */
   _validateRegistry() {
     this.service.serviceRegistry = this.config.serviceRegistry;
     if (!this.service.serviceRegistry) {
@@ -28,6 +37,9 @@ class LocalLoaderInitializer {
     }
   }
 
+  /**
+   * Performs the internal init renderer step for Local Loader Initializer.
+   */
   _initRenderer() {
     const FrameworkRenderer = LocalLoaderService.helperRegistry.getHelper("frameworkRenderer");
     if (!FrameworkRenderer) {
@@ -43,6 +55,9 @@ class LocalLoaderInitializer {
     this.service.isCommonJs = typeof module !== "undefined" && module.exports;
   }
 
+  /**
+   * Performs the internal load dependencies step for Local Loader Initializer.
+   */
   _loadDependencies() {
     const loader = new LocalLoaderService.dependencyLoader(
       new LocalDependencyLoaderConfig({
@@ -55,6 +70,9 @@ class LocalLoaderInitializer {
     Object.assign(this.service, loader.initialize(this.service.serviceRegistry));
   }
 
+  /**
+   * Performs the internal wire logging step for Local Loader Initializer.
+   */
   _wireLogging() {
     const s = this.service;
     s.logClient = (s.logging && s.logging.logClient) || (() => {});
@@ -63,6 +81,9 @@ class LocalLoaderInitializer {
       (() => Promise.reject(new Error("dynamic loader missing")));
   }
 
+  /**
+   * Performs the internal wire compilers step for Local Loader Initializer.
+   */
   _wireCompilers() {
     const s = this.service;
     s.compileSCSS = s.sassCompiler?.compileSCSS;
@@ -72,6 +93,9 @@ class LocalLoaderInitializer {
     s.executeModuleSource = s.tsxCompiler?.executeModuleSource;
   }
 
+  /**
+   * Performs the internal wire local helpers step for Local Loader Initializer.
+   */
   _wireLocalHelpers() {
     const s = this.service;
     s.isLocalModule = s.localPaths?.isLocalModule;
@@ -82,6 +106,9 @@ class LocalLoaderInitializer {
     s.fetchLocalModuleSource = s.moduleLoader?.fetchLocalModuleSource;
   }
 
+  /**
+   * Performs the internal setup require builder step for Local Loader Initializer.
+   */
   _setupRequireBuilder() {
     const LocalRequireBuilder = LocalLoaderService.helperRegistry.getHelper("localRequireBuilder");
     if (!LocalRequireBuilder) {
@@ -99,6 +126,9 @@ class LocalLoaderInitializer {
     this.service.requireBuilder = builder;
   }
 
+  /**
+   * Performs the internal register service step for Local Loader Initializer.
+   */
   _registerService() {
     this.service.serviceRegistry.register("localLoader", this.service.exports, {
       folder: "services/local",
@@ -116,6 +146,9 @@ class LocalLoaderService extends BaseService {
 
   constructor(config = new LocalLoaderConfig()) { super(config); }
 
+  /**
+   * Sets up the Local Loader Service instance before it handles requests.
+   */
   initialize() {
     this._ensureNotInitialized();
     this._markInitialized();
@@ -123,6 +156,9 @@ class LocalLoaderService extends BaseService {
     return this;
   }
 
+  /**
+   * Renders the framework renderer output for Local Loader Service.
+   */
   frameworkRender(config, registry, App) {
     return this.frameworkRenderer.render(config, registry, App);
   }
@@ -144,6 +180,9 @@ class LocalLoaderService extends BaseService {
     });
   }
 
+  /**
+   * Exposes the public Local Loader Service API.
+   */
   get exports() {
     return Object.assign(
       {},
@@ -158,6 +197,9 @@ class LocalLoaderService extends BaseService {
     );
   }
 
+  /**
+   * Registers Local Loader Service with the runtime service registry.
+   */
   install() {
     this._ensureInitialized();
     const exports = this.exports;

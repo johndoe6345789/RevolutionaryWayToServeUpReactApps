@@ -16,6 +16,9 @@ const ScriptListLoaderConfig = require("../../configs/script-list-loader.js");
 class ScriptListLoader {
   constructor(config = new ScriptListLoaderConfig()) { this.config = config; this.initialized = false; }
 
+  /**
+   * Sets up the Script List Loader instance before it handles requests.
+   */
   initialize() {
     if (this.initialized) {
       throw new Error("ScriptListLoader already initialized");
@@ -36,6 +39,9 @@ class ScriptListLoader {
     return this;
   }
 
+  /**
+   * Loads a script from the network on behalf of Script List Loader.
+   */
   async loadScript(src) {
     if (!this.document) {
       throw new Error("Document is unavailable when loading scripts");
@@ -51,6 +57,9 @@ class ScriptListLoader {
     });
   }
 
+  /**
+   * Loads scripts in the manifest for Script List Loader.
+   */
   async loadFromManifest() {
     if (!this.fetchImpl) {
       throw new Error("Fetch is unavailable when loading the script manifest");
@@ -78,6 +87,9 @@ class ScriptListLoader {
     }
   }
 
+  /**
+   * Loads the scripts declared for Script List Loader.
+   */
   async load() {
     if (!this.document) {
       return;

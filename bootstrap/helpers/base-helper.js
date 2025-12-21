@@ -2,6 +2,9 @@
  * Abstract helper logic so derived helpers can share registry wiring.
  */
 class BaseHelper {
+  /**
+   * Stores the helper configuration and tracks its lifecycle state.
+   */
   constructor(config = {}) {
     this.config = config;
     this.initialized = false;
@@ -28,6 +31,9 @@ class BaseHelper {
     }
   }
 
+  /**
+   * Extension point for derived helpers to perform their registration work.
+   */
   initialize() {
     throw new Error(`${this.constructor.name} must implement initialize()`);
   }

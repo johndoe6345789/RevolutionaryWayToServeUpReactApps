@@ -2,6 +2,9 @@
  * Captures the shared runtime environment bootstrap helpers rely upon.
  */
 class ModuleLoaderEnvironment {
+  /**
+   * Initializes a new Module Loader Environment instance with the provided configuration.
+   */
   constructor(root) {
     if (!root) {
       throw new Error("Root object required for ModuleLoaderEnvironment");

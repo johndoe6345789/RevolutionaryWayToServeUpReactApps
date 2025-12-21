@@ -100,6 +100,9 @@ class DynamicModulesService extends BaseService {
     return namespace;
   }
 
+  /**
+   * Performs the internal resolve rule step for Dynamic Modules Service.
+   */
   _resolveRule(name, config) {
     const dynRules = config.dynamicModules || [];
     const rule = dynRules.find((r) => name.startsWith(r.prefix));
