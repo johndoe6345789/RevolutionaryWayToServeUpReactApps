@@ -3,24 +3,18 @@
  */
 const SassCompilerService = require("../services/local/sass-compiler-service.js");
 const SassCompilerConfig = require("../configs/sass-compiler.js");
-const serviceRegistry = require("../services/service-registry-instance.js");
-const GlobalRootHandler = require("../constants/global-root-handler.js");
+const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
 
-const rootHandler = new GlobalRootHandler();
-const namespace = rootHandler.getNamespace();
-const globalScope = rootHandler.root;
-const fetchImpl =
-  typeof globalScope.fetch === "function" ? globalScope.fetch.bind(globalScope) : undefined;
-const sassCompilerService = new SassCompilerService(
-  new SassCompilerConfig({
-    serviceRegistry,
+const entrypoint = new BaseEntryPoint({
+  ServiceClass: SassCompilerService,
+  ConfigClass: SassCompilerConfig,
+  configFactory: ({ namespace, root }) => ({
     namespace,
-    fetch: fetchImpl,
-    document: globalScope.document,
-    SassImpl: globalScope.Sass,
-  })
-);
-sassCompilerService.initialize();
-sassCompilerService.install();
+    fetch: typeof root.fetch === "function" ? root.fetch.bind(root) : undefined,
+    document: root.document,
+    SassImpl: root.Sass,
+  }),
+});
+const sassCompilerService = entrypoint.run();
 
 module.exports = sassCompilerService.exports;

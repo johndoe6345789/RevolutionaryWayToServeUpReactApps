@@ -3,24 +3,17 @@
  */
 const TsxCompilerService = require("../services/local/tsx-compiler-service.js");
 const TsxCompilerConfig = require("../configs/tsx-compiler.js");
-const serviceRegistry = require("../services/service-registry-instance.js");
-const GlobalRootHandler = require("../constants/global-root-handler.js");
+const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
 
-const rootHandler = new GlobalRootHandler();
-const namespace = rootHandler.getNamespace();
-const globalScope = rootHandler.root;
-const fetchImpl =
-  typeof globalScope.fetch === "function" ? globalScope.fetch.bind(globalScope) : undefined;
-const Babel = globalScope.Babel;
-const tsxCompilerService = new TsxCompilerService(
-  new TsxCompilerConfig({
-    serviceRegistry,
+const entrypoint = new BaseEntryPoint({
+  ServiceClass: TsxCompilerService,
+  ConfigClass: TsxCompilerConfig,
+  configFactory: ({ namespace, root }) => ({
     namespace,
-    fetch: fetchImpl,
-    Babel,
-  })
-);
-tsxCompilerService.initialize();
-tsxCompilerService.install();
+    fetch: typeof root.fetch === "function" ? root.fetch.bind(root) : undefined,
+    Babel: root.Babel,
+  }),
+});
+const tsxCompilerService = entrypoint.run();
 
 module.exports = tsxCompilerService.exports;

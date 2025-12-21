@@ -3,18 +3,13 @@
  */
 const LocalPathsService = require("../services/local/local-paths-service.js");
 const LocalPathsConfig = require("../configs/local-paths.js");
-const serviceRegistry = require("../services/service-registry-instance.js");
-const GlobalRootHandler = require("../constants/global-root-handler.js");
+const BaseEntryPoint = require("../../entrypoints/base-entrypoint.js");
 
-const rootHandler = new GlobalRootHandler();
-const namespace = rootHandler.getNamespace();
-const localPathsService = new LocalPathsService(
-  new LocalPathsConfig({
-    serviceRegistry,
-    namespace,
-  })
-);
-localPathsService.initialize();
-localPathsService.install();
+const entrypoint = new BaseEntryPoint({
+  ServiceClass: LocalPathsService,
+  ConfigClass: LocalPathsConfig,
+  configFactory: ({ namespace }) => ({ namespace }),
+});
+const localPathsService = entrypoint.run();
 
 module.exports = localPathsService.exports;
