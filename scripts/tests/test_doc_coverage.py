@@ -106,6 +106,18 @@ class TestDocCoverage(unittest.TestCase):
             self.assertEqual(len(collected), 1)
             self.assertTrue(collected[0].name.endswith("script-list.html"))
 
+    def test_collect_source_files_ignores_coverage_dir(self):
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "coverage").mkdir()
+            (root / "coverage" / "report.js").write_text("const ignored = 1")
+            (root / "app.js").write_text("const foo = 1")
+
+            collected = list(doc_coverage.DocumentationAnalyzer.collect_source_files(root))
+            names = [p.name for p in collected]
+            self.assertIn("app.js", names)
+            self.assertNotIn("report.js", names)
+
     def test_readme_link_coverage_detects_unlinked_docs(self):
         with TemporaryDirectory() as tmpdir:
             repo_root = Path(tmpdir) / "repo"
@@ -342,7 +354,7 @@ class TestDocCoverage(unittest.TestCase):
             self.assertIn("- api/bootstrap/orphan.md -> bootstrap/missing.js", output)
             self.assertIn("Documented modules not located at expected path:", output)
             self.assertIn(
-                "Overall:    96.0% (penalized 4.0% for 1 misplaced doc and 1 unmatched bootstrap doc)", output
+                "Overall:    46.0% (penalized 4.0% for 1 misplaced doc and 1 unmatched bootstrap doc)", output
             )
 
     def test_misplaced_docs_penalty(self):

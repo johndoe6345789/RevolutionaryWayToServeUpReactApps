@@ -1177,8 +1177,8 @@ class DocCoverageFramework:
         functions_docged, functions_total = DocumentationAnalyzer.compute_coverage(context.functions_list, context.doc_text)
         context.missing_globals = DocumentationAnalyzer.find_missing_names(context.globals_list, context.doc_text)
         context.missing_functions = DocumentationAnalyzer.find_missing_names(context.functions_list, context.doc_text)
-        overall_total = module_total
-        overall_docged = module_docged
+        overall_total = module_total + globals_total + functions_total
+        overall_docged = module_docged + globals_docged + functions_docged
         context.module_docged = module_docged
         context.module_total = module_total
         context.globals_docged = globals_docged
