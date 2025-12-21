@@ -29,7 +29,7 @@ class LocalDependencyLoader extends BaseService {
       registry.register("localDependencyLoader", this, {
         folder: "services/local",
         domain: "local",
-      });
+      }, []);
     }
     this._markInitialized();
     return dependencies;

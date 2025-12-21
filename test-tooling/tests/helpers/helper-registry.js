@@ -14,7 +14,7 @@ describe("bootstrap/helpers/helper-registry.js", () => {
       const helper = { name: "helper" };
       const metadata = { folder: "helpers" };
 
-      registry.register("alpha", helper, metadata);
+      registry.register("alpha", helper, metadata, []);
 
       expect(registry.getHelper("alpha")).toBe(helper);
       expect(registry.getMetadata("alpha")).toBe(metadata);
@@ -23,13 +23,13 @@ describe("bootstrap/helpers/helper-registry.js", () => {
 
     test("throws when the name is missing", () => {
       const registry = new HelperRegistry();
-      expect(() => registry.register("", {})).toThrow("Helper name is required");
+      expect(() => registry.register("", {}, {}, [])).toThrow("Helper name is required");
     });
 
     test("throws when registering the same name twice", () => {
       const registry = new HelperRegistry();
-      registry.register("alpha", {});
-      expect(() => registry.register("alpha", {})).toThrow("Helper already registered: alpha");
+      registry.register("alpha", {}, {}, []);
+      expect(() => registry.register("alpha", {}, {}, [])).toThrow("Helper already registered: alpha");
     });
   });
 
@@ -43,8 +43,8 @@ describe("bootstrap/helpers/helper-registry.js", () => {
   describe("listHelpers", () => {
     test("lists registered helper names", () => {
       const registry = new HelperRegistry();
-      registry.register("alpha", {});
-      registry.register("beta", {});
+      registry.register("alpha", {}, {}, []);
+      registry.register("beta", {}, {}, []);
       expect(registry.listHelpers()).toEqual(["alpha", "beta"]);
     });
   });
@@ -52,7 +52,7 @@ describe("bootstrap/helpers/helper-registry.js", () => {
   describe("getMetadata", () => {
     test("returns undefined when metadata is missing", () => {
       const registry = new HelperRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
       expect(registry.getMetadata("alpha")).toEqual({});
       expect(registry.getMetadata("missing")).toBeUndefined();
     });

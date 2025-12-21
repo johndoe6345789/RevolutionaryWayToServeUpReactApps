@@ -10,16 +10,21 @@ class HelperRegistry {
   }
 
   /**
-   * Records a helper constructor/instance along with optional metadata.
+   * Records a helper constructor/instance with metadata and required services validation.
    */
-  register(name, helper, metadata = {}) {
+  register(name, helper, metadata, requiredServices) {
     if (!name) {
       throw new Error("Helper name is required");
     }
+
+    if (arguments.length !== 4) {
+      throw new Error("HelperRegistry.register requires exactly 4 parameters: (name, helper, metadata, requiredServices)");
+    }
+
     if (this._helpers.has(name)) {
       throw new Error("Helper already registered: " + name);
     }
-    this._helpers.set(name, { helper, metadata });
+    this._helpers.set(name, { helper, metadata: metadata || {} });
   }
 
   /**

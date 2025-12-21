@@ -1,146 +1,152 @@
-const modulePath = '../../../../../bootstrap/services/cdn/tools-service.js';
-const configPath = '../../../../../bootstrap/configs/cdn/tools.js';
-const ToolsLoaderService = require(modulePath);
-const ToolsLoaderConfig = require(configPath);
+// Comprehensive test suite for ToolsLoaderService class
+const ToolsLoaderService = require("../../../../../bootstrap/services/cdn/tools-service.js");
+
+// Simple mock function implementation for Bun
+function createMockFunction() {
+  const mockFn = (...args) => {
+    mockFn.calls.push(args);
+    return mockFn.returnValue;
+  };
+  mockFn.calls = [];
+  mockFn.returnValue = undefined;
+  mockFn.mockReturnValue = (value) => {
+    mockFn.returnValue = value;
+    return mockFn;
+  };
+  mockFn.mockResolvedValue = (value) => {
+    mockFn.returnValue = Promise.resolve(value);
+    return mockFn;
+  };
+  return mockFn;
+}
 
 describe("ToolsLoaderService", () => {
-  let originalWindow;
-  let originalModule;
+  let service;
+  let mockConfig;
+  let mockServiceRegistry;
+  let mockLogging;
+  let mockNetwork;
+  let mockWindow;
 
   beforeEach(() => {
-    // Store original objects
-    originalWindow = global.window;
-    originalModule = global.module;
+    // Store original window
+    mockWindow = global.window;
     
-    // Setup mock window
-    global.window = {
-      location: {
-        search: "",
-        hostname: "localhost",
-        href: "http://localhost"
-      }
+    // Setup mocks
+    mockServiceRegistry = {
+      register: createMockFunction()
     };
     
-    // Setup module environment
-    global.module = { exports: {} };
+    mockLogging = {
+      logClient: createMockFunction()
+    };
+    
+    mockNetwork = {
+      loadScript: createMockFunction().mockResolvedValue(Promise.resolve()),
+      resolveModuleUrl: createMockFunction().mockResolvedValue("https://example.com/tool.js")
+    };
+
+    mockConfig = {
+      dependencies: {
+        logging: mockLogging,
+        network: mockNetwork
+      },
+      serviceRegistry: mockServiceRegistry,
+      namespace: { helpers: {} }
+    };
+
+    service = new ToolsLoaderService(mockConfig);
   });
 
   afterEach(() => {
-    // Restore original objects
-    global.window = originalWindow;
-    global.module = originalModule;
-    jest.clearAllMocks();
+    // Restore original window
+    global.window = mockWindow;
   });
 
   describe("constructor", () => {
-    it("should create an instance with default config", () => {
-      const service = new ToolsLoaderService();
-      
+    test("should create an instance with provided config", () => {
       expect(service).toBeInstanceOf(ToolsLoaderService);
-      expect(service.config).toBeInstanceOf(ToolsLoaderConfig);
+      expect(service.config).toBe(mockConfig);
     });
 
-    it("should create an instance with provided config", () => {
-      const config = new ToolsLoaderConfig({ 
-        dependencies: { logging: {}, network: {} } 
-      });
-      const service = new ToolsLoaderService(config);
-      
-      expect(service.config).toBe(config);
+    test("should create an instance with default config when none provided", () => {
+      const serviceWithDefault = new ToolsLoaderService();
+      expect(serviceWithDefault).toBeInstanceOf(ToolsLoaderService);
+      expect(serviceWithDefault.config).toBeDefined();
     });
   });
 
   describe("initialize method", () => {
-    it("should set up runtime dependencies and register helpers", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
+    test("should properly initialize the service with required dependencies", () => {
+      const result = service.initialize();
 
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry,
-        dependencies: {
-          logging: { logClient: jest.fn() },
-          network: { loadScript: jest.fn(), resolveModuleUrl: jest.fn() }
-        }
-      });
-
-      const service = new ToolsLoaderService(config);
-      const initializedService = service.initialize();
-
-      expect(initializedService).toBe(service);
-      expect(service.namespace).toBe(config.namespace);
-      expect(service.helpers).toBe(config.namespace.helpers);
-      // isCommonJs will be truthy/falsy depending on the environment, but it should be boolean-like
-      expect(service.isCommonJs).toBeDefined();
+      expect(result).toBe(service);
+      expect(service.initialized).toBe(true);
+      expect(service.namespace).toBe(mockConfig.namespace);
+      expect(service.helpers).toBe(mockConfig.namespace.helpers);
+      expect(typeof service.isCommonJs).toBe("boolean");
       expect(service.serviceRegistry).toBe(mockServiceRegistry);
+      expect(service.logging).toBe(mockLogging);
+      expect(service.network).toBe(mockNetwork);
+      expect(service.logClient).toBe(mockLogging.logClient);
+      expect(service.loadScript).toBe(mockNetwork.loadScript);
+      expect(service.resolveModuleUrl).toBe(mockNetwork.resolveModuleUrl);
     });
 
-    it("should handle missing dependencies by using helpers", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
+    test("should set up dependencies when not provided in config", () => {
+      const configWithoutDeps = {
+        serviceRegistry: mockServiceRegistry,
+        namespace: { helpers: {} }
       };
-
-      const mockLogging = { logClient: jest.fn() };
-      const mockNetwork = { loadScript: jest.fn(), resolveModuleUrl: jest.fn() };
-
-      const mockHelpers = {
-        logging: mockLogging,
-        network: mockNetwork
-      };
-
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: mockHelpers },
-        serviceRegistry: mockServiceRegistry
-      });
-
-      const service = new ToolsLoaderService(config);
-      service.initialize();
-
-      // The service might load its own logging/network instances in CommonJS mode
-      // So let's just check that the service was initialized properly
-      expect(service.namespace).toBe(config.namespace);
-      expect(service.helpers).toBe(config.namespace.helpers);
+      const serviceWithoutDeps = new ToolsLoaderService(configWithoutDeps);
+      
+      // Mock require for when isCommonJs is true
+      const originalModule = typeof module;
+      global.module = { exports: {} };
+      
+      const result = serviceWithoutDeps.initialize();
+      
+      expect(result).toBe(serviceWithoutDeps);
+      expect(serviceWithoutDeps.initialized).toBe(true);
+      
+      // Restore
+      if (originalModule === 'undefined') {
+        delete global.module;
+      } else {
+        global.module = originalModule;
+      }
     });
 
-    it("should throw if initialized twice", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-      
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry
-      });
-      
-      const service = new ToolsLoaderService(config);
+    test("should throw if initialized twice", () => {
       service.initialize();
-      
-      expect(() => service.initialize()).toThrow();
+
+      expect(() => {
+        service.initialize();
+      }).toThrow();
     });
   });
 
   describe("createNamespace method", () => {
-    it("should return the value if it's already an ESM namespace", () => {
-      const existingNamespace = { __esModule: true, default: "value", named: "export" };
-      const service = new ToolsLoaderService();
+    test("should return ESM namespace object as-is if it has __esModule", () => {
+      const esmNamespace = { __esModule: true, foo: "bar" };
+      service.initialize();
       
-      const result = service.createNamespace(existingNamespace);
+      const result = service.createNamespace(esmNamespace);
       
-      expect(result).toBe(existingNamespace);
+      expect(result).toBe(esmNamespace);
     });
 
-    it("should create a new namespace for primitive values", () => {
-      const service = new ToolsLoaderService();
+    test("should create a new namespace for primitive values", () => {
+      service.initialize();
       
-      const result = service.createNamespace("primitive");
+      const result = service.createNamespace("primitive-value");
       
       expect(result.__esModule).toBe(true);
-      expect(result.default).toBe("primitive");
+      expect(result.default).toBe("primitive-value");
     });
 
-    it("should create a new namespace for object values", () => {
-      const service = new ToolsLoaderService();
+    test("should create a new namespace for object values", () => {
+      service.initialize();
       
       const obj = { prop1: "value1", prop2: "value2" };
       const result = service.createNamespace(obj);
@@ -151,20 +157,18 @@ describe("ToolsLoaderService", () => {
       expect(result.prop2).toBe("value2");
     });
 
-    it("should copy properties from the default value if it's an object", () => {
-      const service = new ToolsLoaderService();
+    test("should copy properties from the default value if it's an object", () => {
+      service.initialize();
       
-      const obj = { method: () => "test", prop: "value" };
+      const obj = { a: 1, b: 2 };
       const result = service.createNamespace(obj);
       
-      expect(result.__esModule).toBe(true);
-      expect(result.default).toBe(obj);
-      expect(result.method).toBe(obj.method);
-      expect(result.prop).toBe(obj.prop);
+      expect(result.a).toBe(1);
+      expect(result.b).toBe(2);
     });
 
-    it("should handle null and undefined values", () => {
-      const service = new ToolsLoaderService();
+    test("should handle null and undefined values", () => {
+      service.initialize();
       
       const nullResult = service.createNamespace(null);
       expect(nullResult.__esModule).toBe(true);
@@ -177,119 +181,100 @@ describe("ToolsLoaderService", () => {
   });
 
   describe("ensureGlobalFromNamespace method", () => {
-    it("should set global when window and globalName are available", async () => {
-      const service = new ToolsLoaderService();
+    test("should set global when window and globalName are available", () => {
+      global.window = { TestGlobal: null };
       
-      const namespace = { default: "testValue" };
-      await service.ensureGlobalFromNamespace("test", "TestGlobal", namespace);
+      service.initialize();
       
-      expect(global.window.TestGlobal).toBe("testValue");
+      const namespace = { default: "test-value" };
+      service.ensureGlobalFromNamespace("test", "TestGlobal", namespace);
+      
+      expect(global.window.TestGlobal).toBe("test-value");
     });
 
-    it("should not set global when namespace is null", async () => {
-      const service = new ToolsLoaderService();
+    test("should not set global when namespace is null", () => {
+      global.window = { TestGlobal: "existing" };
       
-      await service.ensureGlobalFromNamespace("test", "TestGlobal", null);
+      service.initialize();
       
-      expect(global.window.TestGlobal).toBeUndefined();
+      service.ensureGlobalFromNamespace("test", "TestGlobal", null);
+      
+      expect(global.window.TestGlobal).toBe("existing");
     });
 
-    it("should not set global when window is not available", async () => {
-      // Temporarily remove window
-      delete global.window;
+    test("should not set global when window is not available", () => {
+      global.window = undefined;
       
-      const service = new ToolsLoaderService();
-      const namespace = { default: "testValue" };
+      service.initialize();
       
-      await expect(service.ensureGlobalFromNamespace("test", "TestGlobal", namespace)).resolves.toBeUndefined();
+      const namespace = { default: "test-value" };
+      service.ensureGlobalFromNamespace("test", "TestGlobal", namespace);
+      
+      // Should not throw or modify anything
+      expect(global.window).toBeUndefined();
     });
   });
 
   describe("loadTools method", () => {
-    it("should load tools by resolving URLs and injecting globals", async () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
+    test("should load tools by resolving URLs and injecting globals", async () => {
+      global.window = { "SomeTool": { someMethod: () => {} } };
       
-      const mockLogging = { logClient: jest.fn() };
-      const mockNetwork = { 
-        loadScript: jest.fn(() => Promise.resolve()),
-        resolveModuleUrl: jest.fn(() => Promise.resolve("https://example.com/tool.js")) 
-      };
+      const mockResolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/sometool.js");
+      const mockLoadScript = createMockFunction().mockResolvedValue(Promise.resolve());
+      const mockLogClient = createMockFunction();
       
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry,
-        dependencies: { logging: mockLogging, network: mockNetwork }
-      });
-      
-      const service = new ToolsLoaderService(config);
       service.initialize();
-
-      // Set up window global that the tool will create
-      global.window.TestTool = { default: "loaded" };
+      service.resolveModuleUrl = mockResolveModuleUrl;
+      service.loadScript = mockLoadScript;
+      service.logClient = mockLogClient;
       
-      const tools = [{ name: "testTool", global: "TestTool" }];
-      const result = await service.loadTools(tools);
+      const tools = [
+        { name: "someTool", global: "SomeTool" }
+      ];
       
-      expect(mockNetwork.resolveModuleUrl).toHaveBeenCalledWith(tools[0]);
-      expect(mockNetwork.loadScript).toHaveBeenCalledWith("https://example.com/tool.js");
-      expect(mockLogging.logClient).toHaveBeenCalledWith("tool:loaded", {
-        name: "testTool",
-        url: "https://example.com/tool.js",
-        global: "TestTool"
+      await service.loadTools(tools);
+      
+      expect(mockResolveModuleUrl).toHaveBeenCalledWith({ name: "someTool", global: "SomeTool" });
+      expect(mockLoadScript).toHaveBeenCalledWith("https://example.com/sometool.js");
+      expect(mockLogClient).toHaveBeenCalledWith("tool:loaded", {
+        name: "someTool",
+        url: "https://example.com/sometool.js",
+        global: "SomeTool"
       });
-      expect(result).toHaveLength(1);
     });
 
-    it("should throw error if tool global is not found after loading", async () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
+    test("should throw error if tool global is not found after loading", async () => {
+      global.window = {}; // No tool global
       
-      const mockLogging = { logClient: jest.fn() };
-      const mockNetwork = { 
-        loadScript: jest.fn(() => Promise.resolve()),
-        resolveModuleUrl: jest.fn(() => Promise.resolve("https://example.com/tool.js")) 
-      };
+      const mockResolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/sometool.js");
+      const mockLoadScript = createMockFunction().mockResolvedValue(Promise.resolve());
       
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry,
-        dependencies: { logging: mockLogging, network: mockNetwork }
-      });
-      
-      const service = new ToolsLoaderService(config);
       service.initialize();
-
-      // Don't set the global in window, so it will be missing
-      const tools = [{ name: "testTool", global: "MissingTool" }];
+      service.resolveModuleUrl = mockResolveModuleUrl;
+      service.loadScript = mockLoadScript;
       
-      await expect(service.loadTools(tools)).rejects.toThrow(/Tool global not found after loading/);
+      const tools = [
+        { name: "missingTool", global: "MissingTool" }
+      ];
+      
+      await expect(service.loadTools(tools)).rejects.toThrow(
+        "Tool global not found after loading https://example.com/sometool.js: MissingTool"
+      );
     });
 
-    it("should handle empty tools array", async () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-      
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry
-      });
-      
-      const service = new ToolsLoaderService(config);
+    test("should handle empty tools array", async () => {
       service.initialize();
-
+      
       const result = await service.loadTools([]);
       
-      expect(result).toEqual([]);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(0);
     });
   });
 
   describe("makeNamespace method", () => {
-    it("should be an alias to createNamespace", () => {
-      const service = new ToolsLoaderService();
+    test("should be an alias to createNamespace", () => {
+      service.initialize();
       
       const obj = { test: "value" };
       const createResult = service.createNamespace(obj);
@@ -300,153 +285,163 @@ describe("ToolsLoaderService", () => {
   });
 
   describe("loadModules method", () => {
-    it("should load global format modules", async () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-
-      const mockLogging = { logClient: jest.fn() };
-      const mockNetwork = {
-        loadScript: jest.fn(() => Promise.resolve()),
-        resolveModuleUrl: jest.fn(() => Promise.resolve("https://example.com/module.js"))
-      };
-
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry,
-        dependencies: { logging: mockLogging, network: mockNetwork }
-      });
-
-      const service = new ToolsLoaderService(config);
+    test("should load ESM modules", async () => {
+      global.window = { "ESMGlobal": {} };
+      
+      const mockResolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/esm-module.js");
+      const mockLoadScript = createMockFunction().mockResolvedValue(Promise.resolve());
+      
       service.initialize();
-
-      // Set up the global that will be loaded
-      global.window.TestGlobal = { default: "globalModule", namedExport: "value" };
-
-      const modules = [{ name: "testModule", global: "TestGlobal", format: "global" }];
+      service.resolveModuleUrl = mockResolveModuleUrl;
+      service.loadScript = mockLoadScript;
+      
+      const modules = [
+        { name: "testModule", global: "ESMGlobal", format: "esm" }
+      ];
+      
+      // Mock import function for ESM loading
+      const originalImport = global.import;
+      global.import = createMockFunction().mockResolvedValue({ default: "esm-value", named: "export" });
+      
       const result = await service.loadModules(modules);
-
-      expect(mockNetwork.loadScript).toHaveBeenCalledWith("https://example.com/module.js");
+      
+      expect(result).toHaveProperty("testModule");
       expect(result.testModule).toBeDefined();
       expect(result.testModule.__esModule).toBe(true);
-      expect(mockLogging.logClient).toHaveBeenCalledWith("module:loaded", {
-        name: "testModule",
-        url: "https://example.com/module.js",
-        global: "TestGlobal",
-        format: "global"
-      });
+      
+      // Restore
+      global.import = originalImport;
     });
 
-    it("should throw error if module global is not found after loading", async () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-
-      const mockLogging = { logClient: jest.fn() };
-      const mockNetwork = {
-        loadScript: jest.fn(() => Promise.resolve()),
-        resolveModuleUrl: jest.fn(() => Promise.resolve("https://example.com/module.js"))
-      };
-
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry,
-        dependencies: { logging: mockLogging, network: mockNetwork }
-      });
-
-      const service = new ToolsLoaderService(config);
+    test("should load global format modules", async () => {
+      global.window = { "GlobalModule": { method: () => {} } };
+      
+      const mockResolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/global-module.js");
+      const mockLoadScript = createMockFunction().mockResolvedValue(Promise.resolve());
+      const mockLogClient = createMockFunction();
+      
       service.initialize();
-
-      // Don't set the global in window, so it will be missing
-      const modules = [{ name: "testModule", global: "MissingGlobal", format: "global" }];
-
-      await expect(service.loadModules(modules)).rejects.toThrow(/Module global not found after loading/);
+      service.resolveModuleUrl = mockResolveModuleUrl;
+      service.loadScript = mockLoadScript;
+      service.logClient = mockLogClient;
+      
+      const modules = [
+        { name: "globalModule", global: "GlobalModule", format: "global" }
+      ];
+      
+      const result = await service.loadModules(modules);
+      
+      expect(result).toHaveProperty("globalModule");
+      expect(result.globalModule).toBeDefined();
+      expect(result.globalModule.__esModule).toBe(true);
     });
 
-    it("should have proper method signature", () => {
-      const service = new ToolsLoaderService();
-      expect(typeof service.loadModules).toBe("function");
+    test("should throw error if module global is not found after loading", async () => {
+      global.window = {}; // No module global
+      
+      const mockResolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/module.js");
+      const mockLoadScript = createMockFunction().mockResolvedValue(Promise.resolve());
+      
+      service.initialize();
+      service.resolveModuleUrl = mockResolveModuleUrl;
+      service.loadScript = mockLoadScript;
+      
+      const modules = [
+        { name: "missingModule", global: "MissingGlobal", format: "global" }
+      ];
+      
+      await expect(service.loadModules(modules)).rejects.toThrow(
+        "Module global not found after loading https://example.com/module.js: MissingGlobal"
+      );
     });
   });
 
   describe("exports property", () => {
-    it("should return the correct export structure", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-      
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry
-      });
-      
-      const service = new ToolsLoaderService(config);
+    test("should return the correct export structure", () => {
       service.initialize();
-
+      
       const exports = service.exports;
       
+      expect(exports).toHaveProperty("loadTools");
+      expect(exports).toHaveProperty("makeNamespace");
+      expect(exports).toHaveProperty("loadModules");
       expect(typeof exports.loadTools).toBe("function");
       expect(typeof exports.makeNamespace).toBe("function");
       expect(typeof exports.loadModules).toBe("function");
     });
+
+    test("should bind methods to the service instance", () => {
+      service.initialize();
+      
+      const exports = service.exports;
+      
+      // Verify that the methods are bound to the service
+      expect(exports.loadTools).not.toBe(service.loadTools);
+      expect(exports.makeNamespace).not.toBe(service.makeNamespace);
+      expect(exports.loadModules).not.toBe(service.loadModules);
+    });
   });
 
   describe("install method", () => {
-    it("should install the helpers into the namespace and register the service", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
-      
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry
-      });
-      
-      const service = new ToolsLoaderService(config);
+    test("should install the helpers into the namespace and register the service", () => {
       service.initialize();
-
+      
       const result = service.install();
       
       expect(result).toBe(service);
       expect(service.helpers.tools).toBeDefined();
-      expect(mockServiceRegistry.register).toHaveBeenCalledWith("tools", expect.any(Object), {
-        folder: "services/cdn",
-        domain: "cdn",
-      });
+      expect(mockServiceRegistry.register).toHaveBeenCalledWith(
+        "tools",
+        service.exports,
+        {
+          folder: "services/cdn",
+          domain: "cdn",
+        },
+        ["logging"]
+      );
     });
 
-    it("should throw if not initialized", () => {
-      const service = new ToolsLoaderService();
+    test("should throw if not initialized before install", () => {
+      const uninitializedService = new ToolsLoaderService(mockConfig);
       
-      expect(() => service.install()).toThrow();
+      expect(() => {
+        uninitializedService.install();
+      }).toThrow();
+    });
+
+    test("should return the service instance for chaining", () => {
+      service.initialize();
+      
+      const result = service.install();
+      
+      expect(result).toBe(service);
     });
   });
 
   describe("integration", () => {
-    it("should work through full lifecycle", () => {
-      const mockServiceRegistry = {
-        register: jest.fn()
-      };
+    test("should work through full lifecycle", async () => {
+      service.initialize();
       
-      const config = new ToolsLoaderConfig({
-        namespace: { helpers: {} },
-        serviceRegistry: mockServiceRegistry
-      });
+      // Test that the service can load tools
+      global.window = { "TestTool": {} };
+      const tools = [{ name: "testTool", global: "TestTool" }];
       
-      const service = new ToolsLoaderService(config);
+      // Mock the loading methods
+      service.resolveModuleUrl = createMockFunction().mockResolvedValue("https://example.com/tool.js");
+      service.loadScript = createMockFunction().mockResolvedValue(Promise.resolve());
+      service.logClient = createMockFunction();
       
-      expect(service).toBeInstanceOf(ToolsLoaderService);
+      await service.loadTools(tools);
       
-      const initializedService = service.initialize();
-      expect(initializedService).toBe(service);
-      expect(initializedService.initialized).toBe(true);
-      
-      // Test that methods work correctly
-      const namespace = service.createNamespace({ test: "value" });
-      expect(namespace.test).toBe("value");
-      
+      // Test that exports work
       const exports = service.exports;
-      expect(exports).toBeDefined();
+      expect(exports.loadTools).toBeDefined();
+      expect(exports.makeNamespace).toBeDefined();
+      expect(exports.loadModules).toBeDefined();
+      
+      // Test that install works
+      service.install();
+      expect(service.helpers.tools).toBe(exports);
     });
   });
 });

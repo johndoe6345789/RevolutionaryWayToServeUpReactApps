@@ -125,7 +125,8 @@ describe("LocalDependencyLoader", () => {
     });
 
     it("should return override if available", () => {
-      const config = new (require("../../bootstrap/configs/local/local-dependency-loader.js").default)({
+      const LocalDependencyLoaderConfig = require("../../bootstrap/configs/local/local-dependency-loader.js");
+      const config = new LocalDependencyLoaderConfig({
         helperRegistry: mockHelperRegistry,
         overrides: { logging: "overridden-logging" },
         isCommonJs: false,
@@ -155,7 +156,8 @@ describe("LocalDependencyLoader", () => {
     });
 
     it("should return fallback module in CommonJS environment", () => {
-      const config = new (require("../../bootstrap/configs/local/local-dependency-loader.js").default)({
+      const LocalDependencyLoaderConfig = require("../../bootstrap/configs/local/local-dependency-loader.js");
+      const config = new LocalDependencyLoaderConfig({
         helperRegistry: mockHelperRegistry,
         overrides: {},
         isCommonJs: true,
@@ -174,7 +176,8 @@ describe("LocalDependencyLoader", () => {
 
     it("should return helper from helpers if available", () => {
       const mockHelper = { helper: "from-helpers" };
-      const config = new (require("../../bootstrap/configs/local/local-dependency-loader.js").default)({
+      const LocalDependencyLoaderConfig = require("../../bootstrap/configs/local/local-dependency-loader.js");
+      const config = new LocalDependencyLoaderConfig({
         helperRegistry: mockHelperRegistry,
         overrides: {},
         isCommonJs: false,
