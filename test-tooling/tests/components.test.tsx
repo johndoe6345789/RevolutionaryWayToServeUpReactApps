@@ -1,15 +1,12 @@
 import React from "react";
 import { fireEvent, render, screen, cleanup } from "@testing-library/react";
-import { ThemeProvider } from "@mui/material";
 
-import theme from "../../src/theme";
 import HeroSection from "../../src/components/HeroSection";
 import FeaturedGames from "../../src/components/FeaturedGames";
 import FooterStrip from "../../src/components/FooterStrip";
 import { FEATURED_GAMES, SYSTEM_TAGS } from "../../src/data";
 
-const renderWithTheme = (ui: React.ReactElement) =>
-  render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
+const renderWithTheme = (ui: React.ReactElement) => render(ui);
 
 afterEach(() => cleanup());
 

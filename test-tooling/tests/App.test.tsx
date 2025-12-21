@@ -1,11 +1,12 @@
-import "./bootstrap/linkSrcNodeModules";
+import "./linkSrcNodeModules";
 
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
+
 import App from "../../src/App";
 import { FEATURED_GAMES } from "../../src/data";
 
-// Simplified test without ThemeProvider for now
+// Test App directly without ThemeProvider for now
 const TestApp = () => <App />;
 
 describe("App shell", () => {

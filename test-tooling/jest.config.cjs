@@ -2,9 +2,10 @@ const path = require("path");
 
 module.exports = {
   testEnvironment: "jsdom",
-  transform: {
-    "^.+\\.(ts|tsx)$": ["ts-jest", {}]
-  },
+  transform: undefined,
+  transformIgnorePatterns: [
+    "node_modules/(?!(ts-jest))"
+  ],
   rootDir: path.resolve(__dirname, ".."),
   testMatch: ["<rootDir>/test-tooling/tests/**/*.test.ts?(x)"],
   collectCoverage: true,
@@ -26,7 +27,9 @@ module.exports = {
     "^@mui/material/(.*)$": "<rootDir>/test-tooling/node_modules/@mui/material/$1",
     "^@mui/material$": "<rootDir>/test-tooling/node_modules/@mui/material",
     "^react/jsx-runtime$": require.resolve("react/jsx-runtime"),
-    "^react/jsx-dev-runtime$": require.resolve("react/jsx-dev-runtime")
+    "^react/jsx-dev-runtime$": require.resolve("react/jsx-dev-runtime"),
+    "^react$": require.resolve("react"),
+    "^react-dom$": require.resolve("react-dom")
   },
   globals: {
     "ts-jest": {
