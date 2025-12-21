@@ -4,6 +4,7 @@ const ProviderResolver = require("./dynamic-modules/provider-resolver.js");
 const ProviderResolverConfig = require("./dynamic-modules/provider-resolver-config.js");
 const DynamicModuleFetcher = require("./dynamic-modules/module-fetcher.js");
 const DynamicModuleFetcherConfig = require("./dynamic-modules/module-fetcher-config.js");
+const helperRegistry = require("../../helpers/helper-registry-instance.js");
 
 /**
  * Resolves and loads icon-specific dynamic modules from configured providers.
@@ -37,16 +38,17 @@ class DynamicModulesService extends BaseService {
     this.normalizeProviderBase = net.normalizeProviderBase || (() => "");
     this.getFallbackProviders = net.getFallbackProviders || (() => []);
     this.getDefaultProviderBase = net.getDefaultProviderBase || (() => "");
+    this.isCiLikeHost = net.isCiLikeHost || (() => false);
     this.providerResolver = new ProviderResolver(
       new ProviderResolverConfig({
         service: this,
-        helperRegistry: this.helpers,
+        helperRegistry,
       })
     ).initialize();
     this.moduleFetcher = new DynamicModuleFetcher(
       new DynamicModuleFetcherConfig({
         service: this,
-        helperRegistry: this.helpers,
+        helperRegistry,
       })
     ).initialize();
     return this;

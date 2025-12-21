@@ -48,13 +48,13 @@ function createAliasMap(source) {
 }
 
 /**
- * Performs URL resolution, probing, and provider alias normalization for bootstrap modules.
+ * Handles provider state and normalization for network helpers.
  */
-class NetworkService extends BaseService {
+class NetworkProviderService extends BaseService {
   constructor(config = new NetworkServiceConfig()) { super(config); }
 
   /**
-   * Sets up the Network Service instance before it handles requests.
+   * Sets up the Network Provider Service instance before it handles requests.
    */
   initialize() {
     this._ensureNotInitialized();
@@ -75,13 +75,9 @@ class NetworkService extends BaseService {
     this.getDefaultProviderBase = this.getDefaultProviderBase.bind(this);
     this.setProviderAliases = this.setProviderAliases.bind(this);
     this.getProxyMode = this.getProxyMode.bind(this);
-    this.loadScript = this.loadScript.bind(this);
     this.normalizeProviderBase = this.normalizeProviderBase.bind(this);
     this.normalizeProviderBaseRaw = this.normalizeProviderBaseRaw.bind(this);
     this.resolveProvider = this.resolveProvider.bind(this);
-    this.shouldRetryStatus = this.shouldRetryStatus.bind(this);
-    this.probeUrl = this.probeUrl.bind(this);
-    this.resolveModuleUrl = this.resolveModuleUrl.bind(this);
     return this;
   }
 
@@ -177,29 +173,6 @@ class NetworkService extends BaseService {
   }
 
   /**
-   * Loads a script from the network on behalf of Network Service.
-   */
-  loadScript(url) {
-    const document = globalObject.document;
-    if (!document) {
-      return Promise.reject(new Error("Document unavailable for loadScript"));
-    }
-    return new Promise((resolve, reject) => {
-      const el = document.createElement("script");
-      el.src = url;
-      el.onload = () => {
-        this.logClient("loadScript:success", { url });
-        resolve();
-      };
-      el.onerror = () => {
-        this.logClient("loadScript:error", { url });
-        reject(new Error("Failed to load " + url));
-      };
-      document.head.appendChild(el);
-    });
-  }
-
-  /**
    * Normalize Provider Base for Network Service.
    */
   normalizeProviderBase(provider) {
@@ -237,6 +210,69 @@ class NetworkService extends BaseService {
       this.defaultProviderBase ||
       ""
     );
+  }
+
+  /**
+   * Performs the internal collect bases step for Network Service.
+   */
+  _collectBases(mod) {
+    const bases = [];
+    const addBase = (b) => {
+      if (!b) return;
+      const normalized = this.normalizeProviderBase(b);
+      if (!bases.includes(normalized)) bases.push(normalized);
+    };
+
+    addBase(this.resolveProvider(mod));
+    addBase(mod.provider);
+    addBase(mod.ci_provider);
+    addBase(mod.production_provider);
+    if (mod.allowJsDelivr !== false) {
+      for (const fallback of this.fallbackProviders) {
+        addBase(fallback);
+      }
+    }
+    return bases;
+  }
+}
+
+/**
+ * Performs URL resolution and probing for bootstrap modules.
+ */
+class NetworkService extends NetworkProviderService {
+  /**
+   * Sets up the Network Service instance before it handles requests.
+   */
+  initialize() {
+    super.initialize();
+    this.loadScript = this.loadScript.bind(this);
+    this.shouldRetryStatus = this.shouldRetryStatus.bind(this);
+    this.probeUrl = this.probeUrl.bind(this);
+    this.resolveModuleUrl = this.resolveModuleUrl.bind(this);
+    return this;
+  }
+
+  /**
+   * Loads a script from the network on behalf of Network Service.
+   */
+  loadScript(url) {
+    const document = globalObject.document;
+    if (!document) {
+      return Promise.reject(new Error("Document unavailable for loadScript"));
+    }
+    return new Promise((resolve, reject) => {
+      const el = document.createElement("script");
+      el.src = url;
+      el.onload = () => {
+        this.logClient("loadScript:success", { url });
+        resolve();
+      };
+      el.onerror = () => {
+        this.logClient("loadScript:error", { url });
+        reject(new Error("Failed to load " + url));
+      };
+      document.head.appendChild(el);
+    });
   }
 
   /**
@@ -346,29 +382,6 @@ class NetworkService extends BaseService {
         unique.join(", ") +
         ")"
     );
-  }
-
-  /**
-   * Performs the internal collect bases step for Network Service.
-   */
-  _collectBases(mod) {
-    const bases = [];
-    const addBase = (b) => {
-      if (!b) return;
-      const normalized = this.normalizeProviderBase(b);
-      if (!bases.includes(normalized)) bases.push(normalized);
-    };
-
-    addBase(this.resolveProvider(mod));
-    addBase(mod.provider);
-    addBase(mod.ci_provider);
-    addBase(mod.production_provider);
-    if (mod.allowJsDelivr !== false) {
-      for (const fallback of this.fallbackProviders) {
-        addBase(fallback);
-      }
-    }
-    return bases;
   }
 }
 

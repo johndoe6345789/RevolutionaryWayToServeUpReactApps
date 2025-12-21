@@ -1,4 +1,4 @@
-const helperRegistry = require("../../helpers/helper-registry-instance.js");
+const helperRegistry = require("../../../helpers/helper-registry-instance.js");
 const FrameworkRenderer = require("../framework-renderer.js");
 const LocalRequireBuilder = require("../local-require-builder.js");
 
