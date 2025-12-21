@@ -13,6 +13,7 @@ const entrypoint = new BaseEntryPoint({
 const loggingService = entrypoint.run();
 
 loggingService.helpers.logging = loggingService;
+/* istanbul ignore next */
 if (loggingService.isCommonJs) {
   module.exports = loggingService;
 }

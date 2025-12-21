@@ -12,6 +12,7 @@ import argparse
 import os
 import re
 import sys
+from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
@@ -63,7 +64,7 @@ STRINGS = {
 }
 IGNORED_DOC_FILES = {Path("api/globals.md")}
 
-PATH_CONFIG = {
+BASE_PATH_CONFIG = {
     "doc_base": Path("api"),
     "module_overrides": {
         "index.html": Path("api/index.html.md"),
@@ -78,6 +79,52 @@ PATH_CONFIG = {
         },
     ],
 }
+PATH_CONFIG = deepcopy(BASE_PATH_CONFIG)
+
+
+def _strip_doc_base_prefix(target: Path, doc_base: Path) -> Path:
+    """Strip the configured doc base prefix from the supplied path, if present."""
+    if not doc_base.parts:
+        return target
+    target_parts = target.parts
+    base_parts = doc_base.parts
+    if len(target_parts) < len(base_parts):
+        return target
+    if tuple(target_parts[: len(base_parts)]) != tuple(base_parts):
+        return target
+    remaining = target_parts[len(base_parts) :]
+    return Path(*remaining) if remaining else Path(".")
+
+
+def configure_path_config(doc_root: Path, code_root: Path) -> None:
+    """Adjust the shared path config based on the supplied doc root."""
+    global PATH_CONFIG
+    resolved = deepcopy(BASE_PATH_CONFIG)
+    original_doc_base = resolved["doc_base"]
+    doc_root_relative = Path(".")
+    try:
+        doc_root_relative = doc_root.relative_to(code_root)
+    except ValueError:
+        doc_root_relative = doc_root
+    if (
+        original_doc_base.parts
+        and len(doc_root_relative.parts) >= len(original_doc_base.parts)
+        and tuple(doc_root_relative.parts[-len(original_doc_base.parts) :])
+        == tuple(original_doc_base.parts)
+    ):
+        resolved["doc_base"] = Path(".")
+        resolved["mirror_sections"] = [
+            {
+                **section,
+                "doc_prefix": _strip_doc_base_prefix(section["doc_prefix"], original_doc_base),
+            }
+            for section in resolved["mirror_sections"]
+        ]
+        resolved["module_overrides"] = {
+            module: _strip_doc_base_prefix(path, original_doc_base)
+            for module, path in resolved["module_overrides"].items()
+        }
+    PATH_CONFIG = resolved
 MODULE_HEADING_RE = re.compile(r"#\s*Module:\s*`([^`]+)`", re.IGNORECASE)
 LINK_TARGET_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 MISSING_GLOBALS_TITLE = "Missing documented globals:"
@@ -1265,6 +1312,7 @@ class DocCoverageCLI:
         doc_root = (code_root / args.doc_root).resolve()
         template_root = Path(args.template_root).resolve() if args.template_root else None
         extensions = DocumentationAnalyzer.parse_extensions(args.extensions)
+        configure_path_config(doc_root, code_root)
         config = DocCoverageConfig(code_root, doc_root, template_root, extensions, args.fix_stubs)
         runner = DocCoverageRunner(config)
         return runner.run()

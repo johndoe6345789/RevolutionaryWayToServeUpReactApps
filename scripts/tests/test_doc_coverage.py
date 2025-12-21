@@ -74,6 +74,24 @@ class TestDocCoverage(unittest.TestCase):
             self.assertIn("Modules:    1/1 documented", output)
             self.assertEqual(result, 0)
 
+    def test_cli_accepts_api_doc_root(self):
+        with TemporaryDirectory() as tmpdir:
+            repo_root = Path(tmpdir) / "repo"
+            src_dir = repo_root / "src"
+            docs_dir = repo_root / "docs"
+            api_dir = docs_dir / "api"
+            src_dir.mkdir(parents=True)
+            api_dir.mkdir(parents=True)
+            (api_dir / "src").mkdir(parents=True, exist_ok=True)
+            (api_dir / "README.md").write_text("# API Docs\n", encoding="utf-8")
+            (src_dir / "app.js").write_text("const exposed = 1\nfunction helper() {}\n", encoding="utf-8")
+            (api_dir / "src" / "app.md").write_text("# Module: `src/app.js`\n", encoding="utf-8")
+
+            output, result = self._run_cli(repo_root, ["--doc-root", "docs/api"])
+            self.assertIn("Documentation coverage", output)
+            self.assertIn("Modules:    1/1 documented", output)
+            self.assertEqual(result, 0)
+
     def test_symbol_detection_receives_bare_function_reference(self):
         doc_text = "The loader calls compileSCSS before injectCSS runs."
         symbol_name = "bootstrap/initializers/compilers/sass-compiler.js:compileSCSS"
