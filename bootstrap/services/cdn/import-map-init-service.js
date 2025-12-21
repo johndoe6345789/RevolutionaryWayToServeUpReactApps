@@ -1,19 +1,20 @@
+const BaseService = require("../base-service.js");
 const ImportMapInitConfig = require("../../configs/import-map-init.js");
 
 /**
  * Populates the import map element by resolving each configured module URL.
  */
-class ImportMapInitializer {
-  constructor(config = new ImportMapInitConfig()) { this.config = config; this.initialized = false; }
+class ImportMapInitializer extends BaseService {
+  constructor(config = new ImportMapInitConfig()) {
+    super(config);
+  }
 
   /**
    * Sets up the Import Map Initializer instance before it handles requests.
    */
   async initialize() {
-    if (this.initialized) {
-      throw new Error("ImportMapInitializer already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
+    this._markInitialized();
     this.window = this.config.window ?? (typeof window !== "undefined" ? window : null);
     this.fetchImpl =
       this.config.fetch ??

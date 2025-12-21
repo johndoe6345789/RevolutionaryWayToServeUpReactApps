@@ -1,18 +1,19 @@
+const BaseService = require("../base-service.js");
 const EnvInitializerConfig = require("../../configs/env.js");
 
 /**
  * Ensures the runtime proxy-mode flag is always defined.
  */
-class EnvInitializer {
-  constructor(config = new EnvInitializerConfig()) { this.config = config; }
+class EnvInitializer extends BaseService {
+  constructor(config = new EnvInitializerConfig()) {
+    super(config);
+  }
 
   /**
    * Sets up the Env Initializer instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("EnvInitializer already initialized");
-    }
+    this._ensureNotInitialized();
     this.global = this.config.global;
     if (!this.global) {
       throw new Error("Global object required for EnvInitializer");
@@ -26,7 +27,7 @@ class EnvInitializer {
       folder: "services/core",
       domain: "core",
     });
-    this.initialized = true;
+    this._markInitialized();
     return this;
   }
 

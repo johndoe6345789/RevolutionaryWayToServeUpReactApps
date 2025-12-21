@@ -18,10 +18,7 @@ class Bootstrapper extends BaseController {
       config instanceof BootstrapperConfig ? config : new BootstrapperConfig(config);
     super(normalized);
     this.cachedConfigPromise = null;
-    this.fetchImpl =
-      this.config.fetch ?? (typeof rootHandler.root.fetch === "function"
-        ? rootHandler.root.fetch.bind(rootHandler.root)
-        : undefined);
+    this.fetchImpl = this.config.fetch ?? rootHandler.getFetch();
   }
 
   /**
@@ -61,11 +58,27 @@ class Bootstrapper extends BaseController {
     const entryFile = config.entry || "main.tsx";
     const scssFile = config.styles || "styles.scss";
 
-    await this.moduleLoader.loadTools(config.tools || []);
+    await this._prepareAssets(scssFile, config.tools);
+    const { registry, entryDir, requireFn } = await this._prepareModules(
+      entryFile,
+      config
+    );
+    await this._compileAndRender(entryFile, scssFile, config, registry, entryDir, requireFn);
+  }
 
+  /**
+   * Compiles and injects styles, and prepares any requested tools.
+   */
+  async _prepareAssets(scssFile, tools) {
+    await this.moduleLoader.loadTools(tools || []);
     const css = await this.moduleLoader.compileSCSS(scssFile);
     this.moduleLoader.injectCSS(css);
+  }
 
+  /**
+   * Loads modules, builds the require helper, and returns the helper artifacts.
+   */
+  async _prepareModules(entryFile, config) {
     const registry = await this.moduleLoader.loadModules(config.modules || []);
     const entryDir = this._determineEntryDir(entryFile);
     const localLoader = this.moduleLoader.createLocalModuleLoader(entryDir);
@@ -75,9 +88,21 @@ class Bootstrapper extends BaseController {
       entryDir,
       localLoader
     );
+    return { registry, entryDir, requireFn };
+  }
 
+  /**
+   * Compiles the TSX entry, renders the application, and emits a success log.
+   */
+  async _compileAndRender(
+    entryFile,
+    scssFile,
+    config,
+    registry,
+    entryDir,
+    requireFn
+  ) {
     const App = await this.moduleLoader.compileTSX(entryFile, requireFn, entryDir);
-
     this.moduleLoader.frameworkRender(config, registry, App);
     this.logClient("bootstrap:success", { entryFile, scssFile });
   }
@@ -96,26 +121,59 @@ class Bootstrapper extends BaseController {
    * Loads the runtime configuration for Bootstrapper.
    */
   async loadConfig() {
-    if (hasWindow) {
-      if (window.__rwtraConfig) {
-        return window.__rwtraConfig;
-      }
-      if (window.__rwtraConfigPromise) {
-        return window.__rwtraConfigPromise;
-      }
+    const cachedFromWindow = this._readWindowConfigCache();
+    if (cachedFromWindow) {
+      return cachedFromWindow;
     }
     this._ensureInitialized();
+    this._ensureCachedConfigPromise();
+    return this._consumeConfigPromise();
+  }
+
+  /**
+   * Returns any config value or promise that has already been cached on `window`.
+   */
+  _readWindowConfigCache() {
+    if (!hasWindow) {
+      return null;
+    }
+    if (window.__rwtraConfig) {
+      return Promise.resolve(window.__rwtraConfig);
+    }
+    if (window.__rwtraConfigPromise) {
+      return window.__rwtraConfigPromise;
+    }
+    return null;
+  }
+
+  /**
+   * Ensures the internal promise has been created and mirrored on `window`.
+   */
+  _ensureCachedConfigPromise() {
     if (!this.cachedConfigPromise) {
       this.cachedConfigPromise = this._fetchConfig();
       if (hasWindow) {
         window.__rwtraConfigPromise = this.cachedConfigPromise;
       }
     }
+  }
+
+  /**
+   * Awaits the cached promise, writes the result to `window`, and returns the config.
+   */
+  async _consumeConfigPromise() {
     const config = await this.cachedConfigPromise;
+    this._writeWindowConfig(config);
+    return config;
+  }
+
+  /**
+   * Saves the resolved config object on `window` when available.
+   */
+  _writeWindowConfig(config) {
     if (hasWindow) {
       window.__rwtraConfig = config;
     }
-    return config;
   }
 
   /**

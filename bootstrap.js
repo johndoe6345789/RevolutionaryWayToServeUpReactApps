@@ -1,109 +1,15 @@
-const globalRoot =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : {};
-const bootstrapNamespace =
-  globalRoot.__rwtraBootstrap || (globalRoot.__rwtraBootstrap = {});
-const helpersNamespace = bootstrapNamespace.helpers || (bootstrapNamespace.helpers = {});
-const isCommonJs = typeof module !== "undefined" && module.exports;
+const BootstrapApp = require("./bootstrap/bootstrap-app.js");
 
-const logging = isCommonJs
-  ? require("./bootstrap/cdn/logging.js")
-  : helpersNamespace.logging;
-const network = isCommonJs
-  ? require("./bootstrap/cdn/network.js")
-  : helpersNamespace.network;
-const moduleLoader = isCommonJs
-  ? require("./bootstrap/entrypoints/module-loader.js")
-  : helpersNamespace.moduleLoader;
+const app = new BootstrapApp();
+app.initialize();
 
-const {
-  setCiLoggingEnabled,
-  detectCiLogging,
-  logClient,
-  serializeForLog,
-  isCiLoggingEnabled,
-} = logging;
-
-const LoggingManager = require("./bootstrap/services/core/logging-manager.js");
-const LoggingManagerConfig = require("./bootstrap/configs/logging-manager.js");
-const serviceRegistry = require("./bootstrap/services/service-registry-instance.js");
-const Bootstrapper = require("./bootstrap/controllers/bootstrapper.js");
-const BootstrapperConfig = require("./bootstrap/configs/bootstrapper.js");
-
-const loggingManager = new LoggingManager(
-  new LoggingManagerConfig({ logClient, serializeForLog, serviceRegistry })
-);
-const bootstrapper = new Bootstrapper(
-  new BootstrapperConfig({
-    logging: {
-      setCiLoggingEnabled,
-      detectCiLogging,
-      logClient,
-      serializeForLog,
-      isCiLoggingEnabled,
-    },
-    network,
-    moduleLoader,
-  })
-);
-
-loggingManager.initialize();
-bootstrapper.initialize();
-
-const {
-  loadTools,
-  makeNamespace,
-  loadModules,
-  loadDynamicModule,
-  createRequire,
-  compileSCSS,
-  injectCSS,
-  collectDynamicModuleImports,
-  preloadDynamicModulesFromSource,
-  collectModuleSpecifiers,
-  preloadModulesFromSource,
-  compileTSX,
-  frameworkRender,
-  loadScript,
-} = moduleLoader;
-const { normalizeProviderBase, probeUrl, resolveModuleUrl } = network;
-
-const bootstrapExports = {
-  loadConfig: bootstrapper.loadConfig.bind(bootstrapper),
-  loadScript,
-  normalizeProviderBase,
-  probeUrl,
-  resolveModuleUrl,
-  loadTools,
-  makeNamespace,
-  loadModules,
-  loadDynamicModule,
-  createRequire,
-  compileSCSS,
-  injectCSS,
-  collectDynamicModuleImports,
-  preloadDynamicModulesFromSource,
-  collectModuleSpecifiers,
-  preloadModulesFromSource,
-  compileTSX,
-  frameworkRender,
-  bootstrap: () => bootstrapper.bootstrap(),
-};
-
-helpersNamespace.exports = bootstrapExports;
-if (isCommonJs) {
+const bootstrapExports = app.getExports();
+app.helpersNamespace.exports = bootstrapExports;
+if (app.isCommonJs) {
   module.exports = bootstrapExports;
 }
 
-const isBrowser =
-  typeof window !== "undefined" && typeof document !== "undefined";
-if (isBrowser) {
-  loggingManager.install(window);
-}
-
-if (isBrowser && !window.__RWTRA_BOOTSTRAP_TEST_MODE__) {
-  bootstrapper.bootstrap();
+if (BootstrapApp.isBrowser()) {
+  app.installLogging(window);
+  app.runBootstrapper(window);
 }

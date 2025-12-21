@@ -1,20 +1,19 @@
 /**
  * Resolves the LocalLoaderService dependencies via overrides, helpers, or CommonJS fallbacks.
  */
+const BaseService = require("../base-service.js");
 const LocalDependencyLoaderConfig = require("../../configs/local-dependency-loader.js");
 
-class LocalDependencyLoader {
+class LocalDependencyLoader extends BaseService {
   constructor(config = new LocalDependencyLoaderConfig()) {
-    this.config = config;
+    super(config);
   }
 
   /**
    * Sets up the Local Dependency Loader instance before it handles requests.
    */
   initialize(serviceRegistry) {
-    if (this.initialized) {
-      throw new Error("LocalDependencyLoader already initialized");
-    }
+    this._ensureNotInitialized();
     this.dependencies = null;
     const dependencies = {};
     for (const descriptor of this._dependencyDescriptors()) {
@@ -22,7 +21,6 @@ class LocalDependencyLoader {
     }
     Object.assign(this.config.helpers, dependencies);
     this.dependencies = dependencies;
-    this.initialized = true;
     const registry = this.config.helperRegistry;
     if (registry && !registry.isRegistered("localDependencyLoader")) {
       registry.register("localDependencyLoader", this, {
@@ -30,6 +28,7 @@ class LocalDependencyLoader {
         domain: "local",
       });
     }
+    this._markInitialized();
     return dependencies;
   }
 

@@ -2,17 +2,18 @@
  * Encapsulates access to the current global object and its bootstrap namespace.
  */
 class GlobalRootHandler {
-  /**
-   * Creates a handler around the current global object and bootstrap namespace.
-   */
   constructor(root) {
-    this.root = root || this._detectGlobal();
-    this.namespace = this.root.__rwtraBootstrap || (this.root.__rwtraBootstrap = {});
+    this._root = root;
+    this._namespace = null;
   }
 
-  /**
-   * Locates whatever global object is available in the current runtime.
-   */
+  _ensureRoot() {
+    if (!this._root) {
+      this._root = this._detectGlobal();
+    }
+    return this._root;
+  }
+
   _detectGlobal() {
     if (typeof globalThis !== "undefined") return globalThis;
     if (typeof global !== "undefined") return global;
@@ -20,17 +21,29 @@ class GlobalRootHandler {
   }
 
   /**
-   * Returns the shared bootstrap namespace for helper registration.
+   * Shared global object reference.
    */
-  get helpers() {
-    return this.namespace.helpers || (this.namespace.helpers = {});
+  get root() {
+    return this._ensureRoot();
   }
 
   /**
-   * Returns the bootstrap namespace object.
+   * Returns the bootstrap namespace object located on the global root.
    */
   getNamespace() {
-    return this.namespace;
+    if (!this._namespace) {
+      const root = this._ensureRoot();
+      this._namespace = root.__rwtraBootstrap || (root.__rwtraBootstrap = {});
+    }
+    return this._namespace;
+  }
+
+  /**
+   * Returns the helper registry namespace that services/helpers share.
+   */
+  get helpers() {
+    const namespace = this.getNamespace();
+    return namespace.helpers || (namespace.helpers = {});
   }
 
   /**
@@ -38,6 +51,25 @@ class GlobalRootHandler {
    */
   getDocument() {
     return this.root.document;
+  }
+
+  /**
+   * Returns a bound `fetch` implementation if the runtime exposes one.
+   */
+  getFetch() {
+    const fn = this.root.fetch;
+    return typeof fn === "function" ? fn.bind(this.root) : undefined;
+  }
+
+  /**
+   * Produces a logger that writes to `console.error` under the provided tag.
+   */
+  getLogger(tag = "rwtra") {
+    return (msg, data) => {
+      if (typeof console !== "undefined" && console.error) {
+        console.error(tag, msg, data || "");
+      }
+    };
   }
 
   /**

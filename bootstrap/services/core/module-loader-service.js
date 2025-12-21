@@ -1,25 +1,25 @@
+const BaseService = require("../base-service.js");
 const ModuleLoaderConfig = require("../../configs/module-loader.js");
 const ModuleLoaderEnvironment = require("./module-loader-environment.js");
 
 /**
  * Aggregates the CDN/local helpers and exposes the module loader façade.
  */
-class ModuleLoaderAggregator {
-  constructor(config = new ModuleLoaderConfig()) { this.config = config; this.initialized = false; }
+class ModuleLoaderAggregator extends BaseService {
+  constructor(config = new ModuleLoaderConfig()) {
+    super(config);
+  }
 
   /**
    * Sets up the Module Loader Aggregator instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("ModuleLoaderAggregator already initialized");
-    }
+    this._ensureNotInitialized();
     const root = this.config.environmentRoot;
     if (!root) {
       throw new Error("Environment root required for ModuleLoaderAggregator");
     }
     this.environment = new ModuleLoaderEnvironment(root);
-    this.initialized = true;
     this.global = this.environment.global;
     this.helpers = this.environment.helpers;
     this.isCommonJs = this.environment.isCommonJs;
@@ -27,6 +27,7 @@ class ModuleLoaderAggregator {
     this._loadDependencies();
     this._buildExports();
     this._registerWithServiceRegistry();
+    this._markInitialized();
     return this;
   }
 
@@ -92,9 +93,7 @@ class ModuleLoaderAggregator {
    * Registers Module Loader Aggregator with the runtime service registry.
    */
   install() {
-    if (!this.initialized) {
-      throw new Error("ModuleLoaderAggregator not initialized");
-    }
+    this._ensureInitialized();
     this.helpers.moduleLoader = this.exports;
     if (this.isCommonJs) {
       module.exports = this.exports;

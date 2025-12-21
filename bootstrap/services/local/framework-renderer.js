@@ -1,3 +1,5 @@
+const BaseService = require("../base-service.js");
+
 /**
  * Handles rendering the configured entry component to the DOM.
  */
@@ -10,10 +12,9 @@ class FrameworkRendererConfig {
   }
 }
 
-class FrameworkRenderer {
+class FrameworkRenderer extends BaseService {
   constructor(config = new FrameworkRendererConfig()) {
-    this.config = config;
-    this.initialized = false;
+    super(config);
     this.document = null;
   }
 
@@ -21,14 +22,12 @@ class FrameworkRenderer {
    * Sets up the Framework Renderer instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("FrameworkRenderer already initialized");
-    }
+    this._ensureNotInitialized();
     this.document = this.config.document;
     if (!this.document) {
       throw new Error("Document required for FrameworkRenderer");
     }
-    this.initialized = true;
+    this._markInitialized();
     return this;
   }
 
@@ -36,9 +35,7 @@ class FrameworkRenderer {
    * Render for Framework Renderer.
    */
   render(config, registry, App) {
-    if (!this.initialized) {
-      throw new Error("FrameworkRenderer not initialized");
-    }
+    this._ensureInitialized();
 
     const renderConfig = config.render || {};
     const rootId = renderConfig.rootId || "root";

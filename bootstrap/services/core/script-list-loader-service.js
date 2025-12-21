@@ -1,41 +1,32 @@
-const hasDocument = typeof document !== "undefined";
-const globalObj =
-  typeof globalThis !== "undefined"
-    ? globalThis
-    : typeof global !== "undefined"
-    ? global
-    : {};
-const { scriptManifestUrl: SCRIPT_MANIFEST_URL } =
-  require("../../constants/common.js");
-
+const BaseService = require("../base-service.js");
 const ScriptListLoaderConfig = require("../../configs/script-list-loader.js");
+const GlobalRootHandler = require("../../constants/global-root-handler.js");
 
 /**
  * Loads the script manifest and sequentially injects each referenced script tag.
  */
-class ScriptListLoader {
-  constructor(config = new ScriptListLoaderConfig()) { this.config = config; this.initialized = false; }
+class ScriptListLoader extends BaseService {
+  constructor(config) {
+    const providedHandler = config && config.rootHandler;
+    const handler = providedHandler ?? new GlobalRootHandler();
+    const normalizedConfig =
+      config instanceof ScriptListLoaderConfig
+        ? config
+        : new ScriptListLoaderConfig({ ...(config || {}), rootHandler: handler });
+    super(normalizedConfig);
+    this.rootHandler = normalizedConfig.rootHandler;
+  }
 
   /**
    * Sets up the Script List Loader instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("ScriptListLoader already initialized");
-    }
-    this.initialized = true;
-    this.document = this.config.document ?? (hasDocument ? document : null);
-    this.manifestUrl = this.config.manifestUrl ?? SCRIPT_MANIFEST_URL;
-    this.fetchImpl =
-      this.config.fetch ??
-      (typeof globalObj.fetch === "function" ? globalObj.fetch.bind(globalObj) : undefined);
-    this.log =
-      this.config.log ??
-      ((msg, data) => {
-        if (typeof console !== "undefined" && console.error) {
-          console.error("rwtra:scripts", msg, data || "");
-        }
-      });
+    this._ensureNotInitialized();
+    this._markInitialized();
+    this.document = this.config.document;
+    this.manifestUrl = this.config.manifestUrl;
+    this.fetchImpl = this.config.fetch;
+    this.log = this.config.log;
     return this;
   }
 

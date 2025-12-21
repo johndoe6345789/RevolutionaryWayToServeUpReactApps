@@ -1,20 +1,20 @@
+const BaseService = require("../base-service.js");
 const hasWindow = typeof window !== "undefined";
 const LoggingManagerConfig = require("../../configs/logging-manager.js");
 
 /**
  * Wraps telemetry wiring for window-level error/unhandled rejection logging.
  */
-class LoggingManager {
-  constructor(config = new LoggingManagerConfig()) { this.config = config; this.initialized = false; }
+class LoggingManager extends BaseService {
+  constructor(config = new LoggingManagerConfig()) {
+    super(config);
+  }
 
   /**
    * Sets up the Logging Manager instance before it handles requests.
    */
   initialize() {
-    if (this.initialized) {
-      throw new Error("LoggingManager already initialized");
-    }
-    this.initialized = true;
+    this._ensureNotInitialized();
     const { logClient, serializeForLog } = this.config;
     this.logClient = logClient;
     this.serializeForLog = serializeForLog;
@@ -26,6 +26,7 @@ class LoggingManager {
       folder: "services/core",
       domain: "core",
     });
+    this._markInitialized();
     return this;
   }
 
@@ -36,6 +37,7 @@ class LoggingManager {
     if (!hasWindow || !windowObj) {
       return this;
     }
+    this._ensureInitialized();
     windowObj.__rwtraLog = this.logClient;
     windowObj.addEventListener("error", this._handleWindowError.bind(this));
     windowObj.addEventListener("unhandledrejection", this._handleUnhandledRejection.bind(this));
