@@ -340,8 +340,12 @@ describe("SassCompilerService", () => {
       const exports = sassCompilerService.exports;
 
       // Spy on the original method to verify it's called with the right context
-      const spy = jest.fn();
       const originalCompileSCSS = sassCompilerService.compileSCSS;
+      const spy = jest.fn().mockImplementation(function(...args) {
+        return originalCompileSCSS.apply(this, args);
+      });
+
+      // Replace the compileSCSS method with the spy
       sassCompilerService.compileSCSS = spy;
 
       // Call the bound method - this will be asynchronous

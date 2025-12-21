@@ -1,5 +1,5 @@
-import TsxCompilerService from "../../../../bootstrap/services/local/tsx-compiler-service.js";
-import TsxCompilerConfig from "../../../../bootstrap/configs/local/tsx-compiler.js";
+import TsxCompilerService from "../../bootstrap/services/local/tsx-compiler-service.js";
+import TsxCompilerConfig from "../../bootstrap/configs/local/tsx-compiler.js";
 
 // Mock service registry for testing
 class MockServiceRegistry {
