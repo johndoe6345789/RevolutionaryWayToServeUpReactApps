@@ -138,23 +138,39 @@ describe("LoggingService", () => {
 
   describe("setCiLoggingEnabled method", () => {
     it("should toggle the CI logging enabled flag", () => {
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       service.setCiLoggingEnabled(true);
       expect(service.isCiLoggingEnabled()).toBe(true);
-      
+
       service.setCiLoggingEnabled(false);
       expect(service.isCiLoggingEnabled()).toBe(false);
     });
 
     it("should coerce the value to boolean", () => {
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       service.setCiLoggingEnabled("truthy");
       expect(service.isCiLoggingEnabled()).toBe(true);
-      
+
       service.setCiLoggingEnabled(0);
       expect(service.isCiLoggingEnabled()).toBe(false);
     });
@@ -163,53 +179,101 @@ describe("LoggingService", () => {
   describe("detectCiLogging method", () => {
     it("should return window.__RWTRA_CI_MODE__ value if available", () => {
       global.window.__RWTRA_CI_MODE__ = true;
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging()).toBe(true);
-      
+
       global.window.__RWTRA_CI_MODE__ = false;
       expect(service.detectCiLogging()).toBe(false);
     });
 
     it("should detect CI logging from query params", () => {
       global.window.location.search = "?ci=1";
-      const config = new LoggingServiceConfig({ ciLogQueryParam: "ci" });
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        ciLogQueryParam: "ci",
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
       const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging()).toBe(true);
     });
 
     it("should detect CI logging from query params with 'true' value", () => {
       global.window.location.search = "?ci=true";
-      const config = new LoggingServiceConfig({ ciLogQueryParam: "ci" });
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        ciLogQueryParam: "ci",
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
       const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging()).toBe(true);
     });
 
     it("should detect CI logging from localhost hostname", () => {
       global.window.location.hostname = "localhost";
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging()).toBe(true);
     });
 
     it("should detect CI logging from 127.0.0.1 hostname", () => {
       global.window.location.hostname = "127.0.0.1";
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging()).toBe(true);
     });
 
     it("should detect CI logging from config override", () => {
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging({ ciLogging: true })).toBe(true);
       expect(service.detectCiLogging({ ciLogging: false })).toBe(false);
     });
@@ -218,10 +282,18 @@ describe("LoggingService", () => {
       global.window.location.search = "?other=param";
       global.window.location.hostname = "example.com";
       global.window.__RWTRA_CI_MODE__ = undefined;
-      
-      const service = new LoggingService();
+
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.detectCiLogging({})).toBe(false);
     });
   });
@@ -229,11 +301,19 @@ describe("LoggingService", () => {
   describe("serializeForLog method", () => {
     it("should serialize Error objects properly", () => {
       const error = new Error("test error");
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       const serialized = service.serializeForLog(error);
-      
+
       expect(serialized).toEqual({
         message: "test error",
         stack: error.stack
@@ -242,22 +322,38 @@ describe("LoggingService", () => {
 
     it("should serialize regular objects", () => {
       const obj = { a: 1, b: "test", c: [1, 2, 3] };
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       const serialized = service.serializeForLog(obj);
-      
+
       expect(serialized).toEqual(obj);
     });
 
     it("should handle unserializable objects", () => {
       const circularObj = { a: 1 };
       circularObj.ref = circularObj; // Create circular reference
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       const serialized = service.serializeForLog(circularObj);
-      
+
       expect(serialized).toEqual({
         type: "object",
         note: "unserializable"
@@ -265,9 +361,17 @@ describe("LoggingService", () => {
     });
 
     it("should return primitives as-is", () => {
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       expect(service.serializeForLog("string")).toBe("string");
       expect(service.serializeForLog(123)).toBe(123);
       expect(service.serializeForLog(true)).toBe(true);
@@ -278,13 +382,21 @@ describe("LoggingService", () => {
 
   describe("wait method", () => {
     it("should return a promise that resolves after specified time", async () => {
-      const service = new LoggingService();
+      const mockServiceRegistry = {
+        register: jest.fn()
+      };
+
+      const config = new LoggingServiceConfig({
+        namespace: { helpers: {} },
+        serviceRegistry: mockServiceRegistry
+      });
+      const service = new LoggingService(config);
       service.initialize();
-      
+
       const start = Date.now();
       await service.wait(10);
       const end = Date.now();
-      
+
       // The wait time should be at least 10ms
       expect(end - start).toBeGreaterThanOrEqual(9); // Allow for small timing variations
     });

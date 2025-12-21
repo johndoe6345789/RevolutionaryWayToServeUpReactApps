@@ -120,7 +120,7 @@ class SassCompilerService extends BaseService {
     this.serviceRegistry.register("sassCompiler", exports, {
       folder: "services/local",
       domain: "local",
-    });
+    }, []);
     if (typeof module !== "undefined" && module.exports) {
       module.exports = exports;
     }

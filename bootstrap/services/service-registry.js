@@ -11,45 +11,27 @@ class ServiceRegistry {
   }
 
   /**
-   * Registers a named service instance with optional metadata and required services validation.
+   * Registers a named service instance with metadata and required services validation.
    */
   register(name, service, metadata, requiredServices) {
     if (!name) {
       throw new Error("Service name is required");
     }
 
-    // Handle backward compatibility with different argument lengths
-    let finalMetadata = {};
-    let finalRequiredServices = [];
-
-    if (arguments.length === 2) {
-      // register(name, service)
-      finalMetadata = {};
-      finalRequiredServices = [];
-    } else if (arguments.length === 3) {
-      // register(name, service, metadata) - existing usage
-      finalMetadata = metadata || {};
-      finalRequiredServices = [];
-    } else if (arguments.length === 4) {
-      // register(name, service, metadata, requiredServices) - new usage
-      finalMetadata = metadata || {};
-      finalRequiredServices = requiredServices || [];
-    } else {
-      // Default case
-      finalMetadata = {};
-      finalRequiredServices = [];
+    if (arguments.length !== 4) {
+      throw new Error("ServiceRegistry.register requires exactly 4 parameters: (name, service, metadata, requiredServices)");
     }
 
     if (this._services.has(name)) {
       throw new Error("Service already registered: " + name);
     }
 
-    this._services.set(name, { service, metadata: finalMetadata });
+    this._services.set(name, { service, metadata: metadata || {} });
 
     // Validate that required services are registered
-    if (Array.isArray(finalRequiredServices) && finalRequiredServices.length > 0) {
+    if (Array.isArray(requiredServices) && requiredServices.length > 0) {
       const missingServices = [];
-      for (const serviceName of finalRequiredServices) {
+      for (const serviceName of requiredServices) {
         if (!this._services.has(serviceName)) {
           missingServices.push(serviceName);
         }

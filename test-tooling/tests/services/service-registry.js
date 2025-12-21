@@ -14,7 +14,7 @@ describe("bootstrap/services/service-registry.js", () => {
       const service = { name: "service" };
       const metadata = { folder: "services" };
 
-      registry.register("alpha", service, metadata);
+      registry.register("alpha", service, metadata, []);
 
       expect(registry.getService("alpha")).toBe(service);
       expect(registry.getMetadata("alpha")).toBe(metadata);
@@ -23,19 +23,19 @@ describe("bootstrap/services/service-registry.js", () => {
 
     test("throws when the name is missing", () => {
       const registry = new ServiceRegistry();
-      expect(() => registry.register("", {})).toThrow("Service name is required");
+      expect(() => registry.register("", {}, {}, [])).toThrow("Service name is required");
     });
 
     test("throws when registering the same name twice", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
-      expect(() => registry.register("alpha", {})).toThrow("Service already registered: alpha");
+      registry.register("alpha", {}, {}, []);
+      expect(() => registry.register("alpha", {}, {}, [])).toThrow("Service already registered: alpha");
     });
 
     test("validates required services when provided", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
-      registry.register("beta", {});
+      registry.register("alpha", {}, {}, []);
+      registry.register("beta", {}, {}, []);
 
       // Should not throw when all required services are present
       expect(() => {
@@ -47,7 +47,7 @@ describe("bootstrap/services/service-registry.js", () => {
 
     test("throws when required services are missing", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
 
       // Should throw when required service is missing
       expect(() => {
@@ -65,11 +65,11 @@ describe("bootstrap/services/service-registry.js", () => {
 
     test("does not validate when no required services provided", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
 
       // Should work normally when no required services are specified
       expect(() => {
-        registry.register("beta", {});
+        registry.register("beta", {}, {}, []);
       }).not.toThrow();
 
       // Should work when empty array is passed as required services
@@ -89,8 +89,8 @@ describe("bootstrap/services/service-registry.js", () => {
   describe("listServices", () => {
     test("lists registered service names", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
-      registry.register("beta", {});
+      registry.register("alpha", {}, {}, []);
+      registry.register("beta", {}, {}, []);
       expect(registry.listServices()).toEqual(["alpha", "beta"]);
     });
   });
@@ -98,7 +98,7 @@ describe("bootstrap/services/service-registry.js", () => {
   describe("getMetadata", () => {
     test("returns undefined when metadata is missing", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
       expect(registry.getMetadata("alpha")).toEqual({});
       expect(registry.getMetadata("missing")).toBeUndefined();
     });
@@ -107,7 +107,7 @@ describe("bootstrap/services/service-registry.js", () => {
   describe("isRegistered", () => {
     test("reports registered and missing services", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
+      registry.register("alpha", {}, {}, []);
       expect(registry.isRegistered("alpha")).toBe(true);
       expect(registry.isRegistered("missing")).toBe(false);
     });
@@ -116,8 +116,8 @@ describe("bootstrap/services/service-registry.js", () => {
   describe("reset", () => {
     test("clears all registered services", () => {
       const registry = new ServiceRegistry();
-      registry.register("alpha", {});
-      registry.register("beta", {});
+      registry.register("alpha", {}, {}, []);
+      registry.register("beta", {}, {}, []);
       registry.reset();
       expect(registry.listServices()).toEqual([]);
       expect(registry.isRegistered("alpha")).toBe(false);

@@ -26,7 +26,7 @@ class EnvInitializer extends BaseService {
     this.serviceRegistry.register("env", this, {
       folder: "services/core",
       domain: "core",
-    });
+    }, []);
     this._markInitialized();
     return this;
   }

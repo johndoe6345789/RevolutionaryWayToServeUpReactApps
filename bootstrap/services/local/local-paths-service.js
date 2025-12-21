@@ -129,7 +129,7 @@ class LocalPathsService extends BaseService {
     this.serviceRegistry.register("localPaths", exports, {
       folder: "services/local",
       domain: "local",
-    });
+    }, []);
     if (typeof module !== "undefined" && module.exports) {
       module.exports = exports;
     }

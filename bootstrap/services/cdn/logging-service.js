@@ -39,7 +39,7 @@ class LoggingService extends BaseService {
     this.serviceRegistry.register("logging", this, {
       folder: "services/cdn",
       domain: "cdn",
-    });
+    }, []);
     return this;
   }
 

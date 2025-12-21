@@ -55,12 +55,14 @@ describe("SourceUtilsService", () => {
       expect(service.namespace.helpers).toBe(service.helpers);
     });
 
-    test("should set isCommonJs based on module environment", () => {
+    test("should set isCommonJs property", () => {
       const config = new SourceUtilsConfig({ namespace: mockNamespace, serviceRegistry: mockServiceRegistry });
       const service = new SourceUtilsService(config);
 
       service.initialize();
 
+      // Just verify that isCommonJs is defined and is a boolean value
+      expect(service.isCommonJs).toBeDefined();
       expect(typeof service.isCommonJs).toBe('boolean');
     });
 

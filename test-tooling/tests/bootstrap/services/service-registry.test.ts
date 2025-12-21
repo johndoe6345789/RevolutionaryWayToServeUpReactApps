@@ -7,7 +7,7 @@ describe("bootstrap/services/service-registry.js", () => {
     const service = { start: () => "ok" };
     const metadata = { scope: "app", eager: true };
 
-    registry.register("logging", service, metadata);
+    registry.register("logging", service, metadata, []);
 
     expect(registry.getService("logging")).toBe(service);
     expect(registry.getMetadata("logging")).toBe(metadata);
@@ -19,10 +19,10 @@ describe("bootstrap/services/service-registry.js", () => {
   it('rejects duplicates, missing names, and supports reset', () => {
     const registry = new ServiceRegistry();
 
-    registry.register("network", { connect: () => true });
-    expect(() => registry.register("network", { connect: () => false }))
+    registry.register("network", { connect: () => true }, {}, []);
+    expect(() => registry.register("network", { connect: () => false }, {}, []))
       .toThrow("Service already registered: network");
-    expect(() => registry.register("", { connect: () => true }))
+    expect(() => registry.register("", { connect: () => true }, {}, []))
       .toThrow("Service name is required");
 
     registry.reset();
@@ -34,8 +34,8 @@ describe("bootstrap/services/service-registry.js", () => {
     const registry = new ServiceRegistry();
 
     // Register initial services
-    registry.register("logger", { log: () => {} });
-    registry.register("config", { get: () => {} });
+    registry.register("logger", { log: () => {} }, {}, []);
+    registry.register("config", { get: () => {} }, {}, []);
 
     // Should succeed when all required services are registered
     expect(() => {
