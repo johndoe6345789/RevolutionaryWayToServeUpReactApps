@@ -1,4 +1,4 @@
-const BaseService = require("../base-service.js");
+const BaseService = require("../../interfaces/base-service.js");
 const ToolsLoaderConfig = require("../../configs/cdn/tools.js");
 
 /**

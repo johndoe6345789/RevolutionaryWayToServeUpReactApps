@@ -1,4 +1,4 @@
-const BaseService = require("../../base-service.js");
+const BaseService = require("../../../interfaces/base-service.js");
 const NetworkModuleResolverConfig = require("../../../configs/cdn/network-module-resolver.js");
 
 class NetworkModuleResolver extends BaseService {

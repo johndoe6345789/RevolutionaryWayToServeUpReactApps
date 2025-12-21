@@ -1,5 +1,5 @@
 const BaseFactory = require('../base-factory.js');
-const BaseController = require('../../controllers/base-controller.js');
+const BaseController = require('../../interfaces/base-controller.js');
 
 /**
  * Factory for creating BaseController instances.

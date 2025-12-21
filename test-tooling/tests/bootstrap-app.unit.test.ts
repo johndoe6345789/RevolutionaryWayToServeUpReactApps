@@ -1,14 +1,3 @@
-// Mock the dependencies before importing BootstrapApp
-jest.mock("../../bootstrap/registries/factory-registry-initializer.js", () => ({
-  initializeFactoryRegistry: jest.fn()
-}));
-
-jest.mock("../../bootstrap/bootstrap-app.js", () => {
-  const actualBootstrapApp = jest.requireActual("../../bootstrap/bootstrap-app.js");
-  // Mock the factory registration to avoid the LoggingServiceFactory issue
-  return actualBootstrapApp;
-});
-
 import BootstrapApp from "../../bootstrap/bootstrap-app.js";
 
 describe("BootstrapApp", () => {
@@ -93,19 +82,19 @@ describe("BootstrapApp", () => {
 
     it("should not call install if window is not a browser environment", () => {
       const mockNonWindow = {}; // Not a proper window object
-      
+
       const loggingManagerSpy = jest.spyOn(bootstrapApp.loggingManager, 'install');
 
       // Mock the isBrowser method to return false
-      const originalIsBrowser = BootstrapApp.isBrowser;
-      BootstrapApp.isBrowser = jest.fn(() => false);
+      const originalIsBrowser = (BootstrapApp as any).__proto__.constructor.isBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = jest.fn(() => false);
 
       bootstrapApp.installLogging(mockNonWindow);
 
       expect(loggingManagerSpy).not.toHaveBeenCalled();
 
       // Restore original method
-      BootstrapApp.isBrowser = originalIsBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = originalIsBrowser;
     });
   });
 
@@ -115,19 +104,19 @@ describe("BootstrapApp", () => {
         document: {},
         __RWTRA_BOOTSTRAP_TEST_MODE__: false
       };
-      
+
       const bootstrapperSpy = jest.spyOn(bootstrapApp.bootstrapper, 'bootstrap');
 
       // Mock the isBrowser method to return true
-      const originalIsBrowser = BootstrapApp.isBrowser;
-      BootstrapApp.isBrowser = jest.fn(() => true);
+      const originalIsBrowser = (BootstrapApp as any).__proto__.constructor.isBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = jest.fn(() => true);
 
       bootstrapApp.runBootstrapper(mockWindow);
 
       expect(bootstrapperSpy).toHaveBeenCalled();
 
       // Restore original method
-      BootstrapApp.isBrowser = originalIsBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = originalIsBrowser;
     });
 
     it("should not call bootstrap if in test mode", () => {
@@ -135,19 +124,19 @@ describe("BootstrapApp", () => {
         document: {},
         __RWTRA_BOOTSTRAP_TEST_MODE__: true
       };
-      
+
       const bootstrapperSpy = jest.spyOn(bootstrapApp.bootstrapper, 'bootstrap');
 
       // Mock the isBrowser method to return true
-      const originalIsBrowser = BootstrapApp.isBrowser;
-      BootstrapApp.isBrowser = jest.fn(() => true);
+      const originalIsBrowser = (BootstrapApp as any).__proto__.constructor.isBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = jest.fn(() => true);
 
       bootstrapApp.runBootstrapper(mockWindow);
 
       expect(bootstrapperSpy).not.toHaveBeenCalled();
 
       // Restore original method
-      BootstrapApp.isBrowser = originalIsBrowser;
+      (BootstrapApp as any).__proto__.constructor.isBrowser = originalIsBrowser;
     });
   });
 
@@ -157,19 +146,19 @@ describe("BootstrapApp", () => {
         document: {}
       } as any;
 
-      const result = BootstrapApp.isBrowser(mockWindow);
+      const result = BaseBootstrapApp.isBrowser(mockWindow);
       expect(result).toBe(true);
     });
 
     it("should return false when window is not provided", () => {
-      const result = BootstrapApp.isBrowser(undefined);
+      const result = BaseBootstrapApp.isBrowser(undefined);
       expect(result).toBe(false);
     });
 
     it("should return false when window has no document", () => {
       const mockWindow = {} as any;
 
-      const result = BootstrapApp.isBrowser(mockWindow);
+      const result = BaseBootstrapApp.isBrowser(mockWindow);
       expect(result).toBe(false);
     });
   });

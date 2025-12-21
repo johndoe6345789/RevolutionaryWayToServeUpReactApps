@@ -280,15 +280,35 @@ describe("ScriptListLoader", () => {
       };
 
       let createElementCallCount1 = 0;
-      mockDocument.createElement = (...args) => {
-        mockDocument.createElement.calls.push(args);
+      mockDocument.createElement = (tag) => {
+        mockDocument.createElement.calls.push([tag]);
         createElementCallCount1++;
-        if (createElementCallCount1 === 1) {
-          return { /* script element */ };
-        } else if (createElementCallCount1 === 2) {
-          return templateElement;
+
+        if (tag === "template") {
+          // Return a template element that has innerHTML and content properties
+          return {
+            set innerHTML(value) {
+              this._innerHTML = value;
+            },
+            get innerHTML() {
+              return this._innerHTML;
+            },
+            content: {
+              querySelectorAll: createMockFunction().mockReturnValue([
+                { getAttribute: () => "/script1.js" },
+                { getAttribute: () => "/script2.js" }
+              ])
+            }
+          };
         } else {
-          return { /* another script element */ };
+          // For other elements like script
+          return {
+            src: "",
+            async: false,
+            onload: null,
+            onerror: null,
+            setAttribute: createMockFunction()
+          };
         }
       };
       mockDocument.createElement.calls = [];
@@ -330,7 +350,7 @@ describe("ScriptListLoader", () => {
       mockFetch.mockResolvedValue(mockResponse);
       
       // Should not throw when document is null
-      await expect(service.loadFromManifest()).resolves.not.toThrow();
+      await expect(service.loadFromManifest()).resolves.toBeUndefined();
     });
   });
 
@@ -339,8 +359,8 @@ describe("ScriptListLoader", () => {
       service.initialize();
       service.document = null;
       
-      // Should not throw
-      await expect(service.load()).resolves.not.toThrow();
+      // Should resolve to undefined when document is null
+      await expect(service.load()).resolves.toBeUndefined();
     });
 
     test("should call loadFromManifest and handle success", async () => {
@@ -374,15 +394,34 @@ describe("ScriptListLoader", () => {
       };
 
       let createElementCallCount3 = 0;
-      mockDocument.createElement = (...args) => {
-        mockDocument.createElement.calls.push(args);
+      mockDocument.createElement = (tag) => {
+        mockDocument.createElement.calls.push([tag]);
         createElementCallCount3++;
-        if (createElementCallCount3 === 1) {
-          return { /* script element */ };
-        } else if (createElementCallCount3 === 2) {
-          return templateElement;
+
+        if (tag === "template") {
+          // Return a template element that has innerHTML and content properties
+          return {
+            set innerHTML(value) {
+              this._innerHTML = value;
+            },
+            get innerHTML() {
+              return this._innerHTML;
+            },
+            content: {
+              querySelectorAll: createMockFunction().mockReturnValue([
+                { getAttribute: () => "/script1.js" }
+              ])
+            }
+          };
         } else {
-          return { /* another script element */ };
+          // For other elements like script
+          return {
+            src: "",
+            async: false,
+            onload: null,
+            onerror: null,
+            setAttribute: createMockFunction()
+          };
         }
       };
       mockDocument.createElement.calls = [];
@@ -447,15 +486,34 @@ describe("ScriptListLoader", () => {
       };
       
       let createElementCallCount4 = 0;
-      mockDocument.createElement = (...args) => {
-        mockDocument.createElement.calls.push(args);
+      mockDocument.createElement = (tag) => {
+        mockDocument.createElement.calls.push([tag]);
         createElementCallCount4++;
-        if (createElementCallCount4 === 1) {
-          return { /* script element */ };
-        } else if (createElementCallCount4 === 2) {
-          return templateElement;
+
+        if (tag === "template") {
+          // Return a template element that has innerHTML and content properties
+          return {
+            set innerHTML(value) {
+              this._innerHTML = value;
+            },
+            get innerHTML() {
+              return this._innerHTML;
+            },
+            content: {
+              querySelectorAll: createMockFunction().mockReturnValue([
+                { getAttribute: () => "/integration-test.js" }
+              ])
+            }
+          };
         } else {
-          return { /* another script element */ };
+          // For other elements like script
+          return {
+            src: "",
+            async: false,
+            onload: null,
+            onerror: null,
+            setAttribute: createMockFunction()
+          };
         }
       };
       mockDocument.createElement.calls = [];
@@ -490,7 +548,12 @@ describe("ScriptListLoader", () => {
       mockFetch.mockResolvedValue(mockResponse);
       
       const templateElement = {
-        innerHTML: '',
+        set innerHTML(value) {
+          this._innerHTML = value;
+        },
+        get innerHTML() {
+          return this._innerHTML;
+        },
         content: {
           querySelectorAll: createMockFunction().mockReturnValue([
             { getAttribute: () => "/complete-flow-test.js" }
@@ -517,7 +580,8 @@ describe("ScriptListLoader", () => {
       // Run the complete load flow
       await service.load();
       
-      expect(service.loadScript).toHaveBeenCalledWith("/complete-flow-test.js");
+      expect(service.loadScript.calls.length).toBeGreaterThan(0);
+      expect(service.loadScript.calls[0][0]).toBe("/complete-flow-test.js");
     });
   });
 });

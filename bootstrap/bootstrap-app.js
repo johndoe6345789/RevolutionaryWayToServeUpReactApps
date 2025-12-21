@@ -1,9 +1,10 @@
-const BaseBootstrapApp = require("./base-bootstrap-app.js");
+const BaseBootstrapApp = require("./interfaces/base-bootstrap-app.js");
 const LoggingManager = require("./services/core/logging-manager.js");
 const LoggingManagerConfig = require("./configs/core/logging-manager.js");
 const Bootstrapper = require("./controllers/bootstrapper.js");
 const BootstrapperConfig = require("./configs/core/bootstrapper.js");
 const factoryRegistry = require("./registries/factory-registry-instance.js");
+const LoggingServiceFactory = require("./factories/cdn/logging-service-factory.js");
 
 /**
  * Encapsulates the bootstrap entrypoint wiring needed for both CommonJS and browser runtimes.
@@ -30,11 +31,8 @@ class BootstrapApp extends BaseBootstrapApp {
       })
     );
 
-    // Register factories
-    factoryRegistry.register("loggingService", LoggingServiceFactory, {
-      folder: "factories",
-      domain: "cdn"
-    }, []);
+    // Factory registration should happen at the entrypoint level, not in constructor
+    // This prevents duplicate registrations when multiple instances are created during testing
   }
 
   /**

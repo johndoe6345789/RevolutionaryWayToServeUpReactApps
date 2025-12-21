@@ -1,4 +1,4 @@
-const BaseService = require("../base-service.js");
+const BaseService = require("../../interfaces/base-service.js");
 const ImportMapInitConfig = require("../../configs/cdn/import-map-init.js");
 
 /**

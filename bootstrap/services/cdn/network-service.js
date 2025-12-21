@@ -1,4 +1,4 @@
-const BaseService = require("../base-service.js");
+const BaseService = require("../../interfaces/base-service.js");
 const NetworkServiceConfig = require("../../configs/cdn/network-service.js");
 const NetworkProviderServiceConfig = require("../../configs/cdn/network-provider-service.js");
 const NetworkProbeServiceConfig = require("../../configs/cdn/network-probe-service.js");

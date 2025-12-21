@@ -15,6 +15,8 @@ const ModuleLoaderServiceFactory = require('./services/module-loader-service-fac
 const TsxCompilerServiceFactory = require('./local/tsx-compiler-service-factory.js');
 const SassCompilerServiceFactory = require('./local/sass-compiler-service-factory.js');
 const BaseEntryPointFactory = require('./core/base-entrypoint-factory.js');
+const NetworkProviderServiceFactory = require('./cdn/network-provider-service-factory.js');
+const NetworkProbeServiceFactory = require('./cdn/network-probe-service-factory.js');
 const factoryRegistryInstance = require('../registries/factory-registry-instance.js');
 
 /**
@@ -23,7 +25,7 @@ const factoryRegistryInstance = require('../registries/factory-registry-instance
 class FactoryManager {
   constructor() {
     this.factories = new Map();
-    
+
     // Register all available factories
     this.registerFactory('baseBootstrapApp', new BaseBootstrapAppFactory());
     this.registerFactory('globalRootHandler', new GlobalRootHandlerFactory());
@@ -41,6 +43,19 @@ class FactoryManager {
     this.registerFactory('tsxCompilerService', new TsxCompilerServiceFactory());
     this.registerFactory('sassCompilerService', new SassCompilerServiceFactory());
     this.registerFactory('baseEntryPoint', new BaseEntryPointFactory());
+    this.registerFactory('networkProviderService', new NetworkProviderServiceFactory());
+    this.registerFactory('networkProbeService', new NetworkProbeServiceFactory());
+
+    // Register this factory manager in the global factory registry
+    try {
+      factoryRegistryInstance.register('factoryManager', () => this, {
+        folder: 'factories',
+        domain: 'core'
+      }, []);
+    } catch (e) {
+      // If factory registry is not available, continue without registration
+      // This allows the system to work in environments where the factory registry isn't set up
+    }
   }
 
   /**

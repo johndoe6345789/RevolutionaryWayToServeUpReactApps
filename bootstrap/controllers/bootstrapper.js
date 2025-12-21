@@ -1,5 +1,5 @@
 const GlobalRootHandler = require("../constants/global-root-handler.js");
-const BaseController = require("./base-controller.js");
+const BaseController = require("../interfaces/base-controller.js");
 const BootstrapperConfig = require("../configs/core/bootstrapper.js");
 
 const rootHandler = new GlobalRootHandler();

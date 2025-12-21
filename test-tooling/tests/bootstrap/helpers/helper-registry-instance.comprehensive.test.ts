@@ -1,4 +1,4 @@
-import HelperRegistry from "../../../../bootstrap/helpers/helper-registry.js";
+import HelperRegistry from "../../../../bootstrap/registries/helper-registry.js";
 
 describe("HelperRegistryInstance", () => {
   const instancePath = "../../../../bootstrap/helpers/helper-registry-instance.js";

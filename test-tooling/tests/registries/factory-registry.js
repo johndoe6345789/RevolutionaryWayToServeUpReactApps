@@ -43,15 +43,25 @@ describe("bootstrap/registries/factory-registry.js", () => {
   describe("create", () => {
     test("creates an instance using the registered factory", () => {
       const registry = new FactoryRegistry();
-      
+
       class TestClass {
         constructor(deps) {
           this.deps = deps;
         }
       }
-      
-      registry.register("testFactory", TestClass, {}, []);
-      
+
+      class TestFactory {
+        constructor(deps) {
+          this.dependencies = deps;
+        }
+
+        create(config) {
+          return new TestClass(config);
+        }
+      }
+
+      registry.register("testFactory", TestFactory, {}, []);
+
       const instance = registry.create("testFactory", { service: "test" });
       expect(instance).toBeInstanceOf(TestClass);
       expect(instance.deps.service).toBe("test");
@@ -61,21 +71,31 @@ describe("bootstrap/registries/factory-registry.js", () => {
       const registry = new FactoryRegistry();
       expect(() => registry.create("missing")).toThrow("Factory not found: missing");
     });
-    
+
     test("validates required dependencies", () => {
       const registry = new FactoryRegistry();
-      
+
       class TestClass {
         constructor(deps) {
           this.deps = deps;
         }
       }
-      
-      registry.register("testFactory", TestClass, { required: ["service"] }, []);
-      
+
+      class TestFactory {
+        constructor(deps) {
+          this.dependencies = deps;
+        }
+
+        create(config) {
+          return new TestClass(config);
+        }
+      }
+
+      registry.register("testFactory", TestFactory, { required: ["service"] }, []);
+
       expect(() => registry.create("testFactory", {}))
         .toThrow("Required dependency missing for factory testFactory: service");
-      
+
       expect(() => registry.create("testFactory", { service: "test" }))
         .not.toThrow();
     });
