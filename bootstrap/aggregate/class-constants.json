@@ -1,0 +1,36 @@
+{
+  "classes": [
+    {
+      "name": "ProviderUtilities",
+      "factory": "provider-utilities-factory",
+      "dataClass": "utilities-data",
+      "module": "services/cdn/network/provider-utilities"
+    },
+    {
+      "name": "DefaultProviderAliases",
+      "factory": "default-provider-aliases-factory", 
+      "dataClass": "constants-data",
+      "module": "constants/default-provider-aliases"
+    },
+    {
+      "name": "ServiceFactoryLoader",
+      "factory": "service-factory-loader-factory",
+      "dataClass": "registry-data", 
+      "module": "registries/service-factory-loader"
+    },
+    {
+      "name": "BaseClassFactory",
+      "factory": "base-class-factory-factory",
+      "dataClass": "factory-data",
+      "module": "factories/base-class-factory"
+    },
+    {
+      "name": "AliasMapCreator",
+      "factory": "alias-map-creator-factory",
+      "dataClass": "utilities-data",
+      "module": "services/cdn/network/alias-map-creator"
+    }
+  ],
+  "version": "1.0.0",
+  "generated": "2025-12-22"
+}
