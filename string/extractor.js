@@ -669,6 +669,46 @@ class StringExtractor {
   }
 
   /**
+   * Deduplicate strings in strings.json by content, keeping first occurrence
+   */
+  deduplicateStrings() {
+    const deduplicated = { i18n: { en: {} } };
+
+    // Create a map of content -> first key found
+    const contentToFirstKey = new Map();
+
+    // First pass: collect all unique content -> first key mappings
+    for (const category of Object.keys(this.codegenData.i18n.en)) {
+      for (const [key, content] of Object.entries(this.codegenData.i18n.en[category])) {
+        if (!contentToFirstKey.has(content)) {
+          contentToFirstKey.set(content, { key, category });
+        }
+      }
+    }
+
+    // Second pass: rebuild structure with deduplicated strings
+    for (const category of Object.keys(this.codegenData.i18n.en)) {
+      deduplicated.i18n.en[category] = {};
+      for (const [key, content] of Object.entries(this.codegenData.i18n.en[category])) {
+        // Only keep if this is the first occurrence of this content
+        const firstOccurrence = contentToFirstKey.get(content);
+        if (firstOccurrence.key === key && firstOccurrence.category === category) {
+          deduplicated.i18n.en[category][key] = content;
+        }
+      }
+    }
+
+    // Preserve non-i18n data
+    for (const [key, value] of Object.entries(this.codegenData)) {
+      if (key !== 'i18n') {
+        deduplicated[key] = value;
+      }
+    }
+
+    return deduplicated;
+  }
+
+  /**
    * Update string/strings.json with extracted strings
    */
   async updateCodegenData() {
@@ -677,12 +717,12 @@ class StringExtractor {
         this.codegenData.i18n.en[info.category][key] = info.content;
       }
     }
-    
-    // Create backup before updating
-    await this.createBackup(this.codegenDataPath);
-    
-    // Write updated data
-    fs.writeFileSync(this.codegenDataPath, JSON.stringify(this.codegenData, null, 2), 'utf8');
+
+    // Deduplicate strings
+    const deduplicatedData = this.deduplicateStrings();
+
+    // Output deduplicated JSON instead of writing to file
+    console.log(JSON.stringify(deduplicatedData, null, 2));
   }
 
   /**
@@ -1458,9 +1498,20 @@ async function main() {
   if (args.includes('--verbose')) {
     options.verbose = true;
   }
+  if (args.includes('--deduplicate')) {
+    options.deduplicate = true;
+  }
 
   try {
-    if (options.dryRun) {
+    if (options.deduplicate) {
+      console.log('Running deduplication mode...');
+      const extractor = new StringExtractor({ dryRun: true });
+      extractor.loadCodegenData();
+      const deduplicatedData = extractor.deduplicateStrings();
+      console.log(JSON.stringify(deduplicatedData, null, 2));
+      console.log('Deduplication completed successfully');
+      return deduplicatedData;
+    } else if (options.dryRun) {
       console.log('Running in dry-run mode...');
       const result = await previewExtraction(options);
       console.log('Dry run completed successfully');
