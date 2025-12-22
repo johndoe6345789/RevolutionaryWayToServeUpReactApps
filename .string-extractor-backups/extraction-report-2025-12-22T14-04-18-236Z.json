@@ -1,0 +1,189 @@
+{
+  "timestamp": "2025-12-22T14:04:18.236Z",
+  "summary": {
+    "totalStrings": 25,
+    "filesModified": 0,
+    "categories": {
+      "messages": 6,
+      "errors": 3,
+      "console": 16
+    }
+  },
+  "details": {
+    "processing_file_filename": {
+      "content": "Processing file: {filename}",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:24"
+      ]
+    },
+    "error_occurred_error": {
+      "content": "Error occurred: {error}",
+      "category": "errors",
+      "sources": [
+        "test-string-extractor.js:25"
+      ]
+    },
+    "function_failed_reason": {
+      "content": "Function failed: {reason}",
+      "category": "errors",
+      "sources": [
+        "test-string-extractor.js:46"
+      ]
+    },
+    "starting_process": {
+      "content": "Starting process...",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:48"
+      ]
+    },
+    "testing_string_extraction_automation_script_n": {
+      "content": "🧪 Testing String Extraction Automation Script\\n",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:59"
+      ]
+    },
+    "utf8": {
+      "content": "utf8",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:63"
+      ]
+    },
+    "created_test_file_testfilepath": {
+      "content": "✅ Created test file: ${testFilePath}",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:64"
+      ]
+    },
+    "n_test_1_dry_run_extraction": {
+      "content": "\\n📋 Test 1: Dry run extraction",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:67"
+      ]
+    },
+    "dry_run_completed_successfully": {
+      "content": "✅ Dry run completed successfully",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:75"
+      ]
+    },
+    "n_test_2_actual_extraction": {
+      "content": "\\n📋 Test 2: Actual extraction",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:78"
+      ]
+    },
+    "actual_extraction_completed_successfully": {
+      "content": "✅ Actual extraction completed successfully",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:86"
+      ]
+    },
+    "n_test_3_verify_modifications": {
+      "content": "\\n📋 Test 3: Verify modifications",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:89"
+      ]
+    },
+    "string_service_calls_found_in_modified_file": {
+      "content": "✅ String service calls found in modified file",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:99"
+      ]
+    },
+    "no_string_service_calls_found_in_modified_file": {
+      "content": "❌ No string service calls found in modified file",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:101"
+      ]
+    },
+    "procedural_markings_found_in_modified_file": {
+      "content": "✅ Procedural markings found in modified file",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:107"
+      ]
+    },
+    "no_procedural_markings_found_in_modified_file": {
+      "content": "❌ No procedural markings found in modified file",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:109"
+      ]
+    },
+    "n_test_4_verify_codegen_data_json_updates": {
+      "content": "\\n📋 Test 4: Verify codegen-data.json updates",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:113"
+      ]
+    },
+    "new_strings_found_in_codegen_data_json": {
+      "content": "✅ New strings found in codegen-data.json",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:123"
+      ]
+    },
+    "no_new_strings_found_in_codegen_data_json": {
+      "content": "❌ No new strings found in codegen-data.json",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:125"
+      ]
+    },
+    "n_test_5_extracted_strings_summary": {
+      "content": "\\n📋 Test 5: Extracted strings summary",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:129"
+      ]
+    },
+    "category_count_strings": {
+      "content": "  ${category}: ${count} strings",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:135"
+      ]
+    },
+    "n_modified_file_content": {
+      "content": "\\n📄 Modified file content:",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:140"
+      ]
+    },
+    "n_all_tests_completed_successfully": {
+      "content": "\\n🎉 All tests completed successfully!",
+      "category": "messages",
+      "sources": [
+        "test-string-extractor.js:145"
+      ]
+    },
+    "test_failed": {
+      "content": "❌ Test failed:",
+      "category": "errors",
+      "sources": [
+        "test-string-extractor.js:148"
+      ]
+    },
+    "cleaned_up_test_file_testfilepath": {
+      "content": "🧹 Cleaned up test file: ${testFilePath}",
+      "category": "console",
+      "sources": [
+        "test-string-extractor.js:155"
+      ]
+    }
+  }
+}
