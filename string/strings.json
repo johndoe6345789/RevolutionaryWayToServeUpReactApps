@@ -858,7 +858,8 @@
         "plugin_grouping_system": "  • Plugin grouping system",
         "n_nested_aggregate_classes_system_implementation_c": "\n🎉 Nested Aggregate Classes System - Implementation Complete!",
         "bootstrap_success": "bootstrap:success",
-        "bootstrap_error": "bootstrap:error"
+        "bootstrap_error": "bootstrap:error",
+        "ci_enabled": "ci_enabled"
       },
       "system": {
         "browser": "browser",
