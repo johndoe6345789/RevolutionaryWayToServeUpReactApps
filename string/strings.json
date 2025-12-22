@@ -16,7 +16,7 @@
         "serviceregistry_must_be_an_object": "serviceRegistry must be an object",
         "namespace_must_be_an_object": "namespace must be an object",
         "specification_required": "[TODO: Add translation for specification_required]",
-        "configjson_must_be_a_valid_object": "[TODO: Add translation for configjson_must_be_a_valid_object]",
+        "configjson_must_be_a_valid_object": "configJson must be a valid object",
         "specification_not_loaded": "[TODO: Add translation for specification_not_loaded]",
         "error_occurred_error": "Error occurred: {error}",
         "function_failed_reason": "Function failed: {reason}"

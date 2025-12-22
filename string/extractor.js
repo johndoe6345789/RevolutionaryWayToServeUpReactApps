@@ -195,6 +195,8 @@ class StringExtractor {
       // Update string/strings.json if not dry run
       if (!this.options.dryRun && this.extractedStrings.size > 0) {
         await this.updateCodegenData();
+        // Reload the updated data for verification
+        this.loadCodegenData();
         this.results.extraction.stringsJsonUpdated = true;
         this.results.extraction.stringsJsonPath = this.codegenDataPath;
       }
@@ -850,7 +852,7 @@ class StringExtractorVerifier {
         const lines = content.split('\n');
 
         // Find all string service calls
-        const stringServiceCallRegex = /strings\.(getError|getMessage|getLabel|getConsole)\s*\(\s*['"`]([^'"`]+)['"`]/g;
+        const stringServiceCallRegex = /strings\.(getError|getMessage|getLabel|getConsole)\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
         let match;
 
         while ((match = stringServiceCallRegex.exec(content)) !== null) {
@@ -860,7 +862,12 @@ class StringExtractorVerifier {
 
           // Check if key exists in strings.json for the appropriate category
           const category = method.replace('get', '').toLowerCase();
-          const keyExists = this.extractor.codegenData?.i18n?.en?.[category]?.[key];
+          // Handle plural categories in JSON (error->errors, message->messages, etc.)
+          const jsonCategory = category === 'error' ? 'errors' :
+                              category === 'message' ? 'messages' :
+                              category === 'label' ? 'labels' :
+                              category;
+          const keyExists = this.extractor.codegenData?.i18n?.en?.[jsonCategory]?.[key];
 
           if (!keyExists) {
             this.verificationResults.failed.push({
