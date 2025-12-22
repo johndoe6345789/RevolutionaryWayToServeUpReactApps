@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // Load strings.json
-const stringsPath = path.join(__dirname, 'string', 'strings.json');
+const stringsPath = path.join(__dirname, 'strings.json');
 const strings = JSON.parse(fs.readFileSync(stringsPath, 'utf8'));
 
 // Get all keys from strings.json
