@@ -24,15 +24,13 @@ class StringExtractor {
       files: options.files || [],
       project: options.project || false,
       dryRun: options.dryRun || false,
-      backup: options.backup !== false,
       verbose: options.verbose || false,
       exclude: options.exclude || ['node_modules/**', '.git/**', 'coverage/**', 'dist/**', 'build/**'],
       maxFiles: options.maxFiles || 50, // Add 50 file limit
       ...options
     };
-    
+
     this.codegenDataPath = path.resolve(__dirname, 'strings.json');
-    this.backupDir = path.resolve(__dirname, '../.string-extractor-backups');
     this.changesLog = [];
     this.extractedStrings = new Map();
     this.originalFiles = new Map();
@@ -292,8 +290,6 @@ class StringExtractor {
         if (!this.options.dryRun) {
           const modifiedContent = this.replaceStringsInFile(content, extractedStrings, filePath);
           if (modifiedContent !== content) {
-            // Create backup
-            await this.createBackup(filePath);
             // Write modified content
             fs.writeFileSync(filePath, modifiedContent, 'utf8');
             this.changesLog.push({
@@ -715,24 +711,7 @@ class StringExtractor {
     console.log(JSON.stringify(deduplicatedData, null, 2));
   }
 
-  /**
-   * Create backup of file
-   */
-  async createBackup(filePath) {
-    if (!this.options.backup) return;
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const relativePath = path.relative(process.cwd(), filePath);
-    const backupPath = path.join(this.backupDir, `${relativePath}.backup.${timestamp}`);
-
-    // Ensure backup directory exists
-    fs.mkdirSync(path.dirname(backupPath), { recursive: true });
-
-    // Copy file to backup location
-    fs.copyFileSync(filePath, backupPath);
-
-    this.log(`Created backup: ${backupPath}`);
-  }
 
   /**
    * Generate extraction report
@@ -747,27 +726,22 @@ class StringExtractor {
       },
       details: {}
     };
-    
+
     // Categorize extracted strings
     for (const [key, info] of this.extractedStrings) {
       if (!report.summary.categories[info.category]) {
         report.summary.categories[info.category] = 0;
       }
       report.summary.categories[info.category]++;
-      
+
       report.details[key] = {
         content: info.content,
         category: info.category,
         sources: info.sources
       };
     }
-    
-    // Save report
-    const reportPath = path.join(this.backupDir, `extraction-report-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
-    fs.mkdirSync(this.backupDir, { recursive: true });
-    fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
-    
-    // Display summary as JSON
+
+    // Display summary as JSON (passive mode - no file writes)
     const summaryLog = {
       timestamp: new Date().toISOString(),
       component: 'StringExtractor',
@@ -776,8 +750,7 @@ class StringExtractor {
       data: {
         totalStrings: report.summary.totalStrings,
         filesModified: report.summary.filesModified,
-        categories: report.summary.categories,
-        reportPath: reportPath
+        categories: report.summary.categories
       }
     };
     console.log(JSON.stringify(summaryLog));
@@ -848,7 +821,6 @@ class StringExtractorVerifier {
     console.log(JSON.stringify(startLog));
 
     try {
-      await this.verifyBackups();
       await this.verifyStringServiceCalls();
       await this.verifyProjectIntegrity();
 
@@ -884,70 +856,7 @@ class StringExtractorVerifier {
     }
   }
 
-  /**
-   * Verify backup integrity
-   */
-  async verifyBackups() {
-    for (const [filePath, originalContent] of this.extractor.originalFiles) {
-      try {
-        const backupDir = path.dirname(path.join(this.extractor.backupDir, path.relative(process.cwd(), filePath)));
-        const backupDirExists = fs.existsSync(backupDir);
 
-        if (!backupDirExists) {
-          this.verificationResults.warnings.push({
-            type: 'backup',
-            file: filePath,
-            message: '⚠️  Backup directory does not exist',
-            details: 'Backup directory does not exist',
-            suggestion: 'Verify backup creation is enabled and permissions are correct'
-          });
-          continue;
-        }
-
-        const backupFiles = fs.readdirSync(backupDir).filter(f => f.startsWith('.backup.'));
-        if (backupFiles.length === 0) {
-          this.verificationResults.warnings.push({
-            type: 'backup',
-            file: filePath,
-            message: '⚠️  No backup files found'
-          });
-        } else {
-          // Verify most recent backup
-          const latestBackup = backupFiles.sort().pop();
-          const backupPath = path.join(backupDir, latestBackup);
-
-          try {
-            const backupContent = fs.readFileSync(backupPath, 'utf8');
-            if (backupContent === originalContent) {
-              this.verificationResults.passed.push({
-                type: 'backup',
-                file: filePath,
-                message: '✅ Backup integrity verified'
-              });
-            } else {
-              this.verificationResults.failed.push({
-                type: 'backup',
-                file: filePath,
-                message: '❌ Backup content does not match original'
-              });
-            }
-          } catch (backupError) {
-            this.verificationResults.failed.push({
-              type: 'backup',
-              file: filePath,
-              message: `❌ Cannot read backup file: ${backupError.message}`
-            });
-          }
-        }
-      } catch (error) {
-        this.verificationResults.warnings.push({
-          type: 'backup',
-          file: filePath,
-          message: `⚠️  Could not verify backup: ${error.message}`
-        });
-      }
-    }
-  }
 
   /**
    * Verify string service calls are properly formed
@@ -1349,8 +1258,7 @@ async function extractStrings(options = {}) {
       mode: 'FULL_EXTRACTION',
       safety: {
         fileLimit: extractionOptions.maxFiles,
-        filesModified: extractor.changesLog.length,
-        backupsCreated: extractionOptions.backup
+        filesModified: extractor.changesLog.length
       },
       extraction: {
         totalStrings: extractor.extractedStrings.size,
