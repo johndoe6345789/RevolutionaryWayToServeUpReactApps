@@ -1,3 +1,7 @@
+const { getStringService } = require('../../services/string-service.js');
+
+const strings = getStringService();
+
 /**
  * Supplies dependency overrides for the dynamic modules loader.
  */
@@ -17,10 +21,10 @@ class DynamicModulesConfig {
    */
   validate() {
     if (this.serviceRegistry && typeof this.serviceRegistry !== 'object') {
-      throw new Error('serviceRegistry must be an object');
+      throw new Error(strings.getError('serviceregistry_must_be_an_object'));
     }
     if (this.namespace && typeof this.namespace !== 'object') {
-      throw new Error('namespace must be an object');
+      throw new Error(strings.getError('namespace_must_be_an_object'));
     }
   }
 

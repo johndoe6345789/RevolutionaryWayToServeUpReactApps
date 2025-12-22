@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { SYSTEM_TAGS, CTA_BUTTON_STYLE } from "../data";
-import { getStringService } from "../../bootstrap/services/string-service";
+import { getStringService } from "../../string/string-service";
 
 export default function HeroSection() {
   const strings = getStringService();
@@ -74,8 +74,7 @@ export default function HeroSection() {
             variant="body2"
             sx={{ maxWidth: 480, opacity: 0.86, mb: 3, lineHeight: 1.7 }}
           >
-            Boot straight into your retro library. One launchpad for emulators,
-            ROMs, save states, shaders, and couch co-op nights.
+            {strings.getMessage('hero_description')}
           </Typography>
 
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">

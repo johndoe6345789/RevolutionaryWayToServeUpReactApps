@@ -1,8 +1,11 @@
 const BaseClass = require('../base/base-class.js');
 const NestedAggregate = require('./nested-aggregate.js');
 const PluginGroupAggregate = require('./plugin-group-aggregate.js');
+const { getStringService } = require('../services/string-service.js');
 const fs = require('fs');
 const path = require('path');
+
+const strings = getStringService();
 
 /**
  * ClassRegistryAggregate - Loads class list from JSON and generates get methods
@@ -225,7 +228,7 @@ class ClassRegistryAggregate extends BaseClass {
    * Initializes nested aggregates
    */
   async initializeNestedAggregates() {
-    this.log('Initializing nested aggregates...', 'info');
+    this.log(strings.getMessage('initializing_nested_aggregates'), 'info');
     
     // Create nested aggregate instance
     this.nestedAggregate = new NestedAggregate({
@@ -247,14 +250,14 @@ class ClassRegistryAggregate extends BaseClass {
       }
     }
     
-    this.log('Nested aggregates initialized', 'info');
+    this.log(strings.getConsole('nested_aggregates_initialized'), 'info');
   }
 
   /**
    * Initializes plugin groups
    */
   async initializePluginGroups() {
-    this.log('Initializing plugin groups...', 'info');
+    this.log(strings.getMessage('initializing_plugin_groups'), 'info');
     
     // Create plugin group aggregate instance
     this.pluginGroupAggregate = new PluginGroupAggregate({
@@ -277,7 +280,7 @@ class ClassRegistryAggregate extends BaseClass {
       }
     }
     
-    this.log('Plugin groups initialized', 'info');
+    this.log(strings.getConsole('plugin_groups_initialized'), 'info');
   }
 
   /**

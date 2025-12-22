@@ -720,17 +720,17 @@ class StringExtractor {
    */
   async createBackup(filePath) {
     if (!this.options.backup) return;
-    
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const relativePath = path.relative(process.cwd(), filePath);
-    const backupPath = path.join(this.backupDir, relativePath, `.backup.${timestamp}`);
-    
+    const backupPath = path.join(this.backupDir, `${relativePath}.backup.${timestamp}`);
+
     // Ensure backup directory exists
     fs.mkdirSync(path.dirname(backupPath), { recursive: true });
-    
+
     // Copy file to backup location
     fs.copyFileSync(filePath, backupPath);
-    
+
     this.log(`Created backup: ${backupPath}`);
   }
 

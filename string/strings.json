@@ -153,10 +153,12 @@
         "initializing_nested_aggregates": "Initializing nested aggregates...",
         "initializing_plugin_groups": "Initializing plugin groups...",
         "nested_aggregates_initialized": "Nested aggregates initialized",
-        "plugin_groups_initialized": "Plugin groups initialized"
+        "plugin_groups_initialized": "Plugin groups initialized",
+        "hero_description": "Boot straight into your retro library. One launchpad for emulators, ROMs, save states, shaders, and couch co-op nights."
       },
       "labels": {
         "retro_gaming_hub": "RETRO GAMING HUB",
+        "retro_deck": "RetroDeck",
         "press_start": "Press Start",
         "to_continue": "to Continue",
         "launch_arcade_mode": "▶ Launch Arcade Mode",

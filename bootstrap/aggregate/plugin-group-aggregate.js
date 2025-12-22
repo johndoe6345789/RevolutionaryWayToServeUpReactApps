@@ -1,7 +1,10 @@
 const BaseClass = require('../base/base-class.js');
 const PluginGroupData = require('../data/plugin-group-data.js');
+const { getStringService } = require('../services/string-service.js');
 const fs = require('fs');
 const path = require('path');
+
+const strings = getStringService();
 
 /**
  * PluginGroupAggregate - Manages plugin groups and their relationships

@@ -1,3 +1,7 @@
+const { getStringService } = require('../services/string-service.js');
+
+const strings = getStringService();
+
 /**
  * Configuration parser for integrating config.json with factory system.
  * Parses config.json sections into typed configuration objects.
@@ -20,7 +24,7 @@ class ConfigJsonParser {
    */
   validate() {
     if (typeof this.configJson !== 'object' || this.configJson === null) {
-      throw new Error('configJson must be a valid object');
+      throw new Error(strings.getError('configjson_must_be_a_valid_object'));
     }
   }
 
