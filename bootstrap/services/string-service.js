@@ -19,11 +19,16 @@ class StringService extends BaseClass {
    */
   loadData() {
     try {
-      const dataPath = path.resolve(__dirname, '../../codegen-data.json');
+      // Try enhanced data first, fallback to original
+      let dataPath = path.resolve(__dirname, '../../codegen-data-enhanced.json');
+      if (!fs.existsSync(dataPath)) {
+        dataPath = path.resolve(__dirname, '../../codegen-data.json');
+      }
+      
       const rawData = fs.readFileSync(dataPath, 'utf8');
       this.data = JSON.parse(rawData);
     } catch (error) {
-      console.error('Failed to load codegen-data.json:', error);
+      console.error('Failed to load codegen data:', error);
       this.data = { i18n: { en: {} }, config: {}, constants: {} };
     }
   }

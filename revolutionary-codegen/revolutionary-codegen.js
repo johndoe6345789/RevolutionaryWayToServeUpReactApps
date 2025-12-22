@@ -17,6 +17,9 @@
 const path = require('path');
 const fs = require('fs');
 
+// Import string service
+const { getStringService } = require('../bootstrap/services/string-service');
+
 // Import all generators
 const BaseCodegen = require('./base/base-codegen');
 const ProjectStructureGenerator = require('./generators/project-structure-generator');
@@ -42,8 +45,9 @@ class RevolutionaryCodegen extends BaseCodegen {
    */
   async initialize() {
     await super.initialize();
+    const strings = getStringService();
     
-    this.log('🚀 Initializing RevolutionaryCodegen system...', 'info');
+    this.log(strings.getMessage('rev_codegen_initializing'), 'info');
     
     // Register all generators
     this.registerGenerators();
@@ -62,7 +66,8 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<Object>} Generation results
    */
   async execute() {
-    this.log('⚡ Executing RevolutionaryCodegen pipeline...', 'info');
+    const strings = getStringService();
+    this.log(strings.getMessage('rev_codegen_executing'), 'info');
     
     const results = {
       timestamp: new Date().toISOString(),
@@ -83,7 +88,7 @@ class RevolutionaryCodegen extends BaseCodegen {
     try {
       // Execute each generator
       for (const [name, generator] of this.generators) {
-        this.log(`🏭 Running ${name} generator...`, 'info');
+        this.log(strings.getMessage('generator_running', { name }), 'info');
         
         try {
           const generatorResults = await generator.execute();
@@ -166,27 +171,28 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<void>}
    */
   async loadSpecification() {
+    const strings = getStringService();
     if (this.options.specPath) {
       try {
         if (fs.existsSync(this.options.specPath)) {
           const content = fs.readFileSync(this.options.specPath, 'utf8');
           this.specification = JSON.parse(content);
-          this.log(`📂 Loaded specification from ${this.options.specPath}`, 'success');
+          this.log(strings.getMessage('loading_specification', { path: this.options.specPath }), 'success');
         } else {
-          this.log(`⚠️  Specification file not found: ${this.options.specPath}`, 'warning');
+          this.log(strings.getMessage('specification_not_found', { path: this.options.specPath }), 'warning');
           this.specification = null;
         }
       } catch (error) {
-        this.log(`❌ Failed to load specification: ${error.message}`, 'error');
+        this.log(strings.getMessage('specification_load_failed', { error: error.message }), 'error');
         if (!this.options.strictMode) {
-          this.log('📝 Using default specification...', 'info');
+          this.log(strings.getMessage('using_default_spec'), 'info');
           this.specification = this.createDefaultSpecification();
         } else {
           throw error;
         }
       }
     } else {
-      this.log('📝 Using default specification...', 'info');
+      this.log(strings.getMessage('using_default_spec'), 'info');
       this.specification = this.createDefaultSpecification();
     }
   }
@@ -327,7 +333,8 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<void>}
    */
   async initializeGenerators() {
-    this.log('🔧 Initializing generators...', 'info');
+    const strings = getStringService();
+    this.log(strings.getMessage('initializing_generators'), 'info');
     
     for (const [name, generator] of this.generators) {
       try {
@@ -341,19 +348,19 @@ class RevolutionaryCodegen extends BaseCodegen {
         }
         
         await generator.initialize();
-        this.log(`✅ ${name} generator initialized`, 'success');
+        this.log(strings.getMessage('generator_initialized', { name }), 'success');
         
       } catch (error) {
-        this.log(`❌ Failed to initialize ${name} generator: ${error.message}`, 'error');
+        this.log(strings.getMessage('generator_init_failed', { name, error: error.message }), 'error');
         if (!this.options.strictMode) {
-          this.log(`⚠️  Continuing without ${name} generator...`, 'warning');
+          this.log(strings.getMessage('continuing_without_generator', { name }), 'warning');
         } else {
           throw error;
         }
       }
     }
     
-    this.log(`✅ All generators initialized (${this.generators.size} total)`, 'success');
+    this.log(strings.getMessage('all_generators_initialized', { count: this.generators.size }), 'success');
   }
 
   /**
@@ -416,12 +423,13 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {void}
    */
   displayCompletion(results) {
+    const strings = getStringService();
     const celebrations = [
-      "🎉 REVOLUTIONARY CODEGEN COMPLETE! 🎉",
-      "🚀 Project generated successfully! Time to build the future! 🌍",
-      "✨ Magic happened! Your revolutionary project is ready! ✨",
-      "🏆 Victory! Revolutionary code generation accomplished! 🏆",
-      "🎯 Mission accomplished! Your project awaits development! 🎯"
+      strings.getMessage('completion_celebration_1'),
+      strings.getMessage('completion_celebration_2'),
+      strings.getMessage('completion_celebration_3'),
+      strings.getMessage('completion_celebration_4'),
+      strings.getMessage('completion_celebration_5')
     ];
     
     const celebration = celebrations[Math.floor(Math.random() * celebrations.length)];
@@ -429,20 +437,19 @@ class RevolutionaryCodegen extends BaseCodegen {
     
     // Display comprehensive statistics
     console.log('📊 REVOLUTIONARY GENERATION STATISTICS:');
-    console.log(`   🏭 Generators: ${results.summary.successfulGenerators}/${results.summary.totalGenerators}`);
-    console.log(`   📝 Files Generated: ${results.summary.totalFiles}`);
-    console.log(`   ⏱️  Duration: ${results.summary.duration}ms`);
+    console.log(strings.getMessage('stats_files_generated', { count: results.summary.successfulGenerators }));
+    console.log(strings.getMessage('stats_duration', { duration: results.summary.duration }));
     
     if (results.summary.totalErrors > 0) {
-      console.log(`   ❌ Errors: ${results.summary.totalErrors}`);
+      console.log(strings.getMessage('stats_errors', { count: results.summary.totalErrors }));
     }
     
     if (results.summary.totalWarnings > 0) {
-      console.log(`   ⚠️  Warnings: ${results.summary.totalWarnings}`);
+      console.log(strings.getMessage('stats_warnings', { count: results.summary.totalWarnings }));
     }
     
     // Display generator breakdown
-    console.log('\n📋 GENERATOR BREAKDOWN:');
+    console.log('\n' + strings.getMessage('generator_breakdown'));
     for (const [name, generator] of this.generators) {
       const generatorResults = results.generators[name];
       if (generatorResults) {
@@ -457,26 +464,26 @@ class RevolutionaryCodegen extends BaseCodegen {
     if (this.options.enableInnovations && this.innovations) {
       console.log('\n🎮 INNOVATION FEATURES:');
       if (this.innovations.achievements && this.innovations.achievements.size > 0) {
-        console.log(`   🏆 Achievements Unlocked: ${this.innovations.achievements.size}`);
+        console.log(strings.getMessage('stats_achievements_unlocked', { count: this.innovations.achievements.size }));
         this.innovations.achievements.forEach(achievement => {
           console.log(`      🎖 ${achievement}`);
         });
       }
       
-      console.log(`   🎲 Innovations Triggered: ${this.innovations.innovationsTriggered || 0}`);
+      console.log(strings.getMessage('stats_innovations_triggered', { count: this.innovations.innovationsTriggered || 0 }));
     }
     
     console.log(`\n${'='.repeat(60)}\n`);
     
     // Display next steps
-    console.log('🚀 NEXT STEPS:');
-    console.log('   1. Review generated project structure');
-    console.log('   2. Implement business logic in generated classes');
-    console.log('   3. Add your custom logic and features');
-    console.log('   4. Run tests and ensure quality');
-    console.log('   5. Build and deploy your revolutionary project!');
+    console.log('🚀' + strings.getMessage('next_steps'));
+    console.log(strings.getMessage('next_step_1'));
+    console.log(strings.getMessage('next_step_2'));
+    console.log(strings.getMessage('next_step_3'));
+    console.log(strings.getMessage('next_step_4'));
+    console.log(strings.getMessage('next_step_5'));
     
-    console.log('\n🎓 Revolutionary coding awaits! May the code be with you! 🌟\n');
+    console.log('\n' + strings.getMessage('farewell_message'));
   }
 
   /**
@@ -484,7 +491,8 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<void>}
    */
   async runSpecificationEditor() {
-    this.log('📝 Launching specification editor...', 'info');
+    const strings = getStringService();
+    this.log(strings.getMessage('launching_spec_editor'), 'info');
     
     const editor = new SpecificationEditor({
       specPath: this.options.specPath,
@@ -500,11 +508,12 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<void>}
    */
   async generateProject() {
-    this.log('🏗️  Generating project from specification...', 'info');
+    const strings = getStringService();
+    this.log(strings.getMessage('generating_project_from_spec'), 'info');
     
     if (!this.specification) {
-      this.log('❌ No specification loaded', 'error');
-      throw new Error('Specification required for project generation');
+      this.log(strings.getError('specification_not_loaded'), 'error');
+      throw new Error(strings.getError('specification_required'));
     }
     
     await this.execute();
@@ -663,13 +672,13 @@ if (require.main === module) {
         break;
       case '--help':
       case '-h':
-        const codegen = new RevolutionaryCodegen(options);
-        codegen.displayHelp();
+        const helpCodegen = new RevolutionaryCodegen(options);
+        helpCodegen.displayHelp();
         process.exit(0);
         break;
       case '--version':
-        const codegen = new RevolutionaryCodegen(options);
-        codegen.displayVersion();
+        const versionCodegen = new RevolutionaryCodegen(options);
+        versionCodegen.displayVersion();
         process.exit(0);
         break;
       default:

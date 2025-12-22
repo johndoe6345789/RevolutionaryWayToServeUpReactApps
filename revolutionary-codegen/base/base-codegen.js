@@ -70,8 +70,9 @@ class BaseCodegen {
   async initialize() {
     this.stats.startTime = new Date();
     this.displayWelcome();
+    const strings = require('../bootstrap/services/string-service').getStringService();
     
-    this.log('🚀 Initializing revolutionary codegen...', 'info');
+    this.log(strings.getMessage('rev_codegen_initializing'), 'info');
     
     // Ensure output directory exists
     if (!fs.existsSync(this.options.outputDir)) {
@@ -85,7 +86,7 @@ class BaseCodegen {
     }
     
     // Display progress animation
-    this.displayProgressAnimation('Initializing generators...', 1000);
+    this.displayProgressAnimation(strings.getMessage('initializing_generators'), 1000);
     
     return this;
   }
