@@ -1,0 +1,7 @@
+{
+  "name": "codegen-scripts",
+  "version": "1.0.0",
+  "description": "Code generation scripts for RWTRA system",
+  "type": "commonjs",
+  "main": "run-codegen.js"
+}
