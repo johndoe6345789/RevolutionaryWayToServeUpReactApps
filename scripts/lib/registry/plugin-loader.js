@@ -1,48 +1,94 @@
 /**
  * Plugin Loader
- * Handles loading and initialization of plugins
+ * Handles loading and instantiation of plugin modules from folder structure
  */
 
 const path = require('path');
 const BasePlugin = require('../base-plugin');
+const ModuleLoader = require('../module-loader');
+const MetadataLoader = require('../metadata-loader');
 
 class PluginLoader {
   constructor() {
     this.loadedPlugins = new Map();
+    this.moduleLoader = new ModuleLoader();
+    this.metadataLoader = new MetadataLoader();
   }
 
   /**
-   * Loads a plugin from a file
-   * @param {string} filePath - Path to plugin file
-   * @returns {Promise<BasePlugin>} - Loaded plugin instance
+   * Loads a plugin from a directory path
+   * @param {string} pluginDir - Path to plugin directory
+   * @returns {BasePlugin} - Plugin instance
    */
-  async loadPluginFile(filePath) {
+  async loadPluginFile(pluginDir) {
     try {
-      // Clear require cache to allow reloading
+      // Load metadata
+      const metadata = this.metadataLoader.loadMetadata(pluginDir);
+      
+      // Load main plugin entry file
+      const entryPath = metadata.resolvedEntry;
+      
+      // Clear require cache to ensure fresh load
+      delete require.cache[require.resolve(entryPath)];
+      
+      const PluginClass = require(entryPath);
+      
+      // Validate that it's a proper plugin class
+      if (typeof PluginClass !== 'function') {
+        throw new Error(`Plugin entry ${entryPath} must export a class`);
+      }
+      
+      // Create plugin instance with metadata
+      const plugin = new PluginClass(metadata);
+      
+      // Validate plugin structure
+      if (!(plugin instanceof BasePlugin)) {
+        throw new Error(`Plugin ${pluginDir} must extend BasePlugin`);
+      }
+      
+      // Set directory and additional metadata
+      plugin.directory = pluginDir;
+      plugin.entry = entryPath;
+      plugin.resolvedModules = metadata.resolvedModules || [];
+      
+      return plugin;
+    } catch (error) {
+      throw new Error(`Failed to load plugin from ${pluginDir}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Loads a legacy single-file plugin (for migration)
+   * @param {string} filePath - Path to legacy plugin file
+   * @returns {BasePlugin} - Plugin instance
+   */
+  async loadLegacyPlugin(filePath) {
+    try {
+      // Clear require cache to ensure fresh load
       delete require.cache[require.resolve(filePath)];
       
       const PluginClass = require(filePath);
       
-      // Check if it's a proper plugin class
+      // Validate that it's a proper plugin class
       if (typeof PluginClass !== 'function') {
-        throw new Error('Plugin file must export a class');
+        throw new Error(`Plugin file ${filePath} must export a class`);
       }
-
+      
       // Create plugin instance
       const plugin = new PluginClass();
       
-      // Validate that it extends BasePlugin
+      // Validate plugin structure
       if (!(plugin instanceof BasePlugin)) {
-        throw new Error('Plugin must extend BasePlugin');
+        throw new Error(`Plugin ${filePath} must extend BasePlugin`);
       }
-
-      // Set file path metadata
-      plugin.file = path.relative(process.cwd(), filePath);
+      
+      // Set legacy flag and file path
+      plugin.file = filePath;
+      plugin.isLegacy = true;
       
       return plugin;
-      
     } catch (error) {
-      throw new Error(`Failed to load plugin from ${filePath}: ${error.message}`);
+      throw new Error(`Failed to load legacy plugin from ${filePath}: ${error.message}`);
     }
   }
 
@@ -57,8 +103,10 @@ class PluginLoader {
       throw new Error('Plugin is required');
     }
 
-    if (plugin.loaded) {
-      return plugin;
+    // Add module loader to context if plugin has modules
+    if (plugin.resolvedModules && plugin.resolvedModules.length > 0) {
+      context.moduleLoader = this.moduleLoader;
+      plugin.modules = plugin.resolvedModules;
     }
 
     await plugin.initialize(context);
@@ -139,12 +187,12 @@ class PluginLoader {
 
     await this.unloadPlugin(plugin);
     
-    if (plugin.file) {
-      const reloadedPlugin = await this.loadPluginFile(plugin.file);
+    if (plugin.directory) {
+      const reloadedPlugin = await this.loadPluginFile(plugin.directory);
       return await this.initializePlugin(reloadedPlugin, context);
     }
-
-    throw new Error('Cannot reload plugin: no file path available');
+    
+    throw new Error('Cannot reload plugin: no directory path available');
   }
 }
 

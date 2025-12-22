@@ -10,21 +10,117 @@ class BasePlugin {
     this.version = metadata.version || '1.0.0';
     this.author = metadata.author || 'Unknown';
     this.category = metadata.category || 'utility';
+    this.language = metadata.language || null;
     this.dependencies = metadata.dependencies || [];
     this.commands = metadata.commands || [];
-    this.file = metadata.file || 'unknown';
+    this.modules = metadata.modules || [];
+    this.directory = metadata.directory || 'unknown';
+    this.entry = metadata.entry || 'index.js';
     this.loaded = false;
     this.context = null;
     this.languageContext = null;
+    this.loadedModules = new Map();
   }
 
   /**
-   * Initializes the plugin with execution context
+   * Initializes plugin with execution context
    * @param {Object} context - Execution context containing paths, config, options
    */
   async initialize(context) {
     this.context = context;
+    
+    // Load modules if module loader is available
+    if (context.moduleLoader && this.modules.length > 0) {
+      await this.loadModules(context.moduleLoader);
+    }
+    
     this.loaded = true;
+  }
+
+  /**
+   * Loads all plugin modules
+   * @param {ModuleLoader} moduleLoader - Module loader instance
+   */
+  async loadModules(moduleLoader) {
+    if (!this.modules || this.modules.length === 0) {
+      return;
+    }
+
+    for (const modulePath of this.modules) {
+      try {
+        const module = moduleLoader.loadModule(modulePath);
+        const moduleName = require('path').basename(modulePath, '.js');
+        this.loadedModules.set(moduleName, module);
+        this.log(`Loaded module: ${moduleName}`, 'info');
+      } catch (error) {
+        this.log(`Failed to load module ${modulePath}: ${error.message}`, 'error');
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Gets a loaded module by name
+   * @param {string} moduleName - Module name
+   * @returns {Object|null} - Module instance or null
+   */
+  getModule(moduleName) {
+    return this.loadedModules.get(moduleName) || null;
+  }
+
+  /**
+   * Checks if a module is loaded
+   * @param {string} moduleName - Module name
+   * @returns {boolean} - True if module is loaded
+   */
+  hasModule(moduleName) {
+    return this.loadedModules.has(moduleName);
+  }
+
+  /**
+   * Gets all loaded modules
+   * @returns {Map} - Map of loaded modules
+   */
+  getAllModules() {
+    return new Map(this.loadedModules);
+  }
+
+  /**
+   * Executes a module method
+   * @param {string} moduleName - Module name
+   * @param {string} methodName - Method name
+   * @param {...*} args - Method arguments
+   * @returns {*} - Method result
+   */
+  async executeModule(moduleName, methodName, ...args) {
+    const module = this.getModule(moduleName);
+    if (!module) {
+      throw new Error(`Module '${moduleName}' not found`);
+    }
+
+    if (typeof module[methodName] !== 'function') {
+      throw new Error(`Method '${methodName}' not found in module '${moduleName}'`);
+    }
+
+    return await module[methodName](...args);
+  }
+
+  /**
+   * Creates a module context for passing to modules
+   * @returns {Object} - Module context
+   */
+  createModuleContext() {
+    return {
+      plugin: this,
+      name: this.name,
+      version: this.version,
+      directory: this.directory,
+      context: this.context,
+      log: (message, level = 'info') => this.log(message, level),
+      colorize: (text, color) => this.colorize(text, color),
+      getModule: (name) => this.getModule(name),
+      hasModule: (name) => this.hasModule(name)
+    };
   }
 
   /**

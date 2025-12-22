@@ -15,7 +15,7 @@ class PluginRegistry {
   }
 
   /**
-   * Discovers all plugin files and loads them
+   * Discovers all plugin folders and loads them
    * @param {boolean} forceReload - Force rediscovery even if already discovered
    */
   async discoverPlugins(forceReload = false) {
@@ -26,16 +26,16 @@ class PluginRegistry {
     this.plugins.clear();
     this.discoveredFiles = [];
 
-    // Discover plugin files
-    const discoveredFiles = await this.discovery.discoverPlugins(forceReload);
-    this.discoveredFiles = discoveredFiles;
+    // Discover plugin directories
+    const discoveredDirs = await this.discovery.discoverPlugins(forceReload);
+    this.discoveredFiles = discoveredDirs;
 
     // Load discovered plugins
-    for (const filePath of discoveredFiles) {
+    for (const pluginDir of discoveredDirs) {
       try {
-        await this.loadPluginFile(filePath);
+        await this.loadPluginFile(pluginDir);
       } catch (error) {
-        console.warn(`Warning: Failed to load plugin from ${filePath}: ${error.message}`);
+        console.warn(`Warning: Failed to load plugin from ${pluginDir}: ${error.message}`);
       }
     }
   }

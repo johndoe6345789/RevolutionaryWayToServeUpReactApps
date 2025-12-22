@@ -1,107 +1,288 @@
 /**
  * Plugin Discovery
- * Handles discovery of plugin files from the filesystem
+ * Scans directories and discovers plugin folders with metadata
  */
 
 const fs = require('fs');
 const path = require('path');
+const MetadataLoader = require('../metadata-loader');
 
 class PluginDiscovery {
   constructor() {
-    this.pluginsDirectory = path.join(__dirname, '..', '..', 'plugins');
+    this.pluginDirectories = [
+      path.join(__dirname, '../../plugins'),
+      path.join(__dirname, '../../../plugins'),
+      path.join(process.cwd(), 'plugins')
+    ];
+    this.discoveredPlugins = new Map();
+    this.metadataLoader = new MetadataLoader();
   }
 
   /**
-   * Discovers all plugin files in the plugins directory
-   * @param {boolean} forceReload - Force rediscovery even if already discovered
-   * @returns {Promise<Array>} - Array of plugin file paths
+   * Discovers all plugin folders in configured directories
+   * @param {boolean} forceRediscover - Force rediscovery even if already discovered
+   * @returns {Array} - Array of plugin directory paths
    */
-  async discoverPlugins(forceReload = false) {
-    const discoveredFiles = [];
-
-    // Ensure plugins directory exists
-    if (!fs.existsSync(this.pluginsDirectory)) {
-      fs.mkdirSync(this.pluginsDirectory, { recursive: true });
-      return discoveredFiles;
+  async discoverPlugins(forceRediscover = false) {
+    if (this.discoveredPlugins.size > 0 && !forceRediscover) {
+      return Array.from(this.discoveredPlugins.keys());
     }
 
-    // Scan for regular plugin files
-    const regularFiles = await this.discoverRegularPlugins();
-    discoveredFiles.push(...regularFiles);
-    
-    // Scan for language plugins
-    const languageFiles = await this.discoverLanguagePlugins();
-    discoveredFiles.push(...languageFiles);
-    
-    return discoveredFiles;
-  }
+    this.discoveredPlugins.clear();
+    const pluginDirs = [];
 
-  /**
-   * Discovers regular plugin files
-   * @returns {Promise<Array>} - Array of regular plugin file paths
-   */
-  async discoverRegularPlugins() {
-    const files = fs.readdirSync(this.pluginsDirectory);
-    const pluginFiles = [];
-    
-    for (const file of files) {
-      if (file.endsWith('.plugin.js')) {
-        const filePath = path.join(this.pluginsDirectory, file);
-        pluginFiles.push(filePath);
+    for (const directory of this.pluginDirectories) {
+      try {
+        if (fs.existsSync(directory)) {
+          const plugins = await this.scanDirectory(directory);
+          pluginDirs.push(...plugins);
+        }
+      } catch (error) {
+        console.warn(`Warning: Failed to scan plugin directory ${directory}: ${error.message}`);
       }
     }
-    
-    return pluginFiles;
-  }
 
-  /**
-   * Discovers language plugins from language_plugins directory
-   * @returns {Promise<Array>} - Array of language plugin file paths
-   */
-  async discoverLanguagePlugins() {
-    const languagePluginsDir = path.join(this.pluginsDirectory, 'language_plugins');
-    const pluginFiles = [];
-    
-    if (!fs.existsSync(languagePluginsDir)) {
-      return pluginFiles;
-    }
-
-    const languageDirs = fs.readdirSync(languagePluginsDir);
-    
-    for (const langDir of languageDirs) {
-      const langPath = path.join(languagePluginsDir, langDir);
-      
-      if (fs.statSync(langPath).isDirectory()) {
-        const langFiles = await this.discoverLanguagePluginFiles(langDir, langPath);
-        pluginFiles.push(...langFiles);
+    // Cache discovered plugins with metadata
+    for (const pluginDir of pluginDirs) {
+      try {
+        const metadata = this.metadataLoader.loadMetadata(pluginDir);
+        this.discoveredPlugins.set(pluginDir, {
+          metadata,
+          discoveredAt: new Date().toISOString(),
+          directory: pluginDir
+        });
+      } catch (error) {
+        console.warn(`Warning: Failed to load metadata for ${pluginDir}: ${error.message}`);
       }
     }
-    
-    return pluginFiles;
+
+    return pluginDirs;
   }
 
   /**
-   * Discovers plugin files in a specific language directory
-   * @param {string} languageName - Name of the language
-   * @param {string} languagePath - Path to the language directory
-   * @returns {Promise<Array>} - Array of plugin file paths
+   * Scans a directory for plugin folders
+   * @param {string} directory - Directory to scan
+   * @returns {Array} - Array of plugin directory paths
    */
-  async discoverLanguagePluginFiles(languageName, languagePath) {
-    const pluginFiles = [];
-    
+  async scanDirectory(directory) {
+    const pluginDirs = [];
+
     try {
-      const files = fs.readdirSync(languagePath)
-        .filter(file => file.endsWith('.plugin.js') || file.endsWith('.language.js'));
+      const items = fs.readdirSync(directory);
 
-      for (const pluginFile of files) {
-        const filePath = path.join(languagePath, pluginFile);
-        pluginFiles.push(filePath);
+      for (const item of items) {
+        const itemPath = path.join(directory, item);
+        const stat = fs.statSync(itemPath);
+
+        if (stat.isDirectory() && this.isPluginFolder(itemPath)) {
+          pluginDirs.push(itemPath);
+        } else if (stat.isDirectory()) {
+          // Recursively scan subdirectories
+          const subPlugins = await this.scanDirectory(itemPath);
+          pluginDirs.push(...subPlugins);
+        } else if (stat.isFile() && item.endsWith('.plugin.js')) {
+          // Handle legacy single-file plugins
+          console.warn(`Warning: Legacy plugin file found: ${item}. Consider migrating to folder structure.`);
+        }
       }
     } catch (error) {
-      console.warn(`Warning: Failed to scan language directory ${languageName}: ${error.message}`);
+      console.warn(`Warning: Failed to scan directory ${directory}: ${error.message}`);
     }
+
+    return pluginDirs;
+  }
+
+  /**
+   * Checks if a directory is a valid plugin folder
+   * @param {string} dirPath - Directory path to check
+   * @returns {boolean} - True if valid plugin folder
+   */
+  isPluginFolder(dirPath) {
+    const metadataPath = path.join(dirPath, 'plugin.json');
+    const indexPath = path.join(dirPath, 'index.js');
     
-    return pluginFiles;
+    return fs.existsSync(metadataPath) && fs.existsSync(indexPath);
+  }
+
+  /**
+   * Discovers legacy single-file plugins for migration
+   * @returns {Array} - Array of legacy plugin file paths
+   */
+  discoverLegacyPlugins() {
+    const legacyPlugins = [];
+
+    for (const directory of this.pluginDirectories) {
+      try {
+        if (fs.existsSync(directory)) {
+          const items = fs.readdirSync(directory);
+
+          for (const item of items) {
+            const itemPath = path.join(directory, item);
+            const stat = fs.statSync(itemPath);
+
+            if (stat.isFile() && item.endsWith('.plugin.js')) {
+              legacyPlugins.push({
+                file: itemPath,
+                name: item.replace('.plugin.js', ''),
+                directory: directory
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(`Warning: Failed to scan for legacy plugins in ${directory}: ${error.message}`);
+      }
+    }
+
+    return legacyPlugins;
+  }
+
+  /**
+   * Gets metadata for a specific plugin
+   * @param {string} pluginDir - Plugin directory path
+   * @returns {Object} - Plugin metadata
+   */
+  getPluginMetadata(pluginDir) {
+    const discovered = this.discoveredPlugins.get(pluginDir);
+    return discovered ? discovered.metadata : null;
+  }
+
+  /**
+   * Gets all discovered plugins with their metadata
+   * @returns {Array} - Array of plugin info objects
+   */
+  getAllPlugins() {
+    return Array.from(this.discoveredPlugins.entries()).map(([dir, info]) => ({
+      directory: dir,
+      metadata: info.metadata,
+      discoveredAt: info.discoveredAt
+    }));
+  }
+
+  /**
+   * Filters plugins by category
+   * @param {string} category - Category to filter by
+   * @returns {Array} - Filtered plugins
+   */
+  getPluginsByCategory(category) {
+    return this.getAllPlugins().filter(plugin => 
+      plugin.metadata.category === category
+    );
+  }
+
+  /**
+   * Filters plugins by language
+   * @param {string} language - Language to filter by
+   * @returns {Array} - Filtered plugins
+   */
+  getPluginsByLanguage(language) {
+    return this.getAllPlugins().filter(plugin => 
+      plugin.metadata.language === language
+    );
+  }
+
+  /**
+   * Searches plugins by name or description
+   * @param {string} query - Search query
+   * @returns {Array} - Matching plugins
+   */
+  searchPlugins(query) {
+    const lowerQuery = query.toLowerCase();
+    return this.getAllPlugins().filter(plugin => {
+      const metadata = plugin.metadata;
+      return metadata.name.toLowerCase().includes(lowerQuery) ||
+             metadata.description.toLowerCase().includes(lowerQuery) ||
+             (metadata.tags && metadata.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
+    });
+  }
+
+  /**
+   * Gets information about discovered plugins
+   * @returns {Object} - Plugin discovery information
+   */
+  getDiscoveryInfo() {
+    const plugins = this.getAllPlugins();
+    const categories = [...new Set(plugins.map(p => p.metadata.category))];
+    const languages = [...new Set(plugins.map(p => p.metadata.language).filter(Boolean))];
+
+    return {
+      totalPlugins: plugins.length,
+      pluginDirectories: this.pluginDirectories,
+      categories,
+      languages,
+      discoveredPlugins: plugins,
+      legacyPlugins: this.discoverLegacyPlugins()
+    };
+  }
+
+  /**
+   * Validates all discovered plugins
+   * @param {PluginValidator} validator - Plugin validator instance
+   * @returns {Object} - Validation results for all plugins
+   */
+  validateAllPlugins(validator) {
+    const results = {
+      valid: [],
+      invalid: [],
+      total: 0
+    };
+
+    for (const [pluginDir, info] of this.discoveredPlugins) {
+      results.total++;
+      
+      try {
+        const validation = validator.validatePluginStructure(pluginDir);
+        if (validation.valid) {
+          results.valid.push({
+            plugin: info.metadata.name,
+            directory: pluginDir
+          });
+        } else {
+          results.invalid.push({
+            plugin: info.metadata.name,
+            directory: pluginDir,
+            errors: validation.errors
+          });
+        }
+      } catch (error) {
+        results.invalid.push({
+          plugin: info.metadata.name,
+          directory: pluginDir,
+          errors: [error.message]
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Clears the discovery cache
+   */
+  clearCache() {
+    this.discoveredPlugins.clear();
+    this.metadataLoader.clearCache();
+  }
+
+  /**
+   * Adds a new plugin directory to scan
+   * @param {string} directory - Directory path to add
+   */
+  addPluginDirectory(directory) {
+    if (!this.pluginDirectories.includes(directory)) {
+      this.pluginDirectories.push(directory);
+    }
+  }
+
+  /**
+   * Removes a plugin directory from scanning
+   * @param {string} directory - Directory path to remove
+   */
+  removePluginDirectory(directory) {
+    const index = this.pluginDirectories.indexOf(directory);
+    if (index > -1) {
+      this.pluginDirectories.splice(index, 1);
+    }
   }
 }
 

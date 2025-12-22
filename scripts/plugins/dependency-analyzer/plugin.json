@@ -1,0 +1,26 @@
+{
+  "name": "dependency-analyzer",
+  "version": "1.0.0",
+  "description": "Analyzes dependency relationships and detects issues",
+  "author": "RWTRA",
+  "category": "analysis",
+  "dependencies": [],
+  "commands": [
+    {
+      "name": "dependency-analyze",
+      "description": "Run dependency analysis on the bootstrap system"
+    }
+  ],
+  "entry": "index.js",
+  "modules": [
+    "modules/file-scanner.js",
+    "modules/graph-builder.js",
+    "modules/circular-detector.js",
+    "modules/missing-dependency-detector.js",
+    "modules/broken-link-detector.js",
+    "modules/orphaned-module-detector.js",
+    "modules/version-conflict-detector.js",
+    "modules/report-generator.js",
+    "utils/file-utils.js"
+  ]
+}

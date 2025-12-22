@@ -1,0 +1,69 @@
+{
+  "name": "dev-cli-bundled-plugins",
+  "version": "1.0.0",
+  "description": "Bundled collection of refactored dev-cli plugins",
+  "bundles": {
+    "analysis": {
+      "name": "analysis-bundle",
+      "description": "Collection of analysis plugins",
+      "plugins": [
+        "dependency-analyzer",
+        "coverage-report",
+        "cross-language-analysis",
+        "doc-coverage",
+        "factory-coverage",
+        "interface-coverage",
+        "oop-principles",
+        "refactoring"
+      ],
+      "categories": ["analysis"],
+      "dependencies": []
+    },
+    "utility": {
+      "name": "utility-bundle",
+      "description": "Collection of utility plugins",
+      "plugins": [
+        "test-runner",
+        "test-sync"
+      ],
+      "categories": ["utility"],
+      "dependencies": []
+    },
+    "generation": {
+      "name": "generation-bundle",
+      "description": "Collection of generation plugins",
+      "plugins": [
+        "api-stubs",
+        "project-template"
+      ],
+      "categories": ["generation"],
+      "dependencies": []
+    },
+    "language": {
+      "name": "language-bundle",
+      "description": "Collection of language support plugins",
+      "plugins": [
+        "javascript",
+        "python",
+        "java",
+        "cpp",
+        "go",
+        "ruby"
+      ],
+      "categories": ["language"],
+      "dependencies": []
+    }
+  },
+  "versionManagement": {
+    "strategy": "semantic",
+    "autoUpdate": false,
+    "compatibilityChecks": true
+  },
+  "distribution": {
+    "format": "folder",
+    "compression": "none",
+    "checksumValidation": true
+  },
+  "created": "2025-12-22T09:31:00.000Z",
+  "updated": "2025-12-22T09:31:00.000Z"
+}
