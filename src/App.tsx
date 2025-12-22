@@ -10,8 +10,11 @@ import Divider from "@mui/material/Divider";
 import HeroSection from "./components/HeroSection";
 import FeaturedGames from "./components/FeaturedGames";
 import FooterStrip from "./components/FooterStrip";
+import { getStringService } from "../bootstrap/services/string-service";
 
 export default function App() {
+  const strings = getStringService();
+  
   return (
     <>
       <CssBaseline />
@@ -31,24 +34,24 @@ export default function App() {
                 textTransform: "uppercase",
               }}
             >
-              RetroDeck
+              {strings.getLabel('retro_deck')}
             </Typography>
             <Stack direction="row" spacing={1}>
               <Button
                 size="small"
                 variant="text"
                 sx={{ fontSize: 10 }}
-                onClick={() => console.log("Open settings")}
+                onClick={() => console.log(strings.getConsole('open_settings'))}
               >
-                Settings
+                {strings.getLabel('settings')}
               </Button>
               <Button
                 size="small"
                 variant="outlined"
                 sx={{ fontSize: 10 }}
-                onClick={() => console.log("Sync with cloud")}
+                onClick={() => console.log(strings.getConsole('sync_with_cloud'))}
               >
-                Sync
+                {strings.getLabel('sync')}
               </Button>
             </Stack>
           </Stack>

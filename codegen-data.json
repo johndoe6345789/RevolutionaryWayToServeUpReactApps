@@ -1,0 +1,403 @@
+{
+  "i18n": {
+    "en": {
+      "errors": {
+        "item_name_required": "Item name must be a non-empty string",
+        "service_required": "Service is required for initializer",
+        "service_required_initialization": "Service is required for initialization",
+        "configuration_invalid": "Configuration must be a valid object",
+        "factory_type_required": "Factory type is required",
+        "target_class_required": "Target class is required",
+        "data_class_required": "Data class is required",
+        "dependencies_invalid": "Dependencies must be an array",
+        "config_object_required": "Config must be an object",
+        "aggregate_name_required": "Aggregate name is required",
+        "factory_required": "Factory is required",
+        "module_path_required": "Module path is required",
+        "children_invalid": "Children must be an array",
+        "nesting_level_invalid": "Nesting level must be a non-negative number",
+        "service_name_required": "Service name is required",
+        "service_type_required": "Service type is required",
+        "service_name_invalid": "Service name must be a valid identifier",
+        "plugin_group_name_required": "Plugin group name is required",
+        "plugin_group_description_required": "Plugin group description is required",
+        "plugin_group_category_required": "Plugin group category is required",
+        "plugins_invalid": "Plugins must be an array",
+        "load_order_invalid": "Load order must be an array",
+        "plugin_name_version_required": "Each plugin must have name and version",
+        "utility_type_required": "Utility type is required",
+        "utility_name_required": "Utility name is required",
+        "utility_name_invalid": "Utility name must be a valid identifier",
+        "utility_type_invalid": "Utility type must be one of: provider, alias, normalizer, validator, transformer",
+        "type_must_be_string": "Type must be a string and builder must be a function",
+        "source_required": "Source object is required for alias map creation",
+        "providers_invalid": "Providers must be an array",
+        "provider_invalid": "Provider must be a non-empty string",
+        "config_json_invalid": "configJson must be a valid object"
+      },
+      "messages": {
+        "initializing_service": "Initializing service...",
+        "registering_service": "Registering service...",
+        "finalizing_initialization": "Finalizing initialization...",
+        "starting_initialization": "Starting initialization...",
+        "initialization_completed": "Initialization completed successfully",
+        "performing_initialization": "Performing initialization...",
+        "instance_reset": "Instance reset to initial state",
+        "bootstrapper_created": "Bootstrapper created successfully",
+        "config_load_failed": "Failed to load config.json:",
+        "demo_started": "🚀 Starting Nested Aggregate System Demonstrations\n",
+        "demo_completed": "✅ Demo completed successfully!",
+        "demo_failed": "❌ Demo failed:",
+        "plugin_generation_demo": "🔧 Plugin Generator Demo",
+        "plugin_generating": "Generating demo plugin...",
+        "plugin_generation_failed": "❌ Plugin generation demo failed:",
+        "key_features": "🎯 Key Features Demonstrated:",
+        "oo_principles": "🏆 All components follow strict OO principles:",
+        "implementation_complete": "🎉 Nested Aggregate Classes System - Implementation Complete!"
+      },
+      "labels": {
+        "retro_gaming_hub": "RETRO GAMING HUB",
+        "press_start": "Press Start",
+        "to_continue": "to Continue",
+        "launch_arcade_mode": "▶ Launch Arcade Mode",
+        "browse_rom_library": "🕹 Browse ROM Library",
+        "featured_loadout": "FEATURED LOADOUT",
+        "curated_games": "Curated from your recently played and pinned games",
+        "quick_play": "▶ Quick Play",
+        "view_details": "View details",
+        "settings": "Settings",
+        "sync": "Sync",
+        "insert_coin": "INSERT COIN",
+        "crt_shader": "CRT Shader",
+        "netplay": "Netplay",
+        "big_screen_mode": "Big Screen Mode",
+        "footer_text": "Insert coin to save settings · Auto-saves shaders, layouts, and controller profiles."
+      },
+      "console": {
+        "open_settings": "Open settings",
+        "sync_with_cloud": "Sync with cloud",
+        "launch_arcade": "Launch Arcade Mode",
+        "browse_library": "Browse Library",
+        "quick_play": "Quick play:",
+        "details": "Details:"
+      },
+      "system": {
+        "browser": "browser",
+        "node": "node",
+        "webworker": "webworker",
+        "service_worker": "service-worker",
+        "unknown": "unknown"
+      }
+    }
+  },
+  "config": {
+    "entry": "src/App.tsx",
+    "styles": "styles.scss",
+    "render": {
+      "rootId": "root",
+      "domModule": "react-dom/client",
+      "reactModule": "react",
+      "createRoot": "createRoot",
+      "renderMethod": "render"
+    },
+    "fallbackProviders": [
+      "https://cdn.skypack.dev/",
+      "https://jspm.dev/"
+    ],
+    "providers": {
+      "default": "https://unpkg.com",
+      "esm": "https://esm.sh",
+      "aliases": {
+        "unpkg": "https://unpkg.com",
+        "unpkg.com": "https://unpkg.com"
+      }
+    },
+    "server": {
+      "host": "0.0.0.0",
+      "port": 4173,
+      "logFile": "server.log",
+      "jsonLimit": "1mb",
+      "cacheControl": "no-store, no-cache, must-revalidate",
+      "logTruncateLength": 4000,
+      "paths": {
+        "envScript": "/bootstrap/entrypoints/env.js",
+        "proxy": "/proxy/unpkg",
+        "clientLog": "/__client-log"
+      }
+    },
+    "tools": [
+      {
+        "name": "@babel/standalone",
+        "ci_provider": "/proxy/unpkg",
+        "production_provider": "unpkg.com",
+        "version": "7.26.0",
+        "pathPrefix": "",
+        "file": "babel.min.js",
+        "global": "Babel"
+      },
+      {
+        "name": "sass.js",
+        "ci_provider": "/proxy/unpkg",
+        "production_provider": "unpkg.com",
+        "version": "0.11.1",
+        "pathPrefix": "dist",
+        "file": "sass.sync.js",
+        "global": "Sass"
+      }
+    ],
+    "modules": [
+      {
+        "name": "react",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "19.2.3",
+        "pathPrefix": "es2022",
+        "file": "react.mjs",
+        "global": "React",
+        "format": "esm"
+      },
+      {
+        "name": "react/jsx-runtime",
+        "package": "react",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "19.2.3",
+        "pathPrefix": "es2022",
+        "file": "jsx-runtime.mjs",
+        "format": "esm"
+      },
+      {
+        "name": "react-dom/client",
+        "package": "react-dom",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "19.2.3",
+        "pathPrefix": "es2022",
+        "file": "client.mjs",
+        "global": "ReactDOM",
+        "format": "esm"
+      },
+      {
+        "name": "@mui/material",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "7.3.6",
+        "pathPrefix": "es2022",
+        "file": "material.mjs",
+        "global": "MaterialUI",
+        "format": "esm"
+      },
+      {
+        "name": "@emotion/react",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "11.13.0",
+        "pathPrefix": "es2022",
+        "file": "react.mjs",
+        "global": "emotionReact",
+        "format": "esm"
+      },
+      {
+        "name": "@emotion/styled",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "version": "11.13.0",
+        "pathPrefix": "es2022",
+        "file": "styled.mjs",
+        "global": "emotionStyled",
+        "format": "esm"
+      }
+    ],
+    "dynamicModules": [
+      {
+        "prefix": "@mui/icons-material/",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "package": "@mui/icons-material",
+        "version": "7.3.6",
+        "pathPrefix": "es2022",
+        "filePattern": "{icon}.mjs",
+        "format": "esm",
+        "provider": "https://esm.sh/"
+      },
+      {
+        "prefix": "@mui/material/",
+        "ci_provider": "https://esm.sh/",
+        "production_provider": "https://esm.sh/",
+        "package": "@mui/material",
+        "version": "7.3.6",
+        "pathPrefix": "es2022",
+        "filePattern": "{icon}.mjs",
+        "format": "esm",
+        "provider": "https://esm.sh/"
+      }
+    ]
+  },
+  "templates": {
+    "project": {
+      "name": "RevolutionaryExample",
+      "version": "1.0.0",
+      "description": "An example project demonstrating RevolutionaryCodegen capabilities",
+      "author": "Revolutionary Developer",
+      "license": "MIT",
+      "repository": "https://github.com/revolutionary-codegen-example"
+    },
+    "enhanced": {
+      "name": "RevolutionaryEnhancedDemo",
+      "version": "1.0.0",
+      "description": "A comprehensive demonstration project showcasing all revolutionary codegen enhancements",
+      "author": "Revolutionary Developer",
+      "license": "MIT",
+      "repository": "https://github.com/revolutionary-enhanced-demo"
+    },
+    "multiLanguage": {
+      "name": "RevolutionaryMultiLanguageDemo",
+      "version": "1.0.0",
+      "description": "A revolutionary multi-language project demonstrating Python, Java, C++, and JavaScript code generation with entry points, class registries, factory patterns, and builder patterns",
+      "author": "Revolutionary Developer",
+      "license": "MIT",
+      "mainClass": "MultiLanguageApplication"
+    }
+  },
+  "constants": {
+    "maxNestingLevel": 5,
+    "defaultAggregateType": "nested",
+    "generatedCodeMarker": "Auto-generated by RevolutionaryCodegen",
+    "defaultLanguage": "javascript",
+    "functions": {
+      "getTimestamp": "return new Date().toISOString();",
+      "calculateVersion": "return Math.floor(Date.now() / 1000).toString();",
+      "generateId": "return Date.now().toString(36) + Math.random().toString(36).substr(2);",
+      "generateUuid": "return require('crypto').randomUUID();",
+      "capitalize": "return str.charAt(0).toUpperCase() + str.slice(1);",
+      "camelCase": "return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());",
+      "kebabCase": "return str.replace(/([A-Z])/g, '-$1').toLowerCase();",
+      "slugify": "return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-');"
+    },
+    "definitions": [
+      {
+        "name": "API_BASE_URL",
+        "value": "https://api.example.com/v1",
+        "type": "string",
+        "description": "Base API URL for the application"
+      },
+      {
+        "name": "APP_NAME",
+        "value": "RevolutionaryEnhancedDemo",
+        "type": "string",
+        "description": "Application name"
+      },
+      {
+        "name": "APP_VERSION",
+        "value": "1.0.0",
+        "type": "string",
+        "description": "Application version"
+      },
+      {
+        "name": "ENVIRONMENT",
+        "value": "development",
+        "type": "string",
+        "description": "Current environment (development, staging, production)"
+      },
+      {
+        "name": "MAX_RETRIES",
+        "value": 3,
+        "type": "number",
+        "description": "Maximum retry attempts for operations"
+      },
+      {
+        "name": "SESSION_TIMEOUT",
+        "value": 3600,
+        "type": "number",
+        "description": "Session timeout in seconds"
+      },
+      {
+        "name": "ORDER_TIMEOUT",
+        "value": 300,
+        "type": "number",
+        "description": "Order processing timeout in seconds"
+      }
+    ]
+  },
+  "metadata": {
+    "pluginGroups": [
+      {
+        "name": "core",
+        "description": "Core functionality plugins for revolutionary codegen system",
+        "category": "generation"
+      },
+      {
+        "name": "validation",
+        "description": "Validation plugins for ensuring code quality and compliance",
+        "category": "analysis"
+      },
+      {
+        "name": "utilities",
+        "description": "Utility plugins for development productivity and code quality",
+        "category": "utility"
+      }
+    ],
+    "codegen": {
+      "templates": {
+        "businessClass": "Template for business logic classes with initialize/execute pattern",
+        "dataClass": "Template for data classes with validation and type safety",
+        "factoryClass": "Template for factory classes with dependency injection",
+        "aggregateClass": "Template for aggregate classes with unlimited nesting",
+        "serviceClass": "Template for service classes with error handling",
+        "controllerClass": "Template for controller classes with request handling",
+        "utilityClass": "Template for utility classes with helper functions"
+      },
+      "rules": {
+        "enforceTwoMethodLimit": true,
+        "requireDataclassPattern": true,
+        "requireSingleConstructorParam": true,
+        "requireBaseClassInheritance": true,
+        "maxClassLines": 100,
+        "maxMethodLines": 20,
+        "enforceNamingConventions": true,
+        "requireTypeScriptDefinitions": true,
+        "requireDocumentation": true
+      }
+    }
+  },
+  "gamedata": {
+    "featured": [
+      {
+        "id": "retro-racer",
+        "title": "Turbo Street Racer 97",
+        "system": "Arcade / MAME",
+        "description": "Neon-soaked city circuits, pixel-perfect handling.",
+        "genre": ["Racing", "Arcade"],
+        "badge": "New ROM Set",
+        "cover": "https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=640"
+      },
+      {
+        "id": "dungeon-quest",
+        "title": "Crystal Dungeon Quest",
+        "system": "SNES",
+        "description": "Four-player dungeon crawler with couch co-op chaos.",
+        "genre": ["Action RPG", "Co-op"],
+        "badge": "Local Co-op",
+        "cover": "https://images.pexels.com/photos/1293261/pexels-photo-1293261.jpeg?auto=compress&cs=tinysrgb&w=640"
+      },
+      {
+        "id": "space-shmup",
+        "title": "Nova Blaster X",
+        "system": "Mega Drive",
+        "description": "Bullet-hell shmup with absurd boss sprites.",
+        "genre": ["Shoot 'em up"],
+        "badge": "Hardcore",
+        "cover": "https://images.pexels.com/photos/1298601/pexels-photo-1298601.jpeg?auto=compress&cs=tinysrgb&w=640"
+      }
+    ],
+    "systemTags": [
+      "Arcade",
+      "NES",
+      "SNES",
+      "Mega Drive",
+      "PlayStation",
+      "N64",
+      "Dreamcast"
+    ]
+  }
+}

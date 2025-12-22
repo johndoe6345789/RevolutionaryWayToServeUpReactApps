@@ -9,8 +9,11 @@ import CardMedia from "@mui/material/CardMedia";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import { FEATURED_GAMES } from "../data";
+import { getStringService } from "../../bootstrap/services/string-service";
 
 export default function FeaturedGames() {
+  const strings = getStringService();
+  
   return (
     <Box sx={{ mb: 5 }}>
       <Stack
@@ -23,15 +26,15 @@ export default function FeaturedGames() {
           variant="h6"
           sx={{ fontSize: 14, letterSpacing: "0.2em" }}
         >
-          FEATURED LOADOUT
+          {strings.getLabel('featured_loadout')}
         </Typography>
         <Typography variant="caption" sx={{ opacity: 0.7 }}>
-          Curated from your recently played and pinned games
+          {strings.getLabel('curated_games')}
         </Typography>
       </Stack>
 
       <Grid container spacing={3}>
-        {FEATURED_GAMES.map((game) => (
+        {strings.getGameData('featured').map((game) => (
           <Grid size={{ xs: 12, md: 4 }} key={game.id}>
             <Card
               sx={{
@@ -90,7 +93,7 @@ export default function FeaturedGames() {
                 </Typography>
 
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }} flexWrap="wrap">
-                  {game.genre.map((g) => (
+                  {game.genre.map((g: string) => (
                     <Chip
                       key={g}
                       label={g}
@@ -118,17 +121,17 @@ export default function FeaturedGames() {
                     variant="contained"
                     color="secondary"
                     sx={{ borderRadius: 999, fontSize: 10, px: 2 }}
-                    onClick={() => console.log("Quick play:", game.id)}
+                    onClick={() => console.log(strings.getConsole('quick_play'), game.id)}
                   >
-                    ▶ Quick Play
+                    ▶ {strings.getLabel('quick_play')}
                   </Button>
                   <Button
                     size="small"
                     variant="text"
                     sx={{ fontSize: 10 }}
-                    onClick={() => console.log("Details:", game.id)}
+                    onClick={() => console.log(strings.getConsole('details'), game.id)}
                   >
-                    View details
+                    {strings.getLabel('view_details')}
                   </Button>
                 </Stack>
               </CardContent>

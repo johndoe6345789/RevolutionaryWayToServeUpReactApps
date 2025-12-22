@@ -5,14 +5,17 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import { SYSTEM_TAGS, CTA_BUTTON_STYLE } from "../data";
+import { getStringService } from "../../bootstrap/services/string-service";
 
 export default function HeroSection() {
+  const strings = getStringService();
+  
   return (
     <Box
       sx={{
         position: "relative",
         overflow: "hidden",
-        borderRadius: 3,
+        borderRadius:3,
         px: { xs: 3, md: 5 },
         py: { xs: 4, md: 6 },
         mb: 5,
@@ -51,7 +54,7 @@ export default function HeroSection() {
       >
         <Box flex={1}>
           <Chip
-            label="RETRO GAMING HUB"
+            label={strings.getLabel('retro_gaming_hub')}
             color="secondary"
             size="small"
             sx={{ mb: 2, fontSize: 10, letterSpacing: "0.16em", borderRadius: 999 }}
@@ -61,9 +64,9 @@ export default function HeroSection() {
             variant="h2"
             sx={{ fontSize: { xs: 26, md: 34 }, textTransform: "uppercase", mb: 2 }}
           >
-            Press Start
+            {strings.getLabel('press_start')}
             <Box component="span" sx={{ color: "primary.main" }}>
-              {" "}to Continue
+              {" "}{strings.getLabel('to_continue')}
             </Box>
           </Typography>
 
@@ -80,22 +83,22 @@ export default function HeroSection() {
               variant="contained"
               color="primary"
               sx={CTA_BUTTON_STYLE}
-              onClick={() => console.log("Launch Arcade Mode")}
+              onClick={() => console.log(strings.getConsole('launch_arcade'))}
             >
-              ▶ Launch Arcade Mode
+              {strings.getLabel('launch_arcade_mode')}
             </Button>
             <Button
               variant="outlined"
               color="secondary"
               sx={CTA_BUTTON_STYLE}
-              onClick={() => console.log("Browse Library")}
+              onClick={() => console.log(strings.getConsole('browse_library'))}
             >
-              🕹 Browse ROM Library
+              🕹 {strings.getLabel('browse_rom_library')}
             </Button>
           </Stack>
 
           <Stack direction="row" spacing={1} sx={{ mt: 3 }} flexWrap="wrap">
-            {SYSTEM_TAGS.map((tag) => (
+            {strings.getGameData('systemTags').map((tag: string) => (
               <Chip
                 key={tag}
                 label={tag}
@@ -174,7 +177,7 @@ export default function HeroSection() {
             />
 
             <text x="130" y="92" textAnchor="middle" fontSize="10" fill="#f5f5f5">
-              INSERT COIN
+              {strings.getLabel('insert_coin')}
             </text>
 
             <circle cx="55" cy="135" r="10" fill="#22223a" />

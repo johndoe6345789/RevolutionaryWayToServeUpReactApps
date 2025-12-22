@@ -3,8 +3,11 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
+import { getStringService } from "../../bootstrap/services/string-service";
 
 export default function FooterStrip() {
+  const strings = getStringService();
+  
   return (
     <Box
       sx={{
@@ -21,13 +24,12 @@ export default function FooterStrip() {
         alignItems={{ xs: "flex-start", md: "center" }}
       >
         <Typography variant="caption" sx={{ opacity: 0.6 }}>
-          Insert coin to save settings · Auto-saves shaders, layouts, and
-          controller profiles.
+          {strings.getLabel('footer_text')}
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap">
-          <Chip label="CRT Shader" size="small" variant="outlined" sx={{ fontSize: 9 }} />
-          <Chip label="Netplay" size="small" variant="outlined" sx={{ fontSize: 9 }} />
-          <Chip label="Big Screen Mode" size="small" variant="outlined" sx={{ fontSize: 9 }} />
+          <Chip label={strings.getLabel('crt_shader')} size="small" variant="outlined" sx={{ fontSize: 9 }} />
+          <Chip label={strings.getLabel('netplay')} size="small" variant="outlined" sx={{ fontSize: 9 }} />
+          <Chip label={strings.getLabel('big_screen_mode')} size="small" variant="outlined" sx={{ fontSize: 9 }} />
         </Stack>
       </Stack>
     </Box>

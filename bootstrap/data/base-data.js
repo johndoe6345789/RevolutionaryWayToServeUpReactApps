@@ -30,8 +30,9 @@ class BaseData extends BaseClass {
    * @throws {Error} If data is invalid
    */
   validate() {
+    const strings = getStringService();
     if (!this.id) {
-      throw new Error('ID is required for data objects');
+      throw new Error(strings.getError('item_name_required'));
     }
     return true;
   }

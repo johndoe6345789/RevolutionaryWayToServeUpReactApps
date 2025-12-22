@@ -32,27 +32,28 @@ class ServiceData extends BaseData {
    * @throws {Error} If service data is invalid
    */
   validate() {
+    const strings = getStringService();
     super.validate();
     
     if (!this.serviceName) {
-      throw new Error('Service name is required');
+      throw new Error(strings.getError('service_name_required'));
     }
     
     if (!this.serviceType) {
-      throw new Error('Service type is required');
+      throw new Error(strings.getError('service_type_required'));
     }
     
     if (!Array.isArray(this.dependencies)) {
-      throw new Error('Dependencies must be an array');
+      throw new Error(strings.getError('dependencies_invalid'));
     }
     
     if (typeof this.config !== 'object') {
-      throw new Error('Config must be an object');
+      throw new Error(strings.getError('config_object_required'));
     }
     
     // Validate service name format
     if (!/^[A-Za-z][A-Za-z0-9]*$/.test(this.serviceName)) {
-      throw new Error('Service name must be a valid identifier');
+      throw new Error(strings.getError('service_name_invalid'));
     }
     
     return true;

@@ -32,26 +32,27 @@ class FactoryData extends BaseData {
    * @throws {Error} If factory data is invalid
    */
   validate() {
+    const strings = getStringService();
     super.validate();
     
     if (!this.type) {
-      throw new Error('Factory type is required');
+      throw new Error(strings.getError('factory_type_required'));
     }
     
     if (!this.targetClass) {
-      throw new Error('Target class is required');
+      throw new Error(strings.getError('target_class_required'));
     }
     
     if (!this.dataClass) {
-      throw new Error('Data class is required');
+      throw new Error(strings.getError('data_class_required'));
     }
     
     if (typeof this.config !== 'object') {
-      throw new Error('Config must be an object');
+      throw new Error(strings.getError('config_object_required'));
     }
     
     if (!Array.isArray(this.dependencies)) {
-      throw new Error('Dependencies must be an array');
+      throw new Error(strings.getError('dependencies_invalid'));
     }
     
     return true;

@@ -1,3 +1,5 @@
+const { getStringService } = require('../services/string-service');
+
 /**
  * Base skeleton class for initializer classes.
  * Provides common implementation of IInitializer interface methods.
@@ -8,8 +10,10 @@ class BaseInitializer {
    * @param service - The service to be initialized
    */
   constructor(service) {
+    const strings = getStringService();
+    
     if (!service) {
-      throw new Error('Service is required for initializer');
+      throw new Error(strings.getError('service_required'));
     }
     
     this.service = service;
@@ -23,9 +27,10 @@ class BaseInitializer {
    * @throws Error if validation fails
    */
   validateDependencies() {
+    const strings = getStringService();
     // Base implementation - can be overridden by subclasses
     if (!this.service) {
-      throw new Error('Service is required for initialization');
+      throw new Error(strings.getError('service_required_initialization'));
     }
   }
 
@@ -86,8 +91,9 @@ class BaseInitializer {
    * @protected
    */
   _initializeService() {
+    const strings = getStringService();
     // Base implementation - override in subclasses
-    this._log('Initializing service...');
+    this._log(strings.getMessage('initializing_service'));
   }
 
   /**
@@ -96,8 +102,9 @@ class BaseInitializer {
    * @protected
    */
   _registerService() {
+    const strings = getStringService();
     // Base implementation - override in subclasses
-    this._log('Registering service...');
+    this._log(strings.getMessage('registering_service'));
   }
 
   /**
@@ -105,16 +112,18 @@ class BaseInitializer {
    * @protected
    */
   _finalizeInitialization() {
+    const strings = getStringService();
     // Base implementation - override in subclasses
-    this._log('Finalizing initialization...');
+    this._log(strings.getMessage('finalizing_initialization'));
   }
 
   /**
-   * Logs the start of initialization.
+   * Logs start of initialization.
    * @protected
    */
   _logStart() {
-    this._log('Starting initialization...');
+    const strings = getStringService();
+    this._log(strings.getMessage('starting_initialization'));
   }
 
   /**
@@ -122,7 +131,8 @@ class BaseInitializer {
    * @protected
    */
   _logSuccess() {
-    this._log('Initialization completed successfully');
+    const strings = getStringService();
+    this._log(strings.getMessage('initialization_completed'));
   }
 
   /**

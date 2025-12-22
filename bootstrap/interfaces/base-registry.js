@@ -1,3 +1,5 @@
+const { getStringService } = require('../services/string-service');
+
 /**
  * Base skeleton class for all registry classes.
  * Provides common implementation of IRegistry interface methods.
@@ -18,8 +20,10 @@ class BaseRegistry {
    * @param requiredDependencies - List of required dependencies for this item
    */
   register(name, item, metadata, requiredDependencies) {
+    const strings = getStringService();
+    
     if (!name || typeof name !== 'string') {
-      throw new Error('Item name must be a non-empty string');
+      throw new Error(strings.getError('item_name_required'));
     }
 
     if (this._items.has(name)) {
@@ -129,6 +133,7 @@ class BaseRegistry {
    * @private
    */
   _validateDependencies(itemName, requiredDependencies) {
+    const strings = getStringService();
     const missingDependencies = [];
     
     for (const dependencyName of requiredDependencies) {
@@ -139,7 +144,7 @@ class BaseRegistry {
 
     if (missingDependencies.length > 0) {
       throw new Error(
-        `Required dependencies are not registered for ${itemName}: ${missingDependencies.join(', ')}`
+        strings.getError('item_name_required') + ` ${itemName}: ${missingDependencies.join(', ')}`
       );
     }
   }
