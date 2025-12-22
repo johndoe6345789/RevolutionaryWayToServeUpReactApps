@@ -4,7 +4,7 @@
  * Test script for the String Extraction Automation Script
  */
 
-const StringExtractor = require('./scripts/string-extractor');
+const { StringExtractor } = require('../extractor');
 const fs = require('fs');
 const path = require('path');
 
@@ -53,7 +53,7 @@ function testFunction() {
 }
 `;
 
-const testFilePath = './test-extraction-target.js';
+const testFilePath = path.resolve(__dirname, '../test-extraction-target.js');
 
 async function runTests() {
   console.log('🧪 Testing String Extraction Automation Script\n');
@@ -85,51 +85,50 @@ async function runTests() {
     await extractor.extract();
     console.log('✅ Actual extraction completed successfully');
     
-    // Test 3: Verify modifications
-    console.log('\n📋 Test 3: Verify modifications');
+    // Test 3: Verify no modifications to source files
+    console.log('\n📋 Test 3: Verify source files are not modified');
     const modifiedContent = fs.readFileSync(testFilePath, 'utf8');
-    
-    // Check if strings were replaced with service calls
-    const hasServiceCalls = modifiedContent.includes('strings.getError(') || 
+
+    // Check that source files were NOT modified
+    const hasServiceCalls = modifiedContent.includes('strings.getError(') ||
                             modifiedContent.includes('strings.getMessage(') ||
                             modifiedContent.includes('strings.getConsole(') ||
                             modifiedContent.includes('strings.getLabel(');
-    
-    if (hasServiceCalls) {
-      console.log('✅ String service calls found in modified file');
+
+    if (!hasServiceCalls) {
+      console.log('✅ Source files correctly left unmodified');
     } else {
-      console.log('❌ No string service calls found in modified file');
+      console.log('❌ Source files were incorrectly modified');
+    }
+
+    // Check that original content is preserved
+    if (modifiedContent === testFileContent) {
+      console.log('✅ Original file content preserved');
+    } else {
+      console.log('❌ Original file content was changed');
     }
     
-    // Check for procedural markings
-    const hasMarkings = modifiedContent.includes('AUTO-EXTRACTED:');
-    if (hasMarkings) {
-      console.log('✅ Procedural markings found in modified file');
-    } else {
-      console.log('❌ No procedural markings found in modified file');
-    }
+    // Test 4: Verify strings.json updates
+    console.log('\n📋 Test 4: Verify strings.json updates');
+    const stringsDataPath = path.resolve(__dirname, '../strings.json');
+    const stringsData = JSON.parse(fs.readFileSync(stringsDataPath, 'utf8'));
     
-    // Test 4: Verify codegen-data.json updates
-    console.log('\n📋 Test 4: Verify codegen-data.json updates');
-    const codegenDataPath = path.resolve(__dirname, 'codegen-data.json');
-    const codegenData = JSON.parse(fs.readFileSync(codegenDataPath, 'utf8'));
-    
-    const hasNewStrings = Object.keys(codegenData.i18n.en.errors).length > 0 ||
-                         Object.keys(codegenData.i18n.en.messages).length > 0 ||
-                         Object.keys(codegenData.i18n.en.console).length > 0 ||
-                         Object.keys(codegenData.i18n.en.labels).length > 0;
-    
+    const hasNewStrings = Object.keys(stringsData.i18n.en.errors).length > 0 ||
+                         Object.keys(stringsData.i18n.en.messages).length > 0 ||
+                         Object.keys(stringsData.i18n.en.console).length > 0 ||
+                         Object.keys(stringsData.i18n.en.labels).length > 0;
+
     if (hasNewStrings) {
-      console.log('✅ New strings found in codegen-data.json');
+      console.log('✅ New strings found in strings.json');
     } else {
-      console.log('❌ No new strings found in codegen-data.json');
+      console.log('❌ No new strings found in strings.json');
     }
-    
+
     // Test 5: Show extracted strings summary
     console.log('\n📋 Test 5: Extracted strings summary');
     const categories = ['errors', 'messages', 'console', 'labels'];
     for (const category of categories) {
-      const strings = codegenData.i18n.en[category] || {};
+      const strings = stringsData.i18n.en[category] || {};
       const count = Object.keys(strings).length;
       if (count > 0) {
         console.log(`  ${category}: ${count} strings`);
@@ -142,8 +141,82 @@ async function runTests() {
     console.log(modifiedContent);
     console.log('=' .repeat(50));
     
+    // Test 6: Verify Braille characters are not stripped out
+    console.log('\n📋 Test 6: Verify Braille characters are preserved');
+    const brailleTestFile = path.resolve(__dirname, '../test-braille.js');
+    const brailleContent = `
+// Test file with Braille characters
+const progressIndicators = {
+  loading1: "\u2819",
+  loading2: "\u2839",
+  loading3: "\u2838",
+  loading4: "\u283c",
+  loading5: "\u2834",
+  loading6: "\u2826",
+  loading7: "\u2827",
+  loading8: "\u2807",
+  loading9: "\u280f"
+};
+
+function showProgress(step) {
+  const indicators = ["\u2819", "\u2839", "\u2838", "\u283c", "\u2834", "\u2826", "\u2827", "\u2807", "\u280f"];
+  console.log(\`Progress: \${indicators[step]}\`);
+}
+`;
+
+    try {
+      fs.writeFileSync(brailleTestFile, brailleContent, 'utf8');
+
+      const brailleExtractor = new StringExtractor({
+        files: [brailleTestFile],
+        dryRun: false,
+        verbose: true
+      });
+
+      await brailleExtractor.extract();
+
+      // Check if Braille strings were extracted to strings.json
+      const updatedStrings = JSON.parse(fs.readFileSync(stringsDataPath, 'utf8'));
+      const brailleStrings = updatedStrings.i18n.en.braille || {};
+
+      const expectedBrailleChars = ["\u2819", "\u2839", "\u2838", "\u283c", "\u2834", "\u2826", "\u2827", "\u2807", "\u280f"];
+      let brailleStringsFound = 0;
+
+      for (const [key, value] of Object.entries(brailleStrings)) {
+        if (expectedBrailleChars.includes(value)) {
+          brailleStringsFound++;
+        }
+      }
+
+      if (brailleStringsFound >= 9) { // Should find at least 9 Braille characters
+        console.log('✅ Braille characters correctly extracted and preserved');
+      } else {
+        console.log(`❌ Only ${brailleStringsFound} Braille characters found, expected at least 9`);
+      }
+
+      // Verify source file was not modified
+      const finalBrailleContent = fs.readFileSync(brailleTestFile, 'utf8');
+      if (finalBrailleContent === brailleContent) {
+        console.log('✅ Braille test file correctly left unmodified');
+      } else {
+        console.log('❌ Braille test file was incorrectly modified');
+      }
+
+    } catch (error) {
+      console.log(`❌ Braille test failed: ${error.message}`);
+    } finally {
+      // Clean up Braille test file
+      try {
+        if (fs.existsSync(brailleTestFile)) {
+          fs.unlinkSync(brailleTestFile);
+        }
+      } catch (error) {
+        console.warn(`Warning: Could not clean up Braille test file: ${error.message}`);
+      }
+    }
+
     console.log('\n🎉 All tests completed successfully!');
-    
+
   } catch (error) {
     console.error('❌ Test failed:', error.message);
     process.exit(1);
