@@ -26,6 +26,8 @@ class StringExtractor {
 
     this.extractedStrings = new Map();
     this.processedFiles = [];
+    this.filesWithNewStrings = new Set(); // Track files with strings not in strings.json
+    this.filesWithPhantomReferences = new Set(); // Track files with phantom string references
     this.results = {
       timestamp: null,
       mode: 'EXTRACTION',
@@ -37,6 +39,43 @@ class StringExtractor {
 
     // Initialize categories and patterns
     this.initializePatterns();
+    this.loadExistingStrings();
+  }
+
+  /**
+   * Load existing strings from strings.json
+   */
+  loadExistingStrings() {
+    try {
+      const stringsPath = path.resolve(__dirname, 'strings.json');
+      if (fs.existsSync(stringsPath)) {
+        const stringsData = JSON.parse(fs.readFileSync(stringsPath, 'utf8'));
+        this.existingStrings = new Set();
+
+        // Collect all existing string keys from all categories and languages
+        if (stringsData.i18n) {
+          for (const [lang, categories] of Object.entries(stringsData.i18n)) {
+            for (const [category, strings] of Object.entries(categories)) {
+              for (const key of Object.keys(strings)) {
+                this.existingStrings.add(key);
+              }
+            }
+          }
+        }
+
+        if (this.options.verbose) {
+          this.log(`Loaded ${this.existingStrings.size} existing string keys from strings.json`, 'info');
+        }
+      } else {
+        this.existingStrings = new Set();
+        if (this.options.verbose) {
+          this.log('strings.json not found, starting with empty set', 'info');
+        }
+      }
+    } catch (error) {
+      this.log(`Warning: Could not load existing strings: ${error.message}`, 'warn');
+      this.existingStrings = new Set();
+    }
   }
 
   /**
@@ -149,23 +188,38 @@ class StringExtractor {
         this.processedFiles.push(path.relative(process.cwd(), file));
       }
 
+      // Filter processed files to only include those with new strings or phantom references
+      const filteredFiles = this.processedFiles.filter(filePath =>
+        this.filesWithNewStrings.has(filePath) || this.filesWithPhantomReferences.has(filePath)
+      );
+
       // Build final results
       this.results.extraction = {
         totalStrings: this.extractedStrings.size,
-        filesProcessed: this.processedFiles.length,
-        processedFiles: this.processedFiles
+        filesProcessed: filteredFiles.length,
+        processedFiles: filteredFiles,
+        filesWithNewStrings: Array.from(this.filesWithNewStrings),
+        filesWithPhantomReferences: Array.from(this.filesWithPhantomReferences)
       };
 
-      // Organize strings by category
+      // Only include strings from files that meet the criteria
       this.results.strings = {};
       for (const [key, info] of this.extractedStrings) {
-        if (!this.results.strings[info.category]) {
-          this.results.strings[info.category] = {};
+        // Check if any of the sources are from files that should be included
+        const validSources = info.sources.filter(source => {
+          const filePath = source.split(':')[0];
+          return this.filesWithNewStrings.has(filePath) || this.filesWithPhantomReferences.has(filePath);
+        });
+
+        if (validSources.length > 0) {
+          if (!this.results.strings[info.category]) {
+            this.results.strings[info.category] = {};
+          }
+          this.results.strings[info.category][key] = {
+            content: info.content,
+            sources: validSources
+          };
         }
-        this.results.strings[info.category][key] = {
-          content: info.content,
-          sources: info.sources
-        };
       }
 
       this.results.success = true;
@@ -286,6 +340,23 @@ class StringExtractor {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       const extractedStrings = this.extractStringsFromFile(content, filePath);
+      const phantomReferences = this.findPhantomReferences(content, filePath);
+
+      const relativeFilePath = path.relative(process.cwd(), filePath);
+
+      // Check if file has new strings
+      const hasNewStrings = extractedStrings.some(stringInfo => !this.existingStrings.has(stringInfo.key));
+      if (hasNewStrings) {
+        this.filesWithNewStrings.add(relativeFilePath);
+      }
+
+      // Check if file has phantom references
+      if (phantomReferences.length > 0) {
+        this.filesWithPhantomReferences.add(relativeFilePath);
+        if (this.options.verbose) {
+          this.log(`Found ${phantomReferences.length} phantom references in ${relativeFilePath}: ${phantomReferences.map(ref => `${ref.method}('${ref.key}')`).join(', ')}`, 'info');
+        }
+      }
 
       // Store extracted strings in memory
       for (const stringInfo of extractedStrings) {
@@ -419,6 +490,42 @@ class StringExtractor {
     }
     
     return 'messages'; // Default category
+  }
+
+  /**
+   * Find phantom string references in file content
+   */
+  findPhantomReferences(content, filePath) {
+    const phantomReferences = [];
+    const lines = content.split('\n');
+
+    // Pattern to match strings.get, strings.getError, strings.getMessage, strings.getLabel, strings.getConsole calls
+    const stringServicePattern = /strings\.(get|getError|getMessage|getLabel|getConsole)\s*\(\s*["']([^"']+)["']\s*\)/g;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      let match;
+
+      // Reset regex lastIndex
+      stringServicePattern.lastIndex = 0;
+
+      while ((match = stringServicePattern.exec(line)) !== null) {
+        const method = match[1];
+        const stringKey = match[2];
+
+        // Check if this key exists in strings.json
+        if (!this.existingStrings.has(stringKey)) {
+          phantomReferences.push({
+            method,
+            key: stringKey,
+            line: i + 1,
+            source: `${path.relative(process.cwd(), filePath)}:${i + 1}`
+          });
+        }
+      }
+    }
+
+    return phantomReferences;
   }
 
   /**

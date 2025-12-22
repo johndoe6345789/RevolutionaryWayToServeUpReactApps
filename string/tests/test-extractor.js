@@ -224,6 +224,79 @@ function showProgress(step) {
       }
     }
 
+    // Test 7: Verify node_modules exclusion
+    console.log('\n📋 Test 7: Verify node_modules exclusion');
+    const projectExtractor = new StringExtractor({
+      project: true,
+      verbose: false
+    });
+
+    const projectResult = await projectExtractor.extract();
+
+    // Check that no processed files are from node_modules
+    const nodeModulesFiles = projectResult.extraction.processedFiles.filter(file =>
+      file.includes('node_modules')
+    );
+
+    if (nodeModulesFiles.length === 0) {
+      console.log('✅ No files from node_modules were processed');
+    } else {
+      console.log(`❌ Found ${nodeModulesFiles.length} files from node_modules in processed files`);
+      console.log('Files:', nodeModulesFiles.slice(0, 5));
+    }
+
+    // Test 8: Test matchesPattern function
+    console.log('\n📋 Test 8: Test matchesPattern function');
+    const testExtractor = new StringExtractor({});
+
+    // Test cases for matchesPattern (focusing on /** patterns used for directory exclusion)
+    const testCases = [
+      { path: 'node_modules', pattern: 'node_modules/**', expected: true },
+      { path: 'node_modules/package', pattern: 'node_modules/**', expected: true },
+      { path: 'node_modules/package/file.js', pattern: 'node_modules/**', expected: true },
+      { path: 'bootstrap', pattern: 'node_modules/**', expected: false },
+      { path: '.git', pattern: '.git/**', expected: true },
+      { path: '.git/config', pattern: '.git/**', expected: true },
+      { path: 'src', pattern: '.git/**', expected: false },
+      { path: 'coverage', pattern: 'coverage/**', expected: true },
+      { path: 'coverage/report', pattern: 'coverage/**', expected: true },
+      { path: 'dist', pattern: 'dist/**', expected: true },
+      { path: 'build', pattern: 'build/**', expected: true }
+    ];
+
+    let matchesPatternPassed = true;
+    for (const testCase of testCases) {
+      const result = testExtractor.matchesPattern(testCase.path, testCase.pattern);
+      if (result === testCase.expected) {
+        console.log(`✅ matchesPattern('${testCase.path}', '${testCase.pattern}') = ${result}`);
+      } else {
+        console.log(`❌ matchesPattern('${testCase.path}', '${testCase.pattern}') = ${result}, expected ${testCase.expected}`);
+        matchesPatternPassed = false;
+      }
+    }
+
+    if (matchesPatternPassed) {
+      console.log('✅ All matchesPattern tests passed');
+    } else {
+      console.log('❌ Some matchesPattern tests failed');
+    }
+
+    // Test 9: Verify other exclusions work
+    console.log('\n📋 Test 9: Verify other exclusions work');
+    const otherExcludedFiles = projectResult.extraction.processedFiles.filter(file =>
+      file.includes('/.git/') ||
+      file.includes('/coverage/') ||
+      file.includes('/dist/') ||
+      file.includes('/build/')
+    );
+
+    if (otherExcludedFiles.length === 0) {
+      console.log('✅ No files from other excluded directories (.git, coverage, dist, build) were processed');
+    } else {
+      console.log(`❌ Found ${otherExcludedFiles.length} files from excluded directories in processed files`);
+      console.log('Files:', otherExcludedFiles.slice(0, 5));
+    }
+
     console.log('\n🎉 All tests completed successfully!');
 
   } catch (error) {
