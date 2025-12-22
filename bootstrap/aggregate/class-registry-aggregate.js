@@ -1,4 +1,6 @@
 const BaseClass = require('../base/base-class.js');
+const NestedAggregate = require('./nested-aggregate.js');
+const PluginGroupAggregate = require('./plugin-group-aggregate.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -24,30 +26,146 @@ class ClassRegistryAggregate extends BaseClass {
    */
   async initialize() {
     await this.loadClassList();
+    
+    // Initialize nested aggregates if available
+    if (this.processedConstants.constants && this.processedConstants.constants.enableNestedAggregates) {
+      await this.initializeNestedAggregates();
+    }
+    
+    // Initialize plugin groups if enabled
+    if (this.processedConstants.constants && this.processedConstants.constants.enablePluginGroups) {
+      await this.initializePluginGroups();
+    }
+    
     this.generateGetMethods();
     return super.initialize();
   }
 
   /**
-   * The ONE additional method - loads classes from JSON file
-   * @returns {Promise<Array>} The loaded class list
+   * The ONE additional method - loads classes from JSON file with JS calculation support
+   * @returns {Promise<Array>} The loaded class list with processed constants
    */
   async loadClassList() {
     try {
       const constantsContent = fs.readFileSync(this.constantsPath, 'utf8');
-      const constants = JSON.parse(constantsContent);
+      let constants = JSON.parse(constantsContent);
       
-      this.classList = constants.classes || [];
+      // Process JS function calculations
+      constants = this.processCalculatedConstants(constants);
+      
+      // Flatten nested structure for backward compatibility
+      this.classList = this.flattenClassHierarchy(constants.classes || []);
       
       // Create class map for quick lookup
       this.classList.forEach(cls => {
         this.classMap.set(cls.name, cls);
       });
       
+      // Store the original nested structure
+      this.nestedClasses = constants.classes || [];
+      this.processedConstants = constants;
+      
       return this.classList;
     } catch (error) {
       throw new Error(`Failed to load class constants: ${error.message}`);
     }
+  }
+
+  /**
+   * Processes calculated constants using JavaScript functions
+   * @param {Object} constants - Raw constants object
+   * @returns {Object} Processed constants with calculated values
+   */
+  processCalculatedConstants(constants) {
+    const processed = JSON.parse(JSON.stringify(constants)); // Deep clone
+    
+    // Process functions if they exist
+    if (constants.functions) {
+      for (const [key, funcBody] of Object.entries(constants.functions)) {
+        try {
+          // Create a safe function execution context
+          const func = new Function(funcBody);
+          const result = func();
+          
+          // Replace function references in the entire constants object
+          this.replaceFunctionReferences(processed, `\${function:${key}}`, result);
+        } catch (error) {
+          console.warn(`Failed to execute function ${key}: ${error.message}`);
+        }
+      }
+    }
+    
+    // Process constant references
+    if (constants.constants) {
+      for (const [key, value] of Object.entries(constants.constants)) {
+        if (typeof value === 'string' && value.startsWith('${function:')) {
+          // Functions already processed above
+          continue;
+        }
+        
+        // Replace constant references
+        this.replaceFunctionReferences(processed, `\${constants.${key}}`, value);
+      }
+    }
+    
+    return processed;
+  }
+
+  /**
+   * Replaces function references throughout an object
+   * @param {Object} obj - Object to process
+   * @param {string} reference - Reference to replace
+   * @param {*} value - Value to substitute
+   */
+  replaceFunctionReferences(obj, reference, value) {
+    const processValue = (val) => {
+      if (typeof val === 'string') {
+        return val.replace(new RegExp(reference.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
+      } else if (Array.isArray(val)) {
+        return val.map(processValue);
+      } else if (typeof val === 'object' && val !== null) {
+        const result = {};
+        for (const [k, v] of Object.entries(val)) {
+          result[k] = processValue(v);
+        }
+        return result;
+      }
+      return val;
+    };
+    
+    return processValue(obj);
+  }
+
+  /**
+   * Flattens nested class hierarchy for backward compatibility
+   * @param {Array} classes - Nested class array
+   * @returns {Array} Flattened class array
+   */
+  flattenClassHierarchy(classes) {
+    const flattened = [];
+    
+    const flatten = (classList) => {
+      for (const cls of classList) {
+        // Add the class itself
+        flattened.push({
+          name: cls.name,
+          factory: cls.factory,
+          dataClass: cls.dataClass,
+          module: cls.module,
+          parent: cls.parent,
+          nestingLevel: cls.nestingLevel,
+          config: cls.config || {}
+        });
+        
+        // Recursively process children
+        if (cls.children && cls.children.length > 0) {
+          flatten(cls.children);
+        }
+      }
+    };
+    
+    flatten(classes);
+    return flattened;
   }
 
   /**
@@ -101,6 +219,112 @@ class ClassRegistryAggregate extends BaseClass {
    */
   hasClass(className) {
     return this.classMap.has(className);
+  }
+
+  /**
+   * Initializes nested aggregates
+   */
+  async initializeNestedAggregates() {
+    this.log('Initializing nested aggregates...', 'info');
+    
+    // Create nested aggregate instance
+    this.nestedAggregate = new NestedAggregate({
+      constantsPath: this.constantsPath,
+      maxNestingLevel: this.processedConstants.constants.maxNestingLevel || 5
+    });
+    
+    await this.nestedAggregate.initialize();
+    
+    // Add nested aggregate methods to this instance
+    const nestedMethods = [
+      'getAggregateInfo', 'getRootAggregates', 'getChildren', 'getAllDescendants',
+      'getAggregateTree', 'getAggregatesAtLevel', 'validateHierarchy', 'getHierarchyStats'
+    ];
+    
+    for (const method of nestedMethods) {
+      if (typeof this.nestedAggregate[method] === 'function') {
+        this[method] = this.nestedAggregate[method].bind(this.nestedAggregate);
+      }
+    }
+    
+    this.log('Nested aggregates initialized', 'info');
+  }
+
+  /**
+   * Initializes plugin groups
+   */
+  async initializePluginGroups() {
+    this.log('Initializing plugin groups...', 'info');
+    
+    // Create plugin group aggregate instance
+    this.pluginGroupAggregate = new PluginGroupAggregate({
+      groupsPath: path.join(__dirname, '..', 'plugins', 'groups'),
+      enableValidation: this.processedConstants.constants.enableValidation !== false
+    });
+    
+    await this.pluginGroupAggregate.initialize();
+    
+    // Add plugin group methods to this instance
+    const groupMethods = [
+      'getPluginGroupInfo', 'getAllPluginGroups', 'getPluginGroupsByCategory',
+      'getAllPlugins', 'getEnabledPlugins', 'hasPluginGroup', 'getGroupStatistics',
+      'getDependencyGraph', 'validateSystem'
+    ];
+    
+    for (const method of groupMethods) {
+      if (typeof this.pluginGroupAggregate[method] === 'function') {
+        this[method] = this.pluginGroupAggregate[method].bind(this.pluginGroupAggregate);
+      }
+    }
+    
+    this.log('Plugin groups initialized', 'info');
+  }
+
+  /**
+   * Gets nested aggregate instance
+   * @returns {NestedAggregate|null} Nested aggregate instance or null
+   */
+  getNestedAggregate() {
+    return this.nestedAggregate || null;
+  }
+
+  /**
+   * Gets plugin group aggregate instance
+   * @returns {PluginGroupAggregate|null} Plugin group aggregate instance or null
+   */
+  getPluginGroupAggregate() {
+    return this.pluginGroupAggregate || null;
+  }
+
+  /**
+   * Gets comprehensive system status
+   * @returns {Object} System status including aggregates and groups
+   */
+  getSystemStatus() {
+    const status = {
+      classes: {
+        total: this.classList.length,
+        loaded: true,
+        processedConstants: !!this.processedConstants
+      },
+      nestedAggregates: {
+        enabled: !!(this.processedConstants.constants && this.processedConstants.constants.enableNestedAggregates),
+        initialized: !!this.nestedAggregate,
+        stats: this.nestedAggregate ? this.nestedAggregate.getHierarchyStats() : null
+      },
+      pluginGroups: {
+        enabled: !!(this.processedConstants.constants && this.processedConstants.constants.enablePluginGroups),
+        initialized: !!this.pluginGroupAggregate,
+        stats: this.pluginGroupAggregate ? this.pluginGroupAggregate.getGroupStatistics() : null
+      },
+      constants: {
+        path: this.constantsPath,
+        functions: Object.keys(this.processedConstants.functions || {}),
+        calculatedValues: Object.keys(this.processedConstants.constants || {})
+      }
+    };
+    
+    return status;
   }
 }
 

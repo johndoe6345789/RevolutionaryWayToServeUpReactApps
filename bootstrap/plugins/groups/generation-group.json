@@ -1,0 +1,71 @@
+{
+  "name": "GenerationGroup",
+  "description": "Code and plugin generation plugins",
+  "category": "generation",
+  "enabled": true,
+  "config": {
+    "outputDirectory": "generated",
+    "templateDirectory": "templates",
+    "autoCleanup": true
+  },
+  "dependencies": [],
+  "loadOrder": [
+    "PluginGeneratorPlugin",
+    "TemplateEnginePlugin",
+    "CodeGeneratorPlugin"
+  ],
+  "plugins": [
+    {
+      "name": "PluginGeneratorPlugin",
+      "version": "1.0.0",
+      "enabled": true,
+      "description": "Generates OO-compliant plugin skeletons",
+      "dependencies": [],
+      "config": {
+        "defaultTemplate": "basic-plugin",
+        "enforceOOCompliance": true,
+        "generateTests": false
+      },
+      "module": "plugins/plugin-generator/plugin-generator.plugin.js",
+      "factory": "plugins/plugin-generator/factories/plugin-generator-factory.js",
+      "dataClass": "plugins/plugin-generator/data/plugin-generator-data.js"
+    },
+    {
+      "name": "TemplateEnginePlugin",
+      "version": "1.0.0",
+      "enabled": true,
+      "description": "Template processing engine",
+      "dependencies": [],
+      "config": {
+        "engine": "handlebars",
+        "cacheTemplates": true,
+        "partialDirectory": "partials"
+      },
+      "module": "plugins/template-engine.plugin.js",
+      "factory": "plugins/factories/template-engine-factory.js",
+      "dataClass": "plugins/data/template-engine-data.js"
+    },
+    {
+      "name": "CodeGeneratorPlugin",
+      "version": "1.0.0",
+      "enabled": false,
+      "description": "Generates code from templates and schemas",
+      "dependencies": ["TemplateEnginePlugin"],
+      "config": {
+        "outputLanguage": "javascript",
+        "indentation": "2 spaces",
+        "includeComments": true
+      },
+      "module": "plugins/code-generator.plugin.js",
+      "factory": "plugins/factories/code-generator-factory.js",
+      "dataClass": "plugins/data/code-generator-data.js"
+    }
+  ],
+  "metadata": {
+    "created": "2025-12-22T10:00:00.000Z",
+    "updated": "2025-12-22T10:00:00.000Z",
+    "author": "RWTRA System",
+    "version": "1.0.0",
+    "tags": ["generation", "templates", "plugins", "code"]
+  }
+}

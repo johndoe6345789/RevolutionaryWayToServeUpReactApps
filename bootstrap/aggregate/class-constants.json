@@ -1,36 +1,136 @@
 {
+  "constants": {
+    "maxNestingLevel": 5,
+    "defaultAggregateType": "nested",
+    "enableHierarchyValidation": true,
+    "calculatedVersion": "${function:calculateVersion}",
+    "systemTimestamp": "${function:getTimestamp}"
+  },
+  "functions": {
+    "calculateVersion": "return Math.floor(Date.now() / 1000).toString();",
+    "getTimestamp": "return new Date().toISOString();"
+  },
   "classes": [
     {
-      "name": "ProviderUtilities",
-      "factory": "provider-utilities-factory",
-      "dataClass": "utilities-data",
-      "module": "services/cdn/network/provider-utilities"
-    },
-    {
-      "name": "DefaultProviderAliases",
-      "factory": "default-provider-aliases-factory", 
-      "dataClass": "constants-data",
-      "module": "constants/default-provider-aliases"
-    },
-    {
-      "name": "ServiceFactoryLoader",
-      "factory": "service-factory-loader-factory",
-      "dataClass": "registry-data", 
-      "module": "registries/service-factory-loader"
-    },
-    {
-      "name": "BaseClassFactory",
-      "factory": "base-class-factory-factory",
-      "dataClass": "factory-data",
-      "module": "factories/base-class-factory"
-    },
-    {
-      "name": "AliasMapCreator",
-      "factory": "alias-map-creator-factory",
-      "dataClass": "utilities-data",
-      "module": "services/cdn/network/alias-map-creator"
+      "name": "RootAggregate",
+      "factory": "aggregate-factory",
+      "dataClass": "aggregate-data",
+      "module": "aggregate/nested-aggregate",
+      "parent": null,
+      "nestingLevel": 0,
+      "config": {
+        "maxChildren": 10,
+        "enableValidation": true
+      },
+      "children": [
+        {
+          "name": "ServiceAggregate",
+          "factory": "aggregate-factory",
+          "dataClass": "aggregate-data",
+          "module": "aggregate/service-aggregate",
+          "parent": "RootAggregate",
+          "nestingLevel": 1,
+          "config": {
+            "serviceType": "core",
+            "autoLoad": true
+          },
+          "children": [
+            {
+              "name": "ProviderUtilities",
+              "factory": "provider-utilities-factory",
+              "dataClass": "utilities-data",
+              "module": "services/cdn/network/provider-utilities",
+              "parent": "ServiceAggregate",
+              "nestingLevel": 2
+            },
+            {
+              "name": "DefaultProviderAliases",
+              "factory": "default-provider-aliases-factory", 
+              "dataClass": "constants-data",
+              "module": "constants/default-provider-aliases",
+              "parent": "ServiceAggregate",
+              "nestingLevel": 2
+            }
+          ]
+        },
+        {
+          "name": "FactoryAggregate",
+          "factory": "aggregate-factory",
+          "dataClass": "aggregate-data",
+          "module": "aggregate/factory-aggregate",
+          "parent": "RootAggregate",
+          "nestingLevel": 1,
+          "config": {
+            "enableCaching": true,
+            "defaultTimeout": 5000
+          },
+          "children": [
+            {
+              "name": "ServiceFactoryLoader",
+              "factory": "service-factory-loader-factory",
+              "dataClass": "registry-data", 
+              "module": "registries/service-factory-loader",
+              "parent": "FactoryAggregate",
+              "nestingLevel": 2
+            },
+            {
+              "name": "BaseClassFactory",
+              "factory": "base-class-factory-factory",
+              "dataClass": "factory-data",
+              "module": "factories/base-class-factory",
+              "parent": "FactoryAggregate",
+              "nestingLevel": 2
+            },
+            {
+              "name": "AliasMapCreator",
+              "factory": "alias-map-creator-factory",
+              "dataClass": "utilities-data",
+              "module": "services/cdn/network/alias-map-creator",
+              "parent": "FactoryAggregate",
+              "nestingLevel": 2
+            }
+          ]
+        },
+        {
+          "name": "PluginAggregate",
+          "factory": "aggregate-factory",
+          "dataClass": "aggregate-data",
+          "module": "aggregate/plugin-aggregate",
+          "parent": "RootAggregate",
+          "nestingLevel": 1,
+          "config": {
+            "enableHotReload": false,
+            "pluginTimeout": 30000
+          },
+          "children": [
+            {
+              "name": "OOPPrinciplesPlugin",
+              "factory": "plugin-factory",
+              "dataClass": "plugin-data",
+              "module": "plugins/oop-principles.plugin",
+              "parent": "PluginAggregate",
+              "nestingLevel": 2
+            }
+          ]
+        }
+      ]
     }
   ],
-  "version": "1.0.0",
-  "generated": "2025-12-22"
+  "version": "${function:calculateVersion}",
+  "generated": "${function:getTimestamp}",
+  "metadata": {
+    "description": "Nested aggregate class constants with JS calculation support",
+    "schema": "2.0.0",
+    "author": "RWTRA System",
+    "license": "MIT"
+  },
+  "validation": {
+    "requiredFields": ["name", "factory", "dataClass", "module"],
+    "optionalFields": ["parent", "children", "config", "nestingLevel"],
+    "constraints": {
+      "maxNestingLevel": "${constants.maxNestingLevel}",
+      "allowedParents": ["${classes[*].name}"],
+      "requiredModules": ["bootstrap", "scripts"]
+    }
+  }
 }
