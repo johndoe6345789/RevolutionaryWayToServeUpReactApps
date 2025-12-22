@@ -9,6 +9,9 @@ const BasePlugin = require('../../scripts/lib/base-plugin');
 const fs = require('fs');
 const path = require('path');
 
+// Import string service
+const { getStringService } = require('../../../string/string-service');
+
 class PluginGeneratorPlugin extends BasePlugin {
   constructor() {
     super({
@@ -583,28 +586,33 @@ module.exports = {{PascalCaseName}}Data;`;
    * @param {Object} context - Execution context
    */
   displayResults(results, context) {
-    console.log(context.colors.reset + '\n🔧 PLUGIN GENERATION COMPLETE');
-    console.log('=====================================');
-    
-    console.log(`\n📦 Plugin: ${context.colors.cyan}${results.plugin.name}${context.colors.reset}`);
-    console.log(`📂 Path: ${context.colors.yellow}${results.plugin.path}${context.colors.reset}`);
-    console.log(`🏷️  Category: ${context.colors.green}${results.plugin.category}${context.colors.reset}`);
-    console.log(`📋 Template: ${context.colors.magenta}${results.plugin.template}${context.colors.reset}`);
-    
-    console.log('\n📄 Generated Files:');
+    const strings = getStringService();
+    console.log(context.colors.reset + strings.getConsole('plugin_generation_complete'));
+    console.log(strings.getConsole('report_separator'));
+
+    console.log(strings.getConsole('plugin_info_display', {
+      name: results.plugin.name,
+      path: results.plugin.path,
+      category: results.plugin.category,
+      template: results.plugin.template
+    }));
+
+    console.log(strings.getConsole('generated_files_header'));
     for (const file of results.files) {
       const relativePath = path.relative(results.plugin.path, file) || path.basename(file);
-      console.log(`   ${context.colors.cyan}• ${relativePath}${context.colors.reset}`);
+      console.log(strings.getConsole('file_list_item', { path: relativePath }));
     }
-    
-    console.log(`\n✅ OO Compliant: ${context.colors.green}YES${context.colors.reset}`);
-    console.log(`🕐 Generated: ${context.colors.gray}${new Date(results.generatedAt).toLocaleString()}${context.colors.reset}`);
-    
-    console.log('\n🚀 Next Steps:');
-    console.log(context.colors.cyan + '   1. Navigate to plugin directory' + context.colors.reset);
-    console.log(context.colors.cyan + '   2. Implement your plugin logic in the execute() method' + context.colors.reset);
-    console.log(context.colors.cyan + '   3. Test your plugin with the development tools' + context.colors.reset);
-    console.log(context.colors.cyan + '   4. Register plugin in the system if needed' + context.colors.reset);
+
+    console.log(strings.getConsole('oo_compliant_status', { status: 'YES' }));
+    console.log(strings.getConsole('generation_timestamp', {
+      timestamp: new Date(results.generatedAt).toLocaleString()
+    }));
+
+    console.log(strings.getConsole('next_steps_header'));
+    console.log(context.colors.cyan + strings.getConsole('next_step_navigate') + context.colors.reset);
+    console.log(context.colors.cyan + strings.getConsole('next_step_implement') + context.colors.reset);
+    console.log(context.colors.cyan + strings.getConsole('next_step_test') + context.colors.reset);
+    console.log(context.colors.cyan + strings.getConsole('next_step_register') + context.colors.reset);
   }
 }
 

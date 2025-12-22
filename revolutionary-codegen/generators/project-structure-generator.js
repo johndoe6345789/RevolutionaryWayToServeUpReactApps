@@ -16,6 +16,9 @@ const BaseCodegen = require('../base/base-codegen');
 const path = require('path');
 const fs = require('fs');
 
+// Import string service
+const { getStringService } = require('../../bootstrap/services/string-service');
+
 class ProjectStructureGenerator extends BaseCodegen {
   constructor(options = {}) {
     super({
@@ -34,8 +37,9 @@ class ProjectStructureGenerator extends BaseCodegen {
    */
   async initialize() {
     await super.initialize();
-    
-    this.log('🏗️  Initializing project structure generator...', 'info');
+    const strings = getStringService();
+
+    this.log(strings.getConsole('initializing_project_structure_generator'), 'info');
     
     // Load project specification
     if (this.options.specPath) {

@@ -443,7 +443,8 @@ class SpecificationEditor extends BaseCodegen {
    * @returns {void}
    */
   displayStatus() {
-    console.log('\n📊 SPECIFICATION STATUS:');
+    const strings = this.strings;
+    console.log(strings.getConsole('specification_status'));
     console.log(`  📝 Project: ${this.specification.project.name} v${this.specification.project.version}`);
     console.log(`  📖 Description: ${this.specification.project.description}`);
     console.log(`  👤 Author: ${this.specification.project.author}`);
@@ -455,12 +456,12 @@ class SpecificationEditor extends BaseCodegen {
     console.log(`  🏭 Factories: ${this.specification.classes.factories?.length || 0}`);
     console.log(`  📦 Data Classes: ${this.specification.classes.dataClasses?.length || 0}`);
     console.log(`  🔌 Plugin Groups: ${this.specification.plugins.groups?.length || 0}`);
-    
+
     if (this.validationErrors.length > 0) {
       console.log(`  ❌ Validation Errors: ${this.validationErrors.length}`);
       this.displayValidationErrors();
     } else {
-      console.log('  ✅ Validation: PASSED');
+      console.log(strings.getConsole('validation_passed'));
     }
   }
 

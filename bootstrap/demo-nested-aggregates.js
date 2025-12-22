@@ -119,14 +119,14 @@ async function demonstrateNestedAggregates() {
 }
 
 async function demonstratePluginGeneration() {
-  console.log('\n\n🔧 Plugin Generator Demo');
-  console.log('='.repeat(30));
-  
+  console.log(strings.getConsole('n_n_plugin_generator_demo'));
+  console.log(strings.getConsole('report_separator'));
+
   try {
     const PluginGeneratorPlugin = require('./plugins/plugin-generator/plugin-generator.plugin.js');
-    
+
     const generator = new PluginGeneratorPlugin();
-    
+
     // Mock context for plugin generation
     const mockContext = {
       options: {
@@ -146,13 +146,13 @@ async function demonstratePluginGeneration() {
         gray: ''
       }
     };
-    
-    console.log('Generating demo plugin...');
+
+    console.log(strings.getConsole('generating_demo_plugin'));
     const results = await generator.execute(mockContext);
-    
-    console.log('Plugin generation results:');
+
+    console.log(strings.getConsole('plugin_generation_results'));
     console.log(JSON.stringify(results, null, 2));
-    
+
   } catch (error) {
     console.error(strings.getConsole('plugin_generation_demo_failed'), error.message);
     // Don't show stack for expected errors

@@ -11,6 +11,9 @@ const path = require('path');
 const { execSync } = require('child_process');
 const BasePlugin = require('../lib/base-plugin');
 
+// Import string service
+const { getStringService } = require('../string/string-service');
+
 class TestRunnerPlugin extends BasePlugin {
   constructor() {
     super({
@@ -48,31 +51,32 @@ class TestRunnerPlugin extends BasePlugin {
    */
   async execute(context) {
     await this.initialize(context);
-    
-    this.log('Starting unified test execution...', 'info');
+    const strings = getStringService();
+
+    this.log(strings.getConsole('starting_unified_test_execution'), 'info');
     this.log(this.colorize('🧪 Unified Test Execution', context.colors.cyan));
     this.log(this.colorize('='.repeat(50), context.colors.white));
-    
+
     const startTime = Date.now();
-    
+
     try {
       // Detect and run tests based on available frameworks
       await this._detectAndRunTests(context);
-      
+
       this.results.executionTime = ((Date.now() - startTime) / 1000).toFixed(2);
-      
+
       // Generate comprehensive test report
       this._generateTestReport(context);
-      
+
       // Save results if output directory specified
       if (context.options.output) {
         await this._saveResults(context);
       }
-      
+
       return this.results;
-      
+
     } catch (error) {
-      this.log(`Test execution failed: ${error.message}`, 'error');
+      this.log(strings.getConsole('test_execution_failed', { error: error.message }), 'error');
       this.results.errors.push(error.message);
       throw error;
     }
@@ -548,59 +552,60 @@ class TestRunnerPlugin extends BasePlugin {
    * Generates and displays the test execution report
    */
   _generateTestReport(context) {
-    console.log(context.colors.reset + '\n🧪 UNIFIED TEST EXECUTION REPORT');
-    console.log('================================');
-    
+    const strings = getStringService();
+    console.log(context.colors.reset + strings.getConsole('unified_test_execution_report'));
+    console.log(strings.getConsole('report_separator'));
+
     // Framework Detection
-    console.log(`\n🔧 DETECTED FRAMEWORK: ${this.results.framework.toUpperCase()}`);
-    
+    console.log(strings.getConsole('detected_framework', { framework: this.results.framework.toUpperCase() }));
+
     // Overall Summary
-    console.log('\n📊 EXECUTION SUMMARY:');
-    console.log(`   Total Tests: ${this.results.totalTests}`);
-    console.log(`   Passed: ${this.results.passedTests}`);
-    console.log(`   Failed: ${this.results.failedTests}`);
-    console.log(`   Skipped: ${this.results.skippedTests}`);
-    console.log(`   Execution Time: ${this.results.executionTime}s`);
-    
+    console.log(strings.getConsole('execution_summary'));
+    console.log(strings.getConsole('total_tests', { count: this.results.totalTests }));
+    console.log(strings.getConsole('passed_tests', { count: this.results.passedTests }));
+    console.log(strings.getConsole('failed_tests', { count: this.results.failedTests }));
+    console.log(strings.getConsole('skipped_tests', { count: this.results.skippedTests }));
+    console.log(strings.getConsole('execution_time', { time: this.results.executionTime }));
+
     // Success Rate
-    const successRate = this.results.totalTests > 0 ? 
+    const successRate = this.results.totalTests > 0 ?
       Math.round((this.results.passedTests / this.results.totalTests) * 100) : 0;
-    console.log(`   Success Rate: ${successRate}%`);
-    
+    console.log(strings.getConsole('success_rate', { rate: successRate }));
+
     // Test Suite Details
     if (this.results.testSuites.length > 0) {
-      console.log('\n📋 TEST SUITES:');
+      console.log(strings.getConsole('test_suites'));
       for (const suite of this.results.testSuites) {
         const status = suite.failed === 0 ? '✅' : '❌';
-        const suiteRate = suite.total > 0 ? 
+        const suiteRate = suite.total > 0 ?
           Math.round((suite.passed / suite.total) * 100) : 0;
-        console.log(`   ${status} ${suite.name} (${suite.framework})`);
-        console.log(`      Tests: ${suite.total}, Passed: ${suite.passed}, Failed: ${suite.failed}`);
-        console.log(`      Success Rate: ${suiteRate}%`);
+        console.log(strings.getConsole('suite_status', { status, name: suite.name, framework: suite.framework }));
+        console.log(strings.getConsole('suite_details', { total: suite.total, passed: suite.passed, failed: suite.failed }));
+        console.log(strings.getConsole('suite_success_rate', { rate: suiteRate }));
       }
     }
-    
+
     // Coverage Information
     if (Object.keys(this.results.coverage).length > 0) {
-      console.log('\n📊 COVERAGE SUMMARY:');
+      console.log(strings.getConsole('coverage_summary'));
       for (const [file, coverage] of Object.entries(this.results.coverage)) {
         if (coverage.lines) {
-          console.log(`   ${file}: ${coverage.lines.pct}% lines covered`);
+          console.log(strings.getConsole('coverage_file', { file, pct: coverage.lines.pct }));
         }
       }
     }
-    
+
     // Errors
     if (this.results.errors.length > 0) {
-      console.log('\n❌ EXECUTION ERRORS:');
+      console.log(strings.getConsole('execution_errors'));
       for (const error of this.results.errors.slice(0, 10)) {
-        console.log(`   - ${error}`);
+        console.log(strings.getConsole('error_item', { error }));
       }
       if (this.results.errors.length > 10) {
-        console.log(`   ... and ${this.results.errors.length - 10} more errors`);
+        console.log(strings.getConsole('more_errors', { count: this.results.errors.length - 10 }));
       }
     }
-    
+
     // Overall Assessment
     this._printOverallAssessment(context, successRate);
   }
@@ -609,20 +614,21 @@ class TestRunnerPlugin extends BasePlugin {
    * Prints overall test assessment
    */
   _printOverallAssessment(context, successRate) {
-    console.log('\n🏥 OVERALL ASSESSMENT:');
-    
+    const strings = getStringService();
+    console.log(strings.getConsole('overall_assessment'));
+
     if (successRate === 100) {
-      console.log(context.colors.green + '   🎉 PERFECT: All tests passed!' + context.colors.reset);
+      console.log(context.colors.green + strings.getConsole('perfect_tests') + context.colors.reset);
     } else if (successRate >= 90) {
-      console.log(context.colors.green + '   ✅ EXCELLENT: Very high test success rate' + context.colors.reset);
+      console.log(context.colors.green + strings.getConsole('excellent_tests') + context.colors.reset);
     } else if (successRate >= 80) {
-      console.log(context.colors.yellow + '   ⚠️  GOOD: Most tests passing' + context.colors.reset);
+      console.log(context.colors.yellow + strings.getConsole('good_tests') + context.colors.reset);
     } else if (successRate >= 70) {
-      console.log(context.colors.yellow + '   ⚠️  FAIR: Significant test failures' + context.colors.reset);
+      console.log(context.colors.yellow + strings.getConsole('fair_tests') + context.colors.reset);
     } else if (this.results.totalTests > 0) {
-      console.log(context.colors.red + '   ❌ POOR: Major test failures' + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('poor_tests') + context.colors.reset);
     } else {
-      console.log(context.colors.red + '   ❓ NO TESTS: No tests found or executed' + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('no_tests') + context.colors.reset);
     }
   }
 

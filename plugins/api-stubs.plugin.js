@@ -10,6 +10,9 @@ const fs = require('fs');
 const path = require('path');
 const BasePlugin = require('../lib/base-plugin');
 
+// Import string service
+const { getStringService } = require('../string/string-service');
+
 class ApiStubsPlugin extends BasePlugin {
   constructor() {
     super({
@@ -292,29 +295,30 @@ class ApiStubsPlugin extends BasePlugin {
    * Generates and displays the generation report
    */
   _generateReport(context) {
-    console.log(context.colors.reset + '\n📝 API STUBS GENERATION REPORT');
-    console.log('================================');
-    
+    const strings = getStringService();
+    console.log(context.colors.reset + strings.getConsole('api_stubs_generation_report'));
+    console.log(strings.getConsole('report_separator'));
+
     // Summary
-    console.log('\n📈 SUMMARY:');
-    console.log(`   Modules Processed: ${this.results.modulesProcessed}`);
-    console.log(`   Stubs Generated: ${this.results.stubsGenerated}`);
-    console.log(`   Stubs Skipped: ${this.results.stubsSkipped}`);
-    console.log(`   Stubs Directory: ${this.results.stubsDirectory}`);
-    
+    console.log(strings.getConsole('summary_header'));
+    console.log(strings.getConsole('modules_processed', { count: this.results.modulesProcessed }));
+    console.log(strings.getConsole('stubs_generated', { count: this.results.stubsGenerated }));
+    console.log(strings.getConsole('stubs_skipped', { count: this.results.stubsSkipped }));
+    console.log(strings.getConsole('stubs_directory', { directory: this.results.stubsDirectory }));
+
     // Errors
     if (this.results.errors.length > 0) {
-      console.log('\n❌ ERRORS:');
+      console.log(strings.getConsole('errors_header'));
       for (const error of this.results.errors.slice(0, 10)) {
-        console.log(`   - ${error}`);
+        console.log(strings.getConsole('error_item', { error }));
       }
       if (this.results.errors.length > 10) {
-        console.log(`   ... and ${this.results.errors.length - 10} more errors`);
+        console.log(strings.getConsole('more_errors', { count: this.results.errors.length - 10 }));
       }
     }
-    
+
     // Recommendations
-    console.log('\n🎯 RECOMMENDATIONS:');
+    console.log(strings.getConsole('recommendations_header'));
     this._generateRecommendations(context);
   }
 

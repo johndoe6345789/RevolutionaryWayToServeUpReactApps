@@ -10,6 +10,9 @@ const fs = require('fs');
 const path = require('path');
 const BasePlugin = require('../lib/base-plugin');
 
+// Import string service
+const { getStringService } = require('../string/string-service');
+
 class OOPPrinciplesPlugin extends BasePlugin {
   constructor() {
     super({
@@ -103,8 +106,9 @@ class OOPPrinciplesPlugin extends BasePlugin {
    */
   async execute(context) {
     await this.initialize(context);
-    
-    this.log('Starting OOP principles analysis...', 'info');
+    const strings = getStringService();
+
+    this.log(strings.getConsole('starting_oop_principles_analysis'), 'info');
     this.log(this.colorize('🏗️  Object-Oriented Programming Principles Analysis', context.colors.cyan));
     this.log(this.colorize('='.repeat(60), context.colors.white));
     

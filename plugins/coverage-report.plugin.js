@@ -12,6 +12,9 @@ const path = require('path');
 const { execSync } = require('child_process');
 const BasePlugin = require('../lib/base-plugin');
 
+// Import string service
+const { getStringService } = require('../string/string-service');
+
 class CoverageReportPlugin extends BasePlugin {
   constructor() {
     super({
@@ -47,35 +50,36 @@ class CoverageReportPlugin extends BasePlugin {
    */
   async execute(context) {
     await this.initialize(context);
-    
-    this.log('Starting comprehensive coverage analysis...', 'info');
+    const strings = getStringService();
+
+    this.log(strings.getConsole('starting_comprehensive_coverage_analysis'), 'info');
     this.log(this.colorize('📊 Comprehensive Coverage Analysis', context.colors.cyan));
     this.log(this.colorize('='.repeat(60), context.colors.white));
-    
+
     const startTime = Date.now();
     const projectRoot = context.options['project-root'] || path.join(context.bootstrapPath, '..');
-    
+
     try {
       // Run individual analyses
       await this._runInterfaceAnalysis(context);
       await this._runFactoryAnalysis(context);
       await this._runDocumentationAnalysis(context, projectRoot);
       await this._runDependencyAnalysis(context);
-      
+
       this.results.analysisTime = ((Date.now() - startTime) / 1000).toFixed(2);
-      
+
       // Generate unified report
       this._generateUnifiedReport(context);
-      
+
       // Save results if output directory specified
       if (context.options.output) {
         await this._saveResults(context);
       }
-      
+
       return this.results;
-      
+
     } catch (error) {
-      this.log(`Comprehensive coverage analysis failed: ${error.message}`, 'error');
+      this.log(strings.getConsole('comprehensive_coverage_analysis_failed', { error: error.message }), 'error');
       this.results.recommendations.push(`Analysis failed: ${error.message}`);
       throw error;
     }
@@ -85,8 +89,9 @@ class CoverageReportPlugin extends BasePlugin {
    * Runs interface coverage analysis using existing plugin
    */
   async _runInterfaceAnalysis(context) {
-    this.log('Running Interface Coverage Analysis...', 'info');
-    
+    const strings = getStringService();
+    this.log(strings.getConsole('running_interface_coverage_analysis'), 'info');
+
     try {
       // Execute interface-coverage plugin
       const interfacePlugin = require('./interface-coverage.plugin.js');
@@ -95,12 +100,12 @@ class CoverageReportPlugin extends BasePlugin {
         ...context,
         options: { ...context.options, output: false } // Don't save individual results
       };
-      
+
       this.results.interface = await plugin.execute(pluginContext);
-      this.log('Interface analysis completed', 'info');
-      
+      this.log(strings.getConsole('interface_analysis_completed'), 'info');
+
     } catch (error) {
-      this.log(`Interface analysis failed: ${error.message}`, 'warn');
+      this.log(strings.getConsole('interface_analysis_failed', { error: error.message }), 'warn');
       this.results.interface = {
         totalClasses: 0,
         compliantClasses: 0,
@@ -243,30 +248,31 @@ class CoverageReportPlugin extends BasePlugin {
    * Generates and displays the comprehensive unified report
    */
   _generateUnifiedReport(context) {
-    console.log(context.colors.reset + '\n📊 COMPREHENSIVE COVERAGE ANALYSIS REPORT');
-    console.log('================================');
-    
+    const strings = getStringService();
+    console.log(context.colors.reset + strings.getConsole('comprehensive_coverage_analysis_report'));
+    console.log(strings.getConsole('report_separator'));
+
     // Calculate health scores
     const healthScore = this._calculateHealthScore();
     this.results.summary = healthScore;
-    
+
     // Component scores
-    console.log('\n📊 COMPONENT SCORES:');
-    console.log(`   Overall Score: ${healthScore.overall}/100`);
-    console.log(`   Interface: ${healthScore.interface}/100`);
-    console.log(`   Factory: ${healthScore.factory}/100`);
-    console.log(`   Documentation: ${healthScore.documentation}/100`);
-    console.log(`   Dependencies: ${healthScore.dependency}/100`);
-    
+    console.log(strings.getConsole('component_scores'));
+    console.log(strings.getConsole('overall_score', { score: healthScore.overall }));
+    console.log(strings.getConsole('interface_score', { score: healthScore.interface }));
+    console.log(strings.getConsole('factory_score', { score: healthScore.factory }));
+    console.log(strings.getConsole('documentation_score', { score: healthScore.documentation }));
+    console.log(strings.getConsole('dependency_score', { score: healthScore.dependency }));
+
     // Overall health assessment
     this._printOverallHealth(healthScore, context);
-    
+
     // Detailed analysis results
     this._printInterfaceDetails(context);
     this._printFactoryDetails(context);
     this._printDocumentationDetails(context);
     this._printDependencyDetails(context);
-    
+
     // Generate recommendations
     this._generateRecommendations(context, healthScore);
   }
@@ -275,23 +281,24 @@ class CoverageReportPlugin extends BasePlugin {
    * Prints overall health assessment
    */
   _printOverallHealth(score, context) {
-    console.log('\n🏥 OVERALL SYSTEM HEALTH');
-    console.log('================================');
-    
-    const healthColor = score.overall >= 80 ? context.colors.green : 
-                     score.overall >= 60 ? context.colors.yellow : 
+    const strings = getStringService();
+    console.log(strings.getConsole('overall_system_health'));
+    console.log(strings.getConsole('report_separator'));
+
+    const healthColor = score.overall >= 80 ? context.colors.green :
+                     score.overall >= 60 ? context.colors.yellow :
                      score.overall >= 40 ? context.colors.magenta : context.colors.red;
-    
-    console.log(`   Overall Score: ${score.overall}/100`);
-    
+
+    console.log(strings.getConsole('overall_score', { score: score.overall }));
+
     if (score.critical > 0) {
-      console.log(context.colors.red + '   🚨 CRITICAL ISSUES DETECTED' + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('critical_issues_detected') + context.colors.reset);
     } else if (score.overall >= 80) {
-      console.log(context.colors.green + '   ✅ EXCELLENT - System is well-structured' + context.colors.reset);
+      console.log(context.colors.green + strings.getConsole('excellent_system') + context.colors.reset);
     } else if (score.overall >= 60) {
-      console.log(context.colors.yellow + '   ⚠️  NEEDS IMPROVEMENT - Some issues found' + context.colors.reset);
+      console.log(context.colors.yellow + strings.getConsole('needs_improvement') + context.colors.reset);
     } else {
-      console.log(context.colors.red + '   ❌ POOR - Major restructuring needed' + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('poor_system') + context.colors.reset);
     }
   }
 
@@ -299,13 +306,17 @@ class CoverageReportPlugin extends BasePlugin {
    * Prints interface analysis details
    */
   _printInterfaceDetails(context) {
-    console.log('\n🔗 INTERFACE COMPLIANCE:');
+    const strings = getStringService();
+    console.log(strings.getConsole('interface_compliance'));
     if (this.results.interface.error) {
-      console.log(context.colors.red + `   ❌ Analysis failed: ${this.results.interface.error}` + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('analysis_failed', { error: this.results.interface.error }) + context.colors.reset);
     } else {
-      console.log(`   Coverage: ${this.results.interface.coverage || 0}%`);
-      console.log(`   Compliant: ${this.results.interface.compliantClasses || 0}/${this.results.interface.totalClasses || 0}`);
-      console.log(`   Issues: ${this.results.interface.missingImplementations?.length || 0}`);
+      console.log(strings.getConsole('coverage', { coverage: this.results.interface.coverage || 0 }));
+      console.log(strings.getConsole('compliant', {
+        compliant: this.results.interface.compliantClasses || 0,
+        total: this.results.interface.totalClasses || 0
+      }));
+      console.log(strings.getConsole('issues', { count: this.results.interface.missingImplementations?.length || 0 }));
     }
   }
 
@@ -313,13 +324,17 @@ class CoverageReportPlugin extends BasePlugin {
    * Prints factory analysis details
    */
   _printFactoryDetails(context) {
-    console.log('\n🏭 FACTORY COMPLIANCE:');
+    const strings = getStringService();
+    console.log(strings.getConsole('factory_compliance'));
     if (this.results.factory.error) {
-      console.log(context.colors.red + `   ❌ Analysis failed: ${this.results.factory.error}` + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('analysis_failed', { error: this.results.factory.error }) + context.colors.reset);
     } else {
-      console.log(`   Coverage: ${this.results.factory.coverage || 0}%`);
-      console.log(`   Compliant: ${this.results.factory.compliantFactories || 0}/${this.results.factory.totalFactories || 0}`);
-      console.log(`   Base Interface: ${this.results.factory.missingBaseFactory ? 'Missing' : 'Available'}`);
+      console.log(strings.getConsole('coverage', { coverage: this.results.factory.coverage || 0 }));
+      console.log(strings.getConsole('compliant', {
+        compliant: this.results.factory.compliantFactories || 0,
+        total: this.results.factory.totalFactories || 0
+      }));
+      console.log(strings.getConsole('base_interface', { status: this.results.factory.missingBaseFactory ? 'Missing' : 'Available' }));
     }
   }
 
@@ -327,16 +342,26 @@ class CoverageReportPlugin extends BasePlugin {
    * Prints documentation analysis details
    */
   _printDocumentationDetails(context) {
-    console.log('\n📚 DOCUMENTATION COVERAGE:');
+    const strings = getStringService();
+    console.log(strings.getConsole('documentation_coverage'));
     if (this.results.documentation.error) {
-      console.log(context.colors.red + `   ❌ Analysis failed: ${this.results.documentation.error}` + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('analysis_failed', { error: this.results.documentation.error }) + context.colors.reset);
     } else {
-      console.log(`   Overall Coverage: ${this.results.documentation.coverage || 0}%`);
-      console.log(`   Analysis Mode: ${this.results.documentation.fallbackUsed ? 'Fallback' : 'Python'}`);
+      console.log(strings.getConsole('overall_coverage', { coverage: this.results.documentation.coverage || 0 }));
+      console.log(strings.getConsole('analysis_mode', { mode: this.results.documentation.fallbackUsed ? 'Fallback' : 'Python' }));
       if (this.results.documentation.modules) {
-        console.log(`   Modules: ${this.results.documentation.modules.documented || 0}/${this.results.documentation.modules.total || 0}`);
-        console.log(`   Globals: ${this.results.documentation.globals.documented || 0}/${this.results.documentation.globals.total || 0}`);
-        console.log(`   Functions: ${this.results.documentation.functions.documented || 0}/${this.results.documentation.functions.total || 0}`);
+        console.log(strings.getConsole('modules_coverage', {
+          documented: this.results.documentation.modules.documented || 0,
+          total: this.results.documentation.modules.total || 0
+        }));
+        console.log(strings.getConsole('globals_coverage', {
+          documented: this.results.documentation.globals.documented || 0,
+          total: this.results.documentation.globals.total || 0
+        }));
+        console.log(strings.getConsole('functions_coverage', {
+          documented: this.results.documentation.functions.documented || 0,
+          total: this.results.documentation.functions.total || 0
+        }));
       }
     }
   }
@@ -345,16 +370,17 @@ class CoverageReportPlugin extends BasePlugin {
    * Prints dependency analysis details
    */
   _printDependencyDetails(context) {
-    console.log('\n🔗 DEPENDENCY ANALYSIS:');
+    const strings = getStringService();
+    console.log(strings.getConsole('dependency_analysis'));
     if (this.results.dependency.error) {
-      console.log(context.colors.red + `   ❌ Analysis failed: ${this.results.dependency.error}` + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('analysis_failed', { error: this.results.dependency.error }) + context.colors.reset);
     } else {
-      console.log(`   Files Analyzed: ${this.results.dependency.totalFiles || 0}`);
-      console.log(`   Modules: ${this.results.dependency.totalModules || 0}`);
-      console.log(`   Circular Dependencies: ${this.results.dependency.circularDependencies?.length || 0}`);
-      console.log(`   Missing Dependencies: ${this.results.dependency.missingDependencies?.length || 0}`);
-      console.log(`   Broken Links: ${this.results.dependency.brokenLinks?.length || 0}`);
-      console.log(`   Orphaned Modules: ${this.results.dependency.orphanedModules?.length || 0}`);
+      console.log(strings.getConsole('files_analyzed', { count: this.results.dependency.totalFiles || 0 }));
+      console.log(strings.getConsole('modules_analyzed', { count: this.results.dependency.totalModules || 0 }));
+      console.log(strings.getConsole('circular_dependencies', { count: this.results.dependency.circularDependencies?.length || 0 }));
+      console.log(strings.getConsole('missing_dependencies', { count: this.results.dependency.missingDependencies?.length || 0 }));
+      console.log(strings.getConsole('broken_links', { count: this.results.dependency.brokenLinks?.length || 0 }));
+      console.log(strings.getConsole('orphaned_modules', { count: this.results.dependency.orphanedModules?.length || 0 }));
     }
   }
 
@@ -362,60 +388,61 @@ class CoverageReportPlugin extends BasePlugin {
    * Generates comprehensive recommendations
    */
   _generateRecommendations(context, healthScore) {
-    console.log('\n🎯 COMPREHENSIVE RECOMMENDATIONS:');
-    
+    const strings = getStringService();
+    console.log(strings.getConsole('comprehensive_recommendations'));
+
     // Priority-based recommendations
     if (healthScore.overall < 40) {
-      console.log(context.colors.red + '   🚨 URGENT: Major restructuring required' + context.colors.reset);
-      console.log(context.colors.red + '   - Address critical interface compliance issues' + context.colors.reset);
-      console.log(context.colors.red + '   - Fix factory pattern violations' + context.colors.reset);
-      console.log(context.colors.red + '   - Improve documentation coverage significantly' + context.colors.reset);
-      console.log(context.colors.red + '   - Resolve dependency issues immediately' + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('urgent_restructuring') + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('create_missing_skeleton_classes') + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('implement_base_factory') + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('add_jsdoc_comments') + context.colors.reset);
+      console.log(context.colors.red + strings.getConsole('resolve_circular_dependencies') + context.colors.reset);
     } else if (healthScore.overall < 60) {
-      console.log(context.colors.yellow + '   ⚠️  HIGH PRIORITY: Systematic improvements needed' + context.colors.reset);
+      console.log(context.colors.yellow + strings.getConsole('high_priority_improvements') + context.colors.reset);
       console.log(context.colors.yellow + '   - Focus on interface compliance' + context.colors.reset);
       console.log(context.colors.yellow + '   - Standardize factory patterns' + context.colors.reset);
       console.log(context.colors.yellow + '   - Boost documentation coverage' + context.colors.reset);
     } else if (healthScore.overall < 80) {
-      console.log(context.colors.cyan + '   📋 MEDIUM PRIORITY: Polish and refine' + context.colors.reset);
+      console.log(context.colors.cyan + strings.getConsole('medium_priority_polish') + context.colors.reset);
       console.log(context.colors.cyan + '   - Address remaining compliance gaps' + context.colors.reset);
       console.log(context.colors.cyan + '   - Complete documentation for edge cases' + context.colors.reset);
       console.log(context.colors.cyan + '   - Optimize dependency structure' + context.colors.reset);
     } else {
-      console.log(context.colors.green + '   ✅ MAINTENANCE: Continue good practices' + context.colors.reset);
+      console.log(context.colors.green + strings.getConsole('maintenance_good_practices') + context.colors.reset);
       console.log(context.colors.green + '   - Maintain current compliance levels' + context.colors.reset);
       console.log(context.colors.green + '   - Keep documentation up to date' + context.colors.reset);
       console.log(context.colors.green + '   - Monitor dependency health' + context.colors.reset);
     }
-    
+
     // Specific actionable recommendations
     if (healthScore.interface < 70) {
-      console.log(context.colors.cyan + '   - Create missing skeleton classes and update interface compliance' + context.colors.reset);
+      console.log(context.colors.cyan + strings.getConsole('create_missing_skeleton_classes') + context.colors.reset);
     }
-    
+
     if (healthScore.factory < 70) {
-      console.log(context.colors.cyan + '   - Implement BaseFactory interface and update factory patterns' + context.colors.reset);
+      console.log(context.colors.cyan + strings.getConsole('implement_base_factory') + context.colors.reset);
     }
-    
+
     if (healthScore.documentation < 70) {
-      console.log(context.colors.cyan + '   - Add JSDoc comments and improve documentation coverage' + context.colors.reset);
+      console.log(context.colors.cyan + strings.getConsole('add_jsdoc_comments') + context.colors.reset);
     }
-    
+
     if (healthScore.dependency < 70) {
-      console.log(context.colors.cyan + '   - Resolve circular dependencies and fix broken import chains' + context.colors.reset);
+      console.log(context.colors.cyan + strings.getConsole('resolve_circular_dependencies') + context.colors.reset);
     }
-    
+
     // Analysis time and performance
-    console.log(context.colors.magenta + `   - Analysis completed in ${this.results.analysisTime}s` + context.colors.reset);
-    
+    console.log(context.colors.magenta + strings.getConsole('analysis_completed_in', { time: this.results.analysisTime }) + context.colors.reset);
+
     // Next steps
     const totalIssues = (this.results.interface.missingImplementations?.length || 0) +
                       (this.results.factory.totalFactories - this.results.factory.compliantFactories) +
                       (this.results.dependency.circularDependencies?.length || 0) +
                       (this.results.dependency.missingDependencies?.length || 0);
-    
+
     if (totalIssues > 0) {
-      console.log(context.colors.yellow + `   - ${totalIssues} total issues identified for resolution` + context.colors.reset);
+      console.log(context.colors.yellow + strings.getConsole('total_issues_identified', { count: totalIssues }) + context.colors.reset);
     }
   }
 

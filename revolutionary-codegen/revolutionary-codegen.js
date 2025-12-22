@@ -106,35 +106,35 @@ class RevolutionaryCodegen extends BaseCodegen {
             results.summary.totalWarnings += generatorResults.warnings.length;
           }
           
-          this.log(`✅ ${name} generator completed successfully`, 'success');
-          
+          this.log(strings.getMessage('generator_complete', { name }), 'success');
+
           // Trigger innovation
           this.triggerInnovation('generatorCompleted', { name });
-          
+
         } catch (error) {
-          this.log(`❌ ${name} generator failed: ${error.message}`, 'error');
+          this.log(strings.getMessage('generator_failed', { name, error: error.message }), 'error');
           results.summary.failedGenerators++;
           results.summary.totalErrors++;
-          
+
           // Continue with other generators if not strict mode
           if (!this.options.strictMode) {
-            this.log(`⚠️  Continuing with other generators...`, 'warning');
+            this.log(strings.getMessage('continuing_generators'), 'warning');
           } else {
             throw error;
           }
         }
       }
-      
+
       results.summary.duration = Date.now() - startTime;
-      
+
       // Generate final report
       await this.generateReport(results);
-      
+
       // Display completion celebration
       this.displayCompletion(results);
-      
+
     } catch (error) {
-      this.log(`❌ RevolutionaryCodegen pipeline failed: ${error.message}`, 'error');
+      this.log(strings.getMessage('codegen_failed', { error: error.message }), 'error');
       throw error;
     }
     
@@ -369,7 +369,8 @@ class RevolutionaryCodegen extends BaseCodegen {
    * @returns {Promise<void>}
    */
   async generateReport(results) {
-    this.log('📊 Generating comprehensive report...', 'info');
+    const strings = getStringService();
+    this.log(strings.getConsole('generating_report'), 'info');
     
     const report = {
       generated: results.timestamp,
@@ -414,7 +415,7 @@ class RevolutionaryCodegen extends BaseCodegen {
     const reportPath = path.join(this.options.outputDir, 'revolutionary-codegen-report.json');
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
     
-    this.log(`📋 Report saved to ${reportPath}`, 'success');
+    this.log(strings.getConsole('report_saved', { path: reportPath }), 'success');
   }
 
   /**
@@ -434,9 +435,9 @@ class RevolutionaryCodegen extends BaseCodegen {
     
     const celebration = celebrations[Math.floor(Math.random() * celebrations.length)];
     console.log(`\n${celebration}\n`);
-    
+
     // Display comprehensive statistics
-    console.log('📊 REVOLUTIONARY GENERATION STATISTICS:');
+    console.log(strings.getConsole('revolutionary_generation_statistics'));
     console.log(strings.getMessage('stats_files_generated', { count: results.summary.successfulGenerators }));
     console.log(strings.getMessage('stats_duration', { duration: results.summary.duration }));
     
@@ -473,10 +474,10 @@ class RevolutionaryCodegen extends BaseCodegen {
       console.log(strings.getMessage('stats_innovations_triggered', { count: this.innovations.innovationsTriggered || 0 }));
     }
     
-    console.log(`\n${'='.repeat(60)}\n`);
-    
+    console.log(strings.getConsole('separator_line'));
+
     // Display next steps
-    console.log('🚀' + strings.getMessage('next_steps'));
+    console.log(strings.getConsole('next_steps_header') + strings.getMessage('next_steps'));
     console.log(strings.getMessage('next_step_1'));
     console.log(strings.getMessage('next_step_2'));
     console.log(strings.getMessage('next_step_3'));
@@ -709,17 +710,19 @@ if (require.main === module) {
       case 'validate':
         await codegen.initialize();
         // Validation would be handled by individual generators
-        console.log('✅ Specification validation passed');
+        const strings = getStringService();
+        console.log(strings.getConsole('specification_valid'));
         break;
-        
+
       default:
         const codegen = new RevolutionaryCodegen(options);
         codegen.displayHelp();
         process.exit(1);
     }
-    
+
   } catch (error) {
-    console.error(`\n❌ RevolutionaryCodegen failed: ${error.message}`);
+    const strings = getStringService();
+    console.error(strings.getConsole('revolutionary_codegen_failed', { error: error.message }));
     process.exit(1);
   }
 }
