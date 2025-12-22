@@ -1,4 +1,5 @@
 const BaseData = require('./base-data.js');
+const { getStringService } = require('../../string/string-service');
 
 /**
  * UtilitiesData - Data class for utility configurations
@@ -33,34 +34,35 @@ class UtilitiesData extends BaseData {
    */
   validate() {
     super.validate();
-    
+    const strings = getStringService();
+
     if (!this.utilityType) {
-      throw new Error('Utility type is required');
+      throw new Error(strings.getError('utility_type_is_required'));
     }
-    
+
     if (!this.utilityName) {
-      throw new Error('Utility name is required');
+      throw new Error(strings.getError('utility_name_is_required'));
     }
-    
+
     if (typeof this.config !== 'object') {
-      throw new Error('Config must be an object');
+      throw new Error(strings.getError('config_must_be_an_object_2'));
     }
-    
+
     if (typeof this.processingOptions !== 'object') {
-      throw new Error('Processing options must be an object');
+      throw new Error(strings.getError('processing_options_must_be_an_object'));
     }
-    
+
     // Validate utility name format
     if (!/^[A-Za-z][A-Za-z0-9]*$/.test(this.utilityName)) {
-      throw new Error('Utility name must be a valid identifier');
+      throw new Error(strings.getError('utility_name_must_be_a_valid_identifier'));
     }
-    
+
     // Validate utility type
     const validTypes = ['provider', 'alias', 'normalizer', 'validator', 'transformer'];
     if (!validTypes.includes(this.utilityType)) {
-      throw new Error(`Utility type must be one of: ${validTypes.join(', ')}`);
+      throw new Error(strings.getError('utility_type_must_be_one_of_validtypes_join', { validTypes: validTypes.join(', ') }));
     }
-    
+
     return true;
   }
 

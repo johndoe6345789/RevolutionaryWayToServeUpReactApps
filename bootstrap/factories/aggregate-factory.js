@@ -1,5 +1,6 @@
 const BaseClassFactory = require('./base-class-factory.js');
 const AggregateData = require('../data/aggregate-data.js');
+const { getStringService } = require('../../string/string-service');
 
 /**
  * AggregateFactory - Factory for creating aggregate instances
@@ -23,15 +24,17 @@ class AggregateFactory extends BaseClassFactory {
    * @returns {Promise<AggregateFactory>} The initialized factory
    */
   async initialize() {
+    const strings = getStringService();
+
     // Validate factory configuration
     if (!this.aggregateType) {
-      throw new Error('Aggregate type is required for aggregate factory');
+      throw new Error(strings.getError('aggregate_type_is_required_for_aggregate_factory'));
     }
-    
+
     if (this.aggregateHierarchy && !Array.isArray(this.aggregateHierarchy)) {
-      throw new Error('Aggregate hierarchy must be an array');
+      throw new Error(strings.getError('aggregate_hierarchy_must_be_an_array'));
     }
-    
+
     return super.initialize();
   }
 
@@ -94,21 +97,29 @@ class AggregateFactory extends BaseClassFactory {
    * @param {AggregateData} data - The aggregate data to validate
    */
   validateHierarchyConstraints(data) {
+    const strings = getStringService();
+
     // Check nesting level limit
     if (data.nestingLevel > this.maxNestingLevel) {
-      throw new Error(`Nesting level ${data.nestingLevel} exceeds maximum ${this.maxNestingLevel}`);
+      throw new Error(strings.getError('nesting_level_data_nestinglevel_exceeds_maximum_th', {
+        data: data,
+        this: this
+      }));
     }
-    
+
     // Check hierarchy path consistency
     if (this.aggregateHierarchy.length > 0 && !this.aggregateHierarchy.includes(this.targetClass)) {
-      throw new Error(`Target class ${this.targetClass} not found in hierarchy path`);
+      throw new Error(strings.getError('target_class_this_targetclass_not_found_in_hierarc', { this: this }));
     }
-    
+
     // Validate parent-child relationships
     if (this.aggregateHierarchy.length > 1) {
       const expectedParent = this.aggregateHierarchy[this.aggregateHierarchy.length - 2];
       if (data.parent && data.parent !== expectedParent) {
-        throw new Error(`Parent mismatch: expected ${expectedParent}, got ${data.parent}`);
+        throw new Error(strings.getError('parent_mismatch_expected_expectedparent_got_data_p', {
+          expectedParent,
+          data
+        }));
       }
     }
   }
@@ -150,7 +161,8 @@ class AggregateFactory extends BaseClassFactory {
       
       return parentInstance;
     } catch (error) {
-      throw new Error(`Failed to create aggregate with children: ${error.message}`);
+      const strings = getStringService();
+      throw new Error(strings.getError('failed_to_create_aggregate_with_children_error_mes', { error }));
     }
   }
 
@@ -205,7 +217,8 @@ class AggregateFactory extends BaseClassFactory {
     
     const template = templates[templateName];
     if (!template) {
-      throw new Error(`Template ${templateName} not found`);
+      const strings = getStringService();
+      throw new Error(strings.getError('template_templatename_not_found', { templateName }));
     }
     
     return template;
@@ -264,7 +277,8 @@ class AggregateFactory extends BaseClassFactory {
    */
   setMaxNestingLevel(maxLevel) {
     if (typeof maxLevel !== 'number' || maxLevel < 0) {
-      throw new Error('Max nesting level must be a non-negative number');
+      const strings = getStringService();
+      throw new Error(strings.getError('max_nesting_level_must_be_a_non_negative_number'));
     }
     this.maxNestingLevel = maxLevel;
   }

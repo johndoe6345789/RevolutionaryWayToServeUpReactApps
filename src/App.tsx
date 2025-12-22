@@ -10,7 +10,7 @@ import Divider from "@mui/material/Divider";
 import HeroSection from "./components/HeroSection";
 import FeaturedGames from "./components/FeaturedGames";
 import FooterStrip from "./components/FooterStrip";
-import { getStringService } from "../bootstrap/services/string-service";
+import { getStringService } from "../string/string-service";
 
 export default function App() {
   const strings = getStringService();
