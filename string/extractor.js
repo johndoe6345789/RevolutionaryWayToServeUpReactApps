@@ -13,6 +13,7 @@ class StringExtractor {
       backup: options.backup !== false,
       verbose: options.verbose || false,
       exclude: options.exclude || ['node_modules/**', '.git/**', 'coverage/**', 'dist/**', 'build/**'],
+      maxFiles: options.maxFiles || 50, // Add 50 file limit
       ...options
     };
     
@@ -239,6 +240,13 @@ class StringExtractor {
     };
     
     scanDirectory(projectRoot);
+    
+    // Apply file limit
+    if (jsFiles.length > this.options.maxFiles) {
+      this.log(`Found ${jsFiles.length} files, limiting to ${this.options.maxFiles} files`);
+      return jsFiles.slice(0, this.options.maxFiles);
+    }
+    
     return jsFiles;
   }
 
@@ -309,23 +317,32 @@ class StringExtractor {
   extractStringsFromLine(line, lineNumber, filePath) {
     const strings = [];
     
-    // Regex patterns for different quote types
+    // More precise regex patterns for different quote types
+    // This ensures we don't match partial strings or create malformed matches
     const patterns = [
-      // Double quotes (multiline)
-      /"([^"\\]*(\\.[^"\\]*)*)"/g,
-      // Single quotes (multiline)
-      /'([^'\\]*(\\.[^'\\]*)*)'/g,
-      // Backticks (multiline template literals)
-      /`([^`\\]*(\\.[^`\\]*)*)`/g
+      // Double quotes - more precise to avoid partial matches
+      /"([^"\\]*(?:\\.[^"\\]*)*)"/g,
+      // Single quotes - more precise to avoid partial matches  
+      /'([^'\\]*(?:\\.[^'\\]*)*)'/g,
+      // Backticks - more precise for template literals
+      /`([^`\\]*(?:\\.[^`\\]*)*)`/g
     ];
     
     for (const pattern of patterns) {
       let match;
+      // Reset regex lastIndex to ensure proper matching
+      pattern.lastIndex = 0;
+      
       while ((match = pattern.exec(line)) !== null) {
         const stringContent = match[1];
         
         // Skip if string should be ignored
         if (this.shouldIgnoreString(stringContent, line, match.index)) {
+          continue;
+        }
+        
+        // Skip if match is incomplete or malformed
+        if (!stringContent || stringContent.length === 0) {
           continue;
         }
         
@@ -511,8 +528,8 @@ class StringExtractor {
     }
     
     const importStatement = isTypeScript 
-      ? "import { getStringService } from '../bootstrap/services/string-service';"
-      : "const { getStringService } = require('../bootstrap/services/string-service');";
+      ? `import { getStringService } from '${path.relative(path.dirname(filePath), '../../string/string-service')}';`
+      : `const { getStringService } = require('${path.relative(path.dirname(filePath), '../../string/string-service')}');`;
     
     let insertIndex = 0;
     
