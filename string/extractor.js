@@ -100,6 +100,8 @@ class StringExtractor {
       /strings\.(get|getError|getMessage|getLabel|getConsole)/,
       // Very short strings (likely identifiers)
       /^.{1,2}$/,
+      // Unicode Braille characters (progress indicators)
+      /^[\u2800-\u28FF]$/,
       // Numbers and boolean strings
       /^(true|false|null|undefined|\d+)$/,
       // Log levels and common identifiers
@@ -495,11 +497,10 @@ class StringExtractor {
       const replacement = this.createServiceCall(method, stringInfo.key, stringInfo.content);
       
       line = line.replace(new RegExp(this.escapeRegex(searchString), 'g'), replacement);
-      
-      // Add procedural marking comment
+
+      // Update the line if it was modified
       if (line !== originalLine) {
-        const markingComment = this.createMarkingComment(stringInfo);
-        lines[lineIndex] = `${markingComment}\n${line}`;
+        lines[lineIndex] = line;
       }
     }
     
@@ -625,14 +626,7 @@ class StringExtractor {
     return `${method}('${key}')`;
   }
 
-  /**
-   * Create procedural marking comment
-   */
-  createMarkingComment(stringInfo) {
-    const timestamp = new Date().toISOString().split('T')[0];
-    const relativePath = path.relative(process.cwd(), stringInfo.file);
-    
-    return `  }
+
 
   /**
    * Load existing codegen data

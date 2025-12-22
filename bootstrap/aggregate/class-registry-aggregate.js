@@ -101,7 +101,7 @@ class ClassRegistryAggregate extends BaseClass {
     // Process constant references
     if (constants.constants) {
       for (const [key, value] of Object.entries(constants.constants)) {
-        if (typeof value === getMessage('string') && value.startsWith('${function:')) {
+        if (typeof value === getMessage(getMessage('string')) && value.startsWith('${function:')) {
           // Functions already processed above
           continue;
         }
@@ -122,11 +122,11 @@ class ClassRegistryAggregate extends BaseClass {
    */
   replaceFunctionReferences(obj, reference, value) {
     const processValue = (val) => {
-      if (typeof val === 'string') {
+      if (typeof val === getMessage(getMessage('string_1'))) {
         return val.replace(new RegExp(reference.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
       } else if (Array.isArray(val)) {
         return val.map(processValue);
-      } else if (typeof val === 'object' && val !== null) {
+      } else if (typeof val === getMessage(getMessage('object')) && val !== null) {
         const result = {};
         for (const [k, v] of Object.entries(val)) {
           result[k] = processValue(v);
@@ -152,11 +152,11 @@ class ClassRegistryAggregate extends BaseClass {
    */
   replaceFunctionReferences(obj, reference, value) {
     const processValue = (val) => {
-      if (typeof val === getMessage('string_1')) {
+      if (typeof val === getMessage(getMessage('string_2'))) {
         return val.replace(new RegExp(reference.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
       } else if (Array.isArray(val)) {
         return val.map(processValue);
-      } else if (typeof val === getMessage('object') && val !== null) {
+      } else if (typeof val === getMessage(getMessage('object_1')) && val !== null) {
         const result = {};
         for (const [k, v] of Object.entries(val)) {
           result[k] = processValue(v);
@@ -270,12 +270,12 @@ class ClassRegistryAggregate extends BaseClass {
     
     // Add nested aggregate methods to this instance
     const nestedMethods = [
-      getMessage('getaggregateinfo'), getMessage('getrootaggregates'), getMessage('getchildren'), getMessage('getalldescendants'),
-      getMessage('getaggregatetree'), getMessage('getaggregatesatlevel'), getMessage('validatehierarchy'), getMessage('gethierarchystats')
+      getMessage(getMessage('getaggregateinfo')), getMessage(getMessage('getrootaggregates')), getMessage(getMessage('getchildren')), getMessage(getMessage('getalldescendants')),
+      getMessage(getMessage('getaggregatetree')), getMessage(getMessage('getaggregatesatlevel')), getMessage(getMessage('validatehierarchy')), getMessage(getMessage('gethierarchystats'))
     ];
-    
+
     for (const method of nestedMethods) {
-      if (typeof this.nestedAggregate[method] === getMessage('function')) {
+      if (typeof this.nestedAggregate[method] === getMessage(getMessage('function'))) {
         this[method] = this.nestedAggregate[method].bind(this.nestedAggregate);
       }
     }
@@ -299,13 +299,13 @@ class ClassRegistryAggregate extends BaseClass {
     
     // Add plugin group methods to this instance
     const groupMethods = [
-      getMessage('getplugingroupinfo'), getMessage('getallplugingroups'), getMessage('getplugingroupsbycategory'),
-      getMessage('getallplugins'), getMessage('getenabledplugins'), getMessage('hasplugingroup'), getMessage('getgroupstatistics'),
-      getMessage('getdependencygraph'), getMessage('validatesystem')
+      getMessage(getMessage('getplugingroupinfo')), getMessage(getMessage('getallplugingroups')), getMessage(getMessage('getplugingroupsbycategory')),
+      getMessage(getMessage('getallplugins')), getMessage(getMessage('getenabledplugins')), getMessage(getMessage('hasplugingroup')), getMessage(getMessage('getgroupstatistics')),
+      getMessage(getMessage('getdependencygraph')), getMessage(getMessage('validatesystem'))
     ];
-    
+
     for (const method of groupMethods) {
-      if (typeof this.pluginGroupAggregate[method] === getMessage('function_1')) {
+      if (typeof this.pluginGroupAggregate[method] === getMessage(getMessage('function_1'))) {
         this[method] = this.pluginGroupAggregate[method].bind(this.pluginGroupAggregate);
       }
     }

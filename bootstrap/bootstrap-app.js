@@ -36,16 +36,16 @@ class BootstrapApp extends BaseBootstrapApp {
     this.configParser = this.config.configParser || new ConfigJsonParser();
     
     // Create service registries using factories
-    this.serviceRegistry = this.config.serviceRegistry || 
-      factoryRegistry.create(getMessage('serviceregistry'), new ServiceRegistryConfig());
-    this.controllerRegistry = this.config.controllerRegistry || 
-      factoryRegistry.create(getMessage('controllerregistry'));
+    this.serviceRegistry = this.config.serviceRegistry ||
+      factoryRegistry.create(strings.getMessage('serviceregistry'), new ServiceRegistryConfig());
+    this.controllerRegistry = this.config.controllerRegistry ||
+      factoryRegistry.create(strings.getMessage('controllerregistry'));
     
     // Create network services using factories
-    this.networkProviderService = factoryRegistry.create(getMessage('networkproviderservice'), 
-      this.config.networkProviderServiceConfig || 
+    this.networkProviderService = factoryRegistry.create(strings.getMessage('networkproviderservice'),
+      this.config.networkProviderServiceConfig ||
       new NetworkProviderServiceConfig(this.configParser.createNetworkProviderConfig()));
-    this.networkProbeService = factoryRegistry.create(getMessage('networkprobeservice'), 
+    this.networkProbeService = factoryRegistry.create(strings.getMessage('networkprobeservice'),
       this.config.networkProbeServiceConfig || new NetworkProbeServiceConfig());
     
     // Create logging service directly to avoid circular dependency issues
@@ -69,7 +69,7 @@ class BootstrapApp extends BaseBootstrapApp {
         serializeForLog: this.loggingService.serializeForLog,
         serviceRegistry: this.serviceRegistry,
       });
-    this.loggingManager = factoryRegistry.create(getConsole('loggingmanager'), loggingManagerConfig);
+    this.loggingManager = factoryRegistry.create(strings.getConsole('loggingmanager'), loggingManagerConfig);
     
     // Create Bootstrapper using factory with proper config
     const bootstrapperConfig = this.config.bootstrapperConfig || 
@@ -79,7 +79,7 @@ class BootstrapApp extends BaseBootstrapApp {
         moduleLoader: this.moduleLoader,
         controllerRegistry: this.controllerRegistry,
       });
-    this.bootstrapper = factoryRegistry.create(getMessage('bootstrapper'), bootstrapperConfig);
+    this.bootstrapper = factoryRegistry.create(strings.getMessage('bootstrapper'), bootstrapperConfig);
     
     // Initialize services
     await this.loggingService.initialize();
@@ -104,7 +104,7 @@ class BootstrapApp extends BaseBootstrapApp {
       this.configParser = new ConfigJsonParser(configJson);
       
       // Re-create network provider service with config.json settings
-      this.networkProviderService = factoryRegistry.create(getMessage('networkproviderservice_1'), 
+      this.networkProviderService = factoryRegistry.create(strings.getMessage('networkproviderservice_1'),
         new NetworkProviderServiceConfig(this.configParser.createNetworkProviderConfig()));
       
       return configJson;
@@ -142,7 +142,7 @@ class BootstrapApp extends BaseBootstrapApp {
   }
 
   /**
-   * Attaches the logging hooks to browsers that support getConsole('window').
+   * Attaches the logging hooks to browsers that support strings.getConsole('window').
    */
   installLogging(windowObj) {
     if (!BootstrapApp.isBrowser(windowObj)) {

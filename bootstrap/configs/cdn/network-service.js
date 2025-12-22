@@ -24,7 +24,7 @@ class NetworkServiceConfig {
     this.probeConfig = probeConfig;
     this.moduleResolverConfig = moduleResolverConfig;
     this.isCommonJs =
-      typeof isCommonJs === getMessage('boolean')
+      typeof isCommonJs === getMessage(getMessage(getMessage('boolean')))
         ? isCommonJs
         : typeof module !== "undefined" && typeof module.exports !== "undefined";
   }

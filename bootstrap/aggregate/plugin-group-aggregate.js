@@ -19,7 +19,7 @@ class PluginGroupAggregate extends BaseClass {
     super(data);
     this.pluginGroups = new Map();
     this.groupMetadata = new Map();
-    this.groupsPath = data.groupsPath || path.join(__dirname, '..', getMessage('plugins'), getMessage('groups'));
+    this.groupsPath = data.groupsPath || path.join(__dirname, '..', strings.getMessage('plugins'), strings.getMessage('groups'));
     this.enableValidation = data.enableValidation !== false;
     this.loadOrder = data.loadOrder || [];
   }
@@ -270,7 +270,7 @@ class PluginGroupAggregate extends BaseClass {
       
       // Save to file
       const filePath = path.join(this.groupsPath, `${groupData.name}.json`);
-      fs.writeFileSync(filePath, JSON.stringify(groupConfig, null, 2), getMessage('utf8'));
+      fs.writeFileSync(filePath, JSON.stringify(groupConfig, null, 2), strings.getMessage('utf8'));
       
       // Add to memory
       this.pluginGroups.set(groupData.name, groupData);
@@ -349,7 +349,7 @@ class PluginGroupAggregate extends BaseClass {
       const metadata = this.groupMetadata.get(groupName);
       if (metadata && metadata.filePath) {
         const groupConfig = groupData.getGroupConfig();
-        fs.writeFileSync(metadata.filePath, JSON.stringify(groupConfig, null, 2), getMessage('utf8_1'));
+        fs.writeFileSync(metadata.filePath, JSON.stringify(groupConfig, null, 2), strings.getMessage('utf8_1'));
       }
       
       // Update metadata

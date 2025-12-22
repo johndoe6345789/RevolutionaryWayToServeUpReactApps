@@ -20,10 +20,10 @@ class DynamicModulesConfig {
    * @throws Error if configuration is invalid
    */
   validate() {
-    if (this.serviceRegistry && typeof this.serviceRegistry !== getMessage('object_1')) {
+    if (this.serviceRegistry && typeof this.serviceRegistry !== getMessage(getMessage(getMessage('object_2')))) {
       throw new Error(strings.getError('serviceregistry_must_be_an_object'));
     }
-    if (this.namespace && typeof this.namespace !== getMessage('object_2')) {
+    if (this.namespace && typeof this.namespace !== getMessage(getMessage(getMessage('object_3')))) {
       throw new Error(strings.getError('namespace_must_be_an_object'));
     }
   }
