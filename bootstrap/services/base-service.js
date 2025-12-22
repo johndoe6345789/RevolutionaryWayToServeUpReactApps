@@ -1,3 +1,5 @@
+const { getStringService } = require('../../string/string-service');
+
 /**
  * Provides a lifecycle stub that other bootstrap services can extend.
  */
@@ -14,7 +16,8 @@ class BaseService {
    * Subclasses must override this to perform setup before the service is registered.
    */
   initialize() {
-    throw new Error(`${this.constructor.name} must implement initialize()`);
+    const strings = getStringService();
+    throw new Error(strings.getError('this_constructor_name_must_implement_initialize', { constructorName: this.constructor.name }));
   }
 
   /**
@@ -22,7 +25,8 @@ class BaseService {
    */
   _ensureNotInitialized() {
     if (this.initialized) {
-      throw new Error(`${this.constructor.name} already initialized`);
+      const strings = getStringService();
+      throw new Error(strings.getError('this_constructor_name_already_initialized', { constructorName: this.constructor.name }));
     }
   }
 
@@ -38,7 +42,8 @@ class BaseService {
    */
   _ensureInitialized() {
     if (!this.initialized) {
-      throw new Error(`${this.constructor.name} not initialized`);
+      const strings = getStringService();
+      throw new Error(strings.getError('this_constructor_name_not_initialized', { constructorName: this.constructor.name }));
     }
   }
 
@@ -48,7 +53,8 @@ class BaseService {
   _requireServiceRegistry() {
     const registry = this.config.serviceRegistry;
     if (!registry) {
-      throw new Error(`ServiceRegistry required for ${this.constructor.name}`);
+      const strings = getStringService();
+      throw new Error(strings.getError('serviceregistry_required_for_this_constructor_n', { constructorName: this.constructor.name }));
     }
     return registry;
   }
@@ -59,7 +65,8 @@ class BaseService {
   _resolveNamespace() {
     const namespace = this.config.namespace;
     if (!namespace) {
-      throw new Error(`Namespace required for ${this.constructor.name}`);
+      const strings = getStringService();
+      throw new Error(strings.getError('namespace_required_for_this_constructor_name', { constructorName: this.constructor.name }));
     }
     return namespace;
   }

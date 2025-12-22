@@ -101,9 +101,9 @@ class AggregateFactory extends BaseClassFactory {
 
     // Check nesting level limit
     if (data.nestingLevel > this.maxNestingLevel) {
-      throw new Error(strings.getError('nesting_level_data_nestinglevel_exceeds_maximum_th', {
-        data: data,
-        this: this
+      throw new Error(strings.getError('nesting_level_exceeds_maximum', {
+        nestingLevel: data.nestingLevel,
+        maxNestingLevel: this.maxNestingLevel
       }));
     }
 
@@ -116,9 +116,9 @@ class AggregateFactory extends BaseClassFactory {
     if (this.aggregateHierarchy.length > 1) {
       const expectedParent = this.aggregateHierarchy[this.aggregateHierarchy.length - 2];
       if (data.parent && data.parent !== expectedParent) {
-        throw new Error(strings.getError('parent_mismatch_expected_expectedparent_got_data_p', {
+        throw new Error(strings.getError('parent_mismatch', {
           expectedParent,
-          data
+          dataParent: data.parent
         }));
       }
     }

@@ -1,5 +1,6 @@
 const BaseService = require("../base-service.js");
 const LoggingServiceConfig = require("../../configs/cdn/logging-service.js");
+const { getStringService } = require('../../../string/string-service');
 
 /**
  * Centralizes CI logging defaults, serialization helpers, and UI error forwarding.
@@ -140,7 +141,8 @@ class LoggingService extends BaseService {
             : level === "warn"
               ? console.warn
               : console.info;
-        logFn("[bootstrap]", event, detail);
+        const strings = getStringService();
+        logFn(strings.getConsole('bootstrap_1'), event, detail);
       }
     } catch (_err) {
       // ignore logging failures to avoid interfering with app execution

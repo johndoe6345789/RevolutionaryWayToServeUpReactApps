@@ -109,7 +109,7 @@ class BootstrapApp extends BaseBootstrapApp {
       
       return configJson;
     } catch (error) {
-      console.error('Failed to load config.json:', error);
+      console.error(strings.getError('failed_to_load_config_json'), error);
       return {};
     }
   }
