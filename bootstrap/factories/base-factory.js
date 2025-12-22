@@ -1,3 +1,5 @@
+const { getStringService } = require('../../string/string-service');
+
 /**
  * BaseFactory - A foundational factory class for creating objects with consistent patterns
  */
@@ -30,7 +32,8 @@ class BaseFactory {
    */
   register(type, builder) {
     if (typeof type !== 'string' || typeof builder !== 'function') {
-      throw new Error('Type must be a string and builder must be a function');
+      const strings = getStringService();
+      throw new Error(strings.getError('type_must_be_a_string_and_builder_must_be_a_functi'));
     }
     this.registry.set(type, builder);
     return this;
@@ -45,7 +48,8 @@ class BaseFactory {
   create(type, ...args) {
     const builder = this.registry.get(type);
     if (!builder) {
-      throw new Error(`No builder registered for type: ${type}`);
+      const strings = getStringService();
+      throw new Error(strings.getError('no_builder_registered_for_type_type', { type }));
     }
     return builder(...args);
   }
@@ -90,7 +94,8 @@ class BaseFactory {
    */
   _ensureNotInitialized() {
     if (this.initialized) {
-      throw new Error(`${this.constructor.name} already initialized`);
+      const strings = getStringService();
+      throw new Error(strings.getError('this_constructor_name_already_initialized_2', { constructorName: this.constructor.name }));
     }
   }
 
@@ -106,7 +111,8 @@ class BaseFactory {
    */
   _ensureInitialized() {
     if (!this.initialized) {
-      throw new Error(`${this.constructor.name} not initialized`);
+      const strings = getStringService();
+      throw new Error(strings.getError('this_constructor_name_not_initialized_2', { constructorName: this.constructor.name }));
     }
   }
 }

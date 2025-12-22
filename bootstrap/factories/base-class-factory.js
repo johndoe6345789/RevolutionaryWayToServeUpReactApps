@@ -1,5 +1,6 @@
 const BaseClass = require('../base/base-class.js');
 const FactoryData = require('../data/factory-data.js');
+const { getStringService } = require('../../string/string-service');
 
 /**
  * BaseClassFactory - Base factory for creating class instances
@@ -22,15 +23,17 @@ class BaseClassFactory extends BaseClass {
    * @returns {Promise<BaseClassFactory>} The initialized factory
    */
   async initialize() {
+    const strings = getStringService();
+
     // Validate factory configuration
     if (!this.targetClass) {
-      throw new Error('Target class is required for factory');
+      throw new Error(strings.getError('target_class_is_required_for_factory'));
     }
-    
+
     if (!this.dataClass) {
-      throw new Error('Data class is required for factory');
+      throw new Error(strings.getError('data_class_is_required_for_factory'));
     }
-    
+
     return super.initialize();
   }
 
@@ -90,7 +93,8 @@ class BaseClassFactory extends BaseClass {
     
     const DataClass = dataClassMap[this.dataClass];
     if (!DataClass) {
-      throw new Error(`Unknown data class: ${this.dataClass}`);
+      const strings = getStringService();
+      throw new Error(strings.getError('unknown_data_class_this_dataclass', { this: this }));
     }
     
     return DataClass;
