@@ -793,6 +793,252 @@ class StringExtractor {
 }
 
 /**
+ * String Extractor Verifier - Validates extraction results
+ */
+class StringExtractorVerifier {
+  constructor(extractor) {
+    this.extractor = extractor;
+    this.verificationResults = {
+      isValid: true,
+      passed: [],
+      failed: [],
+      warnings: [],
+      todoItems: []
+    };
+  }
+
+  /**
+   * Run comprehensive verification
+   */
+  async verify() {
+    console.log('🔍 Starting verification process...');
+
+    try {
+      await this.verifyBackups();
+      await this.verifyStringServiceCalls();
+      await this.verifyProjectIntegrity();
+
+      // Determine overall validity
+      this.verificationResults.isValid = this.verificationResults.failed.length === 0;
+
+      console.log(`✅ Verification completed: ${this.verificationResults.passed.length} passed, ${this.verificationResults.failed.length} failed, ${this.verificationResults.warnings.length} warnings`);
+
+      return this.verificationResults;
+
+    } catch (error) {
+      console.error('❌ Verification failed:', error.message);
+      this.verificationResults.isValid = false;
+      return this.verificationResults;
+    }
+  }
+
+  /**
+   * Verify backup integrity
+   */
+  async verifyBackups() {
+    for (const [filePath, originalContent] of this.extractor.originalFiles) {
+      try {
+        const backupDir = path.dirname(path.join(this.extractor.backupDir, path.relative(process.cwd(), filePath)));
+        const backupDirExists = fs.existsSync(backupDir);
+
+        if (!backupDirExists) {
+          this.verificationResults.warnings.push({
+            type: 'backup',
+            file: filePath,
+            message: '⚠️  Backup directory does not exist',
+            details: 'Backup directory does not exist',
+            suggestion: 'Verify backup creation is enabled and permissions are correct'
+          });
+          continue;
+        }
+
+        const backupFiles = fs.readdirSync(backupDir).filter(f => f.startsWith('.backup.'));
+        if (backupFiles.length === 0) {
+          this.verificationResults.warnings.push({
+            type: 'backup',
+            file: filePath,
+            message: '⚠️  No backup files found'
+          });
+        } else {
+          // Verify most recent backup
+          const latestBackup = backupFiles.sort().pop();
+          const backupPath = path.join(backupDir, latestBackup);
+
+          try {
+            const backupContent = fs.readFileSync(backupPath, 'utf8');
+            if (backupContent === originalContent) {
+              this.verificationResults.passed.push({
+                type: 'backup',
+                file: filePath,
+                message: '✅ Backup integrity verified'
+              });
+            } else {
+              this.verificationResults.failed.push({
+                type: 'backup',
+                file: filePath,
+                message: '❌ Backup content does not match original'
+              });
+            }
+          } catch (backupError) {
+            this.verificationResults.failed.push({
+              type: 'backup',
+              file: filePath,
+              message: `❌ Cannot read backup file: ${backupError.message}`
+            });
+          }
+        }
+      } catch (error) {
+        this.verificationResults.warnings.push({
+          type: 'backup',
+          file: filePath,
+          message: `⚠️  Could not verify backup: ${error.message}`
+        });
+      }
+    }
+  }
+
+  /**
+   * Verify string service calls are properly formed
+   */
+  async verifyStringServiceCalls() {
+    const modifiedFiles = this.extractor.changesLog.map(log => log.file);
+
+    for (const filePath of modifiedFiles) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const lines = content.split('\n');
+
+        // Find all string service calls
+        const stringServiceCallRegex = /strings\.(getError|getMessage|getLabel|getConsole)\s*\(\s*['"`]([^'"`]+)['"`]/g;
+        let match;
+
+        while ((match = stringServiceCallRegex.exec(content)) !== null) {
+          const method = match[1];
+          const key = match[2];
+          const fullMatch = match[0];
+
+          // Check if key exists in strings.json
+          const category = method.replace('get', '').toLowerCase();
+          const keyExists = this.extractor.codegenData?.i18n?.en?.[category]?.[key];
+
+          if (!keyExists) {
+            this.verificationResults.failed.push({
+              type: 'string_service_call',
+              file: filePath,
+              message: `❌ String key not found: ${category}.${key}`
+            });
+
+            this.verificationResults.todoItems.push({
+              number: this.verificationResults.todoItems.length + 1,
+              priority: 'HIGH',
+              action: 'Add Missing String Key',
+              file: filePath,
+              details: `String key "${category}.${key}" not found in strings.json`,
+              suggestion: `Add the missing key to string/strings.json or check for typos`
+            });
+          } else {
+            this.verificationResults.passed.push({
+              type: 'string_service_call',
+              file: filePath,
+              message: `✅ String service call valid: ${method}('${key}')`
+            });
+          }
+
+          // Check for malformed calls
+          if (!fullMatch.endsWith(')')) {
+            this.verificationResults.failed.push({
+              type: 'string_service_call',
+              file: filePath,
+              message: `❌ Malformed string service call: ${fullMatch}`
+            });
+
+            this.verificationResults.todoItems.push({
+              number: this.verificationResults.todoItems.length + 1,
+              priority: 'HIGH',
+              action: 'Fix Malformed Call',
+              file: filePath,
+              details: `Incomplete string service call: ${fullMatch}`,
+              suggestion: 'Ensure all string service calls are properly closed'
+            });
+          }
+        }
+      } catch (error) {
+        this.verificationResults.warnings.push({
+          type: 'string_service_call',
+          file: filePath,
+          message: `⚠️  Could not verify string service calls: ${error.message}`
+        });
+      }
+    }
+  }
+
+  /**
+   * Verify overall project integrity
+   */
+  async verifyProjectIntegrity() {
+    try {
+      // Check if strings.json is valid JSON
+      const stringsContent = fs.readFileSync(this.extractor.codegenDataPath, 'utf8');
+      JSON.parse(stringsContent);
+
+      this.verificationResults.passed.push({
+        type: 'project_integrity',
+        file: this.extractor.codegenDataPath,
+        message: '✅ strings.json is valid JSON'
+      });
+
+      // Check for duplicate keys
+      const keys = new Set();
+      const duplicates = [];
+
+      for (const category of Object.keys(this.extractor.codegenData.i18n.en)) {
+        for (const key of Object.keys(this.extractor.codegenData.i18n.en[category])) {
+          const fullKey = `${category}.${key}`;
+          if (keys.has(fullKey)) {
+            duplicates.push(fullKey);
+          } else {
+            keys.add(fullKey);
+          }
+        }
+      }
+
+      if (duplicates.length > 0) {
+        this.verificationResults.warnings.push({
+          type: 'project_integrity',
+          file: this.extractor.codegenDataPath,
+          message: `⚠️  Duplicate string keys found: ${duplicates.join(', ')}`
+        });
+
+        this.verificationResults.todoItems.push({
+          number: this.verificationResults.todoItems.length + 1,
+          priority: 'MEDIUM',
+          action: 'Resolve Duplicate Keys',
+          file: this.extractor.codegenDataPath,
+          details: `Duplicate keys: ${duplicates.join(', ')}`,
+          suggestion: 'Rename or merge duplicate string keys'
+        });
+      }
+    } catch (error) {
+      this.verificationResults.isValid = false;
+      this.verificationResults.failed.push({
+        type: 'project_integrity',
+        file: this.extractor.codegenDataPath,
+        message: `❌ Invalid JSON in strings.json: ${error.message}`
+      });
+
+      this.verificationResults.todoItems.push({
+        number: this.verificationResults.todoItems.length + 1,
+        priority: 'HIGH',
+        action: 'Fix JSON Syntax',
+        file: this.extractor.codegenDataPath,
+        details: `JSON parsing error: ${error.message}`,
+        suggestion: 'Check for missing commas, quotes, or brackets'
+      });
+    }
+  }
+}
+
+/**
  * Passive Interface Functions for AI and Programmatic Usage
  * 
  * These functions provide controlled access to string extraction capabilities
@@ -1137,307 +1383,108 @@ function assessProjectComplexity(analysis) {
   return 'low';
 }
 
-            file: filePath,
-            details: 'Backup directory does not exist',
-            suggestion: 'Verify backup creation is enabled and permissions are correct'
-          });
-          continue;
-        }
-        
-        const backupFiles = fs.readdirSync(backupDir).filter(f => f.startsWith('.backup.'));
-        
-        if (backupFiles.length === 0) {
-          this.verificationResults.warnings.push({
-            type: 'backup',
-            file: filePath,
-            message: '⚠️  No backup files found'
-          });
-        } else {
-          // Verify most recent backup
-          const latestBackup = backupFiles.sort().pop();
-          const backupPath = path.join(backupDir, latestBackup);
-          
-          try {
-            const backupContent = fs.readFileSync(backupPath, 'utf8');
-            const originalContent = this.extractor.originalFiles.get(filePath);
-            
-            if (backupContent !== originalContent) {
-              this.verificationResults.failed.push({
-                type: 'backup',
-                file: filePath,
-                message: '❌ Backup content does not match original'
-              });
-              
-              this.verificationResults.todoItems.push({
-                number: this.verificationResults.todoItems.length + 1,
-                priority: 'HIGH',
-                action: 'Fix Backup Integrity',
-                file: filePath,
-                details: 'Backup file content mismatch',
-                suggestion: 'Recreate backup manually or check backup creation process'
-              });
-            } else {
-              this.verificationResults.passed.push({
-                type: 'backup',
-                file: filePath,
-                message: '✅ Backup integrity verified'
-              });
-            }
-          } catch (backupError) {
-            this.verificationResults.failed.push({
-              type: 'backup',
-              file: filePath,
-              message: `❌ Cannot read backup file: ${backupError.message}`
-            });
-          }
-        }
-        
-      } catch (error) {
-        this.verificationResults.warnings.push({
-          type: 'backup',
-          file: filePath,
-          message: `⚠️  Could not verify backup: ${error.message}`
-        });
-      }
-    }
+// Helper functions for extraction analysis
+function getTopRecommendation(analysis) {
+  if (analysis.summary.impact.highImpact > 0) {
+    return 'Start with error strings for immediate benefit';
+  }
+  if (analysis.summary.filesAnalyzed >= analysis.safety.fileLimit) {
+    return 'Consider processing files in batches due to limit';
+  }
+  return 'Run preview extraction first to review changes';
+}
+
+function analyzeFileDistribution(analysis) {
+  // Implementation for file distribution analysis
+  return {};
+}
+
+function analyzeStringPatterns(analysis) {
+  // Implementation for string pattern analysis
+  return {};
+}
+
+function getImmediateActions(analysis) {
+  const actions = [];
+  if (analysis.summary.impact.highImpact > 0) {
+    actions.push('Extract error strings first');
+  }
+  actions.push('Run preview extraction to review changes');
+  return actions;
+}
+
+function getLongTermImprovements(analysis) {
+  return [
+    'Implement automated string extraction in CI/CD',
+    'Set up internationalization workflow',
+    'Create string usage analytics'
+  ];
+}
+
+function getRiskMitigationStrategies(analysis) {
+  return [
+    'Always run extraction in dry-run mode first',
+    'Maintain backups of all modified files',
+    'Test thoroughly after extraction'
+  ];
+}
+
+function generateNextSteps(results) {
+  const nextSteps = [
+    'Review extraction results',
+    'Test modified code functionality',
+    'Commit changes with descriptive message'
+  ];
+
+  if (!results.success) {
+    nextSteps.unshift('Fix verification failures');
   }
 
-  /**
-   * Verify string service calls are properly formed
-   */
-  async verifyStringServiceCalls() {
-    const modifiedFiles = this.extractor.changesLog.map(log => log.file);
-    
-    for (const filePath of modifiedFiles) {
-      try {
-        const content = fs.readFileSync(filePath, 'utf8');
-        const lines = content.split('\n');
-        
-        // Find all string service calls
-        const stringServiceCallRegex = /strings\.(getError|getMessage|getLabel|getConsole)\s*\(\s*['"`]([^'"`]+)['"`]/g;
-        let match;
-        
-        while ((match = stringServiceCallRegex.exec(content)) !== null) {
-          const method = match[1];
-          const key = match[2];
-          const fullMatch = match[0];
-          
-          // Check if key exists in strings.json
-          const category = method.replace('get', '').toLowerCase();
-          const keyExists = this.extractor.codegenData?.i18n?.en?.[category]?.[key];
-          
-          if (!keyExists) {
-            this.verificationResults.failed.push({
-              type: 'string_service_call',
-              file: filePath,
-              message: `❌ String key not found: ${category}.${key}`
-            });
-            
-            this.verificationResults.todoItems.push({
-              number: this.verificationResults.todoItems.length + 1,
-              priority: 'HIGH',
-              action: 'Add Missing String Key',
-              file: filePath,
-              details: `String key "${category}.${key}" not found in strings.json`,
-              suggestion: `Add the missing key to string/strings.json or check for typos`
-            });
-          } else {
-            this.verificationResults.passed.push({
-              type: 'string_service_call',
-              file: filePath,
-              message: `✅ String service call valid: ${method}('${key}')`
-            });
-          }
-          
-          // Check for malformed calls
-          if (!fullMatch.endsWith(')')) {
-            this.verificationResults.failed.push({
-              type: 'string_service_call',
-              file: filePath,
-              message: `❌ Malformed string service call: ${fullMatch}`
-            });
-            
-            this.verificationResults.todoItems.push({
-              number: this.verificationResults.todoItems.length + 1,
-              priority: 'HIGH',
-              action: 'Fix Malformed Call',
-              file: filePath,
-              details: `Incomplete string service call: ${fullMatch}`,
-              suggestion: 'Ensure all string service calls are properly closed'
-            });
-          }
-        }
-        
-      } catch (error) {
-        this.verificationResults.warnings.push({
-          type: 'string_service_call',
-          file: filePath,
-          message: `⚠️  Could not verify string service calls: ${error.message}`
-        });
-      }
-    }
+  return nextSteps;
+}
+
+// Main CLI function (simplified for now)
+async function main() {
+  const args = process.argv.slice(2);
+  const options = {};
+
+  // Parse basic CLI args
+  if (args.includes('--dry-run') || args.includes('--preview')) {
+    options.dryRun = true;
+  }
+  if (args.includes('--project')) {
+    options.project = true;
+  }
+  if (args.includes('--verbose')) {
+    options.verbose = true;
   }
 
-  /**
-   * Verify overall project integrity
-   */
-  async verifyProjectIntegrity() {
-    try {
-      // Check if strings.json is valid JSON
-      const stringsContent = fs.readFileSync(this.extractor.codegenDataPath, 'utf8');
-      JSON.parse(stringsContent);
-      
-      this.verificationResults.passed.push({
-        type: 'project_integrity',
-        file: this.extractor.codegenDataPath,
-        message: '✅ strings.json is valid JSON'
-      });
-      
-      // Check for duplicate keys
-      const keys = new Set();
-      const duplicates = [];
-      
-      for (const category of Object.keys(this.extractor.codegenData.i18n.en)) {
-        for (const key of Object.keys(this.extractor.codegenData.i18n.en[category])) {
-          const fullKey = `${category}.${key}`;
-          if (keys.has(fullKey)) {
-            duplicates.push(fullKey);
-          } else {
-            keys.add(fullKey);
-          }
-        }
-      }
-      
-      if (duplicates.length > 0) {
-        this.verificationResults.warnings.push({
-          type: 'project_integrity',
-          file: this.extractor.codegenDataPath,
-          message: `⚠️  Duplicate string keys found: ${duplicates.join(', ')}`
-        });
-        
-        this.verificationResults.todoItems.push({
-          number: this.verificationResults.todoItems.length + 1,
-          priority: 'MEDIUM',
-          action: 'Resolve Duplicate Keys',
-          file: this.extractor.codegenDataPath,
-          details: `Duplicate keys: ${duplicates.join(', ')}`,
-          suggestion: 'Rename or merge duplicate string keys'
-        });
-      }
-      
-    } catch (error) {
-      this.verificationResults.isValid = false;
-      this.verificationResults.failed.push({
-        type: 'project_integrity',
-        file: this.extractor.codegenDataPath,
-        message: `❌ Invalid JSON in strings.json: ${error.message}`
-      });
-      
-      this.verificationResults.todoItems.push({
-        number: this.verificationResults.todoItems.length + 1,
-        priority: 'HIGH',
-        action: 'Fix JSON Syntax',
-        file: this.extractor.codegenDataPath,
-        details: `JSON parsing error: ${error.message}`,
-        suggestion: 'Check for missing commas, quotes, or brackets'
-      });
+  try {
+    if (options.dryRun) {
+      console.log('Running in dry-run mode...');
+      const result = await previewExtraction(options);
+      console.log('Dry run completed successfully');
+      return result;
+    } else {
+      console.log('Running full extraction...');
+      const result = await extractStrings(options);
+      console.log('Extraction completed successfully');
+      return result;
     }
-  }
-
-  /**
-   * Generate numbered todo list output
-   */
-  generateTodoListOutput() {
-    console.log('\n📋 VERIFICATION RESULTS - NUMBERED TODO LIST\n');
-    console.log('=' .repeat(60));
-    
-    if (this.verificationResults.todoItems.length === 0) {
-      console.log('🎉 No issues found! All files passed verification.\n');
-      return;
-    }
-    
-    // Sort by priority (HIGH first) then by number
-    const sortedItems = this.verificationResults.todoItems.sort((a, b) => {
-      const priorityOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 };
-      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-      }
-      return a.number - b.number;
-    });
-    
-    console.log(`📊 Summary: ${this.verificationResults.passed.length} passed, ${this.verificationResults.failed.length} failed, ${this.verificationResults.warnings.length} warnings\n`);
-    
-    // Group by priority
-    const grouped = {
-      HIGH: sortedItems.filter(item => item.priority === 'HIGH'),
-      MEDIUM: sortedItems.filter(item => item.priority === 'MEDIUM'),
-      LOW: sortedItems.filter(item => item.priority === 'LOW')
-    };
-    
-    // Display HIGH priority items
-    if (grouped.HIGH.length > 0) {
-      console.log('🚨 HIGH PRIORITY (Must Fix):\n');
-      grouped.HIGH.forEach(item => {
-        console.log(`${item.number}. [HIGH] ${item.action}`);
-        console.log(`   📁 File: ${item.file}`);
-        console.log(`   🔍 Details: ${item.details}`);
-        console.log(`   💡 Suggestion: ${item.suggestion}`);
-        console.log('');
-      });
-    }
-    
-    // Display MEDIUM priority items
-    if (grouped.MEDIUM.length > 0) {
-      console.log('⚠️  MEDIUM PRIORITY (Should Fix):\n');
-      grouped.MEDIUM.forEach(item => {
-        console.log(`${item.number}. [MEDIUM] ${item.action}`);
-        console.log(`    📁 File: ${item.file}`);
-        console.log(`    🔍 Details: ${item.details}`);
-        console.log(`    💡 Suggestion: ${item.suggestion}`);
-        console.log('');
-      });
-    }
-    
-    // Display LOW priority items
-    if (grouped.LOW.length > 0) {
-      console.log('💡 LOW PRIORITY (Nice to Fix):\n');
-      grouped.LOW.forEach(item => {
-        console.log(`${item.number}. [LOW] ${item.action}`);
-        console.log(`     📁 File: ${item.file}`);
-        console.log(`     🔍 Details: ${item.details}`);
-        console.log(`     💡 Suggestion: ${item.suggestion}`);
-        console.log('');
-      });
-    }
-    
-    console.log('=' .repeat(60));
-    
-    // Show failed verification details
-    if (this.verificationResults.failed.length > 0) {
-      console.log('\n❌ FAILED VERIFICATIONS:\n');
-      this.verificationResults.failed.forEach(failure => {
-        console.log(`   📁 ${failure.file}: ${failure.message}`);
-      });
-    }
-    
-    // Show warnings
-    if (this.verificationResults.warnings.length > 0) {
-      console.log('\n⚠️  WARNINGS:\n');
-      this.verificationResults.warnings.forEach(warning => {
-        console.log(`   📁 ${warning.file}: ${warning.message}`);
-      });
-    }
-    
-    console.log('\n' + '=' .repeat(60));
-    console.log(`🎯 Overall Status: ${this.verificationResults.isValid ? '✅ PASSED' : '❌ FAILED'}`);
-    console.log('=' .repeat(60) + '\n');
+  } catch (error) {
+    console.error('Error:', error.message);
+    process.exit(1);
   }
 }
 
 // Export for testing
 module.exports = {
   StringExtractor,
-  StringExtractorVerifier
+  StringExtractorVerifier,
+  analyzeStrings,
+  previewExtraction,
+  extractStrings,
+  getAnalysisReport
 };
 
 // Run if called directly

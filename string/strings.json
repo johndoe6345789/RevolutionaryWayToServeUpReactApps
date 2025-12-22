@@ -159,7 +159,14 @@
         "initializing_nested_aggregates": "Initializing nested aggregates...",
         "initializing_plugin_groups": "Initializing plugin groups...",
         "nested_aggregates_initialized": "Nested aggregates initialized",
-        "plugin_groups_initialized": "Plugin groups initialized"
+        "plugin_groups_initialized": "Plugin groups initialized",
+        "string_1": "string",
+        "function_1": "function",
+        "utf8_1": "utf8",
+        "networkproviderservice_1": "networkProviderService",
+        "object_1": "object",
+        "object_2": "object",
+        "object_3": "object"
       },
       "labels": {
         "retro_gaming_hub": "RETRO GAMING HUB",
