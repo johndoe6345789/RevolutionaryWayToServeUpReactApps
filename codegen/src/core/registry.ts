@@ -23,7 +23,7 @@ export abstract class Registry extends BaseComponent implements IRegistry {
   constructor(spec: ISpec) {
     super(spec);
     this.components = new Map();
-    this.componentType = spec.componentType || 'component';
+    this.componentType = (spec as any).componentType ?? 'component';
   }
 
   /**
@@ -42,7 +42,7 @@ export abstract class Registry extends BaseComponent implements IRegistry {
   public get(idOrUuid: string): IComponent | null {
     // Try direct ID lookup first
     if (this.components.has(idOrUuid)) {
-      return this.components.get(idOrUuid) || null;
+      return this.components.get(idOrUuid) ?? null;
     }
     // Fallback to UUID lookup
     for (const component of this.components.values()) {
@@ -68,6 +68,7 @@ export abstract class Registry extends BaseComponent implements IRegistry {
    * @returns Is valid
    */
   protected _validateComponent(component: unknown): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return (
       component !== null &&
       component !== undefined &&
@@ -75,7 +76,8 @@ export abstract class Registry extends BaseComponent implements IRegistry {
       'uuid' in component &&
       'id' in component &&
       'search' in component &&
-      this.isValidUUID((component as any).uuid)
+      typeof (component as any).uuid === 'string' &&
+      uuidRegex.test((component as any).uuid)
     );
   }
 
@@ -87,15 +89,5 @@ export abstract class Registry extends BaseComponent implements IRegistry {
   public describe(idOrUuid: string): ISearchMetadata | null {
     const component = this.get(idOrUuid);
     return component ? component.search : null;
-  }
-
-  /**
-   * Validate UUID format (private helper)
-   * @param uuid - UUID to validate
-   * @returns True if valid UUID
-   */
-  private isValidUUID(uuid: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return typeof uuid === 'string' && uuidRegex.test(uuid);
   }
 }

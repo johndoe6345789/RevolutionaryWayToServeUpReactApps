@@ -66,10 +66,12 @@ export abstract class Plugin extends BaseComponent {
 
   /**
    * Execute plugin (extended from base, ≤10 lines)
-   * @param context - Execution context
+   * @param _context - Execution context
    * @returns Execution result
    */
-  public override async execute(context: Record<string, unknown>): Promise<IPluginExecutionResult> {
+  public override async execute(
+    _context: Record<string, unknown>
+  ): Promise<IPluginExecutionResult> {
     if (!this.initialised) {
       await this.initialise();
     }

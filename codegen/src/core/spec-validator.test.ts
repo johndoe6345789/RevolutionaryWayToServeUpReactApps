@@ -38,7 +38,7 @@ describe('SpecValidator', () => {
       ['custom schema path', { schemaPath: '/custom/path.json' }, '/custom/path.json', true],
       ['strict mode disabled', { strictMode: false }, '/mock/schema.json', false],
       ['strict mode enabled', { strictMode: true }, '/mock/schema.json', true],
-    ])('should initialize with %s', (description, options, expectedPath, expectedStrict) => {
+    ])('should initialize with %s', (description, options, _expectedPath, _expectedStrict) => {
       const testValidator = new SpecValidator(options);
       expect(mockedPath.join).toHaveBeenCalled();
 

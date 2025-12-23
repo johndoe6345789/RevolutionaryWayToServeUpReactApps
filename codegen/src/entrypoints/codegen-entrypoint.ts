@@ -137,10 +137,10 @@ export class CodegenEntrypoint extends BaseComponent {
 
   /**
    *
-   * @param options
+   * @param _options
    */
-  private async _runList(options: CLIArgs): Promise<void> {
-    const category = options.category || 'all';
+  private async _runList(_options: CLIArgs): Promise<void> {
+    const category = _options.category || 'all';
 
     if (category === 'plugins' || category === 'all') {
       const plugins = this.drillDown(['PluginAggregator']);
