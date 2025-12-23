@@ -65,6 +65,7 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/strict-boolean-expressions': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/no-unused-vars': 'error',
 
       // Additional strict rules for code quality
