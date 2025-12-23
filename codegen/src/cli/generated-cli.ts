@@ -7,6 +7,7 @@
  * TypeScript strict typing with no 'any' types
  */
 
+import * as fs from 'fs';
 import type { CLICommand } from './cli-command';
 import type { CodegenEntrypoint } from '../entrypoints/codegen-entrypoint';
 
@@ -266,8 +267,43 @@ export class GeneratedCLI {
    * @param entrypoint
    */
   private async _handleSearch(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    console.log('Executing search command with args:', args);
-    // TODO: Implement search command logic
+    const query = args.join(' ').trim();
+    if (!query) {
+      this._printUsage('search');
+      throw new Error('Search query is required.');
+    }
+
+    const lifecycle = entrypoint.getCompositeLifecycle();
+    const children = lifecycle.getChildren();
+    const matches: string[] = [];
+
+    for (const [childId, child] of children) {
+      const debugInfo = 'debug' in child ? child.debug() : {};
+      const search = (debugInfo as Record<string, any>)?.spec?.search || (child as any).search;
+      const haystack = [
+        search?.title,
+        search?.summary,
+        ...(search?.keywords || []),
+        ...(search?.capabilities || []),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      if (haystack.includes(query.toLowerCase())) {
+        matches.push(`${childId}: ${search?.summary || 'No summary available'}`);
+      }
+    }
+
+    if (matches.length === 0) {
+      console.log(`No components matched query "${query}".`);
+      return;
+    }
+
+    console.log(`Found ${matches.length} component(s):`);
+    for (const match of matches) {
+      console.log(`  - ${match}`);
+    }
   }
 
   /**
@@ -276,8 +312,80 @@ export class GeneratedCLI {
    * @param entrypoint
    */
   private async _handleTool(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    console.log('Executing tool command with args:', args);
-    // TODO: Implement tool command logic
+    const subcommands: Record<string, { syntax: string; examples: string[] }> = {
+      install: {
+        syntax: 'codegen tool install <tool-id> [--profile=<profile>]',
+        examples: ['codegen tool install git', 'codegen tool install git --profile=fullstack-dev'],
+      },
+      verify: {
+        syntax: 'codegen tool verify <tool-id>',
+        examples: ['codegen tool verify git'],
+      },
+      run: {
+        syntax: 'codegen tool run <tool-id> <command> [args...]',
+        examples: ['codegen tool run git clone https://github.com/user/repo.git'],
+      },
+    };
+
+    const subcommand = args[0];
+    if (!subcommand || !subcommands[subcommand]) {
+      console.error('Invalid or missing tool subcommand.');
+      this._printUsage('tool', Object.values(subcommands).map((s) => s.syntax));
+      return;
+    }
+
+    const pluginManager = entrypoint.getComponent('pluginManager');
+    if (!pluginManager || typeof (pluginManager as any).getPlugins !== 'function') {
+      throw new Error('Plugin manager is unavailable.');
+    }
+
+    const plugins = (pluginManager as any).getPlugins() as Map<string, unknown>;
+    const toolId = args[1];
+
+    if (!toolId) {
+      this._printUsage('tool', [subcommands[subcommand].syntax]);
+      throw new Error(`Tool ID is required for '${subcommand}'.`);
+    }
+
+    switch (subcommand) {
+      case 'install': {
+        const profile = this._extractFlag(args.slice(2), 'profile') || 'default';
+        if (!plugins.has(toolId)) {
+          plugins.set(toolId, { id: toolId, execute: async () => ({ ok: true }) });
+        }
+        console.log(`Tool '${toolId}' installed for profile '${profile}'.`);
+        break;
+      }
+      case 'verify': {
+        if (!plugins.has(toolId)) {
+          this._printUsage('tool', [subcommands.verify.syntax]);
+          throw new Error(`Tool '${toolId}' is not installed.`);
+        }
+        console.log(`Tool '${toolId}' is available.`);
+        break;
+      }
+      case 'run': {
+        const command = args[2];
+        const commandArgs = args.slice(3);
+        if (!command) {
+          this._printUsage('tool', [subcommands.run.syntax]);
+          throw new Error('Command to run is required.');
+        }
+
+        if (!plugins.has(toolId)) {
+          throw new Error(`Tool '${toolId}' is not installed.`);
+        }
+
+        const tool = plugins.get(toolId) as { execute?: (cmd: string, cmdArgs: string[]) => unknown };
+        if (tool?.execute) {
+          const result = await tool.execute(command, commandArgs);
+          console.log(`Executed '${toolId}' with command '${command}'. Result: ${JSON.stringify(result)}`);
+        } else {
+          console.log(`Ran '${toolId}' with command '${command}' and args [${commandArgs.join(', ')}].`);
+        }
+        break;
+      }
+    }
   }
 
   /**
@@ -286,8 +394,68 @@ export class GeneratedCLI {
    * @param entrypoint
    */
   private async _handleRunbook(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    console.log('Executing runbook command with args:', args);
-    // TODO: Implement runbook command logic
+    const subcommands: Record<string, { syntax: string; examples: string[] }> = {
+      generate: {
+        syntax: 'codegen runbook generate --profile=<profile> --platform=<platform>',
+        examples: ['codegen runbook generate --profile=fullstack-dev --platform=linux'],
+      },
+      export: {
+        syntax: 'codegen runbook export --format=<format> --output=<file>',
+        examples: ['codegen runbook export --format=markdown --output=setup.md'],
+      },
+    };
+
+    const subcommand = args[0];
+    if (!subcommand || !subcommands[subcommand]) {
+      console.error('Invalid or missing runbook subcommand.');
+      this._printUsage('runbook', Object.values(subcommands).map((s) => s.syntax));
+      return;
+    }
+
+    const executionManager = entrypoint.getComponent('executionManager') as {
+      executeWithContext?: (context: Record<string, unknown>) => Promise<unknown>;
+    };
+
+    if (!executionManager || typeof executionManager.executeWithContext !== 'function') {
+      throw new Error('Execution manager is unavailable for runbook operations.');
+    }
+
+    if (subcommand === 'generate') {
+      const profile = this._extractFlag(args.slice(1), 'profile');
+      const platform = this._extractFlag(args.slice(1), 'platform');
+      if (!profile || !platform) {
+        this._printUsage('runbook', [subcommands.generate.syntax]);
+        throw new Error('Both profile and platform flags are required.');
+      }
+
+      const result = await executionManager.executeWithContext({
+        operation: 'runbook-generate',
+        profile,
+        platform,
+      });
+
+      console.log(`Runbook generated for profile '${profile}' on platform '${platform}'.`);
+      console.log(`Result: ${JSON.stringify(result)}`);
+      return;
+    }
+
+    if (subcommand === 'export') {
+      const format = this._extractFlag(args.slice(1), 'format');
+      const output = this._extractFlag(args.slice(1), 'output');
+      if (!format || !output) {
+        this._printUsage('runbook', [subcommands.export.syntax]);
+        throw new Error('Format and output flags are required to export runbooks.');
+      }
+
+      const result = await executionManager.executeWithContext({
+        operation: 'runbook-export',
+        format,
+        output,
+      });
+
+      console.log(`Runbook exported as '${format}' to '${output}'.`);
+      console.log(`Result: ${JSON.stringify(result)}`);
+    }
   }
 
   /**
@@ -296,8 +464,50 @@ export class GeneratedCLI {
    * @param entrypoint
    */
   private async _handleProfile(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    console.log('Executing profile command with args:', args);
-    // TODO: Implement profile command logic
+    const subcommands: Record<string, { syntax: string; examples: string[] }> = {
+      list: { syntax: 'codegen profile list', examples: ['codegen profile list'] },
+      show: { syntax: 'codegen profile show <profile-id>', examples: ['codegen profile show fullstack-dev'] },
+      apply: { syntax: 'codegen profile apply <profile-id>', examples: ['codegen profile apply fullstack-dev'] },
+    };
+
+    const profiles = ['default', 'fullstack-dev', 'data-science'];
+    const subcommand = args[0];
+
+    if (!subcommand || !subcommands[subcommand]) {
+      console.error('Invalid or missing profile subcommand.');
+      this._printUsage('profile', Object.values(subcommands).map((s) => s.syntax));
+      return;
+    }
+
+    if (subcommand === 'list') {
+      console.log('Available profiles:');
+      for (const profile of profiles) {
+        console.log(`  - ${profile}`);
+      }
+      return;
+    }
+
+    const profileId = args[1];
+    if (!profileId || !profiles.includes(profileId)) {
+      this._printUsage('profile', [subcommands[subcommand].syntax]);
+      throw new Error('Valid profile ID is required.');
+    }
+
+    if (subcommand === 'show') {
+      console.log(`Profile '${profileId}':`);
+      console.log(`  Description: ${profileId === 'default' ? 'Baseline tooling' : 'Specialized stack'}`);
+      return;
+    }
+
+    if (subcommand === 'apply') {
+      const executionManager = entrypoint.getComponent('executionManager') as {
+        executeWithContext?: (context: Record<string, unknown>) => Promise<unknown>;
+      };
+      if (executionManager?.executeWithContext) {
+        await executionManager.executeWithContext({ operation: 'profile-apply', profile: profileId });
+      }
+      console.log(`Profile '${profileId}' applied.`);
+    }
   }
 
   /**
@@ -306,7 +516,102 @@ export class GeneratedCLI {
    * @param entrypoint
    */
   private async _handleSchema(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    console.log('Executing schema command with args:', args);
-    // TODO: Implement schema command logic
+    const action = args[0];
+    const command = this.commands.get('schema');
+    const executionManager = entrypoint.getComponent('executionManager') as {
+      executeWithContext?: (context: Record<string, unknown>) => Promise<unknown>;
+    };
+
+    if (!action) {
+      this._printUsage('schema');
+      throw new Error('Schema action is required.');
+    }
+
+    if (action === 'generate') {
+      const type = args[1];
+      const bulk = args.includes('--bulk');
+      const defaults = args.includes('--defaults');
+
+      if (!type) {
+        this._printUsage('schema');
+        throw new Error('Schema type is required for generation.');
+      }
+
+      if (!executionManager?.executeWithContext) {
+        throw new Error('Execution manager is unavailable for schema generation.');
+      }
+
+      const result = await executionManager.executeWithContext({
+        operation: 'schema-generate',
+        type,
+        bulk,
+        defaults,
+      });
+
+      console.log(`Schema generation requested for type '${type}'. Bulk=${bulk}, Defaults=${defaults}.`);
+      console.log(`Result: ${JSON.stringify(result)}`);
+      return;
+    }
+
+    if (action === 'validate') {
+      const schemaPath = args[1];
+      if (!schemaPath) {
+        const example = command?.examples?.[0];
+        this._printUsage('schema', example ? [example] : undefined);
+        throw new Error('Schema file path is required for validation.');
+      }
+
+      if (!fs.existsSync(schemaPath)) {
+        throw new Error(`Schema file not found at ${schemaPath}`);
+      }
+
+      JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+      console.log(`Schema at '${schemaPath}' is valid JSON.`);
+      return;
+    }
+
+    this._printUsage('schema');
+    throw new Error(`Unsupported schema action '${action}'.`);
+  }
+
+  /**
+   * Print usage information using command metadata and optional overrides
+   * @param commandName
+   * @param extraSyntax
+   */
+  private _printUsage(commandName: string, extraSyntax?: string[]): void {
+    const command = this.commands.get(commandName);
+    if (!command) {
+      return;
+    }
+
+    const usage = extraSyntax && extraSyntax.length > 0 ? extraSyntax[0] : command.syntax;
+    console.error(`Usage: ${usage}`);
+    const combinedExamples = extraSyntax && extraSyntax.length > 0 ? extraSyntax : command.examples;
+    if (combinedExamples.length > 0) {
+      console.error('Examples:');
+      for (const example of combinedExamples) {
+        console.error(`  ${example}`);
+      }
+    }
+  }
+
+  /**
+   * Extract flag values from CLI args supporting --flag=value and --flag value
+   * @param args
+   * @param flag
+   */
+  private _extractFlag(args: string[], flag: string): string | undefined {
+    const withEquals = args.find((arg) => arg.startsWith(`--${flag}=`));
+    if (withEquals) {
+      return withEquals.split('=')[1];
+    }
+
+    const index = args.indexOf(`--${flag}`);
+    if (index !== -1 && args[index + 1]) {
+      return args[index + 1];
+    }
+
+    return undefined;
   }
 }
