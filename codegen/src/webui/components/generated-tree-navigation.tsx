@@ -11,30 +11,8 @@ import { Description as DescriptionIcon, Folder as FolderIcon } from '@mui/icons
 import { Box, Chip, Paper, Typography } from '@mui/material';
 import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
 import React, { useState } from 'react';
-
-/**
- * A node that can be rendered inside the generated tree navigation.
- */
-interface TreeNode {
-  id: string;
-  name: string;
-  type: 'aggregate' | 'registry' | 'component' | 'tool' | 'profile';
-  children?: TreeNode[];
-  metadata?: {
-    count?: number;
-    status?: string;
-    domain?: string;
-  };
-}
-
-/**
- * Props passed to the generated tree navigation component.
- */
-interface GeneratedTreeNavigationProps {
-  data: TreeNode[];
-  onNodeSelect?: (nodeId: string) => void;
-  selectedNodeId: string | undefined;
-}
+import type { GeneratedTreeNavigationProps } from './types/generated-tree-navigation-props';
+import type { TreeNode } from './types/tree-node';
 
 const hasChildNodes = (node: TreeNode): boolean =>
   Array.isArray(node.children) && node.children.length > 0;
