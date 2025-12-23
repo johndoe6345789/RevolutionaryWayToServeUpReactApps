@@ -28,8 +28,8 @@ export class CodegenAggregator extends BaseAggregator {
         summary: 'Manages plugin discovery and loading',
         keywords: ['plugin', 'aggregator'],
         domain: 'core',
-        capabilities: ['discovery', 'loading']
-      }
+        capabilities: ['discovery', 'loading'],
+      },
     });
 
     const executionAggregator = new ExecutionAggregator({
@@ -41,8 +41,8 @@ export class CodegenAggregator extends BaseAggregator {
         summary: 'Coordinates code generation execution',
         keywords: ['execution', 'aggregator'],
         domain: 'core',
-        capabilities: ['execution', 'coordination']
-      }
+        capabilities: ['execution', 'coordination'],
+      },
     });
 
     // Initialize aggregators
@@ -82,11 +82,11 @@ export class CodegenAggregator extends BaseAggregator {
   }
 
   public getPluginAggregator(): PluginAggregator | null {
-    return this.children.get('PluginAggregator') as PluginAggregator || null;
+    return (this.children.get('PluginAggregator') as PluginAggregator) || null;
   }
 
   public getExecutionAggregator(): ExecutionAggregator | null {
-    return this.children.get('ExecutionAggregator') as ExecutionAggregator || null;
+    return (this.children.get('ExecutionAggregator') as ExecutionAggregator) || null;
   }
 
   public override getChild(childId: string): IAggregator | IComponent | null {

@@ -70,7 +70,7 @@ export class TestRunnerPlugin extends Plugin {
     const results: TestResults = {
       success: true,
       framework: 'bun',
-      summary: { total: 0, passed: 0, failed: 0 }
+      summary: { total: 0, passed: 0, failed: 0 },
     };
 
     // Execute tests using detected framework
@@ -100,9 +100,13 @@ export class TestRunnerPlugin extends Plugin {
    * @returns Is valid input
    */
   public validate(input: unknown): boolean {
-    return input !== null && input !== undefined &&
-           typeof input === 'object' &&
-           ('operation' in input) &&
-           ((input as ValidationInput).operation === 'execute' || (input as ValidationInput).operation === 'analyze');
+    return (
+      input !== null &&
+      input !== undefined &&
+      typeof input === 'object' &&
+      'operation' in input &&
+      ((input as ValidationInput).operation === 'execute' ||
+        (input as ValidationInput).operation === 'analyze')
+    );
   }
 }

@@ -44,8 +44,8 @@ export class CodegenEntrypoint extends BaseComponent {
         summary: 'Main entry point for Revolutionary Codegen',
         keywords: ['codegen', 'entrypoint', 'cli'],
         domain: 'core',
-        capabilities: ['cli', 'navigation']
-      }
+        capabilities: ['cli', 'navigation'],
+      },
     });
 
     this.aggregator = aggregator;
@@ -99,7 +99,7 @@ export class CodegenEntrypoint extends BaseComponent {
       outputDir: options.output,
       language: options.language,
       profile: options.profile,
-      template: options.template
+      template: options.template,
     };
 
     const target = this.drillDown(['ExecutionAggregator']);

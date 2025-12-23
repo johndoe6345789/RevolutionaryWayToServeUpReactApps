@@ -5,63 +5,58 @@
  * AGENTS.md compliant linting with no shell scripts
  */
 
-import { $ } from "bun";
-import { existsSync } from "fs";
-import { join } from "path";
+import { $ } from 'bun';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 async function main() {
-  console.log("📋 Running AGENTS.md compliant linting...");
+  console.log('📋 Running AGENTS.md compliant linting...');
 
   try {
     // Check if we're in a Bun environment
-    if (!existsSync("bunfig.toml")) {
-      console.log("⚠️  Bun config not found, falling back to Node.js linting");
+    if (!existsSync('bunfig.toml')) {
+      console.log('⚠️  Bun config not found, falling back to Node.js linting');
       await runNodeLinting();
       return;
     }
 
     // Run ESLint with TypeScript support
-    console.log("🔍 Running ESLint...");
-    try {
-      await $`bunx eslint . --ext .js,.ts --max-warnings 0`;
-    } catch {
-      console.log("ESLint not configured, skipping...");
-    }
+    console.log('🔍 Running ESLint...');
+    await $`bunx eslint . --max-warnings 0`;
 
     // Check code structure (AGENTS.md compliance)
-    console.log("🏗️  Checking AGENTS.md compliance...");
+    console.log('🏗️  Checking AGENTS.md compliance...');
     await checkOOPCompliance();
 
     // Validate specs
-    console.log("📋 Validating specifications...");
+    console.log('📋 Validating specifications...');
     await validateSpecs();
 
-    console.log("✅ All lint checks passed!");
-
+    console.log('✅ All lint checks passed!');
   } catch (error) {
-    console.error("❌ Linting failed:", error);
+    console.error('❌ Linting failed:', error);
     process.exit(1);
   }
 }
 
 async function runNodeLinting() {
-  console.log("🔍 Running Node.js ESLint...");
+  console.log('🔍 Running Node.js ESLint...');
   try {
     await $`npx eslint . --ext .js,.ts --max-warnings 0`;
   } catch {
-    console.log("ESLint not available, basic checks only...");
+    console.log('ESLint not available, basic checks only...');
   }
 }
 
 async function checkOOPCompliance() {
   // Simple compliance check - can be enhanced
-  const fs = await import("fs");
+  const fs = await import('fs');
 
   const coreFiles = [
-    "codegen/core/base-component.js",
-    "codegen/core/registry.js",
-    "codegen/core/aggregate.js",
-    "codegen/core/plugin.js"
+    'codegen/core/base-component.js',
+    'codegen/core/registry.js',
+    'codegen/core/aggregate.js',
+    'codegen/core/plugin.js',
   ];
 
   for (const file of coreFiles) {
@@ -74,14 +69,14 @@ async function checkOOPCompliance() {
       }
 
       // Special case: base-component.js doesn't extend anything
-      if (file !== "codegen/core/base-component.js" &&
-          !content.includes('extends BaseComponent')) {
+      if (file !== 'codegen/core/base-component.js' && !content.includes('extends BaseComponent')) {
         throw new Error(`${file} does not extend BaseComponent`);
       }
 
       // Check method count (rough estimate)
       const methodMatches = content.match(/async \w+\(|^\s*\w+\s*\(/gm) || [];
-      if (methodMatches.length > 5) { // Allow some buffer
+      if (methodMatches.length > 5) {
+        // Allow some buffer
         console.log(`⚠️  ${file} may have too many methods (${methodMatches.length})`);
       }
     }
@@ -89,11 +84,11 @@ async function checkOOPCompliance() {
 }
 
 async function validateSpecs() {
-  const fs = await import("fs");
+  const fs = await import('fs');
   const specFiles = [
-    "codegen/plugins/tools/oop-principles/spec.json",
-    "codegen/plugins/tools/test-runner/spec.json",
-    "specs/bootstrap-system.json"
+    'codegen/plugins/tools/oop-principles/spec.json',
+    'codegen/plugins/tools/test-runner/spec.json',
+    'specs/bootstrap-system.json',
   ];
 
   for (const specFile of specFiles) {

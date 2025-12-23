@@ -6,7 +6,12 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { ISpecValidatorOptions, IValidationResult, ISpecForValidation, ISearchMetadataForValidation } from './interfaces/index';
+import {
+  ISpecValidatorOptions,
+  IValidationResult,
+  ISpecForValidation,
+  ISearchMetadataForValidation,
+} from './interfaces/index';
 
 export class SpecValidator {
   private schemaPath: string;

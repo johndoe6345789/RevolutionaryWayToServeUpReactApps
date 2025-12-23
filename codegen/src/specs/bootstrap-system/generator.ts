@@ -144,7 +144,7 @@ export class BootstrapGenerator extends BaseComponent {
 
   private _generateModuleCode(className: string, moduleSpec: ModuleSpec): string {
     const methods = moduleSpec.implementation.methods
-      .map(method => this._getMethodTemplate(method).join('\n'))
+      .map((method) => this._getMethodTemplate(method).join('\n'))
       .join('\n\n');
 
     return `/**
@@ -207,7 +207,7 @@ module.exports = ${className};`;
   }
 
   private _generateInterfaceCode(interfaceName: string, interfaceSpec: InterfaceSpec): string {
-    const methods = interfaceSpec.methods.map(method => `  ${method}() {}`).join('\n');
+    const methods = interfaceSpec.methods.map((method) => `  ${method}() {}`).join('\n');
     return `/**
  * ${interfaceName} - AGENTS.md interface definition
  * Auto-generated from spec.json
@@ -221,48 +221,61 @@ module.exports = ${interfaceName};`;
   }
 
   private _generateDocsContent(specs: SpecsData): string {
-    const templates = JSON.parse(fs.readFileSync(path.join(__dirname, 'docs-templates.json'), 'utf8'));
+    const templates = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'docs-templates.json'), 'utf8')
+    );
     const template = templates.README;
 
     // Basic substitutions
-    const content = template.map((line: string) => {
-      return line
-        .replace('{title}', specs.search.title)
-        .replace('{description}', specs.search.summary)
-        .replace('{systemName}', specs.search.title)
-        .replace('{capabilities}', specs.search.capabilities?.join(', ') || 'core functionality')
-        .replace('{moduleCount}', Object.keys(specs.modules).length)
-        .replace('{moduleList}', Object.keys(specs.modules).map((name: string) => `1. ${name.replace('-', ' ')}`).join('\n'))
-        .replace('{moduleDetails}', this._generateModuleDetails(specs))
-        .replace('{usageExamples}', this._generateUsageExamples(specs))
-        .replace('{integrationExample}', this._generateIntegrationExample())
-        .replace('{errorHandling}', this._generateErrorHandling())
-        .replace('{testing}', this._generateTesting())
-        .replace('{development}', this._generateDevelopment())
-        .replace('{performance}', this._generatePerformance())
-        .replace('{security}', this._generateSecurity())
-        .replace('{contributing}', this._generateContributing())
-        .replace('{license}', this._generateLicense());
-    }).join('\n');
+    const content = template
+      .map((line: string) => {
+        return line
+          .replace('{title}', specs.search.title)
+          .replace('{description}', specs.search.summary)
+          .replace('{systemName}', specs.search.title)
+          .replace('{capabilities}', specs.search.capabilities?.join(', ') || 'core functionality')
+          .replace('{moduleCount}', Object.keys(specs.modules).length)
+          .replace(
+            '{moduleList}',
+            Object.keys(specs.modules)
+              .map((name: string) => `1. ${name.replace('-', ' ')}`)
+              .join('\n')
+          )
+          .replace('{moduleDetails}', this._generateModuleDetails(specs))
+          .replace('{usageExamples}', this._generateUsageExamples(specs))
+          .replace('{integrationExample}', this._generateIntegrationExample())
+          .replace('{errorHandling}', this._generateErrorHandling())
+          .replace('{testing}', this._generateTesting())
+          .replace('{development}', this._generateDevelopment())
+          .replace('{performance}', this._generatePerformance())
+          .replace('{security}', this._generateSecurity())
+          .replace('{contributing}', this._generateContributing())
+          .replace('{license}', this._generateLicense());
+      })
+      .join('\n');
 
     return content;
   }
 
   private _generateTestsContent(specs: SpecsData): string {
-    const templates = JSON.parse(fs.readFileSync(path.join(__dirname, 'test-templates.json'), 'utf8'));
+    const templates = JSON.parse(
+      fs.readFileSync(path.join(__dirname, 'test-templates.json'), 'utf8')
+    );
     const content: string[] = [];
 
     // Generate individual module tests
     for (const [moduleName, moduleSpec] of Object.entries(specs.modules)) {
       const className = this._toClassName(moduleName);
-      const testSuite = (templates.testSuite as string[]).map((line: string) => {
-        return line
-          .replace(/{moduleName}/g, moduleSpec.search.title)
-          .replace(/{className}/g, className)
-          .replace(/{fileName}/g, moduleName)
-          .replace('{specFields}', this._generateSpecFields(moduleSpec))
-          .replace('{methodTests}', this._generateMethodTests(moduleSpec));
-      }).join('\n');
+      const testSuite = (templates.testSuite as string[])
+        .map((line: string) => {
+          return line
+            .replace(/{moduleName}/g, moduleSpec.search.title)
+            .replace(/{className}/g, className)
+            .replace(/{fileName}/g, moduleName)
+            .replace('{specFields}', this._generateSpecFields(moduleSpec))
+            .replace('{methodTests}', this._generateMethodTests(moduleSpec));
+        })
+        .join('\n');
       content.push(testSuite);
     }
 
@@ -273,42 +286,79 @@ module.exports = ${interfaceName};`;
   }
 
   private _getMethodTemplate(methodName: string): string[] {
-    return (this.templates.methods as Record<string, string[]>)[methodName] ||
-           (this.templates.defaultMethod as string[]).map((line: string) =>
-             line.replace(/{methodName}/g, methodName)
-           );
+    return (
+      (this.templates.methods as Record<string, string[]>)[methodName] ||
+      (this.templates.defaultMethod as string[]).map((line: string) =>
+        line.replace(/{methodName}/g, methodName)
+      )
+    );
   }
 
   private _toClassName(moduleName: string): string {
-    return moduleName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+    return moduleName
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
   }
 
   private _ensureDirectories(): void {
-    const dirs = [this.outputPath, path.join(this.outputPath, 'interfaces'),
-                  path.join(__dirname, 'docs'), path.join(__dirname, 'tests')];
-    dirs.forEach(dir => {
+    const dirs = [
+      this.outputPath,
+      path.join(this.outputPath, 'interfaces'),
+      path.join(__dirname, 'docs'),
+      path.join(__dirname, 'tests'),
+    ];
+    dirs.forEach((dir) => {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
   }
 
   // Placeholder implementations for documentation generation
-  private _generateModuleDetails(specs: SpecsData): string { return 'Module details would be generated here'; }
-  private _generateUsageExamples(specs: SpecsData): string { return 'Usage examples would be generated here'; }
-  private _generateIntegrationExample(): string { return 'Integration example would be generated here'; }
-  private _generateErrorHandling(): string { return 'Error handling documentation would be generated here'; }
-  private _generateTesting(): string { return 'Testing documentation would be generated here'; }
-  private _generateDevelopment(): string { return 'Development documentation would be generated here'; }
-  private _generatePerformance(): string { return 'Performance documentation would be generated here'; }
-  private _generateSecurity(): string { return 'Security documentation would be generated here'; }
-  private _generateContributing(): string { return 'Contributing documentation would be generated here'; }
-  private _generateLicense(): string { return 'License information would be generated here'; }
-  private _generateSpecFields(moduleSpec: ModuleSpec): string { return ''; }
-  private _generateMethodTests(moduleSpec: ModuleSpec): string { return ''; }
+  private _generateModuleDetails(specs: SpecsData): string {
+    return 'Module details would be generated here';
+  }
+  private _generateUsageExamples(specs: SpecsData): string {
+    return 'Usage examples would be generated here';
+  }
+  private _generateIntegrationExample(): string {
+    return 'Integration example would be generated here';
+  }
+  private _generateErrorHandling(): string {
+    return 'Error handling documentation would be generated here';
+  }
+  private _generateTesting(): string {
+    return 'Testing documentation would be generated here';
+  }
+  private _generateDevelopment(): string {
+    return 'Development documentation would be generated here';
+  }
+  private _generatePerformance(): string {
+    return 'Performance documentation would be generated here';
+  }
+  private _generateSecurity(): string {
+    return 'Security documentation would be generated here';
+  }
+  private _generateContributing(): string {
+    return 'Contributing documentation would be generated here';
+  }
+  private _generateLicense(): string {
+    return 'License information would be generated here';
+  }
+  private _generateSpecFields(moduleSpec: ModuleSpec): string {
+    return '';
+  }
+  private _generateMethodTests(moduleSpec: ModuleSpec): string {
+    return '';
+  }
 
   public validate(input: unknown): boolean {
-    return input !== null && input !== undefined &&
-           typeof input === 'object' &&
-           ('specsPath' in input) && ('outputPath' in input);
+    return (
+      input !== null &&
+      input !== undefined &&
+      typeof input === 'object' &&
+      'specsPath' in input &&
+      'outputPath' in input
+    );
   }
 }
 

@@ -65,10 +65,15 @@ export abstract class Registry extends BaseComponent implements IRegistry {
    * @returns Is valid
    */
   protected _validateComponent(component: unknown): boolean {
-    return component !== null && component !== undefined &&
-           typeof component === 'object' &&
-           'uuid' in component && 'id' in component && 'search' in component &&
-           this.isValidUUID((component as any).uuid);
+    return (
+      component !== null &&
+      component !== undefined &&
+      typeof component === 'object' &&
+      'uuid' in component &&
+      'id' in component &&
+      'search' in component &&
+      this.isValidUUID((component as any).uuid)
+    );
   }
 
   /**

@@ -34,8 +34,8 @@ export class ExecutionAggregator extends BaseAggregator {
       stats: {
         pluginsExecuted: 0,
         specsProcessed: 0,
-        filesGenerated: 0
-      }
+        filesGenerated: 0,
+      },
     };
   }
 
@@ -56,8 +56,8 @@ export class ExecutionAggregator extends BaseAggregator {
       stats: {
         pluginsExecuted: 0,
         specsProcessed: 0,
-        filesGenerated: 0
-      }
+        filesGenerated: 0,
+      },
     };
 
     // Execute through plugin aggregator

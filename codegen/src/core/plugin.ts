@@ -75,7 +75,7 @@ export abstract class Plugin extends BaseComponent {
       success: true,
       plugin: this.id,
       timestamp: new Date().toISOString(),
-      output: {}
+      output: {},
     };
   }
 

@@ -71,10 +71,12 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
    * @returns Is valid child
    */
   protected _validateChild(child: unknown): boolean {
-    return child !== null && child !== undefined &&
-           (child instanceof Aggregate ||
-            (typeof child === 'object' && child !== null &&
-             'uuid' in child && 'id' in child));
+    return (
+      child !== null &&
+      child !== undefined &&
+      (child instanceof Aggregate ||
+        (typeof child === 'object' && child !== null && 'uuid' in child && 'id' in child))
+    );
   }
 
   /**

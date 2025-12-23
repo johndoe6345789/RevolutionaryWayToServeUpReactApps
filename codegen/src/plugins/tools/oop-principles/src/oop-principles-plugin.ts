@@ -62,7 +62,7 @@ export class OOPPrinciplesPlugin extends Plugin {
     const results: AnalysisResults = {
       success: true,
       violations: [],
-      summary: { analyzed: 0, compliant: 0, violations: 0 }
+      summary: { analyzed: 0, compliant: 0, violations: 0 },
     };
 
     // Analyze current codebase for AGENTS.md compliance
@@ -78,7 +78,10 @@ export class OOPPrinciplesPlugin extends Plugin {
    * @param context - Analysis context
    * @returns Analysis results
    */
-  private _analyzeCodebase(context: Record<string, unknown>): { violations: string[]; summary: { analyzed: number; compliant: number; violations: number } } {
+  private _analyzeCodebase(context: Record<string, unknown>): {
+    violations: string[];
+    summary: { analyzed: number; compliant: number; violations: number };
+  } {
     const violations: string[] = [];
     const summary = { analyzed: 0, compliant: 0, violations: 0 };
 
@@ -94,9 +97,13 @@ export class OOPPrinciplesPlugin extends Plugin {
    * @returns Is valid input
    */
   public validate(input: unknown): boolean {
-    return input !== null && input !== undefined &&
-           typeof input === 'object' &&
-           ('operation' in input) &&
-           ((input as ValidationInput).operation === 'analyze' || (input as ValidationInput).operation === 'validate');
+    return (
+      input !== null &&
+      input !== undefined &&
+      typeof input === 'object' &&
+      'operation' in input &&
+      ((input as ValidationInput).operation === 'analyze' ||
+        (input as ValidationInput).operation === 'validate')
+    );
   }
 }

@@ -22,8 +22,8 @@ export function createCodegenSystem(options: any = {}) {
       summary: 'Root aggregator for unlimited drill-down navigation',
       keywords: ['codegen', 'root', 'aggregator'],
       domain: 'core',
-      capabilities: ['navigation', 'orchestration']
-    }
+      capabilities: ['navigation', 'orchestration'],
+    },
   });
 
   // Create entrypoint
@@ -37,7 +37,7 @@ if (require.main === module) {
   const { entrypoint } = createCodegenSystem();
   const args = process.argv.slice(2);
 
-  entrypoint.runCLI(args).catch(error => {
+  entrypoint.runCLI(args).catch((error) => {
     console.error('Fatal error:', error.message);
     process.exit(1);
   });

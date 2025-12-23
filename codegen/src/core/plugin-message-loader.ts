@@ -41,9 +41,11 @@ export class PluginMessageLoader {
       return false;
     }
     // Check that all values are objects with string values
-    return Object.values(messages).every(localeMessages =>
-      typeof localeMessages === 'object' && localeMessages !== null &&
-      Object.values(localeMessages).every(msg => typeof msg === 'string')
+    return Object.values(messages).every(
+      (localeMessages) =>
+        typeof localeMessages === 'object' &&
+        localeMessages !== null &&
+        Object.values(localeMessages).every((msg) => typeof msg === 'string')
     );
   }
 }

@@ -77,11 +77,14 @@ export class PluginAggregator extends BaseAggregator {
 
         if (fs.existsSync(manifestPath)) {
           try {
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<
+              string,
+              unknown
+            >;
             this.discoveredPlugins.set(manifest.id as string, {
               ...manifest,
               path: pluginDir,
-              category
+              category,
             });
           } catch (error) {
             // Skip invalid manifests

@@ -5,15 +5,15 @@
  * Uses Bun for fast compilation and bundling
  */
 
-import { $ } from "bun";
-import { existsSync, mkdirSync } from "fs";
-import { join } from "path";
+import { $ } from 'bun';
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
 async function main() {
-  console.log("🚀 Building Revolutionary Codegen...");
+  console.log('🚀 Building Revolutionary Codegen...');
 
   // Ensure output directories exist
-  const dirs = ["dist", "generated"];
+  const dirs = ['dist', 'generated'];
   for (const dir of dirs) {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
@@ -22,29 +22,28 @@ async function main() {
 
   try {
     // Run linting first
-    console.log("📋 Running linter...");
+    console.log('📋 Running linter...');
     await $`bun run lint.ts`;
 
     // Run tests
-    console.log("🧪 Running tests...");
+    console.log('🧪 Running tests...');
     await $`bun test`;
 
     // Generate bootstrap system
-    console.log("🔧 Generating bootstrap system...");
+    console.log('🔧 Generating bootstrap system...');
     await $`bun run scripts/generate-bootstrap.ts`;
 
     // Bundle CLI
-    console.log("📦 Bundling CLI...");
+    console.log('📦 Bundling CLI...');
     await $`bun build codegen.js --outdir dist --target node`;
 
     // Generate documentation
-    console.log("📚 Generating documentation...");
+    console.log('📚 Generating documentation...');
     await $`bun run scripts/generate-docs.ts`;
 
-    console.log("✅ Build completed successfully!");
-
+    console.log('✅ Build completed successfully!');
   } catch (error) {
-    console.error("❌ Build failed:", error);
+    console.error('❌ Build failed:', error);
     process.exit(1);
   }
 }

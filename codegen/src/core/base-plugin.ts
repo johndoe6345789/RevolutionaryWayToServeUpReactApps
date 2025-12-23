@@ -31,8 +31,8 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
         tags: config.tags ?? [],
         aliases: config.aliases ?? [],
         domain: config.domain ?? 'codegen',
-        capabilities: config.capabilities ?? []
-      }
+        capabilities: config.capabilities ?? [],
+      },
     };
 
     super(spec);

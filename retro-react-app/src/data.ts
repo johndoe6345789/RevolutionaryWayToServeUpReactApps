@@ -1,4 +1,4 @@
-import { getStringService } from "../bootstrap/services/string-service";
+import { getStringService } from '../bootstrap/services/string-service';
 
 export const FEATURED_GAMES = () => {
   const strings = getStringService();
@@ -7,7 +7,7 @@ export const FEATURED_GAMES = () => {
 
 export const SYSTEM_TAGS = () => {
   const strings = getStringService();
-  return strings.getGameData('systemTags');  
+  return strings.getGameData('systemTags');
 };
 
 export const CTA_BUTTON_STYLE = {

@@ -1,11 +1,11 @@
-import React from "react";
-import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import { SYSTEM_TAGS, CTA_BUTTON_STYLE } from "../data";
-import { getStringService } from "../../string/string-service";
+import React from 'react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import { SYSTEM_TAGS, CTA_BUTTON_STYLE } from '../data';
+import { getStringService } from '../../string/string-service';
 
 // SVG Console Icon Component
 const ConsoleIcon: React.FC<{ text: string }> = ({ text }) => {
@@ -41,86 +41,84 @@ const ConsoleIcon: React.FC<{ text: string }> = ({ text }) => {
 
 export default function HeroSection() {
   const strings = getStringService();
-  
+
   return (
     <Box
       sx={{
-        position: "relative",
-        overflow: "hidden",
-        borderRadius:3,
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: 3,
         px: { xs: 3, md: 5 },
         py: { xs: 4, md: 6 },
         mb: 5,
         background:
-          "radial-gradient(circle at 0% 0%, #ff6ec720 0, transparent 55%), radial-gradient(circle at 100% 100%, #00e5ff20 0, transparent 55%), linear-gradient(135deg, #050510 0, #080820 35%, #050510 100%)",
-        border: "1px solid rgba(255,255,255,0.08)",
+          'radial-gradient(circle at 0% 0%, #ff6ec720 0, transparent 55%), radial-gradient(circle at 100% 100%, #00e5ff20 0, transparent 55%), linear-gradient(135deg, #050510 0, #080820 35%, #050510 100%)',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       <Box
         sx={{
-          pointerEvents: "none",
-          position: "absolute",
+          pointerEvents: 'none',
+          position: 'absolute',
           inset: 0,
           backgroundImage:
-            "repeating-linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px)",
-          mixBlendMode: "soft-light",
+            'repeating-linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px)',
+          mixBlendMode: 'soft-light',
           opacity: 0.5,
         }}
       />
 
       <Box
         sx={{
-          position: "absolute",
+          position: 'absolute',
           inset: -40,
-          border: "2px solid rgba(255,255,255,0.05)",
-          borderRadius: "32px",
-          boxShadow: "0 0 80px rgba(0,0,0,0.9)",
+          border: '2px solid rgba(255,255,255,0.05)',
+          borderRadius: '32px',
+          boxShadow: '0 0 80px rgba(0,0,0,0.9)',
         }}
       />
 
       <Stack
-        direction={{ xs: "column", md: "row" }}
+        direction={{ xs: 'column', md: 'row' }}
         spacing={4}
-        alignItems={{ xs: "flex-start", md: "center" }}
-        sx={{ position: "relative", zIndex: 1 }}
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+        sx={{ position: 'relative', zIndex: 1 }}
       >
         <Box flex={1}>
           <Chip
             label={strings.getLabel('retro_gaming_hub')}
-            color="secondary"
-            size="small"
-            sx={{ mb: 2, fontSize: 10, letterSpacing: "0.16em", borderRadius: 999 }}
+            color='secondary'
+            size='small'
+            sx={{ mb: 2, fontSize: 10, letterSpacing: '0.16em', borderRadius: 999 }}
           />
 
           <Typography
-            variant="h2"
-            sx={{ fontSize: { xs: 26, md: 34 }, textTransform: "uppercase", mb: 2 }}
+            variant='h2'
+            sx={{ fontSize: { xs: 26, md: 34 }, textTransform: 'uppercase', mb: 2 }}
           >
             {strings.getLabel('press_start')}
-            <Box component="span" sx={{ color: "primary.main" }}>
-              {" "}{strings.getLabel('to_continue')}
+            <Box component='span' sx={{ color: 'primary.main' }}>
+              {' '}
+              {strings.getLabel('to_continue')}
             </Box>
           </Typography>
 
-          <Typography
-            variant="body2"
-            sx={{ maxWidth: 480, opacity: 0.86, mb: 3, lineHeight: 1.7 }}
-          >
+          <Typography variant='body2' sx={{ maxWidth: 480, opacity: 0.86, mb: 3, lineHeight: 1.7 }}>
             {strings.getMessage('hero_description')}
           </Typography>
 
-          <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+          <Stack direction='row' spacing={2} alignItems='center' flexWrap='wrap'>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               sx={CTA_BUTTON_STYLE}
               onClick={() => console.log(strings.getConsole('launch_arcade'))}
             >
               {strings.getLabel('launch_arcade_mode')}
             </Button>
             <Button
-              variant="outlined"
-              color="secondary"
+              variant='outlined'
+              color='secondary'
               sx={CTA_BUTTON_STYLE}
               onClick={() => console.log(strings.getConsole('browse_library'))}
             >
@@ -128,16 +126,16 @@ export default function HeroSection() {
             </Button>
           </Stack>
 
-          <Stack direction="row" spacing={1} sx={{ mt: 3 }} flexWrap="wrap">
+          <Stack direction='row' spacing={1} sx={{ mt: 3 }} flexWrap='wrap'>
             {strings.getGameData('systemTags').map((tag: string) => (
               <Chip
                 key={tag}
                 label={tag}
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
                 sx={{
                   borderRadius: 999,
-                  borderColor: "rgba(255,255,255,0.1)",
+                  borderColor: 'rgba(255,255,255,0.1)',
                   fontSize: 10,
                 }}
               />
@@ -147,9 +145,9 @@ export default function HeroSection() {
 
         <Box
           sx={{
-            flexBasis: { xs: "100%", md: 320 },
-            display: "flex",
-            justifyContent: "center",
+            flexBasis: { xs: '100%', md: 320 },
+            display: 'flex',
+            justifyContent: 'center',
           }}
         >
           <ConsoleIcon text={strings.getLabel('insert_coin')} />

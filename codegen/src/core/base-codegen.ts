@@ -86,7 +86,7 @@ export abstract class BaseCodegen {
       strictMode: options.strictMode !== false,
       verbose: options.verbose || false,
       enableCache: options.enableCache !== false,
-      ...options
+      ...options,
     };
 
     // Core registries (immutable after initialization)
@@ -155,8 +155,8 @@ export abstract class BaseCodegen {
       stats: {
         pluginsExecuted: 0,
         specsProcessed: 0,
-        filesGenerated: 0
-      }
+        filesGenerated: 0,
+      },
     };
 
     try {
@@ -172,7 +172,10 @@ export abstract class BaseCodegen {
       results.stats = { ...results.stats, ...aggregateResults.stats };
       results.success = results.errors.length === 0;
 
-      this.log(`Codegen execution ${results.success ? 'successful' : 'completed with errors'}`, results.success ? 'success' : 'warning');
+      this.log(
+        `Codegen execution ${results.success ? 'successful' : 'completed with errors'}`,
+        results.success ? 'success' : 'warning'
+      );
 
       return results;
     } catch (error) {
@@ -209,14 +212,20 @@ export abstract class BaseCodegen {
 
         if (fs.existsSync(manifestPath)) {
           try {
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<
+              string,
+              unknown
+            >;
             this.discoveredPlugins.set(manifest.id as string, {
               ...manifest,
               path: pluginDir,
-              category
+              category,
             });
           } catch (error) {
-            this.log(`Failed to load plugin manifest ${manifestPath}: ${(error as Error).message}`, 'warning');
+            this.log(
+              `Failed to load plugin manifest ${manifestPath}: ${(error as Error).message}`,
+              'warning'
+            );
           }
         }
       }
@@ -254,7 +263,6 @@ export abstract class BaseCodegen {
 
         this.loadedPlugins.set(pluginId, plugin);
         this.log(`Loaded plugin: ${pluginId}`, 'success');
-
       } catch (error) {
         this.log(`Failed to load plugin ${pluginId}: ${(error as Error).message}`, 'error');
         if (this.options.strictMode) {
@@ -275,15 +283,29 @@ export abstract class BaseCodegen {
 
     // Create core aggregates as defined in AGENTS.md
     const aggregates: Record<string, { children: string[] }> = {
-      'AppAggregate': {
-        children: ['DomainAggregate', 'AdaptersAggregate', 'CodegenAggregate', 'I18nAggregate', 'ToolingAggregate']
+      AppAggregate: {
+        children: [
+          'DomainAggregate',
+          'AdaptersAggregate',
+          'CodegenAggregate',
+          'I18nAggregate',
+          'ToolingAggregate',
+        ],
       },
-      'ToolingAggregate': {
-        children: ['PackageManagersRegistry', 'BuildSystemsRegistry', 'DevWorkflowRegistry', 'QARegistry', 'SDKRegistry', 'AppsRegistry', 'ProfilesRegistry']
+      ToolingAggregate: {
+        children: [
+          'PackageManagersRegistry',
+          'BuildSystemsRegistry',
+          'DevWorkflowRegistry',
+          'QARegistry',
+          'SDKRegistry',
+          'AppsRegistry',
+          'ProfilesRegistry',
+        ],
       },
-      'CodegenAggregate': {
-        children: ['LanguagesRegistry', 'SnippetsRegistry', 'TemplatesRegistry']
-      }
+      CodegenAggregate: {
+        children: ['LanguagesRegistry', 'SnippetsRegistry', 'TemplatesRegistry'],
+      },
       // Add other aggregates as needed
     };
 
@@ -294,7 +316,7 @@ export abstract class BaseCodegen {
         type: 'aggregate',
         children: config.children,
         listChildren: () => config.children,
-        getChild: (id: string) => this.aggregateRegistry.get(id) || this.pluginRegistry.get(id)
+        getChild: (id: string) => this.aggregateRegistry.get(id) || this.pluginRegistry.get(id),
       });
     }
 
@@ -317,7 +339,10 @@ export abstract class BaseCodegen {
             this.log(`Loaded spec for plugin: ${pluginId}`, 'info');
           }
         } catch (error) {
-          this.log(`Failed to load spec for plugin ${pluginId}: ${(error as Error).message}`, 'warning');
+          this.log(
+            `Failed to load spec for plugin ${pluginId}: ${(error as Error).message}`,
+            'warning'
+          );
         }
       }
     }
@@ -338,8 +363,8 @@ export abstract class BaseCodegen {
       stats: {
         pluginsExecuted: 0,
         specsProcessed: 0,
-        filesGenerated: 0
-      }
+        filesGenerated: 0,
+      },
     };
 
     // Execute plugins based on context
@@ -503,14 +528,14 @@ export abstract class BaseCodegen {
       initialized: this.initialized,
       plugins: {
         discovered: this.discoveredPlugins.size,
-        loaded: this.loadedPlugins.size
+        loaded: this.loadedPlugins.size,
       },
       registries: {
         plugins: this.pluginRegistry.size,
         aggregates: this.aggregateRegistry.size,
-        specs: this.specRegistry.size
+        specs: this.specRegistry.size,
       },
-      options: this.options
+      options: this.options,
     };
   }
 }

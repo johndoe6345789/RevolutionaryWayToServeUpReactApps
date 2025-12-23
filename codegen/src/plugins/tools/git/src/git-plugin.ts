@@ -34,7 +34,7 @@ export class GitPlugin extends BasePlugin {
    * @returns Operation results
    */
   public override async execute(context: Record<string, unknown>): Promise<unknown> {
-    const operation = context.operation as string || 'verify';
+    const operation = (context.operation as string) || 'verify';
 
     switch (operation) {
       case 'install':
@@ -57,7 +57,8 @@ export class GitPlugin extends BasePlugin {
    */
   private installGit(context: Record<string, unknown>): unknown {
     const platform = (context.platform as string) || process.platform;
-    const packageManager = (context.packageManager as string) || this.detectPackageManager(platform);
+    const packageManager =
+      (context.packageManager as string) || this.detectPackageManager(platform);
 
     const spec = this.spec;
     if (!spec.install || !spec.install[platform]) {
@@ -77,7 +78,7 @@ export class GitPlugin extends BasePlugin {
       platform,
       packageManager,
       command,
-      status: 'installed'
+      status: 'installed',
     };
   }
 
@@ -103,7 +104,7 @@ export class GitPlugin extends BasePlugin {
       command: verifyCommand,
       output: output.trim(),
       version: this.parseVersion(output),
-      status: 'verified'
+      status: 'verified',
     };
   }
 
@@ -122,7 +123,7 @@ export class GitPlugin extends BasePlugin {
     const fullCommand = ['git', command as string, ...(args as string[])];
     const execOptions: Record<string, unknown> = {
       encoding: 'utf8',
-      maxBuffer: 1024 * 1024 * 10 // 10MB buffer
+      maxBuffer: 1024 * 1024 * 10, // 10MB buffer
     };
 
     if (cwd) {
@@ -130,12 +131,16 @@ export class GitPlugin extends BasePlugin {
     }
 
     try {
-      const output = execSync(fullCommand.join(' '), { encoding: 'utf8', maxBuffer: 1024 * 1024 * 10, cwd: cwd as string });
+      const output = execSync(fullCommand.join(' '), {
+        encoding: 'utf8',
+        maxBuffer: 1024 * 1024 * 10,
+        cwd: cwd as string,
+      });
       return {
         command: fullCommand,
         output: output.trim(),
         cwd: cwd || process.cwd(),
-        status: 'executed'
+        status: 'executed',
       };
     } catch (error) {
       const execError = error as { message: string; status?: number };
@@ -144,7 +149,7 @@ export class GitPlugin extends BasePlugin {
         error: execError.message,
         exitCode: execError.status,
         cwd: cwd || process.cwd(),
-        status: 'failed'
+        status: 'failed',
       };
     }
   }
@@ -169,7 +174,7 @@ export class GitPlugin extends BasePlugin {
       platform,
       command: helpCommand,
       output: output.trim(),
-      status: 'help_provided'
+      status: 'help_provided',
     };
   }
 

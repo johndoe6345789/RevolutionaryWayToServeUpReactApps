@@ -48,7 +48,7 @@ export abstract class BaseComponent implements IComponent {
     return {
       success: true,
       component: this.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
