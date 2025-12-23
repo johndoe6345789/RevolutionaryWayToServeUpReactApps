@@ -7,12 +7,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { ISpec } from '../../core/interfaces';
-import type {
-  APIRouteParam,
-  APIRouteSpec,
-  ResponseSpec,
-  SchemaDefinition,
-} from './types/api-route-spec';
+import type { APIRouteParam } from './types/api-route-param';
+import type { APIRouteSpec } from './types/api-route-spec';
+import type { ResponseSpec } from './types/response-spec';
+import type { SchemaDefinition } from './types/schema-definition';
 import type { ComponentSpec } from './types/component-spec';
 import type { ExecutionResult } from './types/execution-result';
 import type { GeneratedFile } from './types/generated-file';
