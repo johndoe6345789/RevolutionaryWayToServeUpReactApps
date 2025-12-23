@@ -37,7 +37,17 @@ export default {
               excludePatterns: {
                 type: 'array',
                 items: { type: 'string' },
-                default: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage', '.vscode', '.github'],
+                default: [
+                  'node_modules',
+                  '.git',
+                  'dist',
+                  'build',
+                  '__pycache__',
+                  '.next',
+                  'coverage',
+                  '.vscode',
+                  '.github',
+                ],
               },
               minContentLength: {
                 type: 'integer',
@@ -52,9 +62,12 @@ export default {
           },
         ],
         messages: {
-          missingReadme: 'Directory "{{directory}}" is missing a README file. Please add {{readmeNames}} to document this directory.',
-          emptyReadme: 'README file "{{readmePath}}" appears to be empty or too short ({{length}} characters). Please add meaningful documentation.',
-          readmeTooShort: 'README file "{{readmePath}}" is too short ({{length}} characters, minimum {{minLength}}). Please add more comprehensive documentation.',
+          missingReadme:
+            'Directory "{{directory}}" is missing a README file. Please add {{readmeNames}} to document this directory.',
+          emptyReadme:
+            'README file "{{readmePath}}" appears to be empty or too short ({{length}} characters). Please add meaningful documentation.',
+          readmeTooShort:
+            'README file "{{readmePath}}" is too short ({{length}} characters, minimum {{minLength}}). Please add more comprehensive documentation.',
         },
       },
 
@@ -63,7 +76,17 @@ export default {
         const requireInRoot = options.requireInRoot !== false;
         const requireInSubdirs = options.requireInSubdirs || false;
         const readmeNames = options.readmeNames || ['README.md', 'readme.md', 'Readme.md'];
-        const excludePatterns = options.excludePatterns || ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage', '.vscode', '.github'];
+        const excludePatterns = options.excludePatterns || [
+          'node_modules',
+          '.git',
+          'dist',
+          'build',
+          '__pycache__',
+          '.next',
+          'coverage',
+          '.vscode',
+          '.github',
+        ];
         const minContentLength = options.minContentLength || 50;
         const checkContent = options.checkContent !== false;
 
@@ -85,7 +108,11 @@ export default {
 
             // Check if we should skip this directory based on patterns
             const dirName = path.basename(directory);
-            if (excludePatterns.some(pattern => dirName.includes(pattern) || directory.includes(pattern))) {
+            if (
+              excludePatterns.some(
+                (pattern) => dirName.includes(pattern) || directory.includes(pattern)
+              )
+            ) {
               return;
             }
 

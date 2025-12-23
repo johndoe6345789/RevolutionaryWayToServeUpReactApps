@@ -39,10 +39,14 @@ export default {
           },
         ],
         messages: {
-          templateLiteralTooLarge: 'Template literal with {{lineCount}} lines should be moved to an external JSON file. Consider creating a template file and loading it at runtime.',
-          objectWithManyStrings: 'Object with {{stringCount}} string properties should be moved to an external JSON file. Configuration objects should be externalized.',
-          stringArrayTooLarge: 'Array with {{length}} strings should be moved to an external JSON file. Consider using a configuration array in JSON.',
-          hardcodedConfigDetected: 'Hardcoded configuration detected. Move this to an external JSON file for better maintainability.',
+          templateLiteralTooLarge:
+            'Template literal with {{lineCount}} lines should be moved to an external JSON file. Consider creating a template file and loading it at runtime.',
+          objectWithManyStrings:
+            'Object with {{stringCount}} string properties should be moved to an external JSON file. Configuration objects should be externalized.',
+          stringArrayTooLarge:
+            'Array with {{length}} strings should be moved to an external JSON file. Consider using a configuration array in JSON.',
+          hardcodedConfigDetected:
+            'Hardcoded configuration detected. Move this to an external JSON file for better maintainability.',
         },
       },
 
@@ -54,7 +58,10 @@ export default {
         const ignoreInTests = options.ignoreInTests !== false;
 
         // Skip test files if configured to do so
-        if (ignoreInTests && context.filename.includes('.test.') || context.filename.includes('.spec.')) {
+        if (
+          (ignoreInTests && context.filename.includes('.test.')) ||
+          context.filename.includes('.spec.')
+        ) {
           return {};
         }
 
@@ -71,16 +78,20 @@ export default {
           },
 
           ObjectExpression(node) {
-            const stringProperties = node.properties.filter(prop =>
-              prop.type === 'Property' &&
-              prop.key.type === 'Identifier' &&
-              (prop.value.type === 'Literal' && typeof prop.value.value === 'string')
+            const stringProperties = node.properties.filter(
+              (prop) =>
+                prop.type === 'Property' &&
+                prop.key.type === 'Identifier' &&
+                prop.value.type === 'Literal' &&
+                typeof prop.value.value === 'string'
             );
 
             if (stringProperties.length > maxStringPropertiesInObject) {
               // Check if this looks like configuration (has multiple string properties)
-              const hasConfigPattern = stringProperties.some(prop =>
-                ['extends', 'plugins', 'rules', 'template', 'description', 'summary'].includes(prop.key.name)
+              const hasConfigPattern = stringProperties.some((prop) =>
+                ['extends', 'plugins', 'rules', 'template', 'description', 'summary'].includes(
+                  prop.key.name
+                )
               );
 
               if (hasConfigPattern) {
@@ -94,18 +105,19 @@ export default {
           },
 
           ArrayExpression(node) {
-            const stringElements = node.elements.filter(el =>
-              el && el.type === 'Literal' && typeof el.value === 'string'
+            const stringElements = node.elements.filter(
+              (el) => el && el.type === 'Literal' && typeof el.value === 'string'
             );
 
             if (stringElements.length > maxStringArrayLength) {
               // Check if this looks like configuration (multiple string literals)
-              const hasConfigPattern = stringElements.some(el =>
-                el.value.includes('extends') ||
-                el.value.includes('rules') ||
-                el.value.includes('plugins') ||
-                el.value.includes('template') ||
-                el.value.includes('description')
+              const hasConfigPattern = stringElements.some(
+                (el) =>
+                  el.value.includes('extends') ||
+                  el.value.includes('rules') ||
+                  el.value.includes('plugins') ||
+                  el.value.includes('template') ||
+                  el.value.includes('description')
               );
 
               if (hasConfigPattern) {
@@ -122,16 +134,27 @@ export default {
             // Check for large configuration objects assigned to variables
             if (node.init && node.init.type === 'ObjectExpression') {
               const properties = node.init.properties;
-              const stringProperties = properties.filter(prop =>
-                prop.type === 'Property' &&
-                prop.value.type === 'Literal' &&
-                typeof prop.value.value === 'string'
+              const stringProperties = properties.filter(
+                (prop) =>
+                  prop.type === 'Property' &&
+                  prop.value.type === 'Literal' &&
+                  typeof prop.value.value === 'string'
               );
 
               if (stringProperties.length > maxStringPropertiesInObject) {
                 // Look for configuration-like variable names
-                const configLikeNames = ['config', 'configs', 'template', 'templates', 'rules', 'settings'];
-                if (node.id.type === 'Identifier' && configLikeNames.some(name => node.id.name.includes(name))) {
+                const configLikeNames = [
+                  'config',
+                  'configs',
+                  'template',
+                  'templates',
+                  'rules',
+                  'settings',
+                ];
+                if (
+                  node.id.type === 'Identifier' &&
+                  configLikeNames.some((name) => node.id.name.includes(name))
+                ) {
                   context.report({
                     node: node.init,
                     messageId: 'hardcodedConfigDetected',

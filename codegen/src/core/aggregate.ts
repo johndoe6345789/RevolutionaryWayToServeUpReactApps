@@ -22,7 +22,7 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
   constructor(spec: ISpec) {
     super(spec);
     this.children = new Map();
-    this.aggregateType = (spec as any).aggregateType ?? 'generic';
+    this.aggregateType = (spec as { aggregateType?: string }).aggregateType ?? 'generic';
   }
 
   /**
@@ -57,10 +57,14 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
    * @returns Target component or null
    */
   public drillDown(path: readonly string[]): IAggregate | IRegistry | null {
-    let current: IAggregate | IRegistry | null = this;
-    for (const segment of path) {
-      if (current && typeof (current as any).getChild === 'function') {
-        current = (current as any).getChild(segment);
+    if (path.length === 0) {
+      return this;
+    }
+
+    let current: IAggregate | IRegistry | null = this.getChild(path[0]);
+    for (let i = 1; i < path.length; i++) {
+      if (current && 'getChild' in current) {
+        current = current.getChild(path[i]);
       } else {
         return null;
       }
@@ -74,11 +78,11 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
    * @returns Is valid child
    */
   protected _validateChild(child: unknown): boolean {
+    if (child === null || child === undefined) {
+      return false;
+    }
     return (
-      child !== null &&
-      child !== undefined &&
-      (child instanceof Aggregate ||
-        (typeof child === 'object' && child !== null && 'uuid' in child && 'id' in child))
+      child instanceof Aggregate || (typeof child === 'object' && 'uuid' in child && 'id' in child)
     );
   }
 

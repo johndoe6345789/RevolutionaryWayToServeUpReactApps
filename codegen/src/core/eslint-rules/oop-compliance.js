@@ -12,7 +12,8 @@ export default {
       meta: {
         type: 'problem',
         docs: {
-          description: 'Enforces OOP compliance for AGENTS.md architecture - proper class definitions, inheritance, and method limits',
+          description:
+            'Enforces OOP compliance for AGENTS.md architecture - proper class definitions, inheritance, and method limits',
           category: 'Best Practices',
           recommended: true,
         },
@@ -44,9 +45,12 @@ export default {
           },
         ],
         messages: {
-          missingClass: 'File "{{file}}" does not contain a class definition. All core files must define exactly one class.',
-          missingInheritance: 'File "{{file}}" does not extend BaseComponent. All core files except base-component.js must extend BaseComponent.',
-          tooManyMethods: 'File "{{file}}" has too many methods ({{count}} methods, maximum {{max}}). Consider breaking down the class into smaller, focused components.',
+          missingClass:
+            'File "{{file}}" does not contain a class definition. All core files must define exactly one class.',
+          missingInheritance:
+            'File "{{file}}" does not extend BaseComponent. All core files except base-component.js must extend BaseComponent.',
+          tooManyMethods:
+            'File "{{file}}" has too many methods ({{count}} methods, maximum {{max}}). Consider breaking down the class into smaller, focused components.',
         },
       },
 
@@ -70,7 +74,7 @@ export default {
             const relativePath = path.relative(process.cwd(), filePath);
 
             // Check if this file is one of the core files we need to validate
-            const isCoreFile = coreFiles.some(coreFile => relativePath.endsWith(coreFile));
+            const isCoreFile = coreFiles.some((coreFile) => relativePath.endsWith(coreFile));
             if (!isCoreFile) return;
 
             try {
@@ -109,7 +113,8 @@ export default {
               }
 
               // Check method count
-              const methodMatches = content.match(/async\s+\w+\s*\(|^\s*\w+\s*\(\s*[^)]*\)\s*{/gm) || [];
+              const methodMatches =
+                content.match(/async\s+\w+\s*\(|^\s*\w+\s*\(\s*[^)]*\)\s*{/gm) || [];
               if (methodMatches.length > maxMethods) {
                 context.report({
                   node,
@@ -121,7 +126,6 @@ export default {
                   },
                 });
               }
-
             } catch {
               // Ignore filesystem errors
             }

@@ -12,7 +12,8 @@ export default {
       meta: {
         type: 'problem',
         docs: {
-          description: 'Checks plugin dependencies for circular imports using PluginDependencyLinter',
+          description:
+            'Checks plugin dependencies for circular imports using PluginDependencyLinter',
           category: 'Best Practices',
           recommended: true,
         },
@@ -57,31 +58,33 @@ export default {
               const linter = new PluginDependencyLinter(resolvedPluginsDir);
 
               // Analyze dependencies asynchronously
-              linter.analyze().then((result) => {
-                // Report circular dependencies
-                if (!result.success) {
-                  result.circularDeps.forEach((cycle) => {
+              linter
+                .analyze()
+                .then((result) => {
+                  // Report circular dependencies
+                  if (!result.success) {
+                    result.circularDeps.forEach((cycle) => {
+                      context.report({
+                        node,
+                        messageId: 'circularDependency',
+                        data: { cycle: cycle.join(' → ') },
+                      });
+                    });
+                  }
+
+                  // Report warnings
+                  result.warnings.forEach((warning) => {
                     context.report({
                       node,
-                      messageId: 'circularDependency',
-                      data: { cycle: cycle.join(' → ') },
+                      messageId: 'dependencyWarning',
+                      data: { warning },
                     });
                   });
-                }
-
-                // Report warnings
-                result.warnings.forEach((warning) => {
-                  context.report({
-                    node,
-                    messageId: 'dependencyWarning',
-                    data: { warning },
-                  });
+                })
+                .catch((error) => {
+                  // Ignore analysis errors in ESLint context
+                  console.warn('Plugin dependency analysis failed:', error.message);
                 });
-              }).catch((error) => {
-                // Ignore analysis errors in ESLint context
-                console.warn('Plugin dependency analysis failed:', error.message);
-              });
-
             } catch {
               // Ignore initialization errors
             }

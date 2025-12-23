@@ -73,7 +73,7 @@ export class PluginDependencyLinter {
     this.discoveredPlugins.clear();
 
     // Discover all plugins
-    await this.discoverPlugins();
+    this.discoverPlugins();
 
     // Analyze dependencies
     const circularDeps = this.detectCircularDependencies();
@@ -90,7 +90,7 @@ export class PluginDependencyLinter {
   /**
    * Discover all plugins from filesystem
    */
-  private async discoverPlugins(): Promise<void> {
+  private discoverPlugins(): void {
     const categories = ['tools', 'languages', 'templates', 'profiles'];
 
     for (const category of categories) {
@@ -117,7 +117,7 @@ export class PluginDependencyLinter {
               entryPath,
               dependencies: this.extractDependencies(manifest.dependencies),
             });
-          } catch (_error) {
+          } catch {
             // Skip invalid manifests
           }
         }
@@ -133,11 +133,11 @@ export class PluginDependencyLinter {
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
 
-    const dfs = (pluginId: string, path: string[]): boolean => {
+    const dfs = (pluginId: string, currentPath: string[]): boolean => {
       if (recursionStack.has(pluginId)) {
         // Found cycle
-        const cycleStart = path.indexOf(pluginId);
-        circularDeps.push([...path.slice(cycleStart), pluginId]);
+        const cycleStart = currentPath.indexOf(pluginId);
+        circularDeps.push([...currentPath.slice(cycleStart), pluginId]);
         return true;
       }
 
@@ -151,7 +151,7 @@ export class PluginDependencyLinter {
       const plugin = this.discoveredPlugins.get(pluginId);
       if (plugin) {
         for (const depId of plugin.dependencies) {
-          if (dfs(depId, [...path, pluginId])) {
+          if (dfs(depId, [...currentPath, pluginId])) {
             return true;
           }
         }
@@ -236,30 +236,36 @@ export class PluginDependencyLinter {
 if (import.meta.main) {
   const linter = new PluginDependencyLinter();
 
-  linter.analyze().then((result) => {
-    console.log(`🔍 Analyzed ${result.pluginCount} plugins\n`);
+  linter
+    .analyze()
+    .then((result) => {
+      console.log(`🔍 Analyzed ${result.pluginCount} plugins\n`);
 
-    if (result.success) {
-      console.log('✅ No circular dependencies found!');
-    } else {
-      console.log('❌ Circular dependencies detected:');
-      result.circularDeps.forEach((cycle, index) => {
-        console.log(`  ${index + 1}. ${cycle.join(' → ')}`);
-      });
+      if (result.success) {
+        console.log('✅ No circular dependencies found!');
+      } else {
+        console.log('❌ Circular dependencies detected:');
+        result.circularDeps.forEach((cycle, index) => {
+          console.log(`  ${index + 1}. ${cycle.join(' → ')}`);
+        });
+        process.exit(1);
+      }
+
+      if (result.warnings.length > 0) {
+        console.log('\n⚠️  Warnings:');
+        result.warnings.forEach((warning) => {
+          console.log(`  - ${warning}`);
+        });
+      }
+
+      // Optional: output DOT graph
+      if (process.argv.includes('--graph')) {
+        console.log('\n📊 Dependency Graph (DOT format):');
+        console.log(linter.getDependencyGraph());
+      }
+    })
+    .catch((error) => {
+      console.error('❌ Analysis failed:', error);
       process.exit(1);
-    }
-
-    if (result.warnings.length > 0) {
-      console.log('\n⚠️  Warnings:');
-      result.warnings.forEach((warning) => {
-        console.log(`  - ${warning}`);
-      });
-    }
-
-    // Optional: output DOT graph
-    if (process.argv.includes('--graph')) {
-      console.log('\n📊 Dependency Graph (DOT format):');
-      console.log(linter.getDependencyGraph());
-    }
-  });
+    });
 }

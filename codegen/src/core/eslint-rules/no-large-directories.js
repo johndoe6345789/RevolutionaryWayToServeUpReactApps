@@ -28,7 +28,15 @@ export default {
               excludePatterns: {
                 type: 'array',
                 items: { type: 'string' },
-                default: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage'],
+                default: [
+                  'node_modules',
+                  '.git',
+                  'dist',
+                  'build',
+                  '__pycache__',
+                  '.next',
+                  'coverage',
+                ],
               },
               excludeExtensions: {
                 type: 'array',
@@ -45,17 +53,40 @@ export default {
           },
         ],
         messages: {
-          tooManyFiles: 'Directory "{{directory}}" contains {{fileCount}} files, exceeding the maximum of {{maxFiles}}. Consider splitting into smaller, more focused directories.',
-          directoryTooLarge: 'Large directory detected: {{directory}} ({{fileCount}} files). This may indicate a violation of the Single Responsibility Principle.',
+          tooManyFiles:
+            'Directory "{{directory}}" contains {{fileCount}} files, exceeding the maximum of {{maxFiles}}. Consider splitting into smaller, more focused directories.',
+          directoryTooLarge:
+            'Large directory detected: {{directory}} ({{fileCount}} files). This may indicate a violation of the Single Responsibility Principle.',
         },
       },
 
       create(context) {
         const options = context.options[0] || {};
         const maxFiles = options.maxFiles || 10;
-        const excludePatterns = options.excludePatterns || ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage'];
-        const excludeExtensions = options.excludeExtensions || ['.log', '.lock', '.map', '.min.js', '.min.css'];
-        const includeExtensions = options.includeExtensions || ['.ts', '.tsx', '.js', '.jsx', '.json', '.md'];
+        const excludePatterns = options.excludePatterns || [
+          'node_modules',
+          '.git',
+          'dist',
+          'build',
+          '__pycache__',
+          '.next',
+          'coverage',
+        ];
+        const excludeExtensions = options.excludeExtensions || [
+          '.log',
+          '.lock',
+          '.map',
+          '.min.js',
+          '.min.css',
+        ];
+        const includeExtensions = options.includeExtensions || [
+          '.ts',
+          '.tsx',
+          '.js',
+          '.jsx',
+          '.json',
+          '.md',
+        ];
 
         // Track directories we've already checked
         const checkedDirectories = new Set();
@@ -74,23 +105,27 @@ export default {
 
             // Skip excluded directories
             const dirName = path.basename(directory);
-            if (excludePatterns.some(pattern => dirName.includes(pattern) || directory.includes(pattern))) {
+            if (
+              excludePatterns.some(
+                (pattern) => dirName.includes(pattern) || directory.includes(pattern)
+              )
+            ) {
               return;
             }
 
             try {
               // Count files in the directory
               const files = fs.readdirSync(directory);
-              const relevantFiles = files.filter(file => {
+              const relevantFiles = files.filter((file) => {
                 const ext = path.extname(file);
 
                 // Exclude files with excluded extensions
-                if (excludeExtensions.some(exclExt => file.endsWith(exclExt))) {
+                if (excludeExtensions.some((exclExt) => file.endsWith(exclExt))) {
                   return false;
                 }
 
                 // Include files with included extensions or no extension (directories)
-                return includeExtensions.some(inclExt => file.endsWith(inclExt)) || !ext;
+                return includeExtensions.some((inclExt) => file.endsWith(inclExt)) || !ext;
               });
 
               if (relevantFiles.length > maxFiles) {
@@ -116,7 +151,6 @@ export default {
                   },
                 });
               }
-
             } catch {
               // Ignore filesystem errors
             }

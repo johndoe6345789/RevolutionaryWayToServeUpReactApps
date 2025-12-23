@@ -92,60 +92,89 @@ export default [
       'max-classes-per-file': ['error', 1],
       'no-console': 'off', // Allow console in Node.js scripts
       'no-undef': 'off', // Allow Node.js globals
-      'no-hardcoded-strings/no-hardcoded-strings': ['warn', {
-        maxTemplateLiteralLines: 5,
-        maxStringPropertiesInObject: 3,
-        maxStringArrayLength: 5,
-        ignoreInTests: true,
-      }],
-      'no-large-directories/no-large-directories': ['warn', {
-        maxFiles: 15,
-        excludePatterns: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage'],
-        excludeExtensions: ['.log', '.lock', '.map', '.min.js', '.min.css'],
-        includeExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.md'],
-      }],
-      'require-readme/require-readme': ['warn', {
-        requireInRoot: true,
-        requireInSubdirs: false,
-        readmeNames: ['README.md', 'readme.md', 'Readme.md'],
-        excludePatterns: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage', '.vscode'],
-        minContentLength: 50,
-        checkContent: true,
-      }],
-      'jsdoc/require-jsdoc': ['warn', {
-        require: {
-          ClassDeclaration: true,
-          MethodDefinition: true,
-          FunctionDeclaration: false,
+      'no-hardcoded-strings/no-hardcoded-strings': [
+        'warn',
+        {
+          maxTemplateLiteralLines: 5,
+          maxStringPropertiesInObject: 3,
+          maxStringArrayLength: 5,
+          ignoreInTests: true,
         },
-        contexts: [
-          'TSInterfaceDeclaration',
-          'TSMethodSignature',
-        ],
-        checkConstructors: false,
-        checkGetters: false,
-        checkSetters: false,
-      }],
+      ],
+      'no-large-directories/no-large-directories': [
+        'warn',
+        {
+          maxFiles: 15,
+          excludePatterns: [
+            'node_modules',
+            '.git',
+            'dist',
+            'build',
+            '__pycache__',
+            '.next',
+            'coverage',
+          ],
+          excludeExtensions: ['.log', '.lock', '.map', '.min.js', '.min.css'],
+          includeExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.md'],
+        },
+      ],
+      'require-readme/require-readme': [
+        'warn',
+        {
+          requireInRoot: true,
+          requireInSubdirs: false,
+          readmeNames: ['README.md', 'readme.md', 'Readme.md'],
+          excludePatterns: [
+            'node_modules',
+            '.git',
+            'dist',
+            'build',
+            '__pycache__',
+            '.next',
+            'coverage',
+            '.vscode',
+          ],
+          minContentLength: 50,
+          checkContent: true,
+        },
+      ],
+      'jsdoc/require-jsdoc': [
+        'warn',
+        {
+          require: {
+            ClassDeclaration: true,
+            MethodDefinition: true,
+            FunctionDeclaration: false,
+          },
+          contexts: ['TSInterfaceDeclaration', 'TSMethodSignature'],
+          checkConstructors: false,
+          checkGetters: false,
+          checkSetters: false,
+        },
+      ],
       'jsdoc/require-param': 'warn',
       'jsdoc/require-returns': 'warn',
       'jsdoc/require-throws': 'warn',
       'oop-compliance/oop-compliance': 'error',
       'single-export-per-file/single-export-per-file': 'error',
-      'validate-specs/validate-specs': ['error', {
-        specFiles: [
-          'src/plugins/tools/oop-principles/spec.json',
-          'src/plugins/tools/test-runner/spec.json',
-          'src/specs/bootstrap-system/spec.json',
-        ],
-      }],
+      'validate-specs/validate-specs': [
+        'error',
+        {
+          specFiles: [
+            'src/plugins/tools/oop-principles/spec.json',
+            'src/plugins/tools/test-runner/spec.json',
+            'src/specs/bootstrap-system/spec.json',
+          ],
+        },
+      ],
       'plugin-dependencies/plugin-dependencies': 'error',
     },
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      'max-lines': ['error', 300]
-    }
+      'max-lines': ['error', 300],
+    },
   },
   {
     files: ['**/*.js'],
@@ -168,7 +197,13 @@ export default [
     },
   },
   {
-    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/__tests__/setup.ts'],
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/__tests__/setup.ts',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -180,12 +215,6 @@ export default [
     },
   },
   {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      '*.config.js',
-      '*.config.ts',
-    ],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', '*.config.js', '*.config.ts'],
   },
 ];

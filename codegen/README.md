@@ -28,6 +28,7 @@ npm run build
 ## Architecture
 
 The system follows AGENTS.md principles with:
+
 - Single responsibility per file
 - Object-oriented design with proper inheritance
 - Plugin system for extensibility
