@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import { ComponentLifecycleStatus } from "./lifecycle-status";
 import { logLifecycleError } from "./logger";
 import type { IReactComponentLifecycle } from "./react-component-lifecycle";
@@ -21,9 +21,8 @@ export function LifecycleProvider({
 }: {
   children: React.ReactNode;
 }): React.JSX.Element {
-  const [components, setComponents] = useState(
-    new Map<string, IReactComponentLifecycle>(),
-  );
+  const componentsRef = useRef(new Map<string, IReactComponentLifecycle>());
+  const [componentsVersion, setComponentsVersion] = useState(0);
   const [globalStatus, setGlobalStatus] = useState<ComponentLifecycleStatus>(
     ComponentLifecycleStatus.UNINITIALIZED,
   );
@@ -32,25 +31,20 @@ export function LifecycleProvider({
     id: string,
     lifecycle: IReactComponentLifecycle,
   ): void => {
-    setComponents((previousComponents) => {
-      const updatedComponents = new Map(previousComponents);
-      updatedComponents.set(id, lifecycle);
-      return updatedComponents;
-    });
+    componentsRef.current.set(id, lifecycle);
+    setComponentsVersion((previousVersion) => previousVersion + 1);
   };
 
   const unregisterComponent = (id: string): void => {
-    setComponents((previousComponents) => {
-      const updatedComponents = new Map(previousComponents);
-      updatedComponents.delete(id);
-      return updatedComponents;
-    });
+    if (componentsRef.current.delete(id)) {
+      setComponentsVersion((previousVersion) => previousVersion + 1);
+    }
   };
 
   const getComponentStatus = (
     id: string,
   ): ComponentLifecycleStatus | undefined => {
-    const component = components.get(id);
+    const component = componentsRef.current.get(id);
     return component?.status();
   };
 
@@ -61,7 +55,7 @@ export function LifecycleProvider({
 
       try {
         // Parallel initialization
-        const initPromises = Array.from(components.values()).map(
+        const initPromises = Array.from(componentsRef.current.values()).map(
           async (component) => {
             await component.initialise();
           },
@@ -70,7 +64,7 @@ export function LifecycleProvider({
 
         // Sequential validation
         setGlobalStatus(ComponentLifecycleStatus.VALIDATING);
-        for (const component of components.values()) {
+        for (const component of componentsRef.current.values()) {
           await component.validate();
         }
 
@@ -81,17 +75,20 @@ export function LifecycleProvider({
       }
     };
 
-    if (components.size > 0) {
+    if (componentsRef.current.size > 0) {
       void initializeComponents();
     }
-  }, [components]);
+  }, [componentsVersion]);
 
   // Cleanup on unmount
   useEffect(() => {
+    // Capture the current components map at effect creation time
+    const currentComponents = componentsRef.current;
+
     return (): void => {
       setGlobalStatus(ComponentLifecycleStatus.CLEANING);
 
-      const cleanupPromises = Array.from(components.entries()).map(
+      const cleanupPromises = Array.from(currentComponents.entries()).map(
         async ([componentId, component]) => {
           try {
             await component.cleanup();
@@ -114,7 +111,7 @@ export function LifecycleProvider({
           setGlobalStatus(ComponentLifecycleStatus.ERROR);
         });
     };
-  }, [components]);
+  }, [componentsVersion]);
 
   const contextValue: LifecycleContextType = {
     status: globalStatus,
