@@ -4,7 +4,7 @@
  */
 
 import path from 'path';
-import { PluginDependencyLinter } from '../plugins/plugin-dependency-linter.js';
+import { PluginDependencyLinter } from '../plugins/plugin-dependency-linter.ts';
 
 export default {
   rules: {

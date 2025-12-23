@@ -12,7 +12,7 @@ import validateSpecs from './src/core/eslint-rules/validate-specs.js';
 import pluginDependencies from './src/core/eslint-rules/plugin-dependencies.js';
 
 export default [
-  js.configs.recommended,
+  js.configs.all,
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
@@ -45,16 +45,29 @@ export default [
       'plugin-dependencies': pluginDependencies,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
+      // ESLint all rules
+      ...js.configs.all.rules,
+      // TypeScript ESLint all rules
+      ...tseslint.configs.all.rules,
+      // TypeScript ESLint strict type-checked rules
+      ...tseslint.configs['strict-type-checked'].rules,
+      // TypeScript ESLint stylistic type-checked rules
+      ...tseslint.configs['stylistic-type-checked'].rules,
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Mandatory strict rules from linting-system.md
+      'max-lines-per-function': ['error', 10],
+      'max-params': ['error', 3],
+      'complexity': ['error', 5],
       '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/strict-boolean-expressions': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Existing rules that are still needed
+      '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'error',
-      '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/no-shadow': 'error',
       '@typescript-eslint/no-redundant-type-constituents': 'error',
@@ -66,23 +79,6 @@ export default [
       '@typescript-eslint/prefer-literal-enum-member': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
       '@typescript-eslint/prefer-readonly-parameter-types': 'off',
-      '@typescript-eslint/strict-boolean-expressions': 'error',
-      '@typescript-eslint/no-dynamic-delete': 'error',
-      '@typescript-eslint/no-implied-eval': 'error',
-      '@typescript-eslint/no-import-type-side-effects': 'error',
-      '@typescript-eslint/no-meaningless-void-operator': 'error',
-      '@typescript-eslint/no-mixed-enums': 'error',
-      '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
-      '@typescript-eslint/no-unnecessary-qualifier': 'error',
-      '@typescript-eslint/no-unnecessary-type-arguments': 'error',
-      '@typescript-eslint/no-unsafe-argument': 'error',
-      '@typescript-eslint/no-unsafe-assignment': 'error',
-      '@typescript-eslint/no-unsafe-call': 'error',
-      '@typescript-eslint/no-unsafe-member-access': 'error',
-      '@typescript-eslint/no-unsafe-return': 'error',
-      '@typescript-eslint/no-unsafe-unary-minus': 'error',
-      '@typescript-eslint/restrict-plus-operands': 'error',
-      '@typescript-eslint/restrict-template-expressions': 'error',
       '@typescript-eslint/triple-slash-reference': 'error',
       '@typescript-eslint/prefer-regexp-exec': 'error',
       '@typescript-eslint/prefer-return-this-type': 'error',
@@ -170,6 +166,7 @@ export default [
       'plugin-dependencies/plugin-dependencies': 'error',
     },
   },
+
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
