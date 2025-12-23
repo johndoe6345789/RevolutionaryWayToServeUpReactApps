@@ -1,5 +1,5 @@
 /**
- * Results returned after analyzing OOP principles
+ * AnalysisResults - Output from the OOP principles analysis run.
  */
 export interface AnalysisResults {
   success: boolean;

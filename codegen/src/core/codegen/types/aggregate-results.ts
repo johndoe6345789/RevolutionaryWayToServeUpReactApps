@@ -1,5 +1,5 @@
 /**
- * Merged results produced by aggregate execution
+ * AggregateResults - Combined outcomes across all executed plugins and specs.
  */
 export interface AggregateResults {
   generated: string[];

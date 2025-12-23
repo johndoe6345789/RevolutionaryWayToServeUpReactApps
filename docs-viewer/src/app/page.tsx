@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
 import { DocsNavigation } from "@/components/docs-navigation";
 import { MarkdownViewer } from "@/components/markdown-viewer";
+import { TableOfContents } from "@/components/table-of-contents";
+import { DocPager } from "@/components/doc-pager";
 import { DOCS_STRUCTURE, getDocFile } from "@/lib/docs-structure";
+import { extractHeadings } from "@/lib/markdown-headings";
+import { getAdjacentDocs } from "@/lib/doc-links";
 
 export default function Home() {
   const [currentSection, setCurrentSection] = useState<string>(
@@ -16,6 +20,7 @@ export default function Home() {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const headings = useMemo(() => extractHeadings(content), [content]);
 
   const loadDocument = async (sectionId: string, fileId: string) => {
     setLoading(true);
@@ -54,6 +59,7 @@ export default function Home() {
   };
 
   const currentDocFile = getDocFile(currentSection, currentFile);
+  const adjacentDocs = getAdjacentDocs(currentSection, currentFile);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
@@ -85,13 +91,23 @@ export default function Home() {
               </Typography>
             </Box>
           ) : (
-            <MarkdownViewer
-              content={content}
-              title={currentDocFile?.title}
-            />
+            <>
+              <MarkdownViewer
+                content={content}
+                title={currentDocFile?.title}
+                headings={headings}
+                onNavigateDoc={handleFileSelect}
+              />
+              <DocPager
+                previous={adjacentDocs.previous}
+                next={adjacentDocs.next}
+                onNavigate={handleFileSelect}
+              />
+            </>
           )}
         </Container>
       </Box>
+      <TableOfContents headings={headings} />
     </Box>
   );
 }

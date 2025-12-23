@@ -1,7 +1,7 @@
 import type { CommandSpec } from './command-spec';
 
 /**
- * Parsed CLI specification content
+ * CLISpecData - Parsed CLI specification content.
  */
 export interface CLISpecData {
   commands: Record<string, CommandSpec>;

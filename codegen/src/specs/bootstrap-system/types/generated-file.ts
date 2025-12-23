@@ -1,5 +1,5 @@
 /**
- * Metadata describing a file created during generation
+ * GeneratedFile - Represents an artifact produced by generation.
  */
 export interface GeneratedFile {
   file: string;

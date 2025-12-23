@@ -1,5 +1,9 @@
+import type { APIRouteParam } from './api-route-param';
+import type { ResponseSpec } from './response-spec';
+import type { SchemaDefinition } from './schema-definition';
+
 /**
- * Specification for a generated API route
+ * APIRouteSpec - Details for generating API routes.
  */
 export interface APIRouteSpec {
   id: string;
@@ -14,26 +18,4 @@ export interface APIRouteSpec {
     success: ResponseSpec;
     errors?: ResponseSpec[];
   };
-}
-
-export interface APIRouteParam {
-  name: string;
-  in: 'query' | 'path';
-  type: SchemaPrimitive;
-  required?: boolean;
-}
-
-export interface ResponseSpec {
-  status: number;
-  description?: string;
-  schema: SchemaDefinition;
-}
-
-export type SchemaPrimitive = 'string' | 'number' | 'boolean';
-
-export interface SchemaDefinition {
-  type: SchemaPrimitive | 'object' | 'array';
-  required?: boolean;
-  properties?: Record<string, SchemaDefinition>;
-  items?: SchemaDefinition;
 }

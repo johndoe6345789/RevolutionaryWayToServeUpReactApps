@@ -1,7 +1,7 @@
 import type { IBaseCodegenOptions } from '../interfaces/index';
 
 /**
- * Runtime status snapshot for the core codegen system
+ * SystemStatus - Runtime status snapshot for diagnostics.
  */
 export interface SystemStatus {
   initialized: boolean;

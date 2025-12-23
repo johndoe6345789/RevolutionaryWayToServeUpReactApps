@@ -1,5 +1,5 @@
 /**
- * Supported CLI arguments for the codegen entrypoint
+ * CLIArgs - Parsed command line arguments for the codegen entrypoint.
  */
 export interface CLIArgs {
   spec?: string;

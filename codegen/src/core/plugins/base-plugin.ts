@@ -5,7 +5,7 @@
  */
 
 import type { IPlugin, IPluginConfig, IRegistryManager, ISpec } from './interfaces/index';
-import { BaseComponent } from './base-component';
+import { BaseComponent } from '../codegen/base-component';
 import { PluginSpecLoader } from './plugin-spec-loader';
 import { PluginMessageLoader } from './plugin-message-loader';
 
@@ -24,7 +24,7 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
    */
   constructor(config: IPluginConfig) {
     const spec: ISpec = {
-      uuid: '00000000-0000-0000-0000-000000000000', // Will be overridden by spec file
+      uuid: '00000000-0000-4000-8000-000000000000', // Will be overridden by spec file
       id: config.name,
       type: 'plugin',
       search: {
@@ -75,6 +75,13 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
       await this.initialise();
     }
     // Implementation will be provided by subclasses
+  }
+
+  public override async initialise(): Promise<this> {
+    if (!this.initialized) {
+      await this.initializePlugin();
+    }
+    return this;
   }
 
   /**

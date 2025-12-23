@@ -1,5 +1,5 @@
 /**
- * Metadata describing a generated Web UI file
+ * GeneratedFile - Represents an artifact produced by the web UI generator.
  */
 export interface GeneratedFile {
   file: string;

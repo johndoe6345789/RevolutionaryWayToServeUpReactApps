@@ -1,5 +1,5 @@
 /**
- * Specification for a generated Web UI component
+ * ComponentSpec - Describes a UI component to generate.
  */
 export interface ComponentSpec {
   id: string;
@@ -7,6 +7,8 @@ export interface ComponentSpec {
     title: string;
     summary: string;
   };
+  inputs?: ComponentInputSpec[];
+  actions?: ComponentActionSpec[];
   features?: string[];
   capabilities?: string[];
   searchFields?: string[];
@@ -14,4 +16,20 @@ export interface ComponentSpec {
     name: string;
     values: string[];
   }[];
+}
+
+export interface ComponentInputSpec {
+  name: string;
+  label: string;
+  type?: 'text' | 'select' | 'textarea';
+  placeholder?: string;
+  defaultValue?: string;
+  helperText?: string;
+  options?: string[];
+}
+
+export interface ComponentActionSpec {
+  name: string;
+  label: string;
+  helperText?: string;
 }

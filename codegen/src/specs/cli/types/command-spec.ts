@@ -1,5 +1,5 @@
 /**
- * Specification for a single CLI command
+ * CommandSpec - Defines a CLI command and its nested subcommands.
  */
 export interface CommandSpec {
   id: string;

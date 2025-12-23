@@ -1,5 +1,5 @@
 /**
- * Metadata describing a CLI file produced by the generator
+ * GeneratedFile - Represents an artifact produced by the CLI generator.
  */
 export interface GeneratedFile {
   file: string;

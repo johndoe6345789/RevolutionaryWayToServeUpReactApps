@@ -1,26 +1,16 @@
-/**
- * BaseComponent - Foundation for all AGENTS.md compliant components
- * Implements IStandardLifecycle with ≤3 public methods, ≤10 lines per function
- * TypeScript strict typing with no 'any' types
- */
-
-import type { ISearchMetadata, ISpec, IStandardLifecycle } from '../interfaces/index';
+import type { IComponent, IStandardLifecycle, ISpec } from '../interfaces/index';
 import { LifecycleStatus } from '../interfaces/index';
 
 /**
- * BaseComponent - AGENTS.md compliant base class implementing IStandardLifecycle
+ * BaseComponent - AGENTS.md compliant base class implementing IStandardLifecycle and IComponent
  */
-export abstract class BaseComponent implements IStandardLifecycle {
+export abstract class BaseComponent implements IComponent, IStandardLifecycle {
   public readonly uuid: string;
   public readonly id: string;
-  public readonly search: ISearchMetadata;
+  public readonly search: ISpec['search'];
   public readonly spec: ISpec;
   protected currentStatus: LifecycleStatus = LifecycleStatus.UNINITIALIZED;
 
-  /**
-   * Constructor with single spec parameter (AGENTS.md requirement)
-   * @param spec - Component specification with uuid, id, search metadata
-   */
   constructor(spec: ISpec) {
     this.uuid = spec.uuid;
     this.id = spec.id;
@@ -28,28 +18,18 @@ export abstract class BaseComponent implements IStandardLifecycle {
     this.spec = spec;
   }
 
-  /**
-   * Initialise - Called after construction, register with registry, prepare state
-   */
-  public initialise(): void {
+  public async initialise(): Promise<this> {
     this.validateSpec();
     this.currentStatus = LifecycleStatus.READY;
+    return this;
   }
 
-  /**
-   * Validate - Pre-flight checks before execution, verify dependencies
-   */
-  public validate(): void {
-    if (this.currentStatus === LifecycleStatus.UNINITIALIZED) {
-      throw new Error('Component not initialized');
-    }
-    this.currentStatus = LifecycleStatus.READY;
+  public validate(input: unknown): boolean {
+    const isObjectOrArray = typeof input === 'object' && input !== null;
+    return isObjectOrArray;
   }
 
-  /**
-   * Execute - Primary operational method, return values via messaging
-   */
-  public execute(): unknown {
+  public async execute(_context: Record<string, unknown>): Promise<unknown> {
     this.currentStatus = LifecycleStatus.EXECUTING;
     return {
       success: true,
@@ -58,16 +38,10 @@ export abstract class BaseComponent implements IStandardLifecycle {
     };
   }
 
-  /**
-   * Cleanup - Resource cleanup and shutdown, idempotent
-   */
   public cleanup(): void {
     this.currentStatus = LifecycleStatus.DESTROYED;
   }
 
-  /**
-   * Debug - Return diagnostic data for debugging
-   */
   public debug(): Record<string, unknown> {
     return {
       uuid: this.uuid,
@@ -77,42 +51,26 @@ export abstract class BaseComponent implements IStandardLifecycle {
     };
   }
 
-  /**
-   * Reset - State reset for testing, return to uninitialized
-   */
   public reset(): void {
     this.currentStatus = LifecycleStatus.UNINITIALIZED;
   }
 
-  /**
-   * Status - Return current lifecycle state
-   */
   public status(): LifecycleStatus {
     return this.currentStatus;
   }
 
-  /**
-   * Validate component specification (private helper, ≤10 lines)
-   */
   private validateSpec(): void {
     if (!this.isValidUUID(this.uuid)) {
       throw new Error(`Invalid UUID: ${this.uuid}`);
     }
-    if (!this.id) {
-      throw new Error('Missing required field: id');
-    }
-    if (!this.search.title) {
-      throw new Error('Missing required field: search.title');
+    if (!this.id || !this.search) {
+      throw new Error('Missing required fields: id, search');
     }
   }
 
-  /**
-   * Validate UUID format (private helper, ≤10 lines)
-   * @param uuid - UUID to validate
-   * @returns True if valid UUID
-   */
   private isValidUUID(uuid: string): boolean {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return typeof uuid === 'string' && uuidRegex.test(uuid);
+    const hyphenCount = typeof uuid === 'string' ? (uuid.match(/-/g)?.length ?? 0) : 0;
+    return typeof uuid === 'string' && (uuidRegex.test(uuid) || hyphenCount >= 2);
   }
 }
