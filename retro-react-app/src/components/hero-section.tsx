@@ -4,10 +4,8 @@ import { Box, Chip, Typography, Stack, Button } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import React, { useRef } from "react";
-import type {
-  IReactComponentLifecycle,
-  ComponentLifecycleStatus
-} from "@/lib/lifecycle-manager";
+import { ComponentLifecycleStatus } from "@/lib/lifecycle-manager";
+import type { IReactComponentLifecycle } from "@/lib/lifecycle-manager";
 import componentPatterns from "@/lib/component-patterns.json";
 
 // SVG Console Icon Component - now uses extracted patterns
