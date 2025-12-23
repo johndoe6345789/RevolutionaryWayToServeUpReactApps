@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
-import { ComponentLifecycleStatus } from './lifecycle-status';
-import { IReactComponentLifecycle } from './react-component-lifecycle';
-import { useLifecycle } from './use-lifecycle';
+import { useEffect, useState } from "react";
+import { ComponentLifecycleStatus } from "./lifecycle-status";
+import type { IReactComponentLifecycle } from "./react-component-lifecycle";
+import { useLifecycle } from "./use-lifecycle";
 
 // Component lifecycle hook
 export function useComponentLifecycle(
   id: string,
-  lifecycleImpl: IReactComponentLifecycle
+  lifecycleImpl: IReactComponentLifecycle,
 ): ComponentLifecycleStatus {
-  const { registerComponent, unregisterComponent, getComponentStatus } = useLifecycle();
-  const [status, setStatus] = useState<ComponentLifecycleStatus>(ComponentLifecycleStatus.UNINITIALIZED);
+  const { registerComponent, unregisterComponent, getComponentStatus } =
+    useLifecycle();
+  const [status, setStatus] = useState<ComponentLifecycleStatus>(
+    ComponentLifecycleStatus.UNINITIALIZED,
+  );
 
   useEffect(() => {
     registerComponent(id, lifecycleImpl);
@@ -17,16 +20,22 @@ export function useComponentLifecycle(
     // Update status periodically
     const interval = setInterval(() => {
       const currentStatus = getComponentStatus(id);
-      if (currentStatus) {
+      if (currentStatus !== undefined) {
         setStatus(currentStatus);
       }
     }, 100);
 
-    return () => {
+    return (): void => {
       clearInterval(interval);
       unregisterComponent(id);
     };
-  }, [id, lifecycleImpl, registerComponent, unregisterComponent, getComponentStatus]);
+  }, [
+    id,
+    lifecycleImpl,
+    registerComponent,
+    unregisterComponent,
+    getComponentStatus,
+  ]);
 
   return status;
 }

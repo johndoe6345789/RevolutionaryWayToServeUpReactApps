@@ -3,10 +3,10 @@
 import { Box, Chip, Typography, Stack, Button } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import type {
   IReactComponentLifecycle,
-  ComponentLifecycleStatus
+  ComponentLifecycleStatus,
 } from "@/lib/lifecycle-manager";
 import componentPatterns from "@/lib/component-patterns.json";
 
@@ -20,18 +20,19 @@ const ConsoleIcon: React.FC<{ text: string }> = ({ text }) => {
 
 // HeroSection lifecycle with exactly 4 public methods (<5 constraint per AGENTS.md)
 class HeroSectionLifecycle implements IReactComponentLifecycle {
-  private componentStatus: ComponentLifecycleStatus = ComponentLifecycleStatus.UNINITIALIZED;
+  private componentStatus: ComponentLifecycleStatus =
+    ComponentLifecycleStatus.UNINITIALIZED;
   private translationsLoaded = false;
   private routerReady = false;
 
   // Public methods: initialise, validate, execute, cleanup (4 total, <5 constraint)
-  public async initialise(): Promise<void> {
+  public initialise(): void {
     this.componentStatus = ComponentLifecycleStatus.INITIALIZING;
     this.translationsLoaded = true;
     this.routerReady = true;
   }
 
-  public async validate(): Promise<void> {
+  public validate(): void {
     this.componentStatus = ComponentLifecycleStatus.VALIDATING;
     if (!this.translationsLoaded) {
       throw new Error(componentPatterns.errorMessages.translationsNotLoaded);
@@ -41,11 +42,11 @@ class HeroSectionLifecycle implements IReactComponentLifecycle {
     }
   }
 
-  public async execute(): Promise<void> {
+  public execute(): void {
     this.componentStatus = ComponentLifecycleStatus.EXECUTING;
   }
 
-  public async cleanup(): Promise<void> {
+  public cleanup(): void {
     this.componentStatus = ComponentLifecycleStatus.CLEANING;
     this.translationsLoaded = false;
     this.routerReady = false;
@@ -60,9 +61,9 @@ class HeroSectionLifecycle implements IReactComponentLifecycle {
     };
   }
 
-  public async reset(): Promise<void> {
-    await this.cleanup();
-    await this.initialise();
+  public reset(): void {
+    this.cleanup();
+    this.initialise();
   }
 
   public status(): ComponentLifecycleStatus {
@@ -77,6 +78,16 @@ export function HeroSection(): React.JSX.Element {
 
   // Create lifecycle instance (internal management per AGENTS.md)
   const lifecycleRef = useRef(new HeroSectionLifecycle());
+
+  useEffect(() => {
+    const lifecycle = lifecycleRef.current;
+    lifecycle.initialise();
+    lifecycle.validate();
+    lifecycle.execute();
+    return (): void => {
+      lifecycle.cleanup();
+    };
+  }, []);
 
   const systemTags = gamesT.raw("systemTags") as string[];
 
@@ -107,23 +118,14 @@ export function HeroSection(): React.JSX.Element {
             sx={componentPatterns.styles.chip}
           />
 
-          <Typography
-            variant="h2"
-            sx={componentPatterns.styles.title}
-          >
+          <Typography variant="h2" sx={componentPatterns.styles.title}>
             {t("press_start")}
-            <Box
-              component="span"
-              sx={componentPatterns.styles.subtitle}
-            >
+            <Box component="span" sx={componentPatterns.styles.subtitle}>
               {t("to_continue")}
             </Box>
           </Typography>
 
-          <Typography
-            variant="body2"
-            sx={componentPatterns.styles.description}
-          >
+          <Typography variant="body2" sx={componentPatterns.styles.description}>
             {t("hero_description")}
           </Typography>
 
@@ -147,15 +149,17 @@ export function HeroSection(): React.JSX.Element {
           </Stack>
 
           <Stack sx={componentPatterns.styles.tagStack}>
-            {systemTags.slice(0, componentPatterns.validation.maxTagsDisplayed).map((tag: string) => (
-              <Chip
-                key={tag}
-                label={tag}
-                variant="outlined"
-                size="small"
-                sx={componentPatterns.styles.systemTag}
-              />
-            ))}
+            {systemTags
+              .slice(0, componentPatterns.validation.maxTagsDisplayed)
+              .map((tag: string) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  variant="outlined"
+                  size="small"
+                  sx={componentPatterns.styles.systemTag}
+                />
+              ))}
           </Stack>
         </Box>
 

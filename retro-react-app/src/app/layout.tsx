@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Box, Container, Stack, Typography, Link } from "@mui/material";
-import { getTranslations } from "next-intl/server";
 import "./globals.css";
-import { generateMetadata } from "./metadata";
 
 // Use JetBrains Mono for that retro gaming feel
 const jetbrainsMono = JetBrains_Mono({
@@ -25,7 +22,9 @@ export default async function RootLayout({
   params,
 }: LayoutProps): Promise<React.JSX.Element> {
   const resolvedParams = await params;
-  const locale = Array.isArray(resolvedParams.locale) ? resolvedParams.locale[0] : resolvedParams.locale;
+  const locale = Array.isArray(resolvedParams.locale)
+    ? resolvedParams.locale[0]
+    : resolvedParams.locale;
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${jetbrainsMono.variable} antialiased`}>
