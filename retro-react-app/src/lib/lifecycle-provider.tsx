@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
 import { ComponentLifecycleStatus } from "./lifecycle-status";
+import { logLifecycleError } from "./logger";
 import type { IReactComponentLifecycle } from "./react-component-lifecycle";
 
 // Component lifecycle context
@@ -68,7 +69,8 @@ export function LifecycleProvider({
         }
 
         setGlobalStatus(ComponentLifecycleStatus.READY);
-      } catch {
+      } catch (error) {
+        logLifecycleError("Failed to initialize lifecycle components", error);
         setGlobalStatus(ComponentLifecycleStatus.ERROR);
       }
     };
@@ -80,14 +82,21 @@ export function LifecycleProvider({
 
   // Cleanup on unmount
   useEffect(() => {
+    // Capture the current components map at effect creation time
+    const currentComponents = componentsRef.current;
+
     return (): void => {
       setGlobalStatus(ComponentLifecycleStatus.CLEANING);
 
-      const cleanupPromises = Array.from(componentsRef.current.values()).map(
-        async (component) => {
+      const cleanupPromises = Array.from(currentComponents.entries()).map(
+        async ([componentId, component]) => {
           try {
             await component.cleanup();
-          } catch {
+          } catch (error) {
+            logLifecycleError(
+              `Error cleaning up component with id ${componentId}`,
+              error,
+            );
             setGlobalStatus(ComponentLifecycleStatus.ERROR);
           }
         },
@@ -97,7 +106,8 @@ export function LifecycleProvider({
         .then(() => {
           setGlobalStatus(ComponentLifecycleStatus.DESTROYED);
         })
-        .catch(() => {
+        .catch((error) => {
+          logLifecycleError("Failed to clean up lifecycle components", error);
           setGlobalStatus(ComponentLifecycleStatus.ERROR);
         });
     };
