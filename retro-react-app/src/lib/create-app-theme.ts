@@ -1,64 +1,8 @@
 import type { Theme } from "@mui/material/styles";
 import { createTheme } from "@mui/material/styles";
 
-// Retro gaming color palette
-const retroColors = {
-  primary: {
-    main: "#ff6ec7", // Hot pink
-    light: "#ff99d6",
-    dark: "#c9409a",
-  },
-  secondary: {
-    main: "#00e5ff", // Cyan
-    light: "#33eaff",
-    dark: "#00b2cc",
-  },
-  accent: {
-    main: "#ffd54f", // Yellow
-    light: "#ffdd71",
-    dark: "#c8a415",
-  },
-  background: {
-    default: "#050510",
-    paper: "#101020",
-    alt: "#080820",
-  },
-  text: {
-    primary: "#ffffff",
-    secondary: "rgba(255, 255, 255, 0.7)",
-    disabled: "rgba(255, 255, 255, 0.5)",
-  },
-  divider: "rgba(255, 255, 255, 0.12)",
-};
-
-const lightRetroColors = {
-  primary: {
-    main: "#c9409a", // Darker pink
-    light: "#ff6ec7",
-    dark: "#9c0d6b",
-  },
-  secondary: {
-    main: "#00b2cc", // Darker cyan
-    light: "#00e5ff",
-    dark: "#0088a3",
-  },
-  accent: {
-    main: "#c8a415", // Darker yellow
-    light: "#ffd54f",
-    dark: "#8d7200",
-  },
-  background: {
-    default: "#f5f5f5",
-    paper: "#ffffff",
-    alt: "#e8e8e8",
-  },
-  text: {
-    primary: "#050510",
-    secondary: "rgba(5, 5, 16, 0.7)",
-    disabled: "rgba(5, 5, 16, 0.5)",
-  },
-  divider: "rgba(5, 5, 16, 0.12)",
-};
+import { lightRetroColors } from "./light-retro-colors";
+import { retroColors } from "./retro-colors";
 
 export function createAppTheme(mode: "light" | "dark"): Theme {
   const colors = mode === "dark" ? retroColors : lightRetroColors;
