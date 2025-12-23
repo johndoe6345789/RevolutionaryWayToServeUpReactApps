@@ -1,0 +1,52 @@
+[
+  {
+    "pr_number": 32,
+    "branch": "codex/update-codegen-to-derive-component-types",
+    "title": "Enhance web UI generator outputs",
+    "conflicts": [
+      "codegen/src/specs/webui/generator.test.ts",
+      "codegen/src/specs/webui/generator.ts",
+      "codegen/src/specs/webui/spec.json",
+      "codegen/src/specs/webui/types/component-spec.ts"
+    ],
+    "status": "has_conflicts"
+  },
+  {
+    "pr_number": 36,
+    "branch": "codex/ensure-bun-installation-and-run-lint",
+    "title": "Fix lint issues in retro-react-app",
+    "conflicts": [
+      "retro-react-app/src/components/hero-section.tsx"
+    ],
+    "status": "has_conflicts"
+  },
+  {
+    "pr_number": 37,
+    "branch": "codex/move-primitives-to-external-json-file",
+    "title": "Move hero section test primitives into shared fixture",
+    "conflicts": [
+      "retro-react-app/src/components/hero-section.tsx"
+    ],
+    "status": "has_conflicts"
+  },
+  {
+    "pr_number": 38,
+    "branch": "codex/update-to-one-interface-per-file",
+    "title": "Refactor webui interfaces into dedicated files",
+    "conflicts": [
+      "codegen/src/specs/webui/types/api-route-spec.ts",
+      "codegen/src/webui/components/generated-full-text-search.tsx",
+      "codegen/src/webui/components/generated-tree-navigation.tsx"
+    ],
+    "status": "has_conflicts"
+  },
+  {
+    "pr_number": 40,
+    "branch": "codex/refactor-codebase-for-one-root-function-per-file",
+    "title": "Ensure each file exposes a single top-level function",
+    "conflicts": [
+      "retro-react-app/src/components/hero-section.tsx"
+    ],
+    "status": "has_conflicts"
+  }
+]
