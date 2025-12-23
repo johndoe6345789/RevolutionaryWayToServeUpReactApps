@@ -1,17 +1,4 @@
-// Standard Lifecycle Interface (AGENTS.md MANDATORY)
-// Defines the contract for all components in the system
-// All components MUST implement this interface
-
-export enum LifecycleStatus {
-  UNINITIALIZED = 'uninitialized',
-  INITIALIZING = 'initializing',
-  VALIDATING = 'validating',
-  READY = 'ready',
-  EXECUTING = 'executing',
-  CLEANING = 'cleaning',
-  ERROR = 'error',
-  DESTROYED = 'destroyed',
-}
+import type { LifecycleStatus } from './lifecycle-status';
 
 /**
  * IStandardLifecycle - Core contract for all components
@@ -56,40 +43,4 @@ export interface IStandardLifecycle {
    * Status - Return current lifecycle state
    */
   status: () => LifecycleStatus;
-}
-
-/**
- *
- */
-export interface LifecycleBuilder {
-  /**
-   *
-   */
-  add(name: string, lifecycle: IStandardLifecycle, startOrder?: number, stopOrder?: number): this;
-  /**
-   *
-   */
-  dependsOn(name: string, dependencyName: string): this;
-  /**
-   *
-   */
-  onError(policy: 'fail-fast' | 'continue' | 'rollback'): this;
-  /**
-   *
-   */
-  build: () => CompositeLifecycle;
-}
-
-/**
- *
- */
-export interface CompositeLifecycle extends IStandardLifecycle {
-  /**
-   *
-   */
-  getChildren: () => Map<string, IStandardLifecycle>;
-  /**
-   *
-   */
-  getStatus: (name: string) => LifecycleStatus;
 }

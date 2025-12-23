@@ -19,4 +19,7 @@ export type { Store } from './store';
 export type { Dispatch } from './dispatch';
 export type { MiddlewareAPI } from './middleware-api';
 export type { Middleware } from './middleware';
-export * from './lifecycle';
+export { LifecycleStatus } from './lifecycle-status';
+export type { IStandardLifecycle } from './standard-lifecycle';
+export type { LifecycleBuilder } from './lifecycle-builder';
+export type { CompositeLifecycle } from './composite-lifecycle';
