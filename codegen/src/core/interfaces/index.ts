@@ -7,11 +7,9 @@
 // Codegen interfaces
 export type { IBaseCodegenOptions } from './codegen/ibase-codegen-options';
 export type { ICodegenExecutionResults } from './codegen/icodegen-execution-results';
-export type {
-  ILanguageGenerator,
-  CodeGenerationContext,
-  GeneratedCode,
-} from './codegen/ilanguage-generator';
+export type { ILanguageGenerator } from './codegen/ilanguage-generator';
+export type { CodeGenerationContext } from './codegen/code-generation-context';
+export type { GeneratedCode } from './codegen/generated-code';
 
 // Common interfaces
 export type { IAdapter } from './common/iadapter';

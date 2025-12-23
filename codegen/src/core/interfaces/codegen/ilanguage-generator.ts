@@ -1,43 +1,11 @@
 /**
- * Unified Language Generator Interface - supports any language via declarative JSON
- * AGENTS.md compliant: IStandardLifecycle, language abstraction, declarative specs
+ * Language Generator Interface - unified contract for all language generators
+ * Supports any programming language via declarative JSON specifications
  */
 
 import type { IStandardLifecycle } from '../../types/standard-lifecycle';
-import type { ISpec } from '../specs/ispec';
-
-/**
- * Code generation context - variables and metadata for template rendering
- */
-export interface CodeGenerationContext {
-  /** Template identifier */
-  templateId: string;
-  /** Variable substitutions for template rendering */
-  variables: Record<string, unknown>;
-  /** Optional generation metadata */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * Generated code result - output of code generation
- */
-export interface GeneratedCode {
-  /** Generated code content as array of lines */
-  content: string[];
-  /** File extension for the generated code */
-  extension: string;
-  /** Generation metadata */
-  metadata: {
-    /** Target language */
-    language: string;
-    /** Template used */
-    template: string;
-    /** Generation timestamp */
-    generatedAt: string;
-    /** Variables used in generation */
-    variables: string[];
-  };
-}
+import type { CodeGenerationContext } from './code-generation-context';
+import type { GeneratedCode } from './generated-code';
 
 /**
  * Language Generator Interface - unified contract for all language generators
