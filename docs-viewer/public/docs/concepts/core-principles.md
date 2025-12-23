@@ -90,7 +90,7 @@ Requirements:
 - Topological dependency resolution for initialization order
 
 ### 7. Strict Method & File Constraints (MANDATORY)
-- **≤3 public methods per class** (constructors excluded)
+- **≤5 public methods per class** (constructors excluded)
 - **≤10 lines per function** (strict, no exceptions)
 - **One primary class per file**
 - If a function exceeds 10 lines, refactor into helper methods

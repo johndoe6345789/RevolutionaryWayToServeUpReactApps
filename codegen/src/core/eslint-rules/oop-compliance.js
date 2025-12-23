@@ -38,7 +38,7 @@ export default {
               },
               maxMethods: {
                 type: 'integer',
-                default: 7,
+                default: 5,
               },
             },
             additionalProperties: false,
@@ -63,7 +63,7 @@ export default {
           'codegen/core/plugin.js',
         ],
          baseComponentFile = options.baseComponentFile || 'codegen/core/base-component.js',
-         maxMethods = options.maxMethods || 7;
+         maxMethods = options.maxMethods || 5;
 
         return {
           Program(node) {
