@@ -1,5 +1,5 @@
 /**
- * Shape of a plugin manifest file
+ * PluginManifest - Shape of plugin.json descriptors.
  */
 export interface PluginManifest {
   id: string;

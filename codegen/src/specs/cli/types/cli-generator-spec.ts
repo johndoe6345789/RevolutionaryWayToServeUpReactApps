@@ -1,7 +1,7 @@
-import type { ISpec } from '../../core/interfaces';
+import type { ISpec } from '../../../core/interfaces';
 
 /**
- * Specification contract for the CLI generator
+ * CLIGeneratorSpec - Configuration for CLI generation.
  */
 export interface CLIGeneratorSpec extends ISpec {
   specsPath?: string;

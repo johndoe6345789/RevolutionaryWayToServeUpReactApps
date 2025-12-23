@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "retro-react-app",
@@ -16,6 +15,7 @@
         "react-dom": "19.2.3",
       },
       "devDependencies": {
+        "@eslint/js": "^9.39.2",
         "@tailwindcss/postcss": "^4",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.1",

@@ -1,7 +1,7 @@
-import type { ISpec } from '../../core/interfaces';
+import type { ISpec } from '../../../core/interfaces';
 
 /**
- * Specification contract for the Web UI generator
+ * WebUIGeneratorSpec - Configuration for generating the web UI.
  */
 export interface WebUIGeneratorSpec extends ISpec {
   specsPath?: string;

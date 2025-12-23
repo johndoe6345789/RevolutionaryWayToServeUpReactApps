@@ -30,30 +30,9 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
 } from '@mui/icons-material';
-
-interface SearchResult {
-  id: string;
-  title: string;
-  summary: string;
-  domain: string;
-  type: string;
-  score: number;
-  highlights: string[];
-}
-
-interface SearchFilters {
-  domain?: string;
-  platform?: string;
-  language?: string;
-  type?: string;
-}
-
-interface GeneratedFullTextSearchProps {
-  onResultSelect?: (resultId: string) => void;
-  placeholder?: string;
-  filters?: SearchFilters;
-  onFiltersChange?: (filters: SearchFilters) => void;
-}
+import type { GeneratedFullTextSearchProps } from './types/generated-full-text-search-props';
+import type { SearchFilters } from './types/search-filters';
+import type { SearchResult } from './types/search-result';
 
 const mockSearchResults: SearchResult[] = [
   {

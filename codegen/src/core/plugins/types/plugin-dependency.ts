@@ -1,7 +1,7 @@
 import type { PluginManifest } from './plugin-manifest';
 
 /**
- * Resolved plugin dependency record
+ * PluginDependency - Runtime representation of a plugin and its relationships.
  */
 export interface PluginDependency {
   pluginId: string;
