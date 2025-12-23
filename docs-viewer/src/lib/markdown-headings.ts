@@ -19,27 +19,27 @@ const TEXT_NODES = new Set([
   "delete",
 ]);
 
-function extractTextFromChildren(children: PhrasingContent[]): string {
-  return children
-    .map((child) => {
-      if (child.type === "text" || child.type === "inlineCode") {
-        return child.value;
-      }
-
-      if (TEXT_NODES.has(child.type)) {
-        return extractTextFromChildren((child as any).children ?? []);
-      }
-
-      return "";
-    })
-    .join(" ")
-    .trim();
-}
-
 export function extractHeadings(markdown: string): HeadingItem[] {
   const tree = unified().use(remarkParse).parse(markdown);
   const slugger = new GithubSlugger();
   const headings: HeadingItem[] = [];
+
+  const extractTextFromChildren = (children: PhrasingContent[]): string => {
+    return children
+      .map((child) => {
+        if (child.type === "text" || child.type === "inlineCode") {
+          return child.value;
+        }
+
+        if (TEXT_NODES.has(child.type)) {
+          return extractTextFromChildren((child as any).children ?? []);
+        }
+
+        return "";
+      })
+      .join(" ")
+      .trim();
+  };
 
   visit(tree, "heading", (node: Heading) => {
     if (node.depth > 4) return;
