@@ -2,12 +2,8 @@
 
 import { useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  MenuItem,
-  Select,
-  FormControl,
-  SelectChangeEvent,
-} from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select, FormControl } from "@mui/material";
 import { useTransition } from "react";
 
 export function LanguageSwitcher(): React.JSX.Element {

@@ -28,7 +28,9 @@ export function ThemeToggle(): React.JSX.Element {
   return (
     <Tooltip title={isDark ? "Switch to light mode" : "Switch to dark mode"}>
       <IconButton
-        onClick={() => setTheme(isDark ? "light" : "dark")}
+        onClick={() => {
+          setTheme(isDark ? "light" : "dark");
+        }}
         size="small"
         sx={{
           color: "text.primary",

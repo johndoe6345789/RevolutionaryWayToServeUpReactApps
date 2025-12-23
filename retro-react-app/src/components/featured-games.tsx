@@ -207,7 +207,9 @@ export function FeaturedGames(): React.JSX.Element {
                   variant="contained"
                   color="primary"
                   size="small"
-                  onClick={() => handlePlayGame(game.id)}
+                  onClick={() => {
+                    handlePlayGame(game.id);
+                  }}
                   sx={{
                     flex: 1,
                     fontSize: "0.8rem",
@@ -222,7 +224,9 @@ export function FeaturedGames(): React.JSX.Element {
                   variant="outlined"
                   color="secondary"
                   size="small"
-                  onClick={() => handleViewDetails(game.id)}
+                  onClick={() => {
+                    handleViewDetails(game.id);
+                  }}
                   sx={{
                     flex: 1,
                     fontSize: "0.8rem",
@@ -244,7 +248,9 @@ export function FeaturedGames(): React.JSX.Element {
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => router.push("/games")}
+          onClick={() => {
+            router.push("/games");
+          }}
           sx={{
             px: 4,
             py: 1.5,

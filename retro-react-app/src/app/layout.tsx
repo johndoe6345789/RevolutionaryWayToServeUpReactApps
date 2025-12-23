@@ -14,10 +14,10 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-type LayoutProps = {
+interface LayoutProps {
   children: React.ReactNode;
   params: { locale: string };
-};
+}
 
 export async function generateMetadata({
   params: { locale },

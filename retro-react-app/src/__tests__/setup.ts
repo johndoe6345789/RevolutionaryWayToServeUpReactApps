@@ -58,7 +58,7 @@ vi.mock("next-intl", () => ({
 
     const translator = (key: string): string => {
       if (namespace && translations[namespace]) {
-        return translations[namespace][key] || key;
+        return translations[namespace][key] ?? key;
       }
 
       // Fallback for keys without namespace
@@ -74,9 +74,9 @@ vi.mock("next-intl", () => ({
     // Add the raw method for accessing raw translation objects
     translator.raw = (key: string): any => {
       if (namespace && translations[namespace]) {
-        return translations[namespace][key] || {};
+        return translations[namespace][key] ?? {};
       }
-      return translations[key] || {};
+      return translations[key] ?? {};
     };
 
     return translator;
