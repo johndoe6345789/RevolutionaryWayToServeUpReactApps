@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const BaseComponent = require('./base-component');
+const BaseComponent = require('../../core/base-component');
 
 class BootstrapGenerator extends BaseComponent {
   /**
@@ -14,8 +14,8 @@ class BootstrapGenerator extends BaseComponent {
    */
   constructor(spec) {
     super(spec);
-    this.specsPath = spec.specsPath || path.join(__dirname, '../../specs');
-    this.outputPath = spec.outputPath || path.join(__dirname, '../../bootstrap');
+    this.specsPath = spec.specsPath || __dirname;
+    this.outputPath = spec.outputPath || path.join(__dirname, 'generated');
   }
 
   /**
@@ -56,7 +56,7 @@ class BootstrapGenerator extends BaseComponent {
    * @returns {Object} Bootstrap specifications
    */
   _loadBootstrapSpecs() {
-    const specPath = path.join(this.specsPath, 'bootstrap-system.json');
+    const specPath = path.join(this.specsPath, 'spec.json');
     return JSON.parse(fs.readFileSync(specPath, 'utf8'));
   }
 
@@ -133,10 +133,10 @@ class BootstrapGenerator extends BaseComponent {
 
     return `/**
  * ${className} - AGENTS.md compliant ${moduleSpec.search.title}
- * Auto-generated from bootstrap-system.json spec
+ * Auto-generated from spec.json
  */
 
-const BaseComponent = require('../codegen/core/base-component');
+const BaseComponent = require('../../../core/base-component');
 
 class ${className} extends BaseComponent {
   constructor(spec) {
@@ -173,7 +173,7 @@ module.exports = ${className};
 
     return `/**
  * ${interfaceName} - AGENTS.md interface definition
- * Auto-generated from bootstrap-system.json spec
+ * Auto-generated from spec.json
  */
 
 class ${interfaceName} {
