@@ -1,0 +1,80 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440002",
+  "id": "tool.dev.git",
+  "type": "tool",
+  "search": {
+    "title": "Git",
+    "summary": "Distributed version control system",
+    "keywords": ["vcs", "git", "version-control"],
+    "tags": ["dev-workflow", "essential"],
+    "aliases": ["source-control"],
+    "domain": "tooling",
+    "capabilities": ["clone", "commit", "push", "pull"]
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "install": {
+    "linux": {
+      "apt": ["apt-get", "install", "-y", "git"],
+      "snap": ["snap", "install", "git"]
+    },
+    "mac": {
+      "brew": ["brew", "install", "git"]
+    },
+    "win": {
+      "choco": ["choco", "install", "git", "-y"],
+      "winget": ["winget", "install", "Git.Git"]
+    }
+  },
+  "verify": {
+    "linux": ["git", "--version"],
+    "mac": ["git", "--version"],
+    "win": ["git", "--version"]
+  },
+  "help": {
+    "linux": ["git", "--help"],
+    "mac": ["git", "--help"],
+    "win": ["git", "--help"]
+  },
+  "oneLiners": [
+    {
+      "id": "clone-repo",
+      "description": "Clone a Git repository",
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "command": ["git", "clone", "{repo_url}"]
+    },
+    {
+      "id": "init-repo",
+      "description": "Initialize a new Git repository",
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "command": ["git", "init"]
+    },
+    {
+      "id": "add-files",
+      "description": "Add files to Git staging area",
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "command": ["git", "add", "."]
+    }
+  ],
+  "options": [
+    {
+      "flag": "--version",
+      "description": "Show Git version",
+      "platforms": {"win": true, "mac": true, "linux": true}
+    },
+    {
+      "flag": "--help",
+      "description": "Show Git help",
+      "platforms": {"win": true, "mac": true, "linux": true}
+    }
+  ],
+  "dependencies": [],
+  "risks": {
+    "destructive": false,
+    "network": true,
+    "confirmation": "Network operations will be performed. Continue?"
+  }
+}

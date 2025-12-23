@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AGENTS.md Component Specification",
+  "description": "JSON schema for AGENTS.md compliant component specifications",
+  "type": "object",
+  "required": ["uuid", "id", "search"],
+  "properties": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "RFC 4122 UUID (required for all components)"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]*$",
+      "description": "Stable namespaced identifier"
+    },
+    "search": {
+      "type": "object",
+      "required": ["title", "summary", "keywords"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50,
+          "description": "Short human-readable name"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 200,
+          "description": "One-paragraph description"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "maxItems": 10,
+          "description": "Array of search terms"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional normalized tags"
+        },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional synonyms"
+        },
+        "domain": {
+          "type": "string",
+          "enum": ["codegen", "adapter", "domain", "i18n", "tooling"],
+          "description": "Component domain classification"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Component capabilities"
+        }
+      }
+    },
+    "platforms": {
+      "type": "object",
+      "properties": {
+        "win": { "type": "boolean" },
+        "mac": { "type": "boolean" },
+        "linux": { "type": "boolean" }
+      },
+      "description": "Platform support flags"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Component dependencies"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version"
+    }
+  },
+  "additionalProperties": true
+}

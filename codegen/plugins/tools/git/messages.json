@@ -1,0 +1,58 @@
+{
+  "msg.tool.git.title": {
+    "en": "Git",
+    "es": "Git",
+    "fr": "Git",
+    "de": "Git",
+    "ja": "Git"
+  },
+  "msg.tool.git.summary": {
+    "en": "Distributed version control system",
+    "es": "Sistema de control de versiones distribuido",
+    "fr": "Système de contrôle de version distribué",
+    "de": "Verteiltes Versionskontrollsystem",
+    "ja": "分散バージョン管理システム"
+  },
+  "msg.tool.git.oneliner.clone": {
+    "en": "Clone a Git repository",
+    "es": "Clonar un repositorio Git",
+    "fr": "Cloner un dépôt Git",
+    "de": "Ein Git-Repository klonen",
+    "ja": "Gitリポジトリをクローンする"
+  },
+  "msg.tool.git.oneliner.init": {
+    "en": "Initialize a new Git repository",
+    "es": "Inicializar un nuevo repositorio Git",
+    "fr": "Initialiser un nouveau dépôt Git",
+    "de": "Ein neues Git-Repository initialisieren",
+    "ja": "新しいGitリポジトリを初期化する"
+  },
+  "msg.tool.git.oneliner.add": {
+    "en": "Add files to Git staging area",
+    "es": "Agregar archivos al área de preparación de Git",
+    "fr": "Ajouter des fichiers à la zone de préparation Git",
+    "de": "Dateien zum Git-Staging-Bereich hinzufügen",
+    "ja": "ファイルをGitステージング領域に追加する"
+  },
+  "msg.tool.git.opt.version": {
+    "en": "Show Git version",
+    "es": "Mostrar versión de Git",
+    "fr": "Afficher la version de Git",
+    "de": "Git-Version anzeigen",
+    "ja": "Gitバージョンを表示する"
+  },
+  "msg.tool.git.opt.help": {
+    "en": "Show Git help",
+    "es": "Mostrar ayuda de Git",
+    "fr": "Afficher l'aide de Git",
+    "de": "Git-Hilfe anzeigen",
+    "ja": "Gitヘルプを表示する"
+  },
+  "msg.tool.git.risk.network": {
+    "en": "Network operations will be performed. Continue?",
+    "es": "Se realizarán operaciones de red. ¿Continuar?",
+    "fr": "Des opérations réseau seront effectuées. Continuer ?",
+    "de": "Netzwerkoperationen werden durchgeführt. Fortfahren?",
+    "ja": "ネットワーク操作が実行されます。続行しますか？"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440002",
+  "id": "tool.dev.oop-principles",
+  "type": "tool",
+  "search": {
+    "title": "OOP Principles Analyzer",
+    "summary": "Enforces AGENTS.md object-oriented programming principles and constraints",
+    "keywords": ["oop", "principles", "solid", "analysis", "compliance"],
+    "tags": ["quality", "analysis", "oop", "standards"],
+    "aliases": ["oop-analyzer", "principles-checker"],
+    "domain": "tooling",
+    "capabilities": ["analyze", "validate", "enforce", "report"]
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "install": {
+    "linux": {
+      "apt": ["apt-get", "install", "-y", "nodejs"]
+    },
+    "mac": {
+      "brew": ["brew", "install", "node"]
+    },
+    "win": {
+      "winget": ["winget", "install", "OpenJS.NodeJS"]
+    }
+  },
+  "verify": {
+    "linux": ["node", "--version"],
+    "mac": ["node", "--version"],
+    "win": ["node", "--version"]
+  },
+  "help": {
+    "linux": ["node", "--help"],
+    "mac": ["node", "--help"],
+    "win": ["node", "--help"]
+  },
+  "oneLiners": [
+    {
+      "id": "analyze-project",
+      "description": "msg.tool.oop-principles.oneliner.analyze",
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "command": ["node", "codegen.js", "tool", "run", "oop-principles", "analyze"]
+    }
+  ],
+  "options": [
+    {
+      "flag": "--strict",
+      "description": "msg.tool.oop-principles.opt.strict",
+      "platforms": {"win": true, "mac": true, "linux": true}
+    }
+  ],
+  "dependencies": [],
+  "risks": {
+    "destructive": false,
+    "network": false,
+    "confirmation": null
+  }
+}
