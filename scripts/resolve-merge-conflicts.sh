@@ -74,7 +74,14 @@ current_branch=$(git branch --show-current)
 
 # Ensure we have the latest main
 echo "Fetching latest main branch..."
-git fetch origin main:main || git fetch origin main
+if git rev-parse --verify main >/dev/null 2>&1; then
+    # main branch exists locally, update it
+    git fetch origin main
+    git branch -f main FETCH_HEAD
+else
+    # main branch doesn't exist locally, create it
+    git fetch origin main:main
+fi
 
 # Process each PR branch
 failed_branches=()

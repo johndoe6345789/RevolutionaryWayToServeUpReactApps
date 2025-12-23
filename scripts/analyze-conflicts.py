@@ -139,9 +139,16 @@ def main():
     
     # Fetch main
     print("\nFetching main branch...")
-    code, stdout, stderr = run_command(["git", "fetch", "origin", "main:main"])
-    if code != 0 and "already exists" not in stderr:
+    # First fetch, then force-update local branch if it exists
+    code, stdout, stderr = run_command(["git", "fetch", "origin", "main"])
+    if code != 0:
         print(f"❌ Failed to fetch main: {stderr}")
+        sys.exit(1)
+    
+    # Force-update local main branch to match origin
+    code, stdout, stderr = run_command(["git", "branch", "-f", "main", "FETCH_HEAD"])
+    if code != 0:
+        print(f"❌ Failed to update main branch: {stderr}")
         sys.exit(1)
     
     # Analyze each PR

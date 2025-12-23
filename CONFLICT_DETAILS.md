@@ -2,7 +2,7 @@
 
 This document provides detailed information about merge conflicts in specific pull requests.
 
-**Generated:** $(date)
+**Generated:** 2025-12-23  
 **Analysis Tool:** `scripts/analyze-conflicts.py`
 
 ## Summary
