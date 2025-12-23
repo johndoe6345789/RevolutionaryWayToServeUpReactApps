@@ -8,28 +8,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- *
- */
-interface PluginManifest {
-  id: string;
-  name?: string;
-  version?: string;
-  entry_point: string;
-  dependencies?: string[] | { core?: string; plugins?: string[] };
-  [key: string]: unknown;
-}
-
-/**
- *
- */
-interface PluginDependency {
-  pluginId: string;
-  manifest: PluginManifest;
-  entryPath: string;
-  dependencies: string[];
-}
+import type { PluginDependency } from './types/plugin-dependency';
+import type { PluginManifest } from './types/plugin-manifest';
 
 /**
  *

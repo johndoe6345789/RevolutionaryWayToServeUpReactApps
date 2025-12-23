@@ -7,82 +7,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { ISpec } from '../../core/interfaces';
-
-/**
- *
- */
-interface WebUIGeneratorSpec extends ISpec {
-  specsPath?: string;
-  outputPath?: string;
-}
-
-/**
- *
- */
-interface GeneratedFile {
-  file: string;
-  type: string;
-  name: string;
-}
-
-/**
- *
- */
-interface ComponentSpec {
-  id: string;
-  search: {
-    title: string;
-    summary: string;
-  };
-  features?: string[];
-  capabilities?: string[];
-  searchFields?: string[];
-  filters?: {
-    name: string;
-    values: string[];
-  }[];
-}
-
-/**
- *
- */
-interface PageSpec {
-  id: string;
-  route: string;
-  components: string[];
-}
-
-/**
- *
- */
-interface APIRouteSpec {
-  id: string;
-  route: string;
-  method: string;
-  description: string;
-}
-
-/**
- *
- */
-interface WebUISpecData {
-  components: Record<string, ComponentSpec>;
-  pages: Record<string, PageSpec>;
-  'api-routes': Record<string, APIRouteSpec>;
-  search: {
-    title: string;
-    summary: string;
-  };
-}
-
-/**
- *
- */
-interface ExecutionResult {
-  success: boolean;
-  generated: GeneratedFile[];
-  specs: WebUISpecData;
-}
+import type { APIRouteSpec } from './types/api-route-spec';
+import type { ComponentSpec } from './types/component-spec';
+import type { ExecutionResult } from './types/execution-result';
+import type { GeneratedFile } from './types/generated-file';
+import type { PageSpec } from './types/page-spec';
+import type { WebUIGeneratorSpec } from './types/webui-generator-spec';
+import type { WebUISpecData } from './types/webui-spec-data';
 
 /**
  *

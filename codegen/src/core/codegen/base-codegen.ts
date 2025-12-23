@@ -17,68 +17,10 @@ import type {
   IRegistry,
   ISpec,
 } from './interfaces/index';
-
-/**
- *
- */
-interface PluginInfo {
-  id: string;
-  name: string | undefined;
-  version: string | undefined;
-  entry_point: string;
-  path: string;
-  category: string;
-  [key: string]: unknown;
-}
-
-/**
- *
- */
-interface ExecutionResults {
-  success: boolean;
-  generated: string[];
-  errors: string[];
-  warnings: string[];
-  timestamp: string;
-  stats: {
-    pluginsExecuted: number;
-    specsProcessed: number;
-    filesGenerated: number;
-    [key: string]: number;
-  };
-}
-
-/**
- *
- */
-interface AggregateResults {
-  generated: string[];
-  errors: string[];
-  warnings: string[];
-  stats: {
-    pluginsExecuted: number;
-    specsProcessed: number;
-    filesGenerated: number;
-    [key: string]: number;
-  };
-}
-
-/**
- *
- */
-interface SystemStatus {
-  initialized: boolean;
-  plugins: {
-    discovered: number;
-    loaded: number;
-  };
-  registries: {
-    plugins: number;
-    aggregates: number;
-    specs: number;
-  };
-  options: IBaseCodegenOptions;
-}
+import type { AggregateResults } from './types/aggregate-results';
+import type { ExecutionResults } from './types/execution-results';
+import type { PluginInfo } from './types/plugin-info';
+import type { SystemStatus } from './types/system-status';
 
 /**
  *

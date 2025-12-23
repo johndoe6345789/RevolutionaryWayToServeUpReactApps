@@ -7,68 +7,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BaseComponent } from '../../core/base-component';
-import type { ISpec } from '../../core/interfaces/ispec';
-
-/**
- *
- */
-interface GeneratorSpec extends ISpec {
-  specsPath?: string;
-  outputPath?: string;
-}
-
-/**
- *
- */
-interface GeneratedFile {
-  file: string;
-  type: string;
-  name: string;
-}
-
-/**
- *
- */
-interface ModuleSpec {
-  search: {
-    title: string;
-    summary: string;
-    capabilities?: string[];
-  };
-  implementation: {
-    methods: string[];
-  };
-  dependencies?: string[];
-}
-
-/**
- *
- */
-interface InterfaceSpec {
-  methods: string[];
-}
-
-/**
- *
- */
-interface SpecsData {
-  modules: Record<string, ModuleSpec>;
-  interfaces: Record<string, InterfaceSpec>;
-  search: {
-    title: string;
-    summary: string;
-    capabilities?: string[];
-  };
-}
-
-/**
- *
- */
-interface ExecutionResult {
-  success: boolean;
-  generated: GeneratedFile[];
-  specs: SpecsData;
-}
+import type { ExecutionResult } from './types/execution-result';
+import type { GeneratedFile } from './types/generated-file';
+import type { GeneratorSpec } from './types/generator-spec';
+import type { InterfaceSpec } from './types/interface-spec';
+import type { ModuleSpec } from './types/module-spec';
+import type { SpecsData } from './types/specs-data';
 
 /**
  *

@@ -9,34 +9,8 @@
 import { BaseComponent } from '../core/codegen/base-component';
 import type { LifecycleBuilder } from '../core/types/lifecycle-builder';
 import type { CompositeLifecycle } from '../core/types/composite-lifecycle';
-
-/**
- *
- */
-interface CodegenOptions {
-  outputDir?: string;
-  verbose?: boolean;
-  strictMode?: boolean;
-  [key: string]: unknown;
-}
-
-/**
- *
- */
-interface CLIArgs {
-  spec?: string;
-  output?: string;
-  language?: string;
-  profile?: string;
-  template?: string;
-  category?: string;
-  component?: string;
-  query?: string;
-  tool?: string;
-  platform?: string;
-  packageManager?: string;
-  [key: string]: unknown;
-}
+import type { CLIArgs } from './types/cli-args';
+import type { CodegenOptions } from './types/codegen-options';
 
 /**
  * CodegenEntrypoint - Uses lifecycle builder for component orchestration

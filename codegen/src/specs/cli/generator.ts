@@ -7,63 +7,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { ISpec } from '../../core/interfaces';
-
-/**
- *
- */
-interface CLIGeneratorSpec extends ISpec {
-  specsPath?: string;
-  outputPath?: string;
-}
-
-/**
- *
- */
-interface GeneratedFile {
-  file: string;
-  type: string;
-  name: string;
-}
-
-/**
- *
- */
-interface CommandSpec {
-  id: string;
-  search: {
-    title: string;
-    summary: string;
-  };
-  syntax?: string;
-  examples?: string[];
-  subcommands?: Record<
-    string,
-    {
-      syntax: string;
-      examples: string[];
-    }
-  >;
-}
-
-/**
- *
- */
-interface CLISpecData {
-  commands: Record<string, CommandSpec>;
-  search: {
-    title: string;
-    summary: string;
-  };
-}
-
-/**
- *
- */
-interface ExecutionResult {
-  success: boolean;
-  generated: GeneratedFile[];
-  specs: CLISpecData;
-}
+import type { CLIGeneratorSpec } from './types/cli-generator-spec';
+import type { CLISpecData } from './types/cli-spec-data';
+import type { CommandSpec } from './types/command-spec';
+import type { ExecutionResult } from './types/execution-result';
+import type { GeneratedFile } from './types/generated-file';
 
 /**
  *
