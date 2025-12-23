@@ -3164,6 +3164,34 @@ plugins/
 └── profiles/           # User profiles
 ```
 
+### Code Generation Requirements
+
+**Resist urge to hardcode strings, codegen should generate docstrings for all classes and methods.**
+
+**Every file should have a class in it.**
+
+**Codegen should make a docs folder in project root with README.md files in each folder and API docs that are in nested folders (also markdown), Table of contents, Navigation, back and forward links and all the usual stuff in there.**
+
+**Doc templates are stored in json, one string per line in a list/array.**
+
+### Public Method Count Rule (Clarified)
+
+The ≤3 public method limit applies **only to domain-level methods**.
+
+The following methods are **explicitly excluded** from the count:
+- Lifecycle methods:
+  - `initialise()`
+  - `execute(...)`
+  - `validate(...)`
+  - `shutdown()`
+- Constructors (`__init__`, language equivalents)
+- Interface-mandated overrides
+- Language-required dunder / magic methods
+
+These methods are considered **structural contract surface**, not public API surface.
+
+**Note**: If you have the lifecycle methods, you don't really need any other methods.
+
 **This is the way.**
 
 [tool.pylint.main]
