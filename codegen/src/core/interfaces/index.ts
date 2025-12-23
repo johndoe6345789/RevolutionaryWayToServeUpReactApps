@@ -9,6 +9,7 @@ export { IPluginConfig } from './iplugin-config';
 export { IComponent } from './icomponent';
 export { IRegistry } from './iregistry';
 export { IAggregate } from './iaggregate';
+export { IAggregator } from './iaggregator';
 export { IPlugin } from './iplugin';
 export { IRegistryManager } from './iregistry-manager';
 export { IDependencyInjectionContainer } from './idependency-injection-container';
