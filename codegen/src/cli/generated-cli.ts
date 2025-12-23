@@ -148,22 +148,22 @@ export class GeneratedCLI {
   }
 
   /**
-   * Handle list command - drill-down navigation through aggregates
+   * Handle list command - list components through lifecycle
    * @param args
    * @param entrypoint
    */
   private async _handleList(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
-    const path = args.filter(arg => !arg.startsWith('-'));
+    const category = args[0] || 'all';
 
-    if (path.length === 0) {
-      // List top-level aggregates
-      console.log('Available aggregates:');
-      const aggregator = entrypoint.getAggregator();
-      const children = aggregator.listChildren();
-      for (const childId of children) {
-        const child = aggregator.getChild(childId);
-        if (child) {
-          const title = child.search?.title || 'No title';
+    if (category === 'all' || category === 'components') {
+      // List all components in the lifecycle
+      console.log('Available components:');
+      const lifecycle = entrypoint.getCompositeLifecycle();
+      const children = lifecycle.getChildren();
+      for (const [childId, child] of children) {
+        if (child && 'debug' in child) {
+          const debugInfo = child.debug();
+          const title = debugInfo.spec?.search?.title || 'No title';
           console.log(`  ${childId} - ${title}`);
         } else {
           console.log(`  ${childId}`);
@@ -172,30 +172,21 @@ export class GeneratedCLI {
       return;
     }
 
-    // Drill down into specific path
-    const targetAggregator = entrypoint.drillDown(path);
-    if (!targetAggregator) {
-      console.error(`Aggregate path '${path.join('.')}' not found`);
-      process.exit(1);
-    }
-
-    const children = targetAggregator.listChildren();
-    if (children.length === 0) {
-      console.log(`No children found in ${path.join('.')}`);
+    // List specific category
+    if (category === 'plugins') {
+      const pluginAggregator = entrypoint.getComponent('pluginAggregator');
+      if (pluginAggregator && 'debug' in pluginAggregator) {
+        const debugInfo = pluginAggregator.debug();
+        console.log('Plugins:');
+        const plugins = debugInfo.discoveredPlugins as string[] || [];
+        for (const plugin of plugins) {
+          console.log(`  ${plugin}`);
+        }
+      }
       return;
     }
 
-    console.log(`Contents of ${path.join('.')}:`);
-    for (const childId of children) {
-      const child = targetAggregator.getChild(childId);
-      if (child) {
-        const title = child.search?.title || 'No title';
-        const summary = child.search?.summary ? ` - ${child.search.summary}` : '';
-        console.log(`  ${childId}${summary}`);
-      } else {
-        console.log(`  ${childId}`);
-      }
-    }
+    console.log(`Category '${category}' not found`);
   }
 
   /**
@@ -210,26 +201,28 @@ export class GeneratedCLI {
       process.exit(1);
     }
 
-    // Try to find component by drilling down through aggregates
-    const aggregator = entrypoint.getAggregator();
-    const topLevelIds = aggregator.listChildren();
+    // Try to find component in the lifecycle
+    const lifecycle = entrypoint.getCompositeLifecycle();
+    const children = lifecycle.getChildren();
 
-    for (const aggId of topLevelIds) {
-      const aggregate = aggregator.getChild(aggId);
-      if (aggregate && 'drillDown' in aggregate) {
-        // Try direct child first
-        let component = aggregate.getChild(targetId);
-        if (component) {
-          this._displayComponentDetails(component, targetId);
-          return;
-        }
+    // First check if it's a direct component
+    for (const [componentId, component] of children) {
+      if (componentId === targetId && 'debug' in component) {
+        this._displayComponentDetails(component, targetId);
+        return;
+      }
+    }
 
-        // Try recursive search in this aggregate
-        component = this._findComponentRecursive(aggregate, targetId);
-        if (component) {
-          this._displayComponentDetails(component, targetId);
-          return;
-        }
+    // Check plugin aggregator for specific plugins
+    const pluginAggregator = entrypoint.getComponent('pluginAggregator');
+    if (pluginAggregator && 'debug' in pluginAggregator) {
+      const debugInfo = pluginAggregator.debug();
+      const loadedPlugins = debugInfo.loadedPlugins as string[] || [];
+      if (loadedPlugins.includes(targetId)) {
+        console.log(`Component: ${targetId}`);
+        console.log(`Type: plugin`);
+        console.log(`Status: loaded`);
+        return;
       }
     }
 
@@ -237,27 +230,7 @@ export class GeneratedCLI {
     process.exit(1);
   }
 
-  /**
-   * Recursively search for component in aggregate tree
-   * @param aggregator
-   * @param targetId
-   */
-  private _findComponentRecursive(aggregator: any, targetId: string): any {
-    const children = aggregator.listChildren();
-    for (const childId of children) {
-      const child = aggregator.getChild(childId);
-      if (child) {
-        if (child.id === targetId || child.uuid === targetId) {
-          return child;
-        }
-        if ('drillDown' in child) {
-          const found = this._findComponentRecursive(child, targetId);
-          if (found) return found;
-        }
-      }
-    }
-    return null;
-  }
+
 
   /**
    * Display detailed component information

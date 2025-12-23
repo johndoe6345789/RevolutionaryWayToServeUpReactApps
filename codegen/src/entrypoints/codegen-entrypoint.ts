@@ -2,12 +2,12 @@
 
 /**
  * CodegenEntrypoint - Main CLI/web entry point
- * Revolutionary Codegen system entry point with lifecycle management
+ * Revolutionary Codegen system entry point with lifecycle builder management
  * TypeScript strict typing with no 'any' types
  */
 
 import { BaseComponent } from '../core/base-component';
-import type { IAggregator } from '../core/interfaces/index';
+import type { LifecycleBuilder, CompositeLifecycle } from '../core/types/lifecycle';
 
 /**
  *
@@ -38,12 +38,13 @@ interface CLIArgs {
 }
 
 /**
- *
+ * CodegenEntrypoint - Uses lifecycle builder for component orchestration
  */
 export class CodegenEntrypoint extends BaseComponent {
-  private readonly aggregator: IAggregator;
+  private readonly lifecycleBuilder: LifecycleBuilder;
+  private compositeLifecycle?: CompositeLifecycle;
 
-  constructor(aggregator: IAggregator, options: CodegenOptions = {}) {
+  constructor(lifecycleBuilder: LifecycleBuilder, options: CodegenOptions = {}) {
     super({
       uuid: '12345678-1234-4123-8123-123456789012',
       id: 'codegen-entrypoint',
@@ -57,7 +58,7 @@ export class CodegenEntrypoint extends BaseComponent {
       },
     });
 
-    this.aggregator = aggregator;
+    this.lifecycleBuilder = lifecycleBuilder;
   }
 
   /**
@@ -101,18 +102,29 @@ export class CodegenEntrypoint extends BaseComponent {
   }
 
   /**
-   *
+   * Get the lifecycle builder
    */
-  public getAggregator(): IAggregator {
-    return this.aggregator;
+  public getLifecycleBuilder(): LifecycleBuilder {
+    return this.lifecycleBuilder;
   }
 
   /**
-   *
-   * @param path
+   * Get the composite lifecycle (builds it if not already built)
    */
-  public drillDown(path: string[]): IAggregator | null {
-    return this.aggregator.drillDown(path) as IAggregator;
+  public getCompositeLifecycle(): CompositeLifecycle {
+    if (!this.compositeLifecycle) {
+      this.compositeLifecycle = this.lifecycleBuilder.build();
+    }
+    return this.compositeLifecycle;
+  }
+
+  /**
+   * Get a component by name from the lifecycle
+   */
+  public getComponent(name: string): any {
+    const lifecycle = this.getCompositeLifecycle();
+    const children = lifecycle.getChildren();
+    return children.get(name);
   }
 
   /**
@@ -128,9 +140,9 @@ export class CodegenEntrypoint extends BaseComponent {
         profile: options.profile,
         template: options.template,
       },
-      target = this.drillDown(['ExecutionAggregator']);
-    if (target) {
-      await target.execute(context);
+      executionAggregator = this.getComponent('executionAggregator');
+    if (executionAggregator) {
+      await executionAggregator.execute(context);
     }
   }
 
@@ -142,16 +154,19 @@ export class CodegenEntrypoint extends BaseComponent {
     const category = _options.category || 'all';
 
     if (category === 'plugins' || category === 'all') {
-      const plugins = this.drillDown(['PluginAggregator']);
-      if (plugins) {
-        plugins.listChildren();
+      const pluginAggregator = this.getComponent('pluginAggregator');
+      if (pluginAggregator && 'debug' in pluginAggregator) {
+        const debugInfo = pluginAggregator.debug();
+        console.log('Plugins:', debugInfo.discoveredPlugins || []);
       }
     }
 
     if (category === 'tools' || category === 'all') {
-      const tools = this.drillDown(['ToolingAggregate', 'DevWorkflowRegistry']);
-      if (tools) {
-        tools.listChildren();
+      // For now, just show plugin info as tools are plugins
+      const pluginAggregator = this.getComponent('pluginAggregator');
+      if (pluginAggregator && 'debug' in pluginAggregator) {
+        const debugInfo = pluginAggregator.debug();
+        console.log('Tools:', debugInfo.loadedPlugins || []);
       }
     }
   }
@@ -166,13 +181,27 @@ export class CodegenEntrypoint extends BaseComponent {
       return;
     }
 
-    const aggregators = ['PluginAggregator', 'ToolingAggregate'];
-    for (const agg of aggregators) {
-      const component = this.drillDown([agg, componentId]);
-      if (component) {
+    // Check both components for the requested component
+    const pluginAggregator = this.getComponent('pluginAggregator');
+    const executionAggregator = this.getComponent('executionAggregator');
+
+    if (pluginAggregator && 'debug' in pluginAggregator) {
+      const debugInfo = pluginAggregator.debug();
+      const plugins = debugInfo.loadedPlugins as string[] || [];
+      if (plugins.includes(componentId)) {
+        console.log(`Component: ${componentId} (Plugin)`);
         return;
       }
     }
+
+    if (executionAggregator && 'debug' in executionAggregator) {
+      const debugInfo = executionAggregator.debug();
+      console.log(`Component: ${componentId} (Execution)`);
+      console.log('Debug Info:', debugInfo);
+      return;
+    }
+
+    console.log(`Component '${componentId}' not found`);
   }
 
   /**

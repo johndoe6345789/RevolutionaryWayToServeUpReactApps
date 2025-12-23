@@ -1,12 +1,13 @@
 /**
- * ExecutionAggregator - Coordinates execution pipeline with unlimited drill-down
+ * ExecutionAggregator - Coordinates execution pipeline with lifecycle management
  * Manages code generation workflow and result aggregation
  * TypeScript strict typing with no 'any' types
  */
 
-import { BaseAggregator } from '../core/base-aggregator';
-import type { IAggregator, IComponent } from '../core/interfaces/index';
+import type { IComponent } from '../core/interfaces/index';
 import type { ISpec } from '../core/interfaces/ispec';
+import type { IStandardLifecycle } from '../core/types/lifecycle';
+import { LifecycleStatus } from '../core/types/lifecycle';
 
 /**
  *
@@ -25,20 +26,24 @@ interface ExecutionResults {
 }
 
 /**
- * ExecutionAggregator - Coordinates execution pipeline with unlimited drill-down
+ * ExecutionAggregator - Coordinates execution pipeline with lifecycle management
  * Manages code generation workflow and result aggregation
  * TypeScript strict typing with no 'any' types
  */
-export class ExecutionAggregator extends BaseAggregator {
-  /** Execution results tracking the outcome of code generation operations */
+export class ExecutionAggregator implements IStandardLifecycle {
+  private readonly spec: ISpec;
+  private readonly children: Map<string, IComponent>;
   private executionResults: ExecutionResults;
+  private currentStatus: LifecycleStatus;
 
   /**
    * Create a new ExecutionAggregator
    * @param spec The specification for this aggregator
    */
   constructor(spec: ISpec) {
-    super(spec);
+    this.spec = spec;
+    this.children = new Map();
+    this.currentStatus = LifecycleStatus.UNINITIALIZED;
     this.executionResults = {
       success: false,
       generated: [],
@@ -53,21 +58,28 @@ export class ExecutionAggregator extends BaseAggregator {
   }
 
   /**
-   * Initialize the execution aggregator
-   * @returns Promise resolving to this aggregator instance
+   * Initialise - Register with registry and prepare runtime state
    */
-  public override async initialise(): Promise<ExecutionAggregator> {
-    await super.initialise();
-    return this;
+  public async initialise(): Promise<void> {
+    this.currentStatus = LifecycleStatus.INITIALIZING;
+    // Initialize child components if any
+    this.currentStatus = LifecycleStatus.READY;
   }
 
   /**
-   * Execute the code generation workflow
-   * @param context Execution context
-   * @returns Promise resolving to execution results
+   * Validate - Pre-flight checks before execution
    */
-  public override async execute(context: Record<string, unknown>): Promise<unknown> {
-    await super.execute(context);
+  public async validate(): Promise<void> {
+    this.currentStatus = LifecycleStatus.VALIDATING;
+    // Validation logic would go here
+    this.currentStatus = LifecycleStatus.READY;
+  }
+
+  /**
+   * Execute - Primary operational method
+   */
+  public async execute(context: Record<string, unknown> = {}): Promise<unknown> {
+    this.currentStatus = LifecycleStatus.EXECUTING;
 
     // Reset results for new execution
     this.executionResults = {
@@ -82,49 +94,75 @@ export class ExecutionAggregator extends BaseAggregator {
       },
     };
 
-    // Execute through plugin aggregator
-    const pluginAggregator = this.children.get('PluginAggregator') as IAggregator;
-    try {
-      const pluginResults = await pluginAggregator.execute(context);
-      this.executionResults.stats.pluginsExecuted =
-        (pluginResults as { pluginsExecuted?: number }).pluginsExecuted ?? 0;
-    } catch (error) {
-      this.executionResults.errors.push(`Plugin execution failed: ${(error as Error).message}`);
+    // Execute through plugin aggregator (will be set by lifecycle builder)
+    const pluginAggregator = this.children.get('PluginAggregator');
+    if (pluginAggregator) {
+      try {
+        const pluginResults = await pluginAggregator.execute(context);
+        this.executionResults.stats.pluginsExecuted =
+          (pluginResults as { pluginsExecuted?: number }).pluginsExecuted ?? 0;
+      } catch (error) {
+        this.executionResults.errors.push(`Plugin execution failed: ${(error as Error).message}`);
+      }
     }
 
-    // Execute through spec aggregator
-    const specAggregator = this.children.get('SpecAggregator') as IAggregator;
-    try {
-      const specResults = await specAggregator.execute(context);
-      this.executionResults.stats.specsProcessed =
-        (specResults as { specsProcessed?: number }).specsProcessed ?? 0;
-    } catch (error) {
-      this.executionResults.errors.push(`Spec processing failed: ${(error as Error).message}`);
-    }
-
+    // For now, just mark as successful
     this.executionResults.success = this.executionResults.errors.length === 0;
+    this.currentStatus = LifecycleStatus.READY;
     return this.executionResults;
   }
 
   /**
-   * Shutdown the execution aggregator and all child aggregators
-   * @returns Promise that resolves when shutdown is complete
+   * Cleanup - Resource cleanup and shutdown
    */
-  public override async shutdown(): Promise<void> {
-    // Shutdown child aggregators
-    for (const [, child] of this.children) {
-      if ('shutdown' in child && typeof child.shutdown === 'function') {
-        await (
-          child as {
-            /**
-             *
-             */
-            shutdown: () => Promise<void>;
-          }
-        ).shutdown();
+  public async cleanup(): Promise<void> {
+    this.currentStatus = LifecycleStatus.CLEANING;
+    // Cleanup child components
+    for (const child of this.children.values()) {
+      if ('cleanup' in child && typeof child.cleanup === 'function') {
+        await child.cleanup();
       }
     }
-    await super.shutdown();
+    this.children.clear();
+    this.currentStatus = LifecycleStatus.DESTROYED;
+  }
+
+  /**
+   * Debug - Return diagnostic information
+   */
+  public debug(): Record<string, unknown> {
+    return {
+      spec: this.spec,
+      status: this.currentStatus,
+      executionResults: this.executionResults,
+      children: Array.from(this.children.keys()),
+    };
+  }
+
+  /**
+   * Reset - State reset for testing
+   */
+  public async reset(): Promise<void> {
+    await this.cleanup();
+    this.executionResults = {
+      success: false,
+      generated: [],
+      errors: [],
+      warnings: [],
+      stats: {
+        pluginsExecuted: 0,
+        specsProcessed: 0,
+        filesGenerated: 0,
+      },
+    };
+    this.currentStatus = LifecycleStatus.UNINITIALIZED;
+  }
+
+  /**
+   * Status - Return current lifecycle state
+   */
+  public status(): LifecycleStatus {
+    return this.currentStatus;
   }
 
   /**
@@ -133,22 +171,5 @@ export class ExecutionAggregator extends BaseAggregator {
    */
   public getExecutionResults(): ExecutionResults {
     return { ...this.executionResults };
-  }
-
-  /**
-   * Get a child component by ID
-   * @param childId The ID of the child to retrieve
-   * @returns The child component or null if not found
-   */
-  public override getChild(childId: string): IAggregator | IComponent | null {
-    return this.children.get(childId) ?? null;
-  }
-
-  /**
-   * List all child component IDs
-   * @returns Array of child component IDs
-   */
-  public override listChildren(): readonly string[] {
-    return Array.from(this.children.keys());
   }
 }
