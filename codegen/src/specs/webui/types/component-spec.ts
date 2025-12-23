@@ -1,5 +1,5 @@
 /**
- * Specification for a generated Web UI component
+ * ComponentSpec - Describes a UI component to generate.
  */
 export interface ComponentSpec {
   id: string;

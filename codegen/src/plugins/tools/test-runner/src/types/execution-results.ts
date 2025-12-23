@@ -1,5 +1,5 @@
 /**
- * Summary results from executing the test suite
+ * ExecutionResults - Internal execution summary for the test runner.
  */
 export interface ExecutionResults {
   summary: {

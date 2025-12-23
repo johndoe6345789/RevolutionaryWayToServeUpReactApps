@@ -7,7 +7,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { ISpec } from '../../core/interfaces';
-import type { APIRouteSpec } from './types/api-route-spec';
+import type {
+  APIRouteParam,
+  APIRouteSpec,
+  ResponseSpec,
+  SchemaDefinition,
+} from './types/api-route-spec';
 import type { ComponentSpec } from './types/component-spec';
 import type { ExecutionResult } from './types/execution-result';
 import type { GeneratedFile } from './types/generated-file';
@@ -123,7 +128,7 @@ export class WebUIGenerator {
    */
   private _generateAPIRoute(apiName: string, apiSpec: APIRouteSpec): GeneratedFile {
     const apiCode = this._generateAPICode(apiName, apiSpec),
-      filePath = path.join(this.outputPath, 'app', 'api', apiSpec.route, 'route.ts');
+      filePath = path.join(this.outputPath, 'app', 'api', this._normaliseRoute(apiSpec.route), 'route.ts');
 
     fs.writeFileSync(filePath, apiCode);
     return { file: filePath, type: 'api', name: apiName };
@@ -345,6 +350,21 @@ ${componentUsage}
    * @param apiSpec
    */
   private _generateAPICode(apiName: string, apiSpec: APIRouteSpec): string {
+    const method = apiSpec.method.toUpperCase(),
+      paramsSchema = this._buildParamsSchema(apiSpec.params),
+      requestBodySchema = apiSpec.body?.schema ?? null,
+      successResponse = apiSpec.responses?.success,
+      errorResponse = this._selectErrorResponse(apiSpec.responses?.errors),
+      successStatus = successResponse?.status ?? 200,
+      errorStatus = errorResponse?.status ?? 400,
+      stubResponse = this._buildExampleFromSchema(successResponse?.schema ?? null),
+      paramsExtractionCode = this._buildParamsExtraction(apiSpec.params ?? []),
+      paramSchemaLiteral = this._schemaToLiteral(paramsSchema),
+      requestSchemaLiteral = this._schemaToLiteral(requestBodySchema),
+      successSchemaLiteral = this._schemaToLiteral(successResponse?.schema ?? null),
+      errorSchemaLiteral = this._schemaToLiteral(errorResponse?.schema ?? null),
+      adapterName = this._buildAdapterName(apiName);
+
     return `/**
  * Generated ${apiSpec.description}
  *
@@ -355,18 +375,119 @@ ${componentUsage}
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function ${apiSpec.method.toUpperCase()}(request: NextRequest) {
+type SchemaDefinition = {
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+  required?: boolean;
+  properties?: Record<string, SchemaDefinition>;
+  items?: SchemaDefinition;
+};
+
+const parameterSchema: SchemaDefinition | null = ${paramSchemaLiteral};
+const requestBodySchema: SchemaDefinition | null = ${requestSchemaLiteral};
+const successResponseSchema: SchemaDefinition | null = ${successSchemaLiteral};
+const errorResponseSchema: SchemaDefinition | null = ${errorSchemaLiteral};
+
+function validateSchema(value: unknown, schema: SchemaDefinition | null, path = 'value'): string[] {
+  if (!schema) return [];
+  const errors: string[] = [];
+
+  switch (schema.type) {
+    case 'object': {
+      if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+        errors.push(path + ' should be an object');
+        break;
+      }
+      const properties = schema.properties ?? {};
+      for (const [key, propertySchema] of Object.entries(properties)) {
+        const childValue = (value as Record<string, unknown>)[key];
+        if (propertySchema.required && (childValue === undefined || childValue === null)) {
+          errors.push(path + '.' + key + ' is required');
+          continue;
+        }
+        if (childValue !== undefined) {
+          errors.push(...validateSchema(childValue, propertySchema, path + '.' + key));
+        }
+      }
+      break;
+    }
+    case 'array': {
+      if (!Array.isArray(value)) {
+        errors.push(path + ' should be an array');
+        break;
+      }
+      value.forEach((item, idx) => {
+        errors.push(...validateSchema(item, schema.items ?? null, path + '[' + idx + ']'));
+      });
+      break;
+    }
+    default: {
+      const expected = schema.type;
+      if (typeof value !== expected) {
+        errors.push(path + ' should be type ' + expected);
+      }
+    }
+  }
+
+  return errors;
+}
+
+function buildExampleFromSchema(schema: SchemaDefinition | null): unknown {
+  if (!schema) return {};
+
+  switch (schema.type) {
+    case 'string':
+      return '';
+    case 'number':
+      return 0;
+    case 'boolean':
+      return true;
+    case 'array':
+      return schema.items ? [buildExampleFromSchema(schema.items)] : [];
+    case 'object': {
+      const result: Record<string, unknown> = {};
+      for (const [key, propertySchema] of Object.entries(schema.properties ?? {})) {
+        result[key] = buildExampleFromSchema(propertySchema);
+      }
+      return result;
+    }
+    default:
+      return {};
+  }
+}
+
+async function ${adapterName}(input: { params: Record<string, unknown>; body?: unknown }) {
+  // TODO: Replace with domain-specific service adapter
+  return { ...buildExampleFromSchema(successResponseSchema), ...input.body };
+}
+
+export async function ${method}(request: NextRequest) {
   try {
-    // TODO: Implement ${apiName} API logic
-    return NextResponse.json({
-      message: '${apiSpec.description}',
-      success: true
-    });
+    ${paramsExtractionCode}
+    const body = ${requestBodySchema ? 'await request.json()' : 'undefined'};
+
+    const validationErrors = [
+      ...validateSchema(params, parameterSchema, 'params'),
+      ...validateSchema(body, requestBodySchema, 'body'),
+    ].filter(Boolean);
+
+    if (validationErrors.length) {
+      const errorPayload = buildExampleFromSchema(errorResponseSchema) as Record<string, unknown>;
+      if (errorPayload && typeof errorPayload === 'object') {
+        errorPayload.errors = validationErrors;
+        (errorPayload as { success?: boolean }).success = false;
+      }
+      return NextResponse.json(errorPayload ?? { success: false, errors: validationErrors }, { status: ${errorStatus} });
+    }
+
+    const result = await ${adapterName}({ params, body });
+    return NextResponse.json(result ?? ${JSON.stringify(stubResponse)}, { status: ${successStatus} });
   } catch (error) {
-    return NextResponse.json({
-      message: 'API Error',
-      error: (error as Error).message
-    }, { status: 500 });
+    const errorPayload = buildExampleFromSchema(errorResponseSchema) as Record<string, unknown>;
+    if (errorPayload && typeof errorPayload === 'object') {
+      (errorPayload as { success?: boolean }).success = false;
+      (errorPayload as { message?: string }).message = (error as Error).message;
+    }
+    return NextResponse.json(errorPayload ?? { success: false, message: 'API Error' }, { status: ${errorStatus} });
   }
 }`;
   }
@@ -399,7 +520,7 @@ export async function ${apiSpec.method.toUpperCase()}(request: NextRequest) {
     // Add API route directories
     for (const apiName of Object.keys(this._loadSpecs()['api-routes'])) {
       const apiSpec = this._loadSpecs()['api-routes'][apiName];
-      dirs.push(path.join(this.outputPath, 'app', 'api', apiSpec.route));
+      dirs.push(path.join(this.outputPath, 'app', 'api', this._normaliseRoute(apiSpec.route)));
     }
 
     dirs.forEach((dir) => {
@@ -421,6 +542,97 @@ export async function ${apiSpec.method.toUpperCase()}(request: NextRequest) {
       'specsPath' in input &&
       'outputPath' in input
     );
+  }
+
+  private _schemaToLiteral(schema: SchemaDefinition | null): string {
+    return JSON.stringify(schema, null, 2);
+  }
+
+  private _buildParamsSchema(params?: APIRouteParam[]): SchemaDefinition | null {
+    if (!params?.length) return null;
+
+    const properties: Record<string, SchemaDefinition> = {};
+    for (const param of params) {
+      properties[param.name] = {
+        type: param.type,
+        required: param.required,
+      };
+    }
+
+    return { type: 'object', properties };
+  }
+
+  private _buildParamsExtraction(params: APIRouteParam[]): string {
+    if (!params.length) {
+      return 'const params: Record<string, unknown> = {};';
+    }
+
+    const lines: string[] = ['const url = new URL(request.url);', 'const params: Record<string, unknown> = {'];
+
+    for (const param of params) {
+      const getter =
+        param.in === 'path'
+          ? "(url.pathname.split('/').filter(Boolean).pop() ?? '')"
+          : `url.searchParams.get('${param.name}')`;
+      const parsedValue = this._wrapTypeConversion(param.type, getter);
+
+      lines.push(`  ${param.name}: ${parsedValue},`);
+    }
+
+    lines.push('};');
+    return lines.join('\n    ');
+  }
+
+  private _wrapTypeConversion(type: ResponseSpec['schema']['type'] | undefined, expression: string): string {
+    switch (type) {
+      case 'number':
+        return `(${expression} !== null ? Number(${expression}) : undefined)`;
+      case 'boolean':
+        return `(${expression} === 'true' ? true : ${expression} === 'false' ? false : undefined)`;
+      default:
+        return expression;
+    }
+  }
+
+  private _buildExampleFromSchema(schema: SchemaDefinition | null): unknown {
+    if (!schema) return {};
+
+    switch (schema.type) {
+      case 'string':
+        return 'example';
+      case 'number':
+        return 0;
+      case 'boolean':
+        return true;
+      case 'array':
+        return schema.items ? [this._buildExampleFromSchema(schema.items)] : [];
+      case 'object': {
+        const result: Record<string, unknown> = {};
+        for (const [key, propertySchema] of Object.entries(schema.properties ?? {})) {
+          result[key] = this._buildExampleFromSchema(propertySchema);
+        }
+        return result;
+      }
+      default:
+        return {};
+    }
+  }
+
+  private _selectErrorResponse(errors?: ResponseSpec[]): ResponseSpec | null {
+    if (!errors?.length) return null;
+    return errors[0];
+  }
+
+  private _buildAdapterName(apiName: string): string {
+    const [first, ...rest] = apiName.split(/[-_]/);
+    const pascal = [first, ...rest.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))]
+      .join('')
+      .replace(/^(\w)/, (match) => match.toUpperCase());
+    return `invoke${pascal}Adapter`;
+  }
+
+  private _normaliseRoute(route: string): string {
+    return route.replace(/^\/+/, '');
   }
 }
 

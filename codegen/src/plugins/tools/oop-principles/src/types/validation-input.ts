@@ -1,5 +1,5 @@
 /**
- * Allowed validation input shape for OOP principles plugin
+ * ValidationInput - Basic shape for validating plugin inputs.
  */
 export interface ValidationInput {
   operation: string;

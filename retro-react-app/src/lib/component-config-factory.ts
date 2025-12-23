@@ -1,17 +1,17 @@
-import type { ComponentType } from 'react';
-import type { ComponentConfig } from './component-config';
+import type { ComponentType } from "react";
+import type { ComponentConfig, ComponentProps } from "./component-config";
 
 // Utility function to create component config
-export function componentConfig(
+export function componentConfig<TProps extends ComponentProps>(
   id: string,
-  component: ComponentType<any>,
-  props?: Record<string, unknown>,
-  children?: ComponentConfig[]
-): ComponentConfig {
+  component: ComponentType<TProps>,
+  props?: Partial<TProps>,
+  children?: ComponentConfig[],
+): ComponentConfig<TProps> {
   return {
     id,
     component,
-    props: props || {},
+    props: props ?? {},
     children,
   };
 }
