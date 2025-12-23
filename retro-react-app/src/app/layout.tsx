@@ -6,6 +6,7 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Box, Container, Stack, Typography, Link } from "@mui/material";
 import { getTranslations } from "next-intl/server";
 import "./globals.css";
+import { generateMetadata } from "./metadata";
 
 // Use JetBrains Mono for that retro gaming feel
 const jetbrainsMono = JetBrains_Mono({
@@ -16,36 +17,15 @@ const jetbrainsMono = JetBrains_Mono({
 
 interface LayoutProps {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ [key: string]: string | string[] }>;
 }
 
-export async function generateMetadata({
-  params: { locale },
-}: LayoutProps): Promise<Metadata> {
-  const t = await getTranslations({ locale, namespace: "navigation" });
-
-  return {
-    title: t("retro_deck"),
-    description:
-      "The ultimate retro gaming experience with pixel-perfect emulation and modern features.",
-    keywords: [
-      "retro gaming",
-      "emulation",
-      "classic games",
-      "NES",
-      "SNES",
-      "arcade",
-    ],
-    authors: [{ name: "Retro Deck Team" }],
-    viewport: "width=device-width, initial-scale=1",
-    robots: "index, follow",
-  };
-}
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  params: { locale },
-}: LayoutProps): React.JSX.Element {
+  params,
+}: LayoutProps): Promise<React.JSX.Element> {
+  const resolvedParams = await params;
+  const locale = Array.isArray(resolvedParams.locale) ? resolvedParams.locale[0] : resolvedParams.locale;
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${jetbrainsMono.variable} antialiased`}>
