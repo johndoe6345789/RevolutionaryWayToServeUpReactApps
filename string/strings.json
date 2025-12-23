@@ -192,7 +192,7 @@
         "aiWatching": "// 🤖 AI is watching... Just kidding, or am I? 🤔",
         "specificationLoadFailed": "❌ Failed to load specification: {error}",
         "cleanupFailed": "⚠️  Cleanup operation failed: {error}",
-        "completionCelebration4": "🏆 Victory! Your project has been created! 🏆",
+        "celebrationVictory": "🏆 Victory! Your project has been created! 🏆",
         "cleanupOperation": "✓ Executed cleanup operation: {type}",
         "cleanedItems": "🗑️  Cleaned up {count} items",
         "brokeDeveloper": "Why did the developer go broke? Because he used up all his cache! 💸",
@@ -207,9 +207,9 @@
         "errorTipVerbose": "   Tip: Use --verbose for more detailed logs",
         "konamiCode": "// 🎮 Konami code: ↑↑↓↓←→←→BA would unlock something amazing...",
         "statsAchievementsUnlocked": "🏅 Achievements Unlocked: {count}",
-        "completionCelebration2": "🚀 Project generated! Time to conquer the world! 🌍",
-        "completionCelebration5": "🎯 Mission accomplished! Project ready! 🎯",
-        "completionCelebration3": "✨ Magic happened! Your code is ready! ✨",
+        "celebrationWorldConquest": "🚀 Project generated! Time to conquer the world! 🌍",
+        "celebrationMissionComplete": "🎯 Mission accomplished! Project ready! 🎯",
+        "celebrationMagic": "✨ Magic happened! Your code is ready! ✨",
         "statsFilesGenerated": "📁 Files Generated: {count}",
         "innovationEnabled": "🎮 Innovation features enabled! Watch for easter eggs and achievements!",
         "createdOutputDir": "📁 Created output directory: {path}",
@@ -232,7 +232,7 @@
         "buildAndDeploy": "5. Build and deploy your revolutionary project!",
         "unicornMode": "// 🦄 Unicorn mode activated! All classes now have magical properties.",
         "javaGlasses": "Why do Java programmers wear glasses? Because they can't C#! 👓",
-        "completionCelebration1": "🎉 Generation complete! You're awesome! 🎉",
+        "celebrationSuccess": "🎉 Generation complete! You're awesome! 🎉",
         "statsDuration": "⏱️  Duration: {duration}ms",
         "generatorBreakdown": "📋 GENERATOR BREAKDOWN:",
         "infinityBeyond": "// 🚀 To infinity and beyond! Your code is now space-ready.",
@@ -1653,37 +1653,37 @@
   },
   "syntax": {
     "javascript": {
-      "errorHandling": {
+      "errors": {
         "throwError": "throw new Error('{message}');",
         "throwErrorWithCode": "throw new Error('{message}');"
       },
-      "logging": {
+      "logs": {
         "log": "console.log('{message}'{levelOption});",
         "logWithLevel": "console.log('[{timestamp}] [{context}] {prefix} {message}');"
       },
-      "moduleExport": {
+      "exports": {
         "class": "module.exports = {className};",
         "multiple": "module.exports = { {exports} };",
         "default": "export default {className};"
       },
-      "classDeclaration": {
+      "classes": {
         "basic": "class {className} {",
         "extends": "class {className} extends {baseClass} {",
         "constructor": "  constructor({params}) {",
         "method": "  {async }{methodName}({params}) {",
         "property": "  {propertyName};"
       },
-      "comments": {
+      "comment": {
         "single": "// {comment}",
         "multi": "/*\n * {comment}\n */",
         "jsdoc": "/**\n * {comment}\n */"
       },
-      "dataStructures": {
+      "data": {
         "map": "new Map()",
         "set": "new Set()",
         "object": "{ {key}: {value} }"
       },
-      "controlFlow": {
+      "control": {
         "if": "if ({condition}) {",
         "else": "} else {",
         "for": "for (const {item} of {collection}) {",
@@ -1692,37 +1692,37 @@
       }
     },
     "python": {
-      "errorHandling": {
+      "errors": {
         "throwError": "raise Exception('{message}')",
         "throwErrorWithCode": "raise {ExceptionClass}('{message}')"
       },
-      "logging": {
+      "logs": {
         "log": "print('{message}')",
         "logWithLevel": "print('[{timestamp}] [{context}] {prefix} {message}')"
       },
-      "moduleExport": {
+      "exports": {
         "class": "",
         "multiple": "",
         "default": ""
       },
-      "classDeclaration": {
+      "classes": {
         "basic": "class {className}:",
         "extends": "class {className}({baseClass}):",
         "constructor": "  def __init__(self{params}):",
         "method": "  {async }def {methodName}(self{params}):",
         "property": "  self.{propertyName} = None"
       },
-      "comments": {
+      "comment": {
         "single": "# {comment}",
         "multi": "\"\"\"\n{comment}\n\"\"\"",
         "docstring": "\"\"\"\n{comment}\n\"\"\""
       },
-      "dataStructures": {
+      "data": {
         "map": "dict()",
         "set": "set()",
         "object": "{ '{key}': {value} }"
       },
-      "controlFlow": {
+      "control": {
         "if": "if {condition}:",
         "else": "else:",
         "for": "for {item} in {collection}:",
@@ -1731,37 +1731,37 @@
       }
     },
     "java": {
-      "errorHandling": {
+      "errors": {
         "throwError": "throw new RuntimeException('{message}');",
         "throwErrorWithCode": "throw new {ExceptionClass}('{message}');"
       },
-      "logging": {
+      "logs": {
         "log": "System.out.println('{message}');",
         "logWithLevel": "System.out.println('[{timestamp}] [{context}] {prefix} {message}');"
       },
-      "moduleExport": {
+      "exports": {
         "class": "public class {className}",
         "multiple": "",
         "default": ""
       },
-      "classDeclaration": {
+      "classes": {
         "basic": "public class {className} {",
         "extends": "public class {className} extends {baseClass} {",
         "constructor": "  public {className}({params}) {",
         "method": "  {access} {returnType} {methodName}({params}) {",
         "property": "  private {type} {propertyName};"
       },
-      "comments": {
+      "comment": {
         "single": "// {comment}",
         "multi": "/*\n * {comment}\n */",
         "javadoc": "/**\n * {comment}\n */"
       },
-      "dataStructures": {
+      "data": {
         "map": "new HashMap<>()",
         "set": "new HashSet<>()",
         "object": ""
       },
-      "controlFlow": {
+      "control": {
         "if": "if ({condition}) {",
         "else": "} else {",
         "for": "for ({type} {item} : {collection}) {",
@@ -1770,37 +1770,37 @@
       }
     },
     "cpp": {
-      "errorHandling": {
+      "errors": {
         "throwError": "throw std::runtime_error('{message}');",
         "throwErrorWithCode": "throw {ExceptionClass}('{message}');"
       },
-      "logging": {
+      "logs": {
         "log": "std::cout << '{message}' << std::endl;",
         "logWithLevel": "std::cout << '[{timestamp}] [{context}] {prefix} {message}' << std::endl;"
       },
-      "moduleExport": {
+      "exports": {
         "class": "",
         "multiple": "",
         "default": ""
       },
-      "classDeclaration": {
+      "classes": {
         "basic": "class {className} {",
         "extends": "class {className} : public {baseClass} {",
         "constructor": "  {className}({params}) {",
         "method": "  {returnType} {methodName}({params}) {",
         "property": "  {type} {propertyName};"
       },
-      "comments": {
+      "comment": {
         "single": "// {comment}",
         "multi": "/*\n * {comment}\n */",
         "docstring": "/**\n * {comment}\n */"
       },
-      "dataStructures": {
+      "data": {
         "map": "std::map<>",
         "set": "std::set<>",
         "object": ""
       },
-      "controlFlow": {
+      "control": {
         "if": "if ({condition}) {",
         "else": "} else {",
         "for": "for (const auto& {item} : {collection}) {",
@@ -1809,37 +1809,37 @@
       }
     },
     "typescript": {
-      "errorHandling": {
+      "errors": {
         "throwError": "throw new Error('{message}');",
         "throwErrorWithCode": "throw new {ExceptionClass}('{message}');"
       },
-      "logging": {
+      "logs": {
         "log": "console.log('{message}');",
         "logWithLevel": "console.log('[{timestamp}] [{context}] {prefix} {message}');"
       },
-      "moduleExport": {
+      "exports": {
         "class": "export class {className}",
         "multiple": "export { {exports} };",
         "default": "export default {className};"
       },
-      "classDeclaration": {
+      "classes": {
         "basic": "export class {className} {",
         "extends": "export class {className} extends {baseClass} {",
         "constructor": "  constructor({params}: {types}) {",
         "method": "  {async }{methodName}({params}): {returnType} {",
         "property": "  private {propertyName}: {type};"
       },
-      "comments": {
+      "comment": {
         "single": "// {comment}",
         "multi": "/*\n * {comment}\n */",
         "tsdoc": "/**\n * {comment}\n */"
       },
-      "dataStructures": {
+      "data": {
         "map": "new Map<{keyType}, {valueType}>()",
         "set": "new Set<{type}>()",
         "object": "{ {key}: {value} }"
       },
-      "controlFlow": {
+      "control": {
         "if": "if ({condition}) {",
         "else": "} else {",
         "for": "for (const {item} of {collection}) {",
@@ -1850,19 +1850,17 @@
   },
   "dependencyMessages": {
     "dependencyRegistry": {
-      "messages": {
-        "alreadyRegistered": "Dependency '{name}' is already registered",
-        "createInstanceFailed": "Failed to create instance of '{name}': {error}",
-        "registeredSuccess": "✅ Registered dependency: {name}",
-        "notFound": "Dependency '{name}' is not registered",
-        "unregisteredSuccess": "🗑️  Unregistered dependency: {name}",
-        "clearedAll": "🧹 Cleared all dependencies",
-        "validationFailed": "Validation failed for '{name}' ({rule}): {error}",
-        "circularDependency": "Circular dependency detected for '{name}': {path}",
-        "processingRegistrations": "✅ Processed {count} auto-registrations",
-        "dependencySystemInitialized": "✅ Dependency system initialized",
-        "exportedGraph": "📊 Dependency graph exported to {filename} ({format} format)"
-      },
+      "alreadyRegistered": "Dependency '{name}' is already registered",
+      "createInstanceFailed": "Failed to create instance of '{name}': {error}",
+      "registeredSuccess": "✅ Registered dependency: {name}",
+      "notFound": "Dependency '{name}' is not registered",
+      "unregisteredSuccess": "🗑️  Unregistered dependency: {name}",
+      "clearedAll": "🧹 Cleared all dependencies",
+      "validationFailed": "Validation failed for '{name}' ({rule}): {error}",
+      "circularDependency": "Circular dependency detected for '{name}': {path}",
+      "processingRegistrations": "✅ Processed {count} auto-registrations",
+      "dependencySystemInitialized": "✅ Dependency system initialized",
+      "exportedGraph": "📊 Dependency graph exported to {filename} ({format} format)",
       "validation": {
         "dependencyExists": "Dependency '{dep}' must be a string",
         "factoryExpectsParams": "Factory for '{name}' expects parameters but no dependencies provided",
@@ -1876,74 +1874,58 @@
       }
     },
     "dependencyValidator": {
-      "messages": {
-        "ruleAdded": "✅ Added validation rule: {name}",
-        "ruleRemoved": "🗑️  Removed validation rule: {name}"
-      }
+      "ruleAdded": "✅ Added validation rule: {name}",
+      "ruleRemoved": "🗑️  Removed validation rule: {name}"
     },
     "circularDependencyDetector": {
-      "messages": {
-        "circularPath": "Circular dependency path: {path}"
-      }
+      "circularPath": "Circular dependency path: {path}"
     },
     "dependencyInjector": {
-      "messages": {
-        "dependenciesResolved": "✅ Resolved {count} dependencies",
-        "cacheCleared": "💾 Injection cache cleared"
-      }
+      "dependenciesResolved": "✅ Resolved {count} dependencies",
+      "cacheCleared": "💾 Injection cache cleared"
     },
     "dependencyManager": {
-      "messages": {
-        "autoRegisteringMissing": "⚠️  Auto-registering missing dependency '{dep}' for '{parent}'",
-        "systemInitialized": "✅ Dependency system initialized",
-        "circularDependenciesDetected": "❌ Circular dependencies detected:",
-        "dependencyStats": "📊 Dependency Statistics:",
-        "totalDependencies": "  Total Dependencies: {count}",
-        "singletons": "  Singletons: {count}",
-        "cached": "  Cached: {count}"
-      }
+      "autoRegisteringMissing": "⚠️  Auto-registering missing dependency '{dep}' for '{parent}'",
+      "systemInitialized": "✅ Dependency system initialized",
+      "circularDependenciesDetected": "❌ Circular dependencies detected:",
+      "dependencyStats": "📊 Dependency Statistics:",
+      "totalDependencies": "  Total Dependencies: {count}",
+      "singletons": "  Singletons: {count}",
+      "cached": "  Cached: {count}"
     },
     "autoRegistrationSystem": {
-      "messages": {
-        "failedToRegister": "Failed to register {className}: {error}",
-        "queueStatus": "📝 Registration queue status",
-        "queueLength": "  Queue length: {count}",
-        "processing": "  Processing: {status}",
-        "queuedClasses": "  Queued classes: {classes}"
-      }
+      "failedToRegister": "Failed to register {className}: {error}",
+      "queueStatus": "📝 Registration queue status",
+      "queueLength": "  Queue length: {count}",
+      "processing": "  Processing: {status}",
+      "queuedClasses": "  Queued classes: {classes}"
     },
     "dependencyCache": {
-      "messages": {
-        "cacheCleared": "💾 Cache cleared",
-        "cacheStats": "📊 Cache Statistics:",
-        "cacheSize": "  Cache size: {size}",
-        "maxSize": "  Max size: {maxSize}",
-        "hits": "  Hits: {count}",
-        "misses": "  Misses: {count}",
-        "evictions": "  Evictions: {count}",
-        "hitRate": "  Hit rate: {rate}%"
-      }
+      "cacheCleared": "💾 Cache cleared",
+      "cacheStats": "📊 Cache Statistics:",
+      "cacheSize": "  Cache size: {size}",
+      "maxSize": "  Max size: {maxSize}",
+      "hits": "  Hits: {count}",
+      "misses": "  Misses: {count}",
+      "evictions": "  Evictions: {count}",
+      "hitRate": "  Hit rate: {rate}%"
     },
     "singletonManager": {
-      "messages": {
-        "instanceDestroyed": "🗑️  Singleton instance destroyed: {name}",
-        "allInstancesDestroyed": "🧹 All singleton instances destroyed",
-        "instanceStats": "📊 Singleton Statistics:",
-        "totalSingletons": "  Total singletons: {count}",
-        "instanceInfo": "  {name}: created={created}, accessed={count}, lastAccessed={lastAccessed}"
-      }
+      "instanceDestroyed": "🗑️  Singleton instance destroyed: {name}",
+      "allInstancesDestroyed": "🧹 All singleton instances destroyed",
+      "instanceStats": "📊 Singleton Statistics:",
+      "totalSingletons": "  Total singletons: {count}",
+      "instanceInfo": "  {name}: created={created}, accessed={count}, lastAccessed={lastAccessed}"
     },
     "registryUtils": {
-      "messages": {
-        "graphAnalysis": "📊 Dependency Graph Analysis:",
-        "totalNodes": "  Total nodes: {count}",
-        "totalEdges": "  Total edges: {count}",
-        "maxDepth": "  Maximum depth: {depth}",
-        "leafNodes": "  Leaf nodes: {nodes}",
-        "rootNodes": "  Root nodes: {nodes}",
-        "criticalDependencies": "🎯 Critical Dependencies:",
-        "criticalDependency": "  {node}: {count} incoming dependencies ({percentage}%)"
-      }
+      "graphAnalysis": "📊 Dependency Graph Analysis:",
+      "totalNodes": "  Total nodes: {count}",
+      "totalEdges": "  Total edges: {count}",
+      "maxDepth": "  Maximum depth: {depth}",
+      "leafNodes": "  Leaf nodes: {nodes}",
+      "rootNodes": "  Root nodes: {nodes}",
+      "criticalDependencies": "🎯 Critical Dependencies:",
+      "criticalDependency": "  {node}: {count} incoming dependencies ({percentage}%)"
     }
   },
   "constants": {
@@ -2007,7 +1989,7 @@
     ],
     "asciiArt": {
       "revolutionary_logo": "    ██╗    ██╗██╗  ██╗ █████╗ ████████╗██╗ ██████╗██╗  ██╗███████╗███████╗███████╗\n    ██║    ██║██║  ██║██╔══██╗╚══██╔══╝██║██╔═══╝██║ ██╔╝██╔════╝██╔═══██╗██╔═══██╗\n    ██║ █╗ ██║███████║███████║   ██║   ██║██║     █████╔╝ █████╗  ███████║███████║\n    ██║███╗██║██╔══██║██╔══██║   ██║   ██║██║     ██╔═██╗ ██╔══╝  ╚════██║██╔═══██║\n    ╚███╔███╔╝██║  ██║██║  ██║   ██║   ██║   ██║╚██████╗██║  ██╗███████╗███████║███████║\n     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝ ╚═════╝╚═╝  ╚══════╝╚══════╝",
-      "progress_frames": [
+      "spinnerFrames": [
         "⠙",
         "⠹",
         "⠸",
