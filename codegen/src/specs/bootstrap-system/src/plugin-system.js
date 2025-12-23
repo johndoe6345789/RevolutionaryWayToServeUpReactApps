@@ -12,189 +12,130 @@
 const BaseComponent = require('../../../core/base-component');
 
 class PluginSystem extends BaseComponent {
-  /**
-   * Creates a new PluginSystem instance
-   * @param {Object} spec - Specification object containing configuration
-   * @param {string} spec.id - Unique identifier for this instance
-   * @param {Object} [spec.dependencies] - Dependencies required by this module
-   */
   constructor(spec) {
     super(spec);
     this._dependencies = spec.dependencies || {};
     this._initialized = false;
   }
 
-  /**
-   * Initializes the PluginSystem module
-   * Sets up required dependencies and prepares the module for execution
-   *
-   * @async
-   * @returns {Promise<PluginSystem>} Initialized instance
-   * @throws {Error} If initialization fails or dependencies are missing
-   */
   async initialise() {
     await super.initialise();
-
-    // Validate dependencies
     if (!this._validateDependencies()) {
       throw new Error(`Missing required dependencies for ${this.spec.id}`);
     }
-
     this._initialized = true;
     return this;
   }
 
-  /**
-   * Executes the core functionality of the PluginSystem
-   * Plugin discovery, loading, and management system
-   *
-   * @async
-   * @param {Object} context - Execution context containing runtime data
-   * @returns {Promise<Object>} Execution result with success status
-   * @throws {Error} If execution fails or module is not initialized
-   */
   async execute(context) {
     if (!this._initialized) {
       throw new Error('PluginSystem must be initialized before execution');
     }
-
     try {
       const result = await this._executeCore(context);
-      return {
-        success: true,
-        result: result,
-        timestamp: new Date().toISOString()
-      };
+      return { success: true, result, timestamp: new Date().toISOString() };
     } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString()
-      };
+      return { success: false, error: error.message, timestamp: new Date().toISOString() };
     }
   }
 
-  /**
-   * Core execution logic (to be implemented by subclasses)
-   * @private
-   * @param {Object} context - Execution context
-   * @returns {Promise<Object>} Execution result
-   */
   async _executeCore(context) {
-    // Plugin discovery, loading, and management system
-    // Default implementation - override in subclasses for specific functionality
     return { message: 'PluginSystem executed successfully' };
   }
 
-  /**
-   * Validates input parameters
-   * @param {Object} input - Input to validate
-   * @returns {boolean} True if input is valid
-   */
   validate(input) {
-    return input &&
-           typeof input === 'object' &&
-           input.id &&
-           typeof input.id === 'string';
+    return input && typeof input === 'object' && input.id && typeof input.id === 'string';
   }
 
-  /**
-   * Validates that all required dependencies are available
-   * @private
-   * @returns {boolean} True if all dependencies are satisfied
-   */
   _validateDependencies() {
     const requiredDeps = ["bootstrap.module-loader"];
     return requiredDeps.every(dep => this._dependencies[dep]);
   }
+/**
+ * Discovers available plugins from configured directories
+ * Scans plugin directories and validates plugin configurations
+ *
+ * @async
+ * @param {Object} [options] - Discovery options
+ * @param {Array<string>} [options.directories] - Directories to scan
+ * @param {Array<string>} [options.patterns] - File patterns to match
+ * @returns {Promise<Array<Object>>} Array of discovered plugin specifications
+ */
+async discoverPlugins(options = {}) {
+  const directories = options.directories || this.spec.pluginDirectories || ['./plugins'];
+  const patterns = options.patterns || ['plugin.json', 'spec.json'];
 
-  /**
-   * Discovers available plugins from configured directories
-   * Scans plugin directories and validates plugin configurations
-   *
-   * @async
-   * @param {Object} [options] - Discovery options
-   * @param {Array<string>} [options.directories] - Directories to scan
-   * @param {Array<string>} [options.patterns] - File patterns to match
-   * @returns {Promise<Array<Object>>} Array of discovered plugin specifications
-   */
-  async discoverPlugins(options = {}) {
-    const directories = options.directories || this.spec.pluginDirectories || ['./plugins'];
-    const patterns = options.patterns || ['plugin.json', 'spec.json'];
+  const discoveredPlugins = [];
 
-    const discoveredPlugins = [];
-
-    for (const directory of directories) {
-      try {
-        const plugins = await this._scanDirectory(directory, patterns);
-        discoveredPlugins.push(...plugins);
-      } catch (error) {
-        console.warn(`Warning: Failed to scan directory ${directory}: ${error.message}`);
-      }
-    }
-
-    return discoveredPlugins;
-  }
-
-
-  /**
-   * Loads a plugin by its specification
-   * Initializes the plugin and registers it with the system
-   *
-   * @async
-   * @param {Object} pluginSpec - Plugin specification
-   * @param {Object} [context] - Loading context
-   * @returns {Promise<Object>} Loaded plugin instance
-   * @throws {Error} If plugin loading fails
-   */
-  async loadPlugin(pluginSpec, context = {}) {
-    if (!pluginSpec || !pluginSpec.id) {
-      throw new Error('Invalid plugin specification provided');
-    }
-
+  for (const directory of directories) {
     try {
-      const pluginModule = await this._loadPluginModule(pluginSpec);
-      const pluginInstance = new pluginModule(pluginSpec);
-
-      await pluginInstance.initialise();
-      await this.registerPlugin(pluginInstance, context);
-
-      return pluginInstance;
+      const plugins = await this._scanDirectory(directory, patterns);
+      discoveredPlugins.push(...plugins);
     } catch (error) {
-      throw new Error(`Failed to load plugin ${pluginSpec.id}: ${error.message}`);
+      console.warn(`Warning: Failed to scan directory ${directory}: ${error.message}`);
     }
   }
 
+  return discoveredPlugins;
+}
 
-  /**
-   * Registers a plugin with the system
-   * Makes the plugin available for use and updates system state
-   *
-   * @async
-   * @param {Object} plugin - Plugin instance to register
-   * @param {Object} [context] - Registration context
-   * @returns {Promise<void>}
-   */
-  async registerPlugin(plugin, context = {}) {
-    if (!plugin || !plugin.spec || !plugin.spec.id) {
-      throw new Error('Invalid plugin instance provided');
-    }
-
-    const pluginId = plugin.spec.id;
-
-    // Check for duplicate registration
-    if (this._registeredPlugins[pluginId]) {
-      throw new Error(`Plugin ${pluginId} is already registered`);
-    }
-
-    // Register the plugin
-    this._registeredPlugins[pluginId] = plugin;
-
-    // Execute plugin registration hook if available
-    if (typeof plugin.onRegister === 'function') {
-      await plugin.onRegister(context);
-    }
+/**
+ * Loads a plugin by its specification
+ * Initializes the plugin and registers it with the system
+ *
+ * @async
+ * @param {Object} pluginSpec - Plugin specification
+ * @param {Object} [context] - Loading context
+ * @returns {Promise<Object>} Loaded plugin instance
+ * @throws {Error} If plugin loading fails
+ */
+async loadPlugin(pluginSpec, context = {}) {
+  if (!pluginSpec || !pluginSpec.id) {
+    throw new Error('Invalid plugin specification provided');
   }
+
+  try {
+    const pluginModule = await this._loadPluginModule(pluginSpec);
+    const pluginInstance = new pluginModule(pluginSpec);
+
+    await pluginInstance.initialise();
+    await this.registerPlugin(pluginInstance, context);
+
+    return pluginInstance;
+  } catch (error) {
+    throw new Error(`Failed to load plugin ${pluginSpec.id}: ${error.message}`);
+  }
+}
+
+/**
+ * Registers a plugin with the system
+ * Makes the plugin available for use and updates system state
+ *
+ * @async
+ * @param {Object} plugin - Plugin instance to register
+ * @param {Object} [context] - Registration context
+ * @returns {Promise<void>}
+ */
+async registerPlugin(plugin, context = {}) {
+  if (!plugin || !plugin.spec || !plugin.spec.id) {
+    throw new Error('Invalid plugin instance provided');
+  }
+
+  const pluginId = plugin.spec.id;
+
+  // Check for duplicate registration
+  if (this._registeredPlugins[pluginId]) {
+    throw new Error(`Plugin ${pluginId} is already registered`);
+  }
+
+  // Register the plugin
+  this._registeredPlugins[pluginId] = plugin;
+
+  // Execute plugin registration hook if available
+  if (typeof plugin.onRegister === 'function') {
+    await plugin.onRegister(context);
+  }
+}
 }
 
 module.exports = PluginSystem;
