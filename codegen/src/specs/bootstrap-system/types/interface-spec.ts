@@ -1,5 +1,5 @@
 /**
- * Interface specification used when generating interface stubs
+ * InterfaceSpec - Declares interface method signatures.
  */
 export interface InterfaceSpec {
   methods: string[];

@@ -1,5 +1,5 @@
 /**
- * Allowed validation input shape for the test runner plugin
+ * ValidationInput - Basic input contract for validating plugin operations.
  */
 export interface ValidationInput {
   operation: string;

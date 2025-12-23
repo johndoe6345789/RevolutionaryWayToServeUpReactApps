@@ -2,7 +2,7 @@ import type { GeneratedFile } from './generated-file';
 import type { SpecsData } from './specs-data';
 
 /**
- * Execution response returned by the bootstrap generator
+ * ExecutionResult - Output payload from the bootstrap generator.
  */
 export interface ExecutionResult {
   success: boolean;

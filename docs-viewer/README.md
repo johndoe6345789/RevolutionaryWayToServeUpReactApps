@@ -36,8 +36,15 @@ npm run dev
 
 1. **Navigation** — `DocsNavigation` reads `DOCS_STRUCTURE` to build a collapsible list grouped by section. It highlights the active document and notifies the parent when a user picks another file.【F:docs-viewer/src/components/docs-navigation.tsx†L15-L75】
 2. **Page state** — The home page (`src/app/page.tsx`) tracks the active section/file, fetches markdown when they change, and handles loading/error UI. The first section/file is selected by default so content appears immediately.【F:docs-viewer/src/app/page.tsx†L1-L86】
-3. **Rendering** — `MarkdownViewer` wraps `react-markdown` inside a styled Material UI `Paper` element. It tunes typography, code blocks, blockquotes, and tables to keep docs readable.【F:docs-viewer/src/components/markdown-viewer.tsx†L1-L88】
+3. **Rendering** — `MarkdownViewer` wraps `react-markdown` inside a styled Material UI `Paper` element. It tunes typography, code blocks, blockquotes, tables, footnotes, wiki-style crosslinks, and adds automatic anchor IDs so a table of contents can deep-link into the page.【F:docs-viewer/src/components/markdown-viewer.tsx†L1-L197】【F:docs-viewer/src/lib/markdown-headings.ts†L1-L56】
 4. **Theming** — `Providers` configures a light Material UI theme with project fonts and baseline styles, keeping the viewer visually consistent.【F:docs-viewer/src/components/providers.tsx†L1-L27】
+
+## Rich reading features
+
+- **Table of contents**: `extractHeadings` builds a linked TOC from `h1`–`h4` headings so readers can jump around long articles.【F:docs-viewer/src/lib/markdown-headings.ts†L1-L56】【F:docs-viewer/src/components/table-of-contents.tsx†L1-L48】
+- **In-page navigation**: A pager surfaces previous/next documents in catalogue order for quick scanning.【F:docs-viewer/src/components/doc-pager.tsx†L1-L62】【F:docs-viewer/src/lib/doc-links.ts†L1-L51】
+- **Wiki-style links**: Authors can reference other docs using `[[Document Title]]`; the viewer resolves and routes to the target file when clicked.【F:docs-viewer/src/components/markdown-viewer.tsx†L51-L153】【F:docs-viewer/src/lib/doc-links.ts†L1-L24】
+- **Footnotes and references**: `remark-gfm` enables footnotes and Harvard-style reference lists, with extra styling to keep citations readable.【F:docs-viewer/src/components/markdown-viewer.tsx†L27-L120】
 
 ## Adding or updating documentation
 

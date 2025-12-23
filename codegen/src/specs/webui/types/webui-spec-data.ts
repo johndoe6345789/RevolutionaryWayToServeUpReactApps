@@ -3,7 +3,7 @@ import type { ComponentSpec } from './component-spec';
 import type { PageSpec } from './page-spec';
 
 /**
- * Parsed spec.json representation for Web UI generation
+ * WebUISpecData - Parsed specification content for web UI generation.
  */
 export interface WebUISpecData {
   components: Record<string, ComponentSpec>;

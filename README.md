@@ -6,36 +6,30 @@
 
 A **revolutionary** code generation system that creates complete, well-structured projects from JSON specifications with innovation features and developer joy.
 
-## 🎯 Features
+## 🎯 What this project is (and isn’t)
+- **Philosophy**: Convention over configuration, enforced patterns, and a playful experience (achievements, easter eggs, celebrations) to keep shipping fun.
+- **Scope**: Generates end-to-end project scaffolds—from folders to business logic, lifecycle orchestration, tests, and docs—using a JSON specification. Extensible via plugins; language-agnostic by design.
+- **Audience**: Third-party contributors, template authors, and toolsmiths who want predictable, testable project generation without hand-rolling boilerplate.
 
-### 🏗️ Project Generation
-- **Complete Structure**: Generates folder hierarchies, static files, and configuration
-- **Business Logic Classes**: Creates classes with initialize/execute pattern
-- **Lifecycle Builders**: Fluent API for component orchestration with dependency management
-- **Factory & Data Classes**: Automatic generation with dependency injection
-- **TypeScript Definitions**: Complete type definitions for all generated code
-- **Test Stubs**: Automated test scaffolding with examples
+## ⚡️ Try it first
+Use these fast paths before diving into the details:
 
-### 🎮 Innovation Features
-- **Achievement System**: Unlock achievements for milestones
-- **Easter Eggs**: Developer humor and hidden features
-- **Progress Animations**: Visual feedback during generation
-- **Celebration Messages**: Random completion celebrations
-- **Gamification**: Interactive feedback and rewards
+```bash
+# Install dependencies
+npm install
 
-### 🔧 Development Tools
-- **CLI Interface**: Command-line specification editor
-- **WebUI Interface**: Visual project editor and generator
-- **Real-time Validation**: Instant feedback on specification changes
-- **Template System**: Reusable templates and patterns
+# Preview the CLI
+./revolutionary-codegen.js --help
 
-### 📋 Patterns Enforced
-- **Two Methods Only**: Classes follow initialize/execute pattern
-- **Dataclass Constructor**: Single parameter with property assignment
-- **Base Class Inheritance**: All classes extend base classes
-- **Size Limits**: Maximum class and method sizes enforced
-- **Factory Pattern**: Dependency injection and object creation
-- **Naming Conventions**: Consistent naming across all generated code
+# Generate a sample project with innovations enabled
+./revolutionary-codegen.js generate --spec-path sample.json --enable-innovations
+```
+
+## 🧭 Highlights
+- **Project generation**: Folders, static files, configuration, TypeScript definitions, and test stubs.
+- **Pattern enforcement**: initialize/execute lifecycle, dataclass constructors, dependency injection factories, and size/naming constraints.
+- **Developer experience**: Achievement system, easter eggs, progress animations, and celebration messages.
+- **Tooling**: CLI and WebUI editors, real-time validation, and reusable templates.
 
 ## 🚀 Getting Started
 

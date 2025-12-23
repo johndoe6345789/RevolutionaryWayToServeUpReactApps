@@ -1,0 +1,85 @@
+{
+  "translations": {
+    "hero": {
+      "retro_gaming_hub": "Retro Gaming Hub",
+      "press_start": "Press Start",
+      "to_continue": "To Continue",
+      "hero_description": "Discover the ultimate retro gaming experience...",
+      "launch_arcade_mode": "Launch Arcade Mode",
+      "browse_rom_library": "Browse ROM Library",
+      "insert_coin": "Insert Coin"
+    },
+    "games": {
+      "featured_games": "Featured Games",
+      "popular_games": "Popular Games",
+      "all_games": "View All Games"
+    },
+    "games_data": {
+      "featured": [
+        {
+          "id": "1",
+          "title": "Super Mario Bros",
+          "platform": "NES",
+          "year": "1985",
+          "description": "Classic platformer game",
+          "image": "/mario.jpg",
+          "rating": 4.5
+        }
+      ],
+      "systemTags": ["NES", "SNES", "Genesis", "PlayStation", "Arcade", "DOS"]
+    },
+    "game": {
+      "play": "Play",
+      "description": "Details"
+    },
+    "settings": {
+      "language": "Language"
+    }
+  },
+  "mocks": {
+    "theme": {
+      "theme": "dark",
+      "themes": ["light", "dark", "system"],
+      "systemTheme": "dark"
+    },
+    "navigation": {
+      "pathname": "/",
+      "searchParams": ""
+    }
+  },
+  "heroSection": {
+    "renderText": {
+      "heading": "Press Start",
+      "subheading": "To Continue",
+      "description": "Discover the ultimate retro gaming experience...",
+      "chipLabel": "Retro Gaming Hub",
+      "containerSelector": ".MuiBox-root"
+    },
+    "navigationButtons": [
+      {
+        "description": "launch arcade mode",
+        "labelPattern": "launch arcade mode",
+        "flags": "i",
+        "expectedRoute": "/arcade"
+      },
+      {
+        "description": "browse rom library",
+        "labelPattern": "browse rom library",
+        "flags": "i",
+        "expectedRoute": "/games"
+      }
+    ],
+    "systemTagsUnderTest": [
+      "NES",
+      "SNES",
+      "Genesis",
+      "PlayStation",
+      "Arcade",
+      "DOS"
+    ],
+    "accessibility": {
+      "minimumButtonCount": 2,
+      "headingLevel": 2
+    }
+  }
+}

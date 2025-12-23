@@ -102,6 +102,38 @@
         "keywords": ["preview", "generate", "workflow", "artifact", "zip", "tar"],
         "domain": "codegen"
       },
+      "inputs": [
+        {
+          "name": "snippet",
+          "label": "Snippet or group",
+          "type": "select",
+          "placeholder": "Choose a snippet to render",
+          "defaultValue": "api-handler",
+          "options": ["api-handler", "react-widget", "cli-tool"],
+          "helperText": "Pick the snippet or collection you want to preview"
+        },
+        {
+          "name": "language",
+          "label": "Target language",
+          "type": "select",
+          "placeholder": "Select output language",
+          "defaultValue": "TypeScript",
+          "options": ["TypeScript", "Python", "Rust", "Go"],
+          "helperText": "Language passed to preview and generation requests"
+        }
+      ],
+      "actions": [
+        {
+          "name": "preview",
+          "label": "Generate Preview",
+          "helperText": "Generate a quick preview without saving an artifact"
+        },
+        {
+          "name": "generate",
+          "label": "Build Artifact",
+          "helperText": "Trigger backend build to produce zip/tarball"
+        }
+      ],
       "features": [
         "select snippet/group + language → render generated preview",
         "generate action produces artifact (zip/tarball) via backend API route",

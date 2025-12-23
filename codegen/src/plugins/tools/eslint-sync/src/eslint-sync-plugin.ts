@@ -4,7 +4,7 @@
  */
 
 import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
-import { BasePlugin } from '../../../../core/base-plugin';
+import { BasePlugin } from '../../../../core/plugins/base-plugin';
 import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 
@@ -89,9 +89,9 @@ export class ESLintSyncPlugin extends BasePlugin {
     super(config);
     // Override the base path to point to plugin root directory
     (this as any).specLoader =
-      new (require('../../../../core/plugin-spec-loader').PluginSpecLoader)(join(__dirname, '..'));
+      new (require('../../../../core/plugins/plugin-spec-loader').PluginSpecLoader)(join(__dirname, '..'));
     (this as any).messageLoader =
-      new (require('../../../../core/plugin-message-loader').PluginMessageLoader)(
+      new (require('../../../../core/plugins/plugin-message-loader').PluginMessageLoader)(
         join(__dirname, '..'),
       );
   }
