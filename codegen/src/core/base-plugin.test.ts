@@ -3,9 +3,10 @@
  * Tests for the BasePlugin class
  */
 
-import { describe, it, expect, beforeEach, vi, Mocked } from 'vitest';
+import type { Mocked } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BasePlugin } from './base-plugin';
-import { IPluginConfig, ISpec } from './interfaces/index';
+import type { IPluginConfig, ISpec, IRegistryManager } from './interfaces/index';
 import { PluginSpecLoader } from './plugin-spec-loader';
 import { PluginMessageLoader } from './plugin-message-loader';
 
@@ -37,6 +38,9 @@ describe('BasePlugin', () => {
     mockMessageLoader = vi.mocked(PluginMessageLoader.prototype);
 
     // Create a concrete implementation for testing
+    /**
+     *
+     */
     class TestPlugin extends BasePlugin {
       constructor(config: IPluginConfig) {
         super(config);
@@ -128,7 +132,11 @@ describe('BasePlugin', () => {
 
   describe('register', () => {
     it('should initialize plugin if not initialized', async () => {
-      const mockRegistryManager = {};
+      const mockRegistryManager: IRegistryManager = {
+        register: vi.fn(),
+        getRegistry: vi.fn(),
+        getAggregate: vi.fn(),
+      };
 
       const mockSpec: ISpec = {
         uuid: 'test-uuid-123',
@@ -146,7 +154,7 @@ describe('BasePlugin', () => {
       mockSpecLoader.loadSpec.mockResolvedValue(mockSpec);
       mockSpecLoader.validateSpec.mockReturnValue(true);
 
-      await plugin.register(mockRegistryManager as any);
+      await plugin.register(mockRegistryManager);
       expect(mockSpecLoader.loadSpec).toHaveBeenCalled();
     });
   });

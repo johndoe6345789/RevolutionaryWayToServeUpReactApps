@@ -3,23 +3,29 @@
  * Single responsibility: Centralized Git hooks management and deployment
  */
 
-import { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
+import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ *
+ */
 interface HookTemplate {
   description: string;
   template: string;
   executable: boolean;
 }
 
+/**
+ *
+ */
 export class GitHooksPlugin extends BasePlugin {
-  private hooksPath = '.git/hooks';
-  private templatesPath = 'templates.json';
+  private readonly hooksPath = '.git/hooks';
+  private readonly templatesPath = 'templates.json';
   private installed = false;
-  private verified = false;
+  private readonly verified = false;
   private templates: Record<string, string[]> = {};
 
   /**
@@ -77,7 +83,7 @@ export class GitHooksPlugin extends BasePlugin {
       (context.packageManager as string) || this.detectPackageManager(platform);
 
     const spec = this.spec;
-    if (!spec.install || !spec.install[platform]) {
+    if (!spec.install?.[platform]) {
       throw new Error(`Git installation not supported on platform: ${platform}`);
     }
 
@@ -126,8 +132,8 @@ export class GitHooksPlugin extends BasePlugin {
       operation: 'setup',
       hooks: results,
       total: results.length,
-      successful: results.filter(r => r.status === 'installed').length,
-      failed: results.filter(r => r.status === 'failed').length,
+      successful: results.filter((r) => r.status === 'installed').length,
+      failed: results.filter((r) => r.status === 'failed').length,
     };
   }
 
@@ -154,7 +160,7 @@ export class GitHooksPlugin extends BasePlugin {
       });
     }
 
-    const verifiedCount = results.filter(r => r.status === 'verified').length;
+    const verifiedCount = results.filter((r) => r.status === 'verified').length;
 
     return {
       operation: 'verify',
@@ -270,8 +276,8 @@ export class GitHooksPlugin extends BasePlugin {
       operation: 'remove',
       hooks: results,
       total: results.length,
-      removed: results.filter(r => r.status === 'removed').length,
-      failed: results.filter(r => r.status === 'failed').length,
+      removed: results.filter((r) => r.status === 'removed').length,
+      failed: results.filter((r) => r.status === 'failed').length,
     };
   }
 
@@ -317,9 +323,10 @@ export class GitHooksPlugin extends BasePlugin {
   private loadTemplates(): void {
     try {
       // In test environment, use the current directory
-      const pluginDir = (this.config.entry_point && typeof this.config.entry_point === 'string')
-        ? path.dirname(this.config.entry_point.replace('src/git-hooks-plugin.js', ''))
-        : __dirname.replace('/src', '');
+      const pluginDir =
+        this.config.entry_point && typeof this.config.entry_point === 'string'
+          ? path.dirname(this.config.entry_point.replace('src/git-hooks-plugin.js', ''))
+          : __dirname.replace('/src', '');
 
       const templatesFile = path.join(pluginDir, this.templatesPath);
 

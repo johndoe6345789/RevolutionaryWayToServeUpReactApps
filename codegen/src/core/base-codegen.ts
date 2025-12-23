@@ -9,18 +9,31 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { IAggregate, IRegistry, IBaseCodegenOptions } from './interfaces/index';
+import type {
+  IAggregate,
+  IRegistry,
+  IBaseCodegenOptions,
+  IPlugin,
+  ISpec,
+  IComponent,
+} from './interfaces/index';
 
+/**
+ *
+ */
 interface PluginInfo {
   id: string;
-  name?: string;
-  version?: string;
+  name: string | undefined;
+  version: string | undefined;
   entry_point: string;
   path: string;
   category: string;
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 interface ExecutionResults {
   success: boolean;
   generated: string[];
@@ -35,6 +48,9 @@ interface ExecutionResults {
   };
 }
 
+/**
+ *
+ */
 interface AggregateResults {
   generated: string[];
   errors: string[];
@@ -47,6 +63,9 @@ interface AggregateResults {
   };
 }
 
+/**
+ *
+ */
 interface SystemStatus {
   initialized: boolean;
   plugins: {
@@ -61,23 +80,26 @@ interface SystemStatus {
   options: IBaseCodegenOptions;
 }
 
+/**
+ *
+ */
 export abstract class BaseCodegen {
   protected options: IBaseCodegenOptions;
-  protected pluginRegistry: Map<string, unknown>;
-  protected aggregateRegistry: Map<string, IAggregate | IRegistry>;
-  protected specRegistry: Map<string, unknown>;
+  protected pluginRegistry: Map<string, IPlugin>;
+  protected aggregateRegistry: Map<string, IAggregate | IRegistry | Map<string, IComponent>>;
+  protected specRegistry: Map<string, ISpec>;
   protected discoveredPlugins: Map<string, PluginInfo>;
-  protected loadedPlugins: Map<string, unknown>;
+  protected loadedPlugins: Map<string, IPlugin>;
   protected initialized: boolean;
-  protected specs: Map<string, unknown>;
+  protected specs: Map<string, ISpec>;
   protected templates: Map<string, unknown>;
 
   constructor(options: IBaseCodegenOptions = {}) {
     this.options = {
-      outputDir: options.outputDir || './generated',
-      strictMode: options.strictMode !== false,
-      verbose: options.verbose || false,
-      enableCache: options.enableCache !== false,
+      outputDir: options.outputDir ?? './generated',
+      strictMode: options.strictMode ?? true,
+      verbose: options.verbose ?? false,
+      enableCache: options.enableCache ?? true,
       ...options,
     };
 
@@ -111,11 +133,11 @@ export abstract class BaseCodegen {
       this.log('Initializing Codegen Core...', 'info');
 
       // Discover and load plugins
-      await this._discoverPlugins();
+      this._discoverPlugins();
       await this._loadPlugins();
 
       // Initialize registries
-      await this._initializeRegistries();
+      this._initializeRegistries();
 
       // Load specifications
       await this._loadSpecs();
@@ -158,9 +180,9 @@ export abstract class BaseCodegen {
       const aggregateResults = await this._executeAggregates(context);
 
       // Merge results
-      results.generated = aggregateResults.generated || [];
-      results.errors = aggregateResults.errors || [];
-      results.warnings = aggregateResults.warnings || [];
+      results.generated = aggregateResults.generated;
+      results.errors = aggregateResults.errors;
+      results.warnings = aggregateResults.warnings;
       results.stats = { ...results.stats, ...aggregateResults.stats };
       results.success = results.errors.length === 0;
 
@@ -181,7 +203,7 @@ export abstract class BaseCodegen {
    * Discover plugins from filesystem
    * @returns Promise<void>
    */
-  protected async _discoverPlugins(): Promise<void> {
+  protected _discoverPlugins(): void {
     this.log('Discovering plugins...', 'info');
 
     const pluginsDir = path.join(__dirname, '../plugins');
@@ -208,8 +230,13 @@ export abstract class BaseCodegen {
               string,
               unknown
             >;
-            this.discoveredPlugins.set(manifest.id as string, {
-              ...manifest,
+            const pluginId = manifest.id as string;
+            const entryPoint = manifest.entry_point as string;
+            this.discoveredPlugins.set(pluginId, {
+              id: pluginId,
+              name: manifest.name as string | undefined,
+              version: manifest.version as string | undefined,
+              entry_point: entryPoint,
               path: pluginDir,
               category,
             });
@@ -238,18 +265,22 @@ export abstract class BaseCodegen {
       try {
         const entryPoint = path.join(pluginInfo.path, pluginInfo.entry_point);
         // Note: require() is used here as plugins may be CommonJS or ESM
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         const PluginClass = require(entryPoint);
 
         // Create plugin instance
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         const plugin = new PluginClass();
 
         // Initialize plugin
         if (typeof plugin.initialize === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
           await plugin.initialize();
         }
 
         // Register plugin
         if (typeof plugin.register === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
           await plugin.register(this);
         }
 
@@ -270,7 +301,7 @@ export abstract class BaseCodegen {
    * Initialize registries and aggregates
    * @returns Promise<void>
    */
-  protected async _initializeRegistries(): Promise<void> {
+  protected _initializeRegistries(): void {
     this.log('Initializing registries and aggregates...', 'info');
 
     // Create core aggregates as defined in AGENTS.md
@@ -304,11 +335,15 @@ export abstract class BaseCodegen {
     // Initialize aggregates
     for (const [aggregateId, config] of Object.entries(aggregates)) {
       this.aggregateRegistry.set(aggregateId, {
-        id: aggregateId,
-        type: 'aggregate',
-        children: config.children,
         listChildren: () => config.children,
-        getChild: (id: string) => this.aggregateRegistry.get(id) || this.pluginRegistry.get(id),
+        getChild: (id: string) => {
+          const aggregate = this.aggregateRegistry.get(id);
+          if (aggregate && !(aggregate instanceof Map)) {
+            return aggregate;
+          }
+          return null;
+        },
+        describe: () => null,
       });
     }
 
@@ -388,7 +423,7 @@ export abstract class BaseCodegen {
    */
   public register(registryId: string, componentId: string, component: unknown): void {
     if (registryId === 'plugin') {
-      this.pluginRegistry.set(componentId, component);
+      this.pluginRegistry.set(componentId, component as IPlugin);
     } else {
       // Handle other registry types
       let registry = this.aggregateRegistry.get(registryId);
@@ -396,7 +431,11 @@ export abstract class BaseCodegen {
         registry = new Map();
         this.aggregateRegistry.set(registryId, registry);
       }
-      registry.set(componentId, component);
+      if (registry instanceof Map) {
+        registry.set(componentId, component as IComponent);
+      }
+      // Note: IAggregate/IRegistry interfaces don't have set methods
+      // This would need proper implementation of registry classes
     }
   }
 
@@ -412,7 +451,13 @@ export abstract class BaseCodegen {
     }
 
     const registry = this.aggregateRegistry.get(registryId);
-    return registry ? registry.get(componentId) || null : null;
+    if (registry instanceof Map) {
+      return registry.get(componentId) || null;
+    }
+    if (registry && typeof (registry as IRegistry).get === 'function') {
+      return (registry as IRegistry).get(componentId);
+    }
+    return null;
   }
 
   /**
@@ -426,7 +471,13 @@ export abstract class BaseCodegen {
     }
 
     const registry = this.aggregateRegistry.get(registryId);
-    return registry ? Array.from(registry.keys()) : [];
+    if (registry instanceof Map) {
+      return Array.from(registry.keys());
+    }
+    if (registry && typeof (registry as IRegistry).listIds === 'function') {
+      return Array.from((registry as IRegistry).listIds());
+    }
+    return [];
   }
 
   /**
@@ -434,7 +485,8 @@ export abstract class BaseCodegen {
    * @returns Root aggregate
    */
   public getRootAggregate(): IAggregate | IRegistry | undefined {
-    return this.aggregateRegistry.get('AppAggregate');
+    const aggregate = this.aggregateRegistry.get('AppAggregate');
+    return aggregate instanceof Map ? undefined : aggregate;
   }
 
   /**

@@ -3,14 +3,17 @@
  * Single responsibility: Synchronize ESLint configurations across project subdirectories
  */
 
-import { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
+import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, copyFileSync } from 'fs';
 import { join, resolve } from 'path';
 
+/**
+ *
+ */
 export class ESLintSyncPlugin extends BasePlugin {
   private verified = false;
-  private standardConfigs = {
+  private readonly standardConfigs = {
     base: {
       extends: ['@eslint/js'],
       plugins: ['@typescript-eslint', 'prettier'],
@@ -21,16 +24,16 @@ export class ESLintSyncPlugin extends BasePlugin {
         '@typescript-eslint/no-explicit-any': 'warn',
         'prettier/prettier': 'error',
         'no-console': 'off',
-        'no-undef': 'off'
+        'no-undef': 'off',
       },
       overrides: [
         {
           files: ['**/*.ts', '**/*.tsx'],
           rules: {
-            'max-lines': ['error', 300]
-          }
-        }
-      ]
+            'max-lines': ['error', 300],
+          },
+        },
+      ],
     },
     strict: {
       extends: ['@eslint/js', 'next/core-web-vitals'],
@@ -45,16 +48,16 @@ export class ESLintSyncPlugin extends BasePlugin {
         'prettier/prettier': 'error',
         'react-hooks/exhaustive-deps': 'error',
         'react-hooks/rules-of-hooks': 'error',
-        'no-console': 'error'
+        'no-console': 'error',
       },
       overrides: [
         {
           files: ['**/*.ts', '**/*.tsx'],
           rules: {
-            'max-lines': ['error', 300]
-          }
-        }
-      ]
+            'max-lines': ['error', 300],
+          },
+        },
+      ],
     },
     test: {
       extends: ['@eslint/js'],
@@ -65,17 +68,17 @@ export class ESLintSyncPlugin extends BasePlugin {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         'prettier/prettier': 'error',
-        'no-console': 'off'
+        'no-console': 'off',
       },
       overrides: [
         {
           files: ['**/*.ts', '**/*.tsx'],
           rules: {
-            'max-lines': ['error', 300]
-          }
-        }
-      ]
-    }
+            'max-lines': ['error', 300],
+          },
+        },
+      ],
+    },
   };
 
   /**
@@ -135,20 +138,20 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Sync results
    */
   private executeSync(context: Record<string, unknown>): unknown {
-    const {
-      scope = 'all',
-      level = 'auto',
-      dryRun = false,
-      force = false,
-      backup = true,
-    } = context;
+    const { scope = 'all', level = 'auto', dryRun = false, force = false, backup = true } = context;
 
     const projects = this.discoverProjects(scope as string);
     const results: Array<{ project: string; synced: boolean; error?: string }> = [];
 
     for (const project of projects) {
       try {
-        const synced = this.syncProjectConfig(project, level as string, !!dryRun, !!force, !!backup);
+        const synced = this.syncProjectConfig(
+          project,
+          level as string,
+          !!dryRun,
+          !!force,
+          !!backup
+        );
         results.push({ project, synced });
       } catch (error) {
         results.push({
@@ -293,7 +296,7 @@ export class ESLintSyncPlugin extends BasePlugin {
       }
     } else {
       // Specific projects
-      const scopes = scope.split(',').map(s => s.trim());
+      const scopes = scope.split(',').map((s) => s.trim());
       projects.push(...scopes);
     }
 
@@ -318,7 +321,13 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param backup - Whether to create backups
    * @returns Whether config was synced
    */
-  private syncProjectConfig(project: string, level: string, dryRun: boolean, force: boolean, backup: boolean): boolean {
+  private syncProjectConfig(
+    project: string,
+    level: string,
+    dryRun: boolean,
+    force: boolean,
+    backup: boolean
+  ): boolean {
     const projectPath = resolve(process.cwd(), project);
     const configPath = this.findESLintConfig(projectPath);
 
@@ -407,7 +416,12 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param force - Whether to force operation
    * @returns Whether config was generated
    */
-  private generateProjectConfig(project: string, level: string, dryRun: boolean, force: boolean): boolean {
+  private generateProjectConfig(
+    project: string,
+    level: string,
+    dryRun: boolean,
+    force: boolean
+  ): boolean {
     const projectPath = resolve(process.cwd(), project);
     const configPath = join(projectPath, 'eslint.config.js');
 
@@ -561,10 +575,7 @@ export class ESLintSyncPlugin extends BasePlugin {
 
     // Merge overrides if they exist
     if (standard.overrides || existing.overrides) {
-      merged.overrides = [
-        ...(standard.overrides || []),
-        ...(existing.overrides || [])
-      ];
+      merged.overrides = [...(standard.overrides || []), ...(existing.overrides || [])];
     }
 
     return merged;
@@ -649,7 +660,7 @@ export class ESLintSyncPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.verify || !spec.verify[platform]) {
+    if (!spec.verify?.[platform]) {
       throw new Error(`ESLint sync verification not supported on platform: ${platform}`);
     }
 
@@ -686,7 +697,7 @@ export class ESLintSyncPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.help || !spec.help[platform]) {
+    if (!spec.help?.[platform]) {
       throw new Error(`ESLint sync help not available on platform: ${platform}`);
     }
 
@@ -701,10 +712,10 @@ export class ESLintSyncPlugin extends BasePlugin {
         'diff - Show configuration differences',
       ],
       configurationLevels: {
-        'base': 'Essential rules for Node.js/TypeScript projects',
-        'strict': 'Full TypeScript strictness + React rules',
-        'test': 'Relaxed rules for test files',
-        'auto': 'Auto-detect based on project structure',
+        base: 'Essential rules for Node.js/TypeScript projects',
+        strict: 'Full TypeScript strictness + React rules',
+        test: 'Relaxed rules for test files',
+        auto: 'Auto-detect based on project structure',
       },
       options: {
         '--dry-run': 'Preview changes without applying them',
@@ -722,9 +733,7 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param results - Operation results
    * @returns Summary string
    */
-  private generateSummary(
-    results: Array<{ [key: string]: boolean | string }>
-  ): string {
+  private generateSummary(results: Array<{ [key: string]: boolean | string }>): string {
     const successful = results.filter((r) => r.synced || r.generated).length;
     const failed = results.filter((r) => !(r.synced || r.generated)).length;
 
@@ -744,9 +753,7 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param results - Validation results
    * @returns Summary string
    */
-  private generateValidationSummary(
-    results: Array<{ valid: boolean; issues?: string[] }>
-  ): string {
+  private generateValidationSummary(results: Array<{ valid: boolean; issues?: string[] }>): string {
     const valid = results.filter((r) => r.valid).length;
     const invalid = results.filter((r) => !r.valid).length;
     const totalIssues = results.reduce((sum, r) => sum + (r.issues?.length || 0), 0);

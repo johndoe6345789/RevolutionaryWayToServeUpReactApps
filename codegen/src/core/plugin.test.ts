@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Plugin } from './plugin';
-import { ISpec } from './interfaces/ispec';
+import type { ISpec, IPluginRegistryManager } from './interfaces/index';
 
 describe('Plugin', () => {
   let plugin: Plugin;
@@ -26,6 +26,9 @@ describe('Plugin', () => {
     };
 
     // Create a concrete implementation for testing
+    /**
+     *
+     */
     class TestPlugin extends Plugin {
       constructor(spec: ISpec) {
         super(spec);
@@ -43,7 +46,19 @@ describe('Plugin', () => {
     });
 
     it('should not be initialized initially', () => {
-      expect((plugin as any).initialised).toBe(false);
+      // Create a plugin instance to check initial state
+      const freshPlugin = new (class extends Plugin {
+        constructor() {
+          super(mockSpec);
+        }
+        /**
+         *
+         */
+        isInitialized() {
+          return (this as any).initialised;
+        }
+      })();
+      expect(freshPlugin.isInitialized()).toBe(false);
     });
   });
 
@@ -51,7 +66,23 @@ describe('Plugin', () => {
     it('should initialize successfully', async () => {
       const result = await plugin.initialise();
       expect(result).toBe(plugin);
-      expect((plugin as any).initialised).toBe(true);
+      // Create a plugin instance to check initialized state
+      const initializedPlugin = new (class extends Plugin {
+        constructor() {
+          super(mockSpec);
+        }
+        /**
+         *
+         */
+        async initializeAndCheck() {
+          await this.initialise();
+
+          return (this as any).initialised;
+        }
+      })();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const isInitialized = await initializedPlugin.initializeAndCheck();
+      expect(isInitialized).toBe(true);
     });
   });
 
@@ -63,9 +94,27 @@ describe('Plugin', () => {
 
   describe('register', () => {
     it('should initialize if not initialized', async () => {
-      const mockRegistryManager = { register: vi.fn() };
-      await plugin.register(mockRegistryManager as any);
-      expect((plugin as any).initialised).toBe(true);
+      const mockRegistryManager: IPluginRegistryManager = {
+        register: vi.fn(),
+      };
+      await plugin.register(mockRegistryManager);
+      // Create a plugin instance to check initialized state
+      const registeredPlugin = new (class extends Plugin {
+        constructor() {
+          super(mockSpec);
+        }
+        /**
+         *
+         */
+        async registerAndCheck() {
+          await this.register(mockRegistryManager);
+
+          return (this as any).initialised;
+        }
+      })();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const isInitialized = await registeredPlugin.registerAndCheck();
+      expect(isInitialized).toBe(true);
     });
   });
 
@@ -79,6 +128,7 @@ describe('Plugin', () => {
         timestamp: expect.any(String),
         output: {},
       });
+
       expect((plugin as any).initialised).toBe(true);
     });
   });

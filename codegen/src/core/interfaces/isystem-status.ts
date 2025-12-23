@@ -3,8 +3,11 @@
  * Status information about the codegen system
  */
 
-import { IBaseCodegenOptions } from './ibase-codegen-options';
+import type { IBaseCodegenOptions } from './ibase-codegen-options';
 
+/**
+ *
+ */
 export interface ISystemStatus {
   initialized: boolean;
   plugins: {

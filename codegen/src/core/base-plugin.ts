@@ -4,11 +4,14 @@
  * Uses composition with smaller specialized classes
  */
 
-import { IPlugin, IPluginConfig, IRegistryManager, ISpec } from './interfaces/index';
+import type { IPlugin, IPluginConfig, IRegistryManager, ISpec } from './interfaces/index';
 import { BaseComponent } from './base-component';
 import { PluginSpecLoader } from './plugin-spec-loader';
 import { PluginMessageLoader } from './plugin-message-loader';
 
+/**
+ *
+ */
 export abstract class BasePlugin extends BaseComponent implements IPlugin {
   public readonly config: IPluginConfig;
   private readonly specLoader: PluginSpecLoader;
@@ -65,9 +68,9 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
 
   /**
    * Register with registry manager (≤10 lines)
-   * @param registryManager - Registry manager instance
+   * @param _registryManager - Registry manager instance
    */
-  public async register(registryManager: IRegistryManager): Promise<void> {
+  public async register(_registryManager: IRegistryManager): Promise<void> {
     if (!this.initialized) {
       await this.initialise();
     }
@@ -77,6 +80,7 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
   /**
    * Shutdown plugin resources (≤10 lines)
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async shutdown(): Promise<void> {
     if (this.initialized) {
       this.initialized = false;
@@ -93,7 +97,7 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
       throw new Error('Invalid plugin specification');
     }
     // Update spec with loaded data
-    (this.spec as any) = { ...this.spec, ...loadedSpec };
+    Object.assign(this.spec, loadedSpec);
     this.initialized = true;
   }
 }

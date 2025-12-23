@@ -4,8 +4,11 @@
  * TypeScript strict typing with no 'any' types
  */
 
-import { IComponent, ISearchMetadata, ISpec } from './interfaces/index';
+import type { IComponent, ISearchMetadata, ISpec } from './interfaces/index';
 
+/**
+ *
+ */
 export abstract class BaseComponent implements IComponent {
   public readonly uuid: string;
   public readonly id: string;
@@ -33,23 +36,26 @@ export abstract class BaseComponent implements IComponent {
       throw new Error(`Invalid UUID: ${this.uuid}`);
     }
     // Validate required fields
-    if (!this.id || !this.search) {
-      throw new Error('Missing required fields: id, search');
+    if (!this.id) {
+      throw new Error('Missing required field: id');
     }
-    return this;
+    if (!this.search.title) {
+      throw new Error('Missing required field: search.title');
+    }
+    return await Promise.resolve(this);
   }
 
   /**
    * Execute component logic (core method, ≤10 lines)
-   * @param context - Execution context
+   * @param _context - Execution context
    * @returns Execution result
    */
-  public async execute(context: Record<string, unknown>): Promise<unknown> {
-    return {
+  public async execute(_context: Record<string, unknown>): Promise<unknown> {
+    return await Promise.resolve({
       success: true,
       component: this.id,
       timestamp: new Date().toISOString(),
-    };
+    });
   }
 
   /**

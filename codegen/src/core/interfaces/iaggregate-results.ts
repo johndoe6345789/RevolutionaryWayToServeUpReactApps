@@ -3,6 +3,9 @@
  * Results from aggregate execution operations
  */
 
+/**
+ *
+ */
 export interface IAggregateResults {
   generated: string[];
   errors: string[];

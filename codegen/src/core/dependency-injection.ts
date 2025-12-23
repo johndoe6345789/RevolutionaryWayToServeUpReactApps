@@ -4,8 +4,11 @@
  * Constructor injection with no global state
  */
 
-import { IDependencyInjectionContainer } from './interfaces/index';
+import type { IDependencyInjectionContainer } from './interfaces/index';
 
+/**
+ *
+ */
 export class DependencyInjectionContainer implements IDependencyInjectionContainer {
   private readonly registry = new Map<string | symbol, new (...args: never[]) => unknown>();
 

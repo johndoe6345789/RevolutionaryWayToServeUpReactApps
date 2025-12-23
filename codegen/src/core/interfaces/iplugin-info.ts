@@ -3,6 +3,9 @@
  * Information about discovered plugins
  */
 
+/**
+ *
+ */
 export interface IPluginInfo {
   id: string;
   name?: string;

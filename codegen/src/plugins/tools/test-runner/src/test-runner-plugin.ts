@@ -5,13 +5,19 @@
  */
 
 import { Plugin } from '../../../core/plugin';
-import { ISpec } from '../../../core/interfaces/ispec';
+import type { ISpec } from '../../../core/interfaces/ispec';
 
+/**
+ *
+ */
 interface ExecutorState {
   framework: string;
   testsRun: number;
 }
 
+/**
+ *
+ */
 interface TestResults {
   success: boolean;
   framework: string;
@@ -22,6 +28,9 @@ interface TestResults {
   };
 }
 
+/**
+ *
+ */
 interface ExecutionResults {
   summary: {
     total: number;
@@ -30,11 +39,17 @@ interface ExecutionResults {
   };
 }
 
+/**
+ *
+ */
 interface ValidationInput {
   operation: string;
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 export class TestRunnerPlugin extends Plugin {
   protected executor: ExecutorState | null;
 

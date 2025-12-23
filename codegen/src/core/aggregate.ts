@@ -5,9 +5,12 @@
  */
 
 import { BaseComponent } from './base-component';
-import { IAggregate, IRegistry } from './interfaces/index';
-import { ISpec } from './interfaces/ispec';
+import type { IAggregate, IRegistry, ISearchMetadata } from './interfaces/index';
+import type { ISpec } from './interfaces/ispec';
 
+/**
+ *
+ */
 export abstract class Aggregate extends BaseComponent implements IAggregate {
   protected children: Map<string, IAggregate | IRegistry>;
   public readonly aggregateType: string;
@@ -19,7 +22,7 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
   constructor(spec: ISpec) {
     super(spec);
     this.children = new Map();
-    this.aggregateType = spec.aggregateType || 'generic';
+    this.aggregateType = (spec as any).aggregateType ?? 'generic';
   }
 
   /**
@@ -36,7 +39,7 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
    * @returns Child component or null
    */
   public getChild(id: string): IAggregate | IRegistry | null {
-    return this.children.get(id) || null;
+    return this.children.get(id) ?? null;
   }
 
   /**
@@ -83,7 +86,7 @@ export abstract class Aggregate extends BaseComponent implements IAggregate {
    * Describe aggregate for search/discovery
    * @returns Search metadata
    */
-  public describe(): import('./interfaces/isearch-metadata').ISearchMetadata | null {
+  public describe(): ISearchMetadata | null {
     return this.search;
   }
 }

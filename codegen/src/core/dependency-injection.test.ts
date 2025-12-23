@@ -15,7 +15,9 @@ describe('DependencyInjectionContainer', () => {
       ['empty string token', '', class TestService {}],
       ['special chars token', 'service-with-dashes_and_underscores', class TestService {}],
     ])('should register implementation for %s: %s', (description, token, implementation) => {
-      expect(() => container.register(token, implementation)).not.toThrow();
+      expect(() => {
+        container.register(token, implementation);
+      }).not.toThrow();
       expect(container.has(token)).toBe(true);
     });
 
@@ -26,7 +28,9 @@ describe('DependencyInjectionContainer', () => {
       ['object token', {}, class TestService {}],
     ])('should handle %s gracefully', (description, token, implementation) => {
       // Should not throw for any token type
-      expect(() => container.register(token, implementation)).not.toThrow();
+      expect(() => {
+        container.register(token, implementation);
+      }).not.toThrow();
     });
 
     it.each([
@@ -41,27 +45,38 @@ describe('DependencyInjectionContainer', () => {
         'service with dependencies',
         'dependentService',
         class DependentService {
-          constructor(private dep: any) {}
+          constructor(private readonly dep: any) {}
         },
       ],
       [
         'service with complex constructor',
         'complexService',
         class ComplexService {
-          constructor(a: string, b: number, c: boolean) {}
+          constructor(_a: string, _b: number, _c: boolean) {}
         },
       ],
     ])('should register %s', (description, token, implementation) => {
-      expect(() => container.register(token, implementation)).not.toThrow();
+      expect(() => {
+        container.register(token, implementation);
+      }).not.toThrow();
       expect(container.has(token)).toBe(true);
     });
   });
 
   describe('resolve', () => {
+    /**
+     *
+     */
     class TestService {}
+    /**
+     *
+     */
     class ParamService {
       constructor(public value: string = 'default') {}
     }
+    /**
+     *
+     */
     class ComplexService {
       public readonly initialized: boolean;
       constructor() {
@@ -146,6 +161,9 @@ describe('DependencyInjectionContainer', () => {
   });
 
   describe('has', () => {
+    /**
+     *
+     */
     class TestService {}
     const symbolToken = Symbol('symbolService');
 
@@ -192,21 +210,39 @@ describe('DependencyInjectionContainer', () => {
   });
 
   describe('integration scenarios', () => {
+    /**
+     *
+     */
     class DatabaseService {
+      /**
+       *
+       */
       connect() {
         return 'connected';
       }
     }
 
+    /**
+     *
+     */
     class UserRepository {
-      constructor(private db: DatabaseService) {}
+      constructor(private readonly db: DatabaseService) {}
+      /**
+       *
+       */
       getUser() {
         return this.db.connect();
       }
     }
 
+    /**
+     *
+     */
     class UserService {
-      constructor(private repo: UserRepository) {}
+      constructor(private readonly repo: UserRepository) {}
+      /**
+       *
+       */
       getUserData() {
         return this.repo.getUser();
       }

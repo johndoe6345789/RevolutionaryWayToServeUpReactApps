@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GitHooksPlugin } from './git-hooks-plugin';
-import { IPluginConfig } from '../../../../core/interfaces/index';
+import type { IPluginConfig } from '../../../../core/interfaces/index';
 
 describe('GitHooksPlugin', () => {
   let plugin: GitHooksPlugin;
@@ -64,16 +64,18 @@ describe('GitHooksPlugin', () => {
 
   describe('hook management', () => {
     it('should handle create operation', async () => {
-      await expect(plugin.execute({
-        operation: 'create',
-        hook: 'test-hook'
-      })).rejects.toThrow('Template not found: test-hook');
+      await expect(
+        plugin.execute({
+          operation: 'create',
+          hook: 'test-hook',
+        })
+      ).rejects.toThrow('Template not found: test-hook');
     });
 
     it('should handle remove operation', async () => {
       const result = await plugin.execute({
         operation: 'remove',
-        hooks: ['nonexistent-hook']
+        hooks: ['nonexistent-hook'],
       });
       expect(result).toHaveProperty('operation', 'remove');
       expect(result).toHaveProperty('hooks');

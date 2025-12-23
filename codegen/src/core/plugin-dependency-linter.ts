@@ -9,6 +9,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ *
+ */
 interface PluginManifest {
   id: string;
   name?: string;
@@ -18,6 +21,9 @@ interface PluginManifest {
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 interface PluginDependency {
   pluginId: string;
   manifest: PluginManifest;
@@ -25,6 +31,9 @@ interface PluginDependency {
   dependencies: string[];
 }
 
+/**
+ *
+ */
 export class PluginDependencyLinter {
   private readonly pluginsDir: string;
   private readonly discoveredPlugins: Map<string, PluginDependency> = new Map();
@@ -35,6 +44,7 @@ export class PluginDependencyLinter {
 
   /**
    * Extract dependencies from manifest format
+   * @param deps
    */
   private extractDependencies(deps?: string[] | { core?: string; plugins?: string[] }): string[] {
     if (!deps) return [];
@@ -214,7 +224,7 @@ export class PluginDependencyLinter {
     dependencies: string[];
     entryPoint: string;
   }> {
-    return Array.from(this.discoveredPlugins.values()).map(plugin => ({
+    return Array.from(this.discoveredPlugins.values()).map((plugin) => ({
       id: plugin.pluginId,
       dependencies: plugin.dependencies,
       entryPoint: plugin.entryPath,
@@ -226,7 +236,7 @@ export class PluginDependencyLinter {
 if (import.meta.main) {
   const linter = new PluginDependencyLinter();
 
-  linter.analyze().then(result => {
+  linter.analyze().then((result) => {
     console.log(`🔍 Analyzed ${result.pluginCount} plugins\n`);
 
     if (result.success) {

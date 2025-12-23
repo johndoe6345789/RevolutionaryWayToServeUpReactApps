@@ -5,6 +5,9 @@ describe('BootstrapGenerator', () => {
   let generator: BootstrapGenerator;
 
   beforeEach(() => {
+    /**
+     *
+     */
     class TestBootstrapGenerator extends BootstrapGenerator {
       constructor() {
         super({

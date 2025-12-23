@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { BaseComponent } from './base-component';
 
 // Create a concrete implementation for testing
+/**
+ *
+ */
 class TestComponent extends BaseComponent {
   // Concrete implementation for testing
 }

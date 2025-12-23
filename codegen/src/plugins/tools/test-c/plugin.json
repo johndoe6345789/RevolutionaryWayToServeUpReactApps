@@ -4,5 +4,5 @@
   "type": "tool",
   "name": "Test Plugin C",
   "entry_point": "src/test-c-plugin.ts",
-  "dependencies": ["plugin.tools.test-a"]
+  "dependencies": []
 }

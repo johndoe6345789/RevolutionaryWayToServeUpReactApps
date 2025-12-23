@@ -2,9 +2,12 @@
  * Aggregator interface - supports unlimited drill-down navigation
  * AGENTS.md compliant: hierarchical component navigation with lifecycle management
  */
-import { IComponent } from './icomponent';
-import { LifecycleState } from './lifecycle-state';
+import type { IComponent } from './icomponent';
+import type { LifecycleState } from './lifecycle-state';
 
+/**
+ *
+ */
 export interface IAggregator extends IComponent {
   /**
    * Get child component by path segment

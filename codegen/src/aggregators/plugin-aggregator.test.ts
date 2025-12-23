@@ -5,6 +5,9 @@ describe('PluginAggregator', () => {
   let aggregator: PluginAggregator;
 
   beforeEach(() => {
+    /**
+     *
+     */
     class TestPluginAggregator extends PluginAggregator {
       constructor() {
         super({

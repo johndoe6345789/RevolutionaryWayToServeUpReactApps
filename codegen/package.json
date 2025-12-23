@@ -9,7 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "bun run lint.ts",
+    "lint": "bunx eslint . --max-warnings 0",
     "lint:fix": "bunx eslint . --fix",
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",

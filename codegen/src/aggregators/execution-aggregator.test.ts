@@ -5,6 +5,9 @@ describe('ExecutionAggregator', () => {
   let aggregator: ExecutionAggregator;
 
   beforeEach(() => {
+    /**
+     *
+     */
     class TestExecutionAggregator extends ExecutionAggregator {
       constructor() {
         super({

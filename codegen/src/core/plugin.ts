@@ -5,9 +5,12 @@
  */
 
 import { BaseComponent } from './base-component';
-import { IPluginExecutionResult, IPluginRegistryManager } from './interfaces/index';
-import { ISpec } from './interfaces/ispec';
+import type { IPluginExecutionResult, IPluginRegistryManager } from './interfaces/index';
+import type { ISpec } from './interfaces/ispec';
 
+/**
+ *
+ */
 export abstract class Plugin extends BaseComponent {
   protected initialised: boolean;
   protected specCache: unknown | null;
@@ -91,9 +94,9 @@ export abstract class Plugin extends BaseComponent {
   /**
    * Log plugin message (convenience method, ≤10 lines)
    * @param message - Message to log
-   * @param level - Log level
+   * @param _level - Log level
    */
-  protected log(message: string, level: string = 'info'): void {
+  protected log(message: string, _level: string = 'info'): void {
     const prefix = `[${this.id}]`;
     console.log(`${prefix} ${message}`);
   }

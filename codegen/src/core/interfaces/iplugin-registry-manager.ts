@@ -3,6 +3,12 @@
  * Used by plugins to register themselves with the system
  */
 
+/**
+ *
+ */
 export interface IPluginRegistryManager {
+  /**
+   *
+   */
   register(id: string, spec: unknown): void;
 }

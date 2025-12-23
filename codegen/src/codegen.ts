@@ -11,7 +11,10 @@ import { CodegenEntrypoint } from './entrypoints/index';
 import { CodegenAggregator } from './aggregators/index';
 
 // Factory function to create the new architecture
-export function createCodegenSystem(options: any = {}) {
+export function createCodegenSystem(options: Record<string, unknown> = {}): {
+  entrypoint: CodegenEntrypoint;
+  aggregator: CodegenAggregator;
+} {
   // Create root aggregator
   const aggregator = new CodegenAggregator({
     uuid: 'root-codegen-uuid',
@@ -37,8 +40,8 @@ if (require.main === module) {
   const { entrypoint } = createCodegenSystem();
   const args = process.argv.slice(2);
 
-  entrypoint.runCLI(args).catch((error) => {
-    console.error('Fatal error:', error.message);
+  entrypoint.runCLI(args).catch((error: unknown) => {
+    console.error('Fatal error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
   });
 }

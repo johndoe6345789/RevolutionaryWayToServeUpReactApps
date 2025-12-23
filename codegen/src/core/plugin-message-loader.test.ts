@@ -70,11 +70,15 @@ describe('PluginMessageLoader', () => {
     });
 
     it('should reject null messages', () => {
-      expect(loader.validateMessages(null as any)).toBe(false);
+      expect(
+        loader.validateMessages(null as unknown as Record<string, Record<string, string>>)
+      ).toBe(false);
     });
 
     it('should reject non-object messages', () => {
-      expect(loader.validateMessages('string' as any)).toBe(false);
+      expect(
+        loader.validateMessages('string' as unknown as Record<string, Record<string, string>>)
+      ).toBe(false);
     });
 
     it('should reject invalid locale structure', () => {
@@ -82,7 +86,8 @@ describe('PluginMessageLoader', () => {
         en: { hello: 'Hello', goodbye: 123 }, // number instead of string
       };
 
-      expect(loader.validateMessages(invalidMessages)).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      expect(loader.validateMessages(invalidMessages as any)).toBe(false);
     });
 
     it('should reject non-object locale values', () => {
@@ -90,7 +95,8 @@ describe('PluginMessageLoader', () => {
         en: 'not an object',
       };
 
-      expect(loader.validateMessages(invalidMessages)).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      expect(loader.validateMessages(invalidMessages as any)).toBe(false);
     });
   });
 });

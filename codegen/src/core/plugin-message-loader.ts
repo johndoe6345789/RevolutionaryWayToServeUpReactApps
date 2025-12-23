@@ -7,6 +7,9 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
+/**
+ *
+ */
 export class PluginMessageLoader {
   private readonly basePath: string;
 

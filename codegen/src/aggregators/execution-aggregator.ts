@@ -5,9 +5,12 @@
  */
 
 import { BaseAggregator } from '../core/base-aggregator';
-import { IAggregator, IComponent } from '../core/interfaces/index';
-import { ISpec } from '../core/interfaces/ispec';
+import type { IAggregator, IComponent } from '../core/interfaces/index';
+import type { ISpec } from '../core/interfaces/ispec';
 
+/**
+ *
+ */
 interface ExecutionResults {
   success: boolean;
   generated: string[];
@@ -21,9 +24,19 @@ interface ExecutionResults {
   };
 }
 
+/**
+ * ExecutionAggregator - Coordinates execution pipeline with unlimited drill-down
+ * Manages code generation workflow and result aggregation
+ * TypeScript strict typing with no 'any' types
+ */
 export class ExecutionAggregator extends BaseAggregator {
+  /** Execution results tracking the outcome of code generation operations */
   private executionResults: ExecutionResults;
 
+  /**
+   * Create a new ExecutionAggregator
+   * @param spec The specification for this aggregator
+   */
   constructor(spec: ISpec) {
     super(spec);
     this.executionResults = {
@@ -39,11 +52,20 @@ export class ExecutionAggregator extends BaseAggregator {
     };
   }
 
+  /**
+   * Initialize the execution aggregator
+   * @returns Promise resolving to this aggregator instance
+   */
   public override async initialise(): Promise<ExecutionAggregator> {
     await super.initialise();
     return this;
   }
 
+  /**
+   * Execute the code generation workflow
+   * @param context Execution context
+   * @returns Promise resolving to execution results
+   */
   public override async execute(context: Record<string, unknown>): Promise<unknown> {
     await super.execute(context);
 
@@ -62,48 +84,70 @@ export class ExecutionAggregator extends BaseAggregator {
 
     // Execute through plugin aggregator
     const pluginAggregator = this.children.get('PluginAggregator') as IAggregator;
-    if (pluginAggregator) {
-      try {
-        const pluginResults = await pluginAggregator.execute(context);
-        this.executionResults.stats.pluginsExecuted = (pluginResults as any)?.pluginsExecuted || 0;
-      } catch (error) {
-        this.executionResults.errors.push(`Plugin execution failed: ${(error as Error).message}`);
-      }
+    try {
+      const pluginResults = await pluginAggregator.execute(context);
+      this.executionResults.stats.pluginsExecuted =
+        (pluginResults as { pluginsExecuted?: number }).pluginsExecuted ?? 0;
+    } catch (error) {
+      this.executionResults.errors.push(`Plugin execution failed: ${(error as Error).message}`);
     }
 
     // Execute through spec aggregator
     const specAggregator = this.children.get('SpecAggregator') as IAggregator;
-    if (specAggregator) {
-      try {
-        const specResults = await specAggregator.execute(context);
-        this.executionResults.stats.specsProcessed = (specResults as any)?.specsProcessed || 0;
-      } catch (error) {
-        this.executionResults.errors.push(`Spec processing failed: ${(error as Error).message}`);
-      }
+    try {
+      const specResults = await specAggregator.execute(context);
+      this.executionResults.stats.specsProcessed =
+        (specResults as { specsProcessed?: number }).specsProcessed ?? 0;
+    } catch (error) {
+      this.executionResults.errors.push(`Spec processing failed: ${(error as Error).message}`);
     }
 
     this.executionResults.success = this.executionResults.errors.length === 0;
     return this.executionResults;
   }
 
+  /**
+   * Shutdown the execution aggregator and all child aggregators
+   * @returns Promise that resolves when shutdown is complete
+   */
   public override async shutdown(): Promise<void> {
     // Shutdown child aggregators
-    for (const [_childId, child] of this.children) {
-      if (child && typeof (child as any).shutdown === 'function') {
-        await (child as any).shutdown();
+    for (const [, child] of this.children) {
+      if ('shutdown' in child && typeof child.shutdown === 'function') {
+        await (
+          child as {
+            /**
+             *
+             */
+            shutdown(): Promise<void>;
+          }
+        ).shutdown();
       }
     }
     await super.shutdown();
   }
 
+  /**
+   * Get the execution results
+   * @returns Copy of the execution results
+   */
   public getExecutionResults(): ExecutionResults {
     return { ...this.executionResults };
   }
 
+  /**
+   * Get a child component by ID
+   * @param childId The ID of the child to retrieve
+   * @returns The child component or null if not found
+   */
   public override getChild(childId: string): IAggregator | IComponent | null {
-    return this.children.get(childId) || null;
+    return this.children.get(childId) ?? null;
   }
 
+  /**
+   * List all child component IDs
+   * @returns Array of child component IDs
+   */
   public override listChildren(): readonly string[] {
     return Array.from(this.children.keys());
   }

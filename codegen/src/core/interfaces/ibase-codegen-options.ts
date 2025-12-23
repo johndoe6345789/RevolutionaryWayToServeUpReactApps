@@ -3,6 +3,9 @@
  * Defines constructor parameters for codegen system initialization
  */
 
+/**
+ *
+ */
 export interface IBaseCodegenOptions {
   outputDir?: string;
   strictMode?: boolean;

@@ -6,6 +6,10 @@ import jsdoc from 'eslint-plugin-jsdoc';
 import noHardcodedStrings from './src/core/eslint-rules/no-hardcoded-strings.js';
 import noLargeDirectories from './src/core/eslint-rules/no-large-directories.js';
 import requireReadme from './src/core/eslint-rules/require-readme.js';
+import oopCompliance from './src/core/eslint-rules/oop-compliance.js';
+import singleExportPerFile from './src/core/eslint-rules/single-export-per-file.js';
+import validateSpecs from './src/core/eslint-rules/validate-specs.js';
+import pluginDependencies from './src/core/eslint-rules/plugin-dependencies.js';
 
 export default [
   js.configs.recommended,
@@ -35,6 +39,10 @@ export default [
       'no-hardcoded-strings': noHardcodedStrings,
       'no-large-directories': noLargeDirectories,
       'require-readme': requireReadme,
+      'oop-compliance': oopCompliance,
+      'single-export-per-file': singleExportPerFile,
+      'validate-specs': validateSpecs,
+      'plugin-dependencies': pluginDependencies,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
@@ -121,6 +129,10 @@ export default [
       'jsdoc/require-param': 'warn',
       'jsdoc/require-returns': 'warn',
       'jsdoc/require-throws': 'warn',
+      'oop-compliance/oop-compliance': 'error',
+      'single-export-per-file/single-export-per-file': 'error',
+      'validate-specs/validate-specs': 'error',
+      'plugin-dependencies/plugin-dependencies': 'error',
     },
   },
   {
@@ -158,6 +170,7 @@ export default [
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       'no-console': 'off',
+      'max-classes-per-file': 'off',
     },
   },
   {

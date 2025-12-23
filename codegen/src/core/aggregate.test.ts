@@ -3,9 +3,9 @@
  * Tests for the Aggregate base class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { Aggregate } from './aggregate';
-import { ISpec } from './interfaces/ispec';
+import type { ISpec } from './interfaces/ispec';
 
 describe('Aggregate', () => {
   let mockSpec: ISpec;
@@ -27,6 +27,9 @@ describe('Aggregate', () => {
     };
 
     // Create a concrete implementation for testing
+    /**
+     *
+     */
     class TestAggregate extends Aggregate {
       constructor(spec: ISpec) {
         super(spec);
@@ -45,21 +48,39 @@ describe('Aggregate', () => {
 
     it('should throw error with invalid spec', () => {
       const invalidSpec = { ...mockSpec, uuid: '' };
+      /**
+       *
+       */
       class TestAggregate extends Aggregate {
         constructor(spec: ISpec) {
           super(spec);
         }
-        protected _validateInput(input: unknown): boolean {
+        /**
+         *
+         * @param _input
+         * @returns boolean indicating if input is valid
+         */
+        protected _validateInput(_input: unknown): boolean {
           return true;
         }
-        protected _processItems(items: unknown[]): Promise<unknown[]> {
+        /**
+         *
+         * @param _items
+         * @returns Promise resolving to processed items
+         */
+        protected _processItems(_items: unknown[]): Promise<unknown[]> {
           return Promise.resolve([]);
         }
-        protected _mergeResults(results: unknown[]): unknown {
+        /**
+         *
+         * @param _results
+         * @returns merged results
+         */
+        protected _mergeResults(_results: unknown[]): unknown {
           return null;
         }
       }
-      expect(() => new TestAggregate(invalidSpec as any)).toThrow();
+      expect(() => new TestAggregate(invalidSpec as ISpec)).toThrow();
     });
   });
 

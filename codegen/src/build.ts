@@ -8,7 +8,7 @@
 import { $ } from 'bun';
 import { existsSync, mkdirSync } from 'fs';
 
-async function main() {
+async function main(): Promise<void> {
   console.log('🚀 Building Revolutionary Codegen...');
 
   // Ensure output directories exist
@@ -22,31 +22,37 @@ async function main() {
   try {
     // Run linting first
     console.log('📋 Running linter...');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await $`bun run lint.ts`;
 
     // Run tests
     console.log('🧪 Running tests...');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await $`bun test`;
 
     // Generate bootstrap system
     console.log('🔧 Generating bootstrap system...');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await $`bun run scripts/generate-bootstrap.ts`;
 
     // Bundle CLI
     console.log('📦 Bundling CLI...');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await $`bun build codegen.js --outdir dist --target node`;
 
     // Generate documentation
     console.log('📚 Generating documentation...');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await $`bun run scripts/generate-docs.ts`;
 
     console.log('✅ Build completed successfully!');
-  } catch (error) {
-    console.error('❌ Build failed:', error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Build failed: ${errorMessage}`);
     process.exit(1);
   }
 }
 
-if (import.meta.main) {
-  main();
+if (require.main === module) {
+  void main();
 }

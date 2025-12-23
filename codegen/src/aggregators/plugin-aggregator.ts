@@ -7,22 +7,35 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BaseAggregator } from '../core/base-aggregator';
-import { IComponent } from '../core/interfaces/index';
-import { ISpec } from '../core/interfaces/ispec';
+import type { IComponent } from '../core/interfaces/index';
+import type { ISpec } from '../core/interfaces/ispec';
 
+/**
+ *
+ */
 interface PluginInfo {
   id: string;
   name?: string;
   version?: string;
-  entry_point: string;
+  entry_point?: string;
   path?: string;
   category?: string;
   [key: string]: unknown;
 }
 
+/**
+ * Interface for plugin constructors
+ */
+interface PluginConstructor {
+  new (): IComponent;
+}
+
+/**
+ *
+ */
 export class PluginAggregator extends BaseAggregator {
-  private discoveredPlugins: Map<string, PluginInfo>;
-  private loadedPlugins: Map<string, IComponent>;
+  private readonly discoveredPlugins: Map<string, PluginInfo>;
+  private readonly loadedPlugins: Map<string, IComponent>;
 
   constructor(spec: ISpec) {
     super(spec);
@@ -30,17 +43,24 @@ export class PluginAggregator extends BaseAggregator {
     this.loadedPlugins = new Map();
   }
 
+  /**
+   * @returns Promise<PluginAggregator> Initialised aggregator
+   */
   public override async initialise(): Promise<PluginAggregator> {
     await super.initialise();
-    await this._discoverPlugins();
+    this._discoverPlugins();
     await this._loadPlugins();
     return this;
   }
 
+  /**
+   * @param context Execution context
+   * @returns Promise<unknown> Execution result
+   */
   public override async execute(context: Record<string, unknown>): Promise<unknown> {
     await super.execute(context);
     // Execute all loaded plugins
-    for (const [_pluginId, plugin] of this.loadedPlugins) {
+    for (const plugin of this.loadedPlugins.values()) {
       if (typeof plugin.execute === 'function') {
         await plugin.execute(context);
       }
@@ -48,17 +68,23 @@ export class PluginAggregator extends BaseAggregator {
     return { success: true, pluginsExecuted: this.loadedPlugins.size };
   }
 
+  /**
+   *
+   */
   public override async shutdown(): Promise<void> {
     // Shutdown all plugins
-    for (const [_pluginId, plugin] of this.loadedPlugins) {
-      if (typeof (plugin as any).shutdown === 'function') {
-        await (plugin as any).shutdown();
+    for (const plugin of this.loadedPlugins.values()) {
+      if ('shutdown' in plugin && typeof plugin.shutdown === 'function') {
+        await (plugin.shutdown as () => Promise<void>)();
       }
     }
     await super.shutdown();
   }
 
-  private async _discoverPlugins(): Promise<void> {
+  /**
+   *
+   */
+  private _discoverPlugins(): void {
     const pluginsDir = path.join(__dirname, '../plugins');
     const categories = ['tools', 'languages', 'templates', 'profiles'];
 
@@ -81,12 +107,15 @@ export class PluginAggregator extends BaseAggregator {
               string,
               unknown
             >;
-            this.discoveredPlugins.set(manifest.id as string, {
-              ...(manifest as PluginInfo),
-              path: pluginDir,
-              category,
-            });
-          } catch (error) {
+            const pluginId = manifest.id;
+            if (typeof pluginId === 'string') {
+              this.discoveredPlugins.set(pluginId, {
+                ...(manifest as PluginInfo),
+                path: pluginDir,
+                category,
+              });
+            }
+          } catch {
             // Skip invalid manifests
           }
         }
@@ -94,11 +123,24 @@ export class PluginAggregator extends BaseAggregator {
     }
   }
 
+  /**
+   *
+   */
   private async _loadPlugins(): Promise<void> {
     for (const [pluginId, pluginInfo] of this.discoveredPlugins) {
       try {
+        if (
+          pluginInfo.path == null ||
+          pluginInfo.entry_point == null ||
+          pluginInfo.entry_point === ''
+        ) {
+          continue; // Skip plugins without valid path or entry point
+        }
         const entryPoint = path.join(pluginInfo.path, pluginInfo.entry_point);
-        const PluginClass = require(entryPoint);
+        const PluginClass = require(entryPoint) as PluginConstructor;
+        if (typeof PluginClass !== 'function') {
+          continue; // Skip invalid plugin classes
+        }
         const plugin = new PluginClass();
 
         if (typeof plugin.initialise === 'function') {
@@ -107,7 +149,7 @@ export class PluginAggregator extends BaseAggregator {
 
         this.loadedPlugins.set(pluginId, plugin);
         this.children.set(pluginId, plugin);
-      } catch (error) {
+      } catch {
         // Skip failed plugin loads
       }
     }

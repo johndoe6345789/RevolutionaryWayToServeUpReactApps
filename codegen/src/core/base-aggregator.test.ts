@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { BaseAggregator } from './base-aggregator';
-import { ISpec } from './interfaces/ispec';
+import type { ISpec } from './interfaces/ispec';
 
 describe('BaseAggregator', () => {
   let mockSpec: ISpec;
@@ -26,6 +26,9 @@ describe('BaseAggregator', () => {
     };
 
     // Create a concrete implementation for testing
+    /**
+     *
+     */
     class TestAggregator extends BaseAggregator {
       constructor(spec: ISpec) {
         super(spec);

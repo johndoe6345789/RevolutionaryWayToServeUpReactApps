@@ -3,11 +3,14 @@
  * Single responsibility: Cleanup of generated code and dependencies
  */
 
-import { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
+import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
 import { rmSync, existsSync, statSync, readdirSync } from 'fs';
 import { join, resolve } from 'path';
 
+/**
+ *
+ */
 export class CleanPlugin extends BasePlugin {
   private verified = false;
 
@@ -104,7 +107,7 @@ export class CleanPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.verify || !spec.verify[platform]) {
+    if (!spec.verify?.[platform]) {
       throw new Error(`Clean verification not supported on platform: ${platform}`);
     }
 
@@ -139,7 +142,7 @@ export class CleanPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.help || !spec.help[platform]) {
+    if (!spec.help?.[platform]) {
       throw new Error(`Clean help not available on platform: ${platform}`);
     }
 

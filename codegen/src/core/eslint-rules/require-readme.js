@@ -103,7 +103,7 @@ export default {
                   readmeFound = { name: readmeName, path: readmePath };
                   break;
                 }
-              } catch (error) {
+              } catch {
                 // Ignore filesystem errors
               }
             }
@@ -147,7 +147,7 @@ export default {
                     },
                   });
                 }
-              } catch (error) {
+              } catch {
                 // Ignore read errors
               }
             }

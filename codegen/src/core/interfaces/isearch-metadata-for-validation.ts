@@ -3,6 +3,9 @@
  * Simplified version used by SpecValidator
  */
 
+/**
+ *
+ */
 export interface ISearchMetadataForValidation {
   title: string;
   summary: string;

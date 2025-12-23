@@ -7,8 +7,11 @@
  */
 
 import { BaseComponent } from '../core/base-component';
-import { IAggregator } from '../core/interfaces/index';
+import type { IAggregator } from '../core/interfaces/index';
 
+/**
+ *
+ */
 interface CodegenOptions {
   outputDir?: string;
   verbose?: boolean;
@@ -16,6 +19,9 @@ interface CodegenOptions {
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 interface CLIArgs {
   spec?: string;
   output?: string;
@@ -31,8 +37,11 @@ interface CLIArgs {
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 export class CodegenEntrypoint extends BaseComponent {
-  private aggregator: IAggregator;
+  private readonly aggregator: IAggregator;
 
   constructor(aggregator: IAggregator, options: CodegenOptions = {}) {
     super({
@@ -51,11 +60,18 @@ export class CodegenEntrypoint extends BaseComponent {
     this.aggregator = aggregator;
   }
 
+  /**
+   *
+   */
   public override async initialise(): Promise<CodegenEntrypoint> {
     await super.initialise();
     return this;
   }
 
+  /**
+   *
+   * @param args
+   */
   public async runCLI(args: string[]): Promise<void> {
     const command = args[0] || 'help';
     const options = this._parseCLIArgs(args.slice(1));
@@ -84,14 +100,25 @@ export class CodegenEntrypoint extends BaseComponent {
     }
   }
 
+  /**
+   *
+   */
   public getAggregator(): IAggregator {
     return this.aggregator;
   }
 
+  /**
+   *
+   * @param path
+   */
   public drillDown(path: string[]): IAggregator | null {
     return this.aggregator.drillDown(path) as IAggregator;
   }
 
+  /**
+   *
+   * @param options
+   */
   private async _runGenerate(options: CLIArgs): Promise<void> {
     const context = {
       operation: 'generate',
@@ -108,6 +135,10 @@ export class CodegenEntrypoint extends BaseComponent {
     }
   }
 
+  /**
+   *
+   * @param options
+   */
   private async _runList(options: CLIArgs): Promise<void> {
     const category = options.category || 'all';
 
@@ -126,6 +157,10 @@ export class CodegenEntrypoint extends BaseComponent {
     }
   }
 
+  /**
+   *
+   * @param options
+   */
   private async _runDescribe(options: CLIArgs): Promise<void> {
     const componentId = options.component;
     if (!componentId) {
@@ -141,6 +176,10 @@ export class CodegenEntrypoint extends BaseComponent {
     }
   }
 
+  /**
+   *
+   * @param options
+   */
   private async _runSearch(options: CLIArgs): Promise<void> {
     const query = options.query;
     if (!query) {
@@ -148,6 +187,10 @@ export class CodegenEntrypoint extends BaseComponent {
     }
   }
 
+  /**
+   *
+   * @param args
+   */
   private _parseCLIArgs(args: string[]): CLIArgs {
     const options: CLIArgs = {};
     for (let i = 0; i < args.length; i++) {
@@ -162,6 +205,9 @@ export class CodegenEntrypoint extends BaseComponent {
     return options;
   }
 
+  /**
+   *
+   */
   private _displayHelp(): void {
     // Help display functionality
   }

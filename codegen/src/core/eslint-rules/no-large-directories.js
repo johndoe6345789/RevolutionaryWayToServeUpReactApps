@@ -117,7 +117,7 @@ export default {
                 });
               }
 
-            } catch (error) {
+            } catch {
               // Ignore filesystem errors
             }
           },

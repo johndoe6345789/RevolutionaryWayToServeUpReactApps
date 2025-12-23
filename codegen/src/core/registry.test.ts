@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Registry } from './registry';
 
 // Create a concrete implementation for testing
+/**
+ *
+ */
 class TestRegistry extends Registry {
   constructor() {
     super({
@@ -21,6 +24,9 @@ class TestRegistry extends Registry {
 }
 
 // Mock component for testing
+/**
+ *
+ */
 class MockComponent {
   public readonly uuid: string;
   public readonly id: string;

@@ -3,10 +3,13 @@
  * Single responsibility: Git tool management with strict OO constraints
  */
 
-import { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
+import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
 import { execSync } from 'child_process';
 
+/**
+ *
+ */
 export class GitPlugin extends BasePlugin {
   private installed = false;
   private verified = false;
@@ -61,7 +64,7 @@ export class GitPlugin extends BasePlugin {
       (context.packageManager as string) || this.detectPackageManager(platform);
 
     const spec = this.spec;
-    if (!spec.install || !spec.install[platform]) {
+    if (!spec.install?.[platform]) {
       throw new Error(`Git installation not supported on platform: ${platform}`);
     }
 
@@ -91,7 +94,7 @@ export class GitPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.verify || !spec.verify[platform]) {
+    if (!spec.verify?.[platform]) {
       throw new Error(`Git verification not supported on platform: ${platform}`);
     }
 
@@ -163,7 +166,7 @@ export class GitPlugin extends BasePlugin {
     const platform = (context.platform as string) || process.platform;
 
     const spec = this.spec;
-    if (!spec.help || !spec.help[platform]) {
+    if (!spec.help?.[platform]) {
       throw new Error(`Git help not available on platform: ${platform}`);
     }
 
@@ -202,7 +205,7 @@ export class GitPlugin extends BasePlugin {
    * @returns Parsed version
    */
   private parseVersion(output: string): string {
-    const match = output.match(/git version (\d+\.\d+\.\d+)/);
+    const match = /git version (\d+\.\d+\.\d+)/.exec(output);
     return match ? match[1] : 'unknown';
   }
 }

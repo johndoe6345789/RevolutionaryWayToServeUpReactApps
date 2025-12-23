@@ -7,19 +7,28 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BaseComponent } from '../../core/base-component';
-import { ISpec } from '../../core/interfaces/ispec';
+import type { ISpec } from '../../core/interfaces/ispec';
 
+/**
+ *
+ */
 interface GeneratorSpec extends ISpec {
   specsPath?: string;
   outputPath?: string;
 }
 
+/**
+ *
+ */
 interface GeneratedFile {
   file: string;
   type: string;
   name: string;
 }
 
+/**
+ *
+ */
 interface ModuleSpec {
   search: {
     title: string;
@@ -32,10 +41,16 @@ interface ModuleSpec {
   dependencies?: string[];
 }
 
+/**
+ *
+ */
 interface InterfaceSpec {
   methods: string[];
 }
 
+/**
+ *
+ */
 interface SpecsData {
   modules: Record<string, ModuleSpec>;
   interfaces: Record<string, InterfaceSpec>;
@@ -46,12 +61,18 @@ interface SpecsData {
   };
 }
 
+/**
+ *
+ */
 interface ExecutionResult {
   success: boolean;
   generated: GeneratedFile[];
   specs: SpecsData;
 }
 
+/**
+ *
+ */
 export class BootstrapGenerator extends BaseComponent {
   protected specsPath: string;
   protected outputPath: string;
@@ -64,12 +85,19 @@ export class BootstrapGenerator extends BaseComponent {
     this.templates = this._loadTemplates();
   }
 
+  /**
+   *
+   */
   public async initialise(): Promise<BootstrapGenerator> {
     await super.initialise();
     this._ensureDirectories();
     return this;
   }
 
+  /**
+   *
+   * @param context
+   */
   public async execute(context: Record<string, unknown>): Promise<ExecutionResult> {
     if (!this.initialised) await this.initialise();
 
@@ -79,16 +107,26 @@ export class BootstrapGenerator extends BaseComponent {
     return { success: true, generated: results, specs };
   }
 
+  /**
+   *
+   */
   private _loadTemplates(): Record<string, unknown> {
     const templatesPath = path.join(__dirname, 'templates.json');
     return JSON.parse(fs.readFileSync(templatesPath, 'utf8'));
   }
 
+  /**
+   *
+   */
   private _loadSpecs(): SpecsData {
     const specPath = path.join(this.specsPath, 'spec.json');
     return JSON.parse(fs.readFileSync(specPath, 'utf8')) as SpecsData;
   }
 
+  /**
+   *
+   * @param specs
+   */
   private _generateFromSpecs(specs: SpecsData): GeneratedFile[] {
     const generated: GeneratedFile[] = [];
 
@@ -108,6 +146,11 @@ export class BootstrapGenerator extends BaseComponent {
     return generated;
   }
 
+  /**
+   *
+   * @param moduleName
+   * @param moduleSpec
+   */
   private _generateModule(moduleName: string, moduleSpec: ModuleSpec): GeneratedFile {
     const className = this._toClassName(moduleName);
     const filePath = path.join(this.outputPath, `${moduleName}.js`);
@@ -117,6 +160,11 @@ export class BootstrapGenerator extends BaseComponent {
     return { file: filePath, type: 'module', name: moduleName };
   }
 
+  /**
+   *
+   * @param interfaceName
+   * @param interfaceSpec
+   */
   private _generateInterface(interfaceName: string, interfaceSpec: InterfaceSpec): GeneratedFile {
     const fileName = `${interfaceName.toLowerCase()}.js`;
     const filePath = path.join(this.outputPath, 'interfaces', fileName);
@@ -126,6 +174,10 @@ export class BootstrapGenerator extends BaseComponent {
     return { file: filePath, type: 'interface', name: interfaceName };
   }
 
+  /**
+   *
+   * @param specs
+   */
   private _generateDocs(specs: SpecsData): GeneratedFile {
     const docsPath = path.join(__dirname, 'docs', 'README.md');
     const content = this._generateDocsContent(specs);
@@ -134,6 +186,10 @@ export class BootstrapGenerator extends BaseComponent {
     return { file: docsPath, type: 'documentation', name: 'README' };
   }
 
+  /**
+   *
+   * @param specs
+   */
   private _generateTests(specs: SpecsData): GeneratedFile {
     const testsPath = path.join(__dirname, 'tests', 'bootstrap-system.test.js');
     const content = this._generateTestsContent(specs);
@@ -142,6 +198,11 @@ export class BootstrapGenerator extends BaseComponent {
     return { file: testsPath, type: 'test', name: 'bootstrap-system' };
   }
 
+  /**
+   *
+   * @param className
+   * @param moduleSpec
+   */
   private _generateModuleCode(className: string, moduleSpec: ModuleSpec): string {
     const methods = moduleSpec.implementation.methods
       .map((method) => this._getMethodTemplate(method).join('\n'))
@@ -206,6 +267,11 @@ ${methods}
 module.exports = ${className};`;
   }
 
+  /**
+   *
+   * @param interfaceName
+   * @param interfaceSpec
+   */
   private _generateInterfaceCode(interfaceName: string, interfaceSpec: InterfaceSpec): string {
     const methods = interfaceSpec.methods.map((method) => `  ${method}() {}`).join('\n');
     return `/**
@@ -220,6 +286,10 @@ ${methods}
 module.exports = ${interfaceName};`;
   }
 
+  /**
+   *
+   * @param specs
+   */
   private _generateDocsContent(specs: SpecsData): string {
     const templates = JSON.parse(
       fs.readFileSync(path.join(__dirname, 'docs-templates.json'), 'utf8')
@@ -257,6 +327,10 @@ module.exports = ${interfaceName};`;
     return content;
   }
 
+  /**
+   *
+   * @param specs
+   */
   private _generateTestsContent(specs: SpecsData): string {
     const templates = JSON.parse(
       fs.readFileSync(path.join(__dirname, 'test-templates.json'), 'utf8')
@@ -285,6 +359,10 @@ module.exports = ${interfaceName};`;
     return content.join('\n\n');
   }
 
+  /**
+   *
+   * @param methodName
+   */
   private _getMethodTemplate(methodName: string): string[] {
     return (
       (this.templates.methods as Record<string, string[]>)[methodName] ||
@@ -294,6 +372,10 @@ module.exports = ${interfaceName};`;
     );
   }
 
+  /**
+   *
+   * @param moduleName
+   */
   private _toClassName(moduleName: string): string {
     return moduleName
       .split('-')
@@ -301,6 +383,9 @@ module.exports = ${interfaceName};`;
       .join('');
   }
 
+  /**
+   *
+   */
   private _ensureDirectories(): void {
     const dirs = [
       this.outputPath,
@@ -314,43 +399,87 @@ module.exports = ${interfaceName};`;
   }
 
   // Placeholder implementations for documentation generation
+  /**
+   *
+   * @param specs
+   */
   private _generateModuleDetails(specs: SpecsData): string {
     return 'Module details would be generated here';
   }
+  /**
+   *
+   * @param specs
+   */
   private _generateUsageExamples(specs: SpecsData): string {
     return 'Usage examples would be generated here';
   }
+  /**
+   *
+   */
   private _generateIntegrationExample(): string {
     return 'Integration example would be generated here';
   }
+  /**
+   *
+   */
   private _generateErrorHandling(): string {
     return 'Error handling documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generateTesting(): string {
     return 'Testing documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generateDevelopment(): string {
     return 'Development documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generatePerformance(): string {
     return 'Performance documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generateSecurity(): string {
     return 'Security documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generateContributing(): string {
     return 'Contributing documentation would be generated here';
   }
+  /**
+   *
+   */
   private _generateLicense(): string {
     return 'License information would be generated here';
   }
+  /**
+   *
+   * @param moduleSpec
+   */
   private _generateSpecFields(moduleSpec: ModuleSpec): string {
     return '';
   }
+  /**
+   *
+   * @param moduleSpec
+   */
   private _generateMethodTests(moduleSpec: ModuleSpec): string {
     return '';
   }
 
+  /**
+   *
+   * @param input
+   */
   public validate(input: unknown): boolean {
     return (
       input !== null &&

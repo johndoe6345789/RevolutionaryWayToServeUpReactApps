@@ -5,13 +5,19 @@
  */
 
 import { Plugin } from '../../../core/plugin';
-import { ISpec } from '../../../core/interfaces/ispec';
+import type { ISpec } from '../../../core/interfaces/ispec';
 
+/**
+ *
+ */
 interface AnalyzerState {
   violations: string[];
   analyzed: number;
 }
 
+/**
+ *
+ */
 interface AnalysisResults {
   success: boolean;
   violations: string[];
@@ -22,11 +28,17 @@ interface AnalysisResults {
   };
 }
 
+/**
+ *
+ */
 interface ValidationInput {
   operation: string;
   [key: string]: unknown;
 }
 
+/**
+ *
+ */
 export class OOPPrinciplesPlugin extends Plugin {
   protected analyzer: AnalyzerState | null;
 
@@ -75,10 +87,10 @@ export class OOPPrinciplesPlugin extends Plugin {
 
   /**
    * Analyze codebase for AGENTS.md compliance (≤10 lines)
-   * @param context - Analysis context
+   * @param _context - Analysis context
    * @returns Analysis results
    */
-  private _analyzeCodebase(context: Record<string, unknown>): {
+  private _analyzeCodebase(_context: Record<string, unknown>): {
     violations: string[];
     summary: { analyzed: number; compliant: number; violations: number };
   } {

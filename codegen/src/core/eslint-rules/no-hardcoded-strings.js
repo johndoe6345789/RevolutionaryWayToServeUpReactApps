@@ -154,7 +154,6 @@ function getLineCount(node) {
 
   // Count newlines in the template literal
   let lineCount = 1; // Start with 1 for the first line
-  let inExpression = false;
 
   for (const quasi of node.quasis) {
     if (quasi.type === 'TemplateElement') {

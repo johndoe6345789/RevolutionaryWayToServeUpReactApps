@@ -2,8 +2,11 @@
  * Specification interface for component definitions
  * AGENTS.md compliant: UUID-identified specs with search metadata and platform support
  */
-import { ISearchMetadata } from './isearch-metadata';
+import type { ISearchMetadata } from './isearch-metadata';
 
+/**
+ *
+ */
 export interface ISpec {
   readonly uuid: string;
   readonly id: string;

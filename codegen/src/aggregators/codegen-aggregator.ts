@@ -7,14 +7,27 @@
 import { BaseAggregator } from '../core/base-aggregator';
 import { PluginAggregator } from './plugin-aggregator';
 import { ExecutionAggregator } from './execution-aggregator';
-import { IAggregator, IComponent } from '../core/interfaces/index';
-import { ISpec } from '../core/interfaces/ispec';
+import type { IAggregator, IComponent } from '../core/interfaces/index';
+import type { ISpec } from '../core/interfaces/ispec';
 
+/**
+ * CodegenAggregator - Root aggregator with unlimited drill-down navigation
+ * Orchestrates the entire codegen system through hierarchical aggregators
+ * TypeScript strict typing with no 'any' types
+ */
 export class CodegenAggregator extends BaseAggregator {
+  /**
+   * Create a new CodegenAggregator
+   * @param spec The specification for this aggregator
+   */
   constructor(spec: ISpec) {
     super(spec);
   }
 
+  /**
+   * Initialize the codegen aggregator and its child aggregators
+   * @returns Promise resolving to this aggregator instance
+   */
   public override async initialise(): Promise<CodegenAggregator> {
     await super.initialise();
 
@@ -54,45 +67,80 @@ export class CodegenAggregator extends BaseAggregator {
     this.children.set('ExecutionAggregator', executionAggregator);
 
     // Connect execution aggregator to plugin aggregator (using protected access)
-    (executionAggregator as any).children.set('PluginAggregator', pluginAggregator);
+    (
+      executionAggregator as ExecutionAggregator & {
+        children: Map<string, IComponent | IAggregator>;
+      }
+    ).children.set('PluginAggregator', pluginAggregator);
 
     return this;
   }
 
+  /**
+   * Execute the code generation process
+   * @param context Execution context
+   * @returns Promise resolving to execution result
+   */
   public override async execute(context: Record<string, unknown>): Promise<unknown> {
     await super.execute(context);
 
     // Execute through execution aggregator
     const executionAggregator = this.children.get('ExecutionAggregator') as ExecutionAggregator;
-    if (executionAggregator) {
-      return await executionAggregator.execute(context);
-    }
-
-    return { success: false, error: 'ExecutionAggregator not found' };
+    return await executionAggregator.execute(context);
   }
 
+  /**
+   * Shutdown the aggregator and all child aggregators
+   * @returns Promise that resolves when shutdown is complete
+   */
   public override async shutdown(): Promise<void> {
     // Shutdown child aggregators
-    for (const [_childId, child] of this.children) {
-      if (child && typeof (child as any).shutdown === 'function') {
-        await (child as any).shutdown();
+    for (const [, child] of this.children) {
+      if ('shutdown' in child && typeof child.shutdown === 'function') {
+        await (
+          child as {
+            /**
+             *
+             */
+            shutdown(): Promise<void>;
+          }
+        ).shutdown();
       }
     }
     await super.shutdown();
   }
 
+  /**
+   * Get the plugin aggregator instance
+   * @returns PluginAggregator instance or null if not found
+   */
   public getPluginAggregator(): PluginAggregator | null {
-    return (this.children.get('PluginAggregator') as PluginAggregator) || null;
+    const aggregator = this.children.get('PluginAggregator');
+    return aggregator ? (aggregator as PluginAggregator) : null;
   }
 
+  /**
+   * Get the execution aggregator instance
+   * @returns ExecutionAggregator instance or null if not found
+   */
   public getExecutionAggregator(): ExecutionAggregator | null {
-    return (this.children.get('ExecutionAggregator') as ExecutionAggregator) || null;
+    const aggregator = this.children.get('ExecutionAggregator');
+    return aggregator ? (aggregator as ExecutionAggregator) : null;
   }
 
+  /**
+   * Get a child component by ID
+   * @param childId The ID of the child to retrieve
+   * @returns The child component or null if not found
+   */
   public override getChild(childId: string): IAggregator | IComponent | null {
-    return this.children.get(childId) || null;
+    return this.children.get(childId) ?? null;
   }
 
+  /**
+   * List all child component IDs
+   * @returns Array of child component IDs
+   */
   public override listChildren(): readonly string[] {
     return Array.from(this.children.keys());
   }

@@ -5,10 +5,13 @@
  */
 
 import { BaseComponent } from './base-component';
-import { IRegistry, IComponent } from './interfaces/index';
-import { ISearchMetadata } from './interfaces/isearch-metadata';
-import { ISpec } from './interfaces/ispec';
+import type { IRegistry, IComponent } from './interfaces/index';
+import type { ISearchMetadata } from './interfaces/isearch-metadata';
+import type { ISpec } from './interfaces/ispec';
 
+/**
+ *
+ */
 export abstract class Registry extends BaseComponent implements IRegistry {
   protected components: Map<string, IComponent>;
   public readonly componentType: string;

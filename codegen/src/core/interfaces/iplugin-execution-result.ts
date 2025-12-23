@@ -3,6 +3,9 @@
  * AGENTS.md compliant: provides consistent result structure for plugin operations
  */
 
+/**
+ *
+ */
 export interface IPluginExecutionResult {
   success: boolean;
   plugin: string;

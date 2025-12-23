@@ -11,6 +11,9 @@ describe('CodegenAggregator', () => {
 
   beforeEach(() => {
     // Create a concrete implementation for testing
+    /**
+     *
+     */
     class TestCodegenAggregator extends CodegenAggregator {
       constructor() {
         super({
