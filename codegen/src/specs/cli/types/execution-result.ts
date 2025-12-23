@@ -1,8 +1,8 @@
-import type { GeneratedFile } from './generated-file';
 import type { CLISpecData } from './cli-spec-data';
+import type { GeneratedFile } from './generated-file';
 
 /**
- * Execution response for the CLI generator
+ * ExecutionResult - Output payload from the CLI generator.
  */
 export interface ExecutionResult {
   success: boolean;

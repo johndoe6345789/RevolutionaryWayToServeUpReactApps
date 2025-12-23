@@ -1,5 +1,5 @@
 /**
- * Optional flags controlling the codegen entrypoint
+ * CodegenOptions - Optional settings for CLI/web entrypoints.
  */
 export interface CodegenOptions {
   outputDir?: string;

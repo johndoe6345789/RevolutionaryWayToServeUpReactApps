@@ -1,7 +1,7 @@
-import type { ISpec } from '../../core/interfaces/ispec';
+import type { ISpec } from '../../../core/interfaces/ispec';
 
 /**
- * Specification contract for the bootstrap generator
+ * GeneratorSpec - Configuration for the bootstrap generator.
  */
 export interface GeneratorSpec extends ISpec {
   specsPath?: string;

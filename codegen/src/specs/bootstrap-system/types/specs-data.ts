@@ -2,7 +2,7 @@ import type { InterfaceSpec } from './interface-spec';
 import type { ModuleSpec } from './module-spec';
 
 /**
- * Parsed spec.json representation for bootstrap generation
+ * SpecsData - Parsed specification content for generation.
  */
 export interface SpecsData {
   modules: Record<string, ModuleSpec>;

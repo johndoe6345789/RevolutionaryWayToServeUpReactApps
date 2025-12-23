@@ -1,5 +1,5 @@
 /**
- * Test execution results
+ * TestResults - Summary of executed tests for the plugin.
  */
 export interface TestResults {
   success: boolean;

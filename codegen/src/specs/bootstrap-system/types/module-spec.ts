@@ -1,5 +1,5 @@
 /**
- * Module specification used to generate bootstrap modules
+ * ModuleSpec - Describes a module to generate.
  */
 export interface ModuleSpec {
   search: {

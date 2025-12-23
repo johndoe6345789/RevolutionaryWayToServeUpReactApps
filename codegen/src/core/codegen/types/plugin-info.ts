@@ -1,5 +1,5 @@
 /**
- * Metadata collected for discovered plugins
+ * PluginInfo - Captures metadata discovered for each plugin.
  */
 export interface PluginInfo {
   id: string;

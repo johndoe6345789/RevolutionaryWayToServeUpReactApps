@@ -51,12 +51,6 @@ declare global {
       getLogs(): Promise<any[]>;
     };
   }
-
-  interface Performance {
-    memory?: {
-      usedJSHeapSize: number;
-    };
-  }
 }
 
 export {};

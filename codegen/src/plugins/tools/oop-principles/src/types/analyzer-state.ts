@@ -1,5 +1,5 @@
 /**
- * Tracks analyzer state for OOP principle checks
+ * AnalyzerState - Tracks analysis progress and violations.
  */
 export interface AnalyzerState {
   violations: string[];

@@ -1,5 +1,5 @@
 /**
- * Aggregated results from executing code generation
+ * ExecutionResults - Summary of a single code generation run.
  */
 export interface ExecutionResults {
   success: boolean;

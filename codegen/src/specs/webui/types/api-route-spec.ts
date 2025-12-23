@@ -1,5 +1,5 @@
 /**
- * Specification for a generated API route
+ * APIRouteSpec - Details for generating API routes.
  */
 export interface APIRouteSpec {
   id: string;
