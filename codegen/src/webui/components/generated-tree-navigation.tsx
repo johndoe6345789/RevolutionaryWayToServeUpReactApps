@@ -11,8 +11,8 @@ import { Description as DescriptionIcon, Folder as FolderIcon } from '@mui/icons
 import { Box, Chip, Paper, Typography } from '@mui/material';
 import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
 import React, { useState } from 'react';
-import type { GeneratedTreeNavigationProps } from './generated-tree-navigation-props';
-import type { TreeNode } from './tree-node';
+import type { GeneratedTreeNavigationProps } from './types/generated-tree-navigation-props';
+import type { TreeNode } from './types/tree-node';
 
 const hasChildNodes = (node: TreeNode): boolean =>
   Array.isArray(node.children) && node.children.length > 0;

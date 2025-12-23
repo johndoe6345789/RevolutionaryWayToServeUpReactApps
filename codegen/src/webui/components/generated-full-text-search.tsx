@@ -30,9 +30,9 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
 } from '@mui/icons-material';
-import type { GeneratedFullTextSearchProps } from './generated-full-text-search-props';
-import type { SearchFilters } from './search-filters';
-import type { SearchResult } from './generated-search-result';
+import type { GeneratedFullTextSearchProps } from './types/generated-full-text-search-props';
+import type { SearchFilters } from './types/search-filters';
+import type { SearchResult } from './types/search-result';
 
 const mockSearchResults: SearchResult[] = [
   {
