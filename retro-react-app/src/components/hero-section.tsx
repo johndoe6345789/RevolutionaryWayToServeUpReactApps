@@ -4,17 +4,10 @@ import { Box, Chip, Typography, Stack, Button } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import React, { useRef } from "react";
+import { ConsoleIcon } from "./console-icon";
 import { ComponentLifecycleStatus } from "@/lib/lifecycle-manager";
 import type { IReactComponentLifecycle } from "@/lib/lifecycle-manager";
 import componentPatterns from "@/lib/component-patterns.json";
-
-// SVG Console Icon Component - now uses extracted patterns
-const ConsoleIcon: React.FC<{ text: string }> = ({ text }) => {
-  const svgLines = componentPatterns.svg.consoleIcon;
-  const svgContent = svgLines.join("\n").replace("{text}", text);
-
-  return <div dangerouslySetInnerHTML={{ __html: svgContent }} />;
-};
 
 // HeroSection lifecycle with exactly 4 public methods (<5 constraint per AGENTS.md)
 class HeroSectionLifecycle implements IReactComponentLifecycle {
