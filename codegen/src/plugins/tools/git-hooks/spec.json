@@ -1,0 +1,106 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440004",
+  "id": "tool.dev.git-hooks",
+  "type": "tool",
+  "search": {
+    "title": "Git Hooks Manager",
+    "summary": "Centralized Git hooks management and deployment",
+    "keywords": ["git", "hooks", "pre-commit", "automation", "quality"],
+    "tags": ["dev-workflow", "automation", "code-quality"],
+    "aliases": ["git-hooks", "hooks-manager"],
+    "domain": "tooling",
+    "capabilities": ["setup", "manage", "deploy", "verify"]
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "install": {
+    "linux": {
+      "apt": ["apt-get", "install", "-y", "git"]
+    },
+    "mac": {
+      "brew": ["brew", "install", "git"]
+    },
+    "win": {
+      "choco": ["choco", "install", "git", "-y"],
+      "winget": ["winget", "install", "Git.Git"]
+    }
+  },
+  "verify": {
+    "linux": ["git", "--version"],
+    "mac": ["git", "--version"],
+    "win": ["git", "--version"]
+  },
+  "help": {
+    "linux": ["git", "hooks", "--help"],
+    "mac": ["git", "hooks", "--help"],
+    "win": ["git", "hooks", "--help"]
+  },
+  "oneLiners": [
+    {
+      "id": "setup-hooks",
+      "description": "Set up Git hooks from templates",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": ["node", "setup-hooks.js"]
+    },
+    {
+      "id": "list-hooks",
+      "description": "List all available Git hooks",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": ["ls", "-la", ".git/hooks/"]
+    },
+    {
+      "id": "verify-hooks",
+      "description": "Verify Git hooks are properly installed",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": ["git", "config", "core.hooksPath"]
+    }
+  ],
+  "options": [
+    {
+      "flag": "--list",
+      "description": "List available hook templates",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--setup",
+      "description": "Setup hooks from templates",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--verify",
+      "description": "Verify hook installation",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--remove",
+      "description": "Remove installed hooks",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    }
+  ],
+  "dependencies": ["git"],
+  "risks": {
+    "destructive": true,
+    "network": false,
+    "confirmation": "This will modify Git hooks. Continue?"
+  },
+  "hookTemplates": {
+    "pre-commit": {
+      "description": "Runs before commits to validate code quality",
+      "template": "pre-commit",
+      "executable": true
+    },
+    "commit-msg": {
+      "description": "Validates commit message format",
+      "template": "commit-msg",
+      "executable": true
+    },
+    "pre-push": {
+      "description": "Runs before pushes to validate changes",
+      "template": "pre-push",
+      "executable": true
+    }
+  }
+}

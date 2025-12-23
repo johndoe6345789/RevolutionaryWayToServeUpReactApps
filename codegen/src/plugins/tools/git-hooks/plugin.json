@@ -1,0 +1,28 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440003",
+  "id": "plugin.tools.git-hooks",
+  "version": "1.0.0",
+  "type": "tool",
+  "name": "Git Hooks Management Plugin",
+  "description": "Manage and deploy Git hooks from centralized templates",
+  "author": "Codegen Team",
+  "license": "MIT",
+  "entry_point": "src/git-hooks-plugin.js",
+  "spec_file": "spec.json",
+  "messages_file": "messages.json",
+  "dependencies": {
+    "core": ">=1.0.0",
+    "plugins": []
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "registries": ["DevWorkflowRegistry"],
+  "capabilities": ["install", "setup", "verify", "list", "create", "remove"],
+  "tests": {
+    "directory": "tests/",
+    "coverage_required": 100
+  }
+}

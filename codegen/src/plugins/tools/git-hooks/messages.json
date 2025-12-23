@@ -1,0 +1,93 @@
+{
+  "msg.tool.git-hooks.title": {
+    "en": "Git Hooks Manager",
+    "es": "Administrador de Git Hooks",
+    "fr": "Gestionnaire de Git Hooks",
+    "de": "Git Hooks Manager",
+    "ja": "Git Hooksマネージャー"
+  },
+  "msg.tool.git-hooks.summary": {
+    "en": "Centralized Git hooks management and deployment",
+    "es": "Gestión y despliegue centralizados de Git hooks",
+    "fr": "Gestion et déploiement centralisés des Git hooks",
+    "de": "Zentralisiertes Git Hooks Management und Deployment",
+    "ja": "Git hooksの集中管理と展開"
+  },
+  "msg.tool.git-hooks.oneliner.setup": {
+    "en": "Set up Git hooks from templates",
+    "es": "Configurar Git hooks desde plantillas",
+    "fr": "Configurer les Git hooks à partir de modèles",
+    "de": "Git Hooks aus Vorlagen einrichten",
+    "ja": "テンプレートからGit hooksを設定する"
+  },
+  "msg.tool.git-hooks.oneliner.list": {
+    "en": "List all available Git hooks",
+    "es": "Listar todos los Git hooks disponibles",
+    "fr": "Lister tous les Git hooks disponibles",
+    "de": "Alle verfügbaren Git Hooks auflisten",
+    "ja": "利用可能なすべてのGit hooksをリストする"
+  },
+  "msg.tool.git-hooks.oneliner.verify": {
+    "en": "Verify Git hooks are properly installed",
+    "es": "Verificar que los Git hooks estén correctamente instalados",
+    "fr": "Vérifier que les Git hooks sont correctement installés",
+    "de": "Überprüfen, ob Git Hooks korrekt installiert sind",
+    "ja": "Git hooksが正しくインストールされていることを確認する"
+  },
+  "msg.tool.git-hooks.opt.list": {
+    "en": "List available hook templates",
+    "es": "Listar plantillas de hooks disponibles",
+    "fr": "Lister les modèles de hooks disponibles",
+    "de": "Verfügbare Hook-Vorlagen auflisten",
+    "ja": "利用可能なフックテンプレートをリストする"
+  },
+  "msg.tool.git-hooks.opt.setup": {
+    "en": "Setup hooks from templates",
+    "es": "Configurar hooks desde plantillas",
+    "fr": "Configurer les hooks à partir de modèles",
+    "de": "Hooks aus Vorlagen einrichten",
+    "ja": "テンプレートからhooksを設定する"
+  },
+  "msg.tool.git-hooks.opt.verify": {
+    "en": "Verify hook installation",
+    "es": "Verificar instalación de hooks",
+    "fr": "Vérifier l'installation des hooks",
+    "de": "Hook-Installation überprüfen",
+    "ja": "フックのインストールを確認する"
+  },
+  "msg.tool.git-hooks.opt.remove": {
+    "en": "Remove installed hooks",
+    "es": "Eliminar hooks instalados",
+    "fr": "Supprimer les hooks installés",
+    "de": "Installierte Hooks entfernen",
+    "ja": "インストールされたhooksを削除する"
+  },
+  "msg.tool.git-hooks.risk.modify": {
+    "en": "This will modify Git hooks. Continue?",
+    "es": "Esto modificará los Git hooks. ¿Continuar?",
+    "fr": "Cela modifiera les Git hooks. Continuer ?",
+    "de": "Dies wird Git Hooks modifizieren. Fortfahren?",
+    "ja": "これはGit hooksを変更します。続行しますか？"
+  },
+  "msg.tool.git-hooks.template.pre-commit": {
+    "en": "Runs before commits to validate code quality",
+    "es": "Se ejecuta antes de commits para validar la calidad del código",
+    "fr": "S'exécute avant les commits pour valider la qualité du code",
+    "de": "Wird vor Commits ausgeführt, um Codequalität zu validieren",
+    "ja": "コミット前にコード品質を検証するために実行される"
+  },
+  "msg.tool.git-hooks.template.commit-msg": {
+    "en": "Validates commit message format",
+    "es": "Valida el formato del mensaje de commit",
+    "fr": "Valide le format du message de commit",
+    "de": "Validiert das Commit-Nachrichtenformat",
+    "ja": "コミットメッセージの形式を検証する"
+  },
+  "msg.tool.git-hooks.template.pre-push": {
+    "en": "Runs before pushes to validate changes",
+    "es": "Se ejecuta antes de pushes para validar cambios",
+    "fr": "S'exécute avant les pushes pour valider les changements",
+    "de": "Wird vor Pushes ausgeführt, um Änderungen zu validieren",
+    "ja": "変更を検証するためにプッシュ前に実行される"
+  }
+}

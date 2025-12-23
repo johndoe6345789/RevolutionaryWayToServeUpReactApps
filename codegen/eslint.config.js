@@ -2,6 +2,10 @@ import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
+import noHardcodedStrings from './src/core/eslint-rules/no-hardcoded-strings.js';
+import noLargeDirectories from './src/core/eslint-rules/no-large-directories.js';
+import requireReadme from './src/core/eslint-rules/require-readme.js';
+import requireDocstrings from './src/core/eslint-rules/require-docstrings.js';
 
 export default [
   js.configs.recommended,
@@ -27,6 +31,10 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       prettier,
+      'no-hardcoded-strings': noHardcodedStrings,
+      'no-large-directories': noLargeDirectories,
+      'require-readme': requireReadme,
+      'require-docstrings': requireDocstrings,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
@@ -76,6 +84,39 @@ export default [
       'max-classes-per-file': ['error', 1],
       'no-console': 'off', // Allow console in Node.js scripts
       'no-undef': 'off', // Allow Node.js globals
+      'no-hardcoded-strings/no-hardcoded-strings': ['warn', {
+        maxTemplateLiteralLines: 5,
+        maxStringPropertiesInObject: 3,
+        maxStringArrayLength: 5,
+        ignoreInTests: true,
+      }],
+      'no-large-directories/no-large-directories': ['warn', {
+        maxFiles: 15,
+        excludePatterns: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage'],
+        excludeExtensions: ['.log', '.lock', '.map', '.min.js', '.min.css'],
+        includeExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.md'],
+      }],
+      'require-readme/require-readme': ['warn', {
+        requireInRoot: true,
+        requireInSubdirs: false,
+        readmeNames: ['README.md', 'readme.md', 'Readme.md'],
+        excludePatterns: ['node_modules', '.git', 'dist', 'build', '__pycache__', '.next', 'coverage', '.vscode'],
+        minContentLength: 50,
+        checkContent: true,
+      }],
+      'require-docstrings/require-docstrings': ['warn', {
+        requireClassDocs: true,
+        requireInterfaceDocs: true,
+        requireMethodDocs: true,
+        requirePropertyDocs: false,
+        excludePrivate: true,
+        excludeConstructors: true,
+        excludeGettersSetters: true,
+        minDescriptionLength: 10,
+        requireParams: true,
+        requireReturns: true,
+        requireThrows: false,
+      }],
     },
   },
   {
