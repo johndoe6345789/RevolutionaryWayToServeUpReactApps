@@ -1,0 +1,94 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440035",
+  "id": "language.go.patterns",
+  "type": "patterns",
+  "search": {
+    "title": "Go Patterns",
+    "summary": "Regex patterns, constants, and configuration for Go code generation",
+    "keywords": ["go", "golang", "patterns", "regex", "constants", "templates"],
+    "domain": "codegen",
+    "capabilities": ["pattern-matching", "validation", "generation"]
+  },
+  "regex": {
+    "variableSubstitution": "\\{([^}]+)\\}",
+    "templateValidation": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "fileExtension": "\\.go$",
+    "packageDeclaration": "^package [a-zA-Z_][a-zA-Z0-9_]*$",
+    "importDeclaration": "^\\s*import\\s+.*$",
+    "funcDeclaration": "^func [a-zA-Z_][a-zA-Z0-9_]*\\(",
+    "structDeclaration": "^type [a-zA-Z_][a-zA-Z0-9_]* struct"
+  },
+  "constants": {
+    "supportedTemplates": [
+      "struct",
+      "interface",
+      "function",
+      "method",
+      "package",
+      "goroutine",
+      "channel"
+    ],
+    "extensions": [".go"],
+    "defaultExtension": ".go",
+    "language": "go",
+    "packageMain": "main",
+    "commonImports": [
+      "fmt",
+      "os",
+      "strings",
+      "strconv",
+      "time",
+      "sync",
+      "context"
+    ]
+  },
+  "validation": {
+    "requiredSpecFields": ["templates", "extensions"],
+    "maxTemplateLines": 100,
+    "minTemplateLines": 1,
+    "maxPackageNameLength": 50,
+    "validPackageNameRegex": "^[a-z][a-z0-9_]*$"
+  },
+  "errorMessages": {
+    "specNotLoaded": "Go spec not loaded",
+    "templateNotSupported": "Template {templateId} not supported",
+    "specMissingTemplates": "Go spec missing templates",
+    "specMissingExtensions": "Go spec missing extensions",
+    "invalidTemplateId": "Invalid template ID format",
+    "invalidPackageName": "Invalid Go package name",
+    "missingPackageDeclaration": "Go file missing package declaration"
+  },
+  "codeSnippets": {
+    "mainFunction": [
+      "func main() {",
+      "    {body}",
+      "}"
+    ],
+    "errorHandling": [
+      "if err != nil {",
+      "    {error-handling}",
+      "}"
+    ],
+    "goroutineLaunch": [
+      "go func() {",
+      "    defer func() {",
+      "        if r := recover(); r != nil {",
+      "            {panic-handling}",
+      "        }",
+      "    }()",
+      "    {body}",
+      "}()"
+    ],
+    "channelOperations": [
+      "ch := make(chan {type}, {buffer-size})",
+      "ch <- {value}",
+      "value := <-ch",
+      "close(ch)"
+    ]
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-12-23",
+    "author": "Codegen Team"
+  }
+}

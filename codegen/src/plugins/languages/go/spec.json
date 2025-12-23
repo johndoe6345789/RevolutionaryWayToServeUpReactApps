@@ -1,0 +1,105 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440034",
+  "id": "language.go",
+  "type": "language",
+  "search": {
+    "title": "Go",
+    "summary": "Compiled systems programming language with goroutines and channels",
+    "keywords": ["go", "golang", "compiled", "concurrent", "systems"],
+    "tags": ["language", "compiled", "concurrent", "systems"],
+    "aliases": ["golang", "go-lang"],
+    "domain": "codegen",
+    "capabilities": ["generate", "compile", "concurrent", "systems"]
+  },
+  "language": {
+    "name": "Go",
+    "version": "1.19+",
+    "paradigm": "concurrent",
+    "typing": "static",
+    "compilation": "compiled"
+  },
+  "extensions": [".go"],
+  "supportedTemplates": [
+    "struct",
+    "interface",
+    "function",
+    "method",
+    "package",
+    "goroutine",
+    "channel"
+  ],
+  "syntax": {
+    "keywords": [
+      "package", "import", "func", "struct", "interface",
+      "type", "var", "const", "if", "else", "for",
+      "range", "switch", "case", "default", "go",
+      "chan", "select", "defer", "return", "break",
+      "continue", "fallthrough", "goto"
+    ],
+    "types": [
+      "bool", "string", "int", "int8", "int16", "int32", "int64",
+      "uint", "uint8", "uint16", "uint32", "uint64", "uintptr",
+      "float32", "float64", "complex64", "complex128",
+      "[]T", "map[K]V", "chan T", "*T"
+    ],
+    "modifiers": ["public", "private"]
+  },
+  "conventions": {
+    "fileNaming": "snake-case",
+    "structNaming": "pascal-case",
+    "methodNaming": "pascal-case",
+    "propertyNaming": "pascal-case",
+    "constantNaming": "upper-snake-case",
+    "typeNaming": "pascal-case",
+    "interfaceSuffix": "Interface",
+    "privatePrefix": "",
+    "publicPrefix": ""
+  },
+  "templates": {
+    "struct": {
+      "pattern": [
+        "type {name} struct {",
+        "    {fields}",
+        "}"
+      ]
+    },
+    "interface": {
+      "pattern": [
+        "type {name} interface {",
+        "    {methods}",
+        "}"
+      ]
+    },
+    "function": {
+      "pattern": [
+        "func {name}({parameters}) {return-type} {",
+        "    {body}",
+        "}"
+      ]
+    },
+    "method": {
+      "pattern": [
+        "func ({receiver}) {name}({parameters}) {return-type} {",
+        "    {body}",
+        "}"
+      ]
+    },
+    "goroutine": {
+      "pattern": [
+        "go func() {",
+        "    {body}",
+        "}()"
+      ]
+    }
+  },
+  "features": {
+    "goroutines": true,
+    "channels": true,
+    "interfaces": true,
+    "embedding": true,
+    "reflection": true,
+    "garbageCollection": true,
+    "crossCompilation": true,
+    "builtinTesting": true
+  }
+}

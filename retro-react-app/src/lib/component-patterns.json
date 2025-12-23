@@ -40,17 +40,118 @@
     "heroSection": {
       "background": "radial-gradient(circle at 0% 0%, rgba(255, 110, 199, 0.1) 0, transparent 55%), radial-gradient(circle at 100% 100%, rgba(0, 229, 255, 0.1) 0, transparent 55%), linear-gradient(135deg, rgba(5, 5, 16, 0.95) 0, rgba(8, 8, 32, 0.8) 35%, rgba(5, 5, 16, 0.95) 100%)",
       "border": "1px solid rgba(255,255,255,0.08)",
-      "backdropFilter": "blur(10px)"
+      "backdropFilter": "blur(10px)",
+      "position": "relative",
+      "overflow": "hidden",
+      "borderRadius": 3,
+      "px": { "xs": 3, "md": 5 },
+      "py": { "xs": 4, "md": 6 },
+      "mb": 5
     },
     "patternOverlay": {
       "backgroundImage": "repeating-linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px)",
       "mixBlendMode": "soft-light",
-      "opacity": 0.5
+      "opacity": 0.5,
+      "pointerEvents": "none",
+      "position": "absolute",
+      "inset": 0
     },
     "glowEffect": {
       "border": "2px solid rgba(255,255,255,0.05)",
       "borderRadius": "32px",
-      "boxShadow": "0 0 80px rgba(0,0,0,0.9)"
+      "boxShadow": "0 0 80px rgba(0,0,0,0.9)",
+      "position": "absolute",
+      "inset": -40
+    },
+    "contentStack": {
+      "direction": { "xs": "column", "md": "row" },
+      "spacing": 4,
+      "alignItems": { "xs": "flex-start", "md": "center" },
+      "position": "relative",
+      "zIndex": 1
+    },
+    "textContent": {
+      "flex": 1
+    },
+    "chip": {
+      "mb": 2,
+      "fontSize": 10,
+      "letterSpacing": "0.16em",
+      "borderRadius": 999,
+      "backgroundColor": "rgba(0, 229, 255, 0.1)",
+      "color": "secondary.main"
+    },
+    "title": {
+      "fontSize": { "xs": 26, "md": 34 },
+      "textTransform": "uppercase",
+      "mb": 2,
+      "lineHeight": 1.1
+    },
+    "subtitle": {
+      "color": "primary.main",
+      "display": "block",
+      "fontSize": { "xs": 22, "md": 28 },
+      "mt": 1
+    },
+    "description": {
+      "maxWidth": 480,
+      "opacity": 0.86,
+      "mb": 3,
+      "lineHeight": 1.7,
+      "fontSize": "0.95rem"
+    },
+    "buttonGroup": {
+      "direction": "row",
+      "spacing": 2,
+      "alignItems": "center",
+      "flexWrap": "wrap"
+    },
+    "launchButton": {
+      "px": 3,
+      "py": 1.5,
+      "borderRadius": 999,
+      "fontSize": 12,
+      "fontWeight": 600,
+      "textTransform": "uppercase",
+      "letterSpacing": "0.02em"
+    },
+    "browseButton": {
+      "px": 3,
+      "py": 1.5,
+      "borderRadius": 999,
+      "fontSize": 12,
+      "fontWeight": 600,
+      "textTransform": "uppercase",
+      "letterSpacing": "0.02em",
+      "borderWidth": 2,
+      "&:hover": {
+        "borderWidth": 2
+      }
+    },
+    "tagStack": {
+      "direction": "row",
+      "spacing": 1,
+      "mt": 3,
+      "flexWrap": "wrap"
+    },
+    "systemTag": {
+      "borderRadius": 999,
+      "fontSize": "0.75rem",
+      "fontWeight": 600,
+      "letterSpacing": "0.05em",
+      "textTransform": "uppercase",
+      "borderColor": "rgba(255,255,255,0.2)",
+      "color": "text.secondary",
+      "&:hover": {
+        "borderColor": "primary.main",
+        "color": "primary.main"
+      }
+    },
+    "consoleIcon": {
+      "flexBasis": { "xs": "100%", "md": 320 },
+      "display": "flex",
+      "justifyContent": "center",
+      "mt": { "xs": 2, "md": 0 }
     }
   },
   "validation": {

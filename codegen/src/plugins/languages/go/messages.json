@@ -1,0 +1,28 @@
+{
+  "en": {
+    "msg.language.go.title": "Go",
+    "msg.language.go.summary": "Compiled systems programming language",
+    "msg.language.go.description": "Generates Go code with goroutines, channels, and modern features",
+    "msg.language.go.template.struct": "Struct Template",
+    "msg.language.go.template.interface": "Interface Template",
+    "msg.language.go.template.function": "Function Template",
+    "msg.language.go.template.method": "Method Template",
+    "msg.language.go.template.goroutine": "Goroutine Template",
+    "msg.language.go.error.template-not-supported": "Template '{template}' is not supported by Go generator",
+    "msg.language.go.error.spec-validation-failed": "Go spec validation failed: {reason}",
+    "msg.language.go.success.generation-complete": "Go code generation completed successfully"
+  },
+  "es": {
+    "msg.language.go.title": "Go",
+    "msg.language.go.summary": "Lenguaje de programación de sistemas compilado",
+    "msg.language.go.description": "Genera código Go con goroutines, canales y características modernas",
+    "msg.language.go.template.struct": "Plantilla de Estructura",
+    "msg.language.go.template.interface": "Plantilla de Interfaz",
+    "msg.language.go.template.function": "Plantilla de Función",
+    "msg.language.go.template.method": "Plantilla de Método",
+    "msg.language.go.template.goroutine": "Plantilla de Goroutine",
+    "msg.language.go.error.template-not-supported": "La plantilla '{template}' no es compatible con el generador Go",
+    "msg.language.go.error.spec-validation-failed": "La validación de especificaciones Go falló: {reason}",
+    "msg.language.go.success.generation-complete": "Generación de código Go completada exitosamente"
+  }
+}

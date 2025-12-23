@@ -1,0 +1,35 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440033",
+  "id": "plugin.language.go",
+  "version": "1.0.0",
+  "type": "language",
+  "name": "Go Language Plugin",
+  "description": "Code generator for Go with goroutines, channels, and modern features",
+  "author": "Codegen Team",
+  "license": "MIT",
+  "entry_point": "src/go-generator.ts:GoGenerator",
+  "spec_file": "spec.json",
+  "messages_file": "messages.json",
+  "dependencies": {
+    "core": ">=1.0.0",
+    "plugins": []
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "registries": [
+    "LanguageRegistry"
+  ],
+  "capabilities": [
+    "generate",
+    "validate",
+    "format",
+    "test"
+  ],
+  "tests": {
+    "directory": "tests/",
+    "coverage_required": 100
+  }
+}
