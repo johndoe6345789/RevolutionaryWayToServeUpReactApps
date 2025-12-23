@@ -5,9 +5,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import { ConsoleIcon } from "./console-icon";
-import type {
-  IReactComponentLifecycle,
+import {
   ComponentLifecycleStatus,
+  type IReactComponentLifecycle,
 } from "@/lib/lifecycle-manager";
 import componentPatterns from "@/lib/component-patterns.json";
 
