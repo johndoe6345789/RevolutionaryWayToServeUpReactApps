@@ -6,7 +6,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { BaseComponent } from '../../core/base-component';
+import { BaseComponent } from '../../core/codegen/base-component';
 import type { ExecutionResult } from './types/execution-result';
 import type { GeneratedFile } from './types/generated-file';
 import type { GeneratorSpec } from './types/generator-spec';
@@ -165,7 +165,7 @@ export class BootstrapGenerator extends BaseComponent {
  * @class ${className}
  * @extends BaseComponent
  */
-const BaseComponent = require('../../../core/base-component');
+const BaseComponent = require('../../../core/codegen/base-component');
 
 class ${className} extends BaseComponent {
   constructor(spec) {

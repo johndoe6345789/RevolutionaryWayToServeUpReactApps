@@ -4,7 +4,7 @@
  */
 
 import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
-import { BasePlugin } from '../../../../core/base-plugin';
+import { BasePlugin } from '../../../../core/plugins/base-plugin';
 import { execSync } from 'child_process';
 
 /**
