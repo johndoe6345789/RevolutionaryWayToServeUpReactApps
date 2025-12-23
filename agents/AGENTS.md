@@ -1,9 +1,55 @@
 # AGENTS.md
 
+## Table of Contents
+
+### Overview
+- [Target Audience](#target-audience)
+- [Project Overview](#project-overview)
+
+### Developer Context
+- [Developer Persona](./agents-details/developer-persona.md)
+- [Lifetime Journey](./agents-details/lifetime-journey.md)
+- [Platform Architecture](./agents-details/platform-architecture.md)
+
+### Core Architecture
+- [Plugin System](./agents-details/plugin-system.md)
+- [Core Principles](./agents-details/core-principles.md)
+- [Registry/Aggregate Structure](./agents-details/registry-aggregate.md)
+- [Linting System](./agents-details/linting-system.md)
+- [Testing Requirements](./agents-details/testing.md)
+
+### Technical Implementation
+- [Code Generation Process](./agents-details/code-generation.md)
+- [Tooling System](./agents-details/tooling-system.md)
+- [Security & Safety](./agents-details/security-safety.md)
+- [i18n/L10n](./agents-details/i18n-system.md)
+- [WebUI](./agents-details/webui.md)
+- [CLI](./agents-details/cli.md)
+- [Testing Requirements](./agents-details/testing.md)
+
+### Development & Operations
+- [Common Pitfalls & Best Practices](./agents-details/pitfalls-practices.md)
+- [Extensibility](./agents-details/extensibility.md)
+- [Development Workflow](./agents-details/development-workflow.md)
+- [Code Review Checklist](./agents-details/code-review.md)
+- [Examples](./agents-details/examples.md)
+- [Recommended Tools](./agents-details/recommended-tools.md)
+
+### Reference
+- [Operational Principles](./agents-details/operational-principles.md)
+- [Glossary](./agents-details/glossary.md)
+- [Final Notes](./agents-details/final-notes.md)
+
+---
+
 ## Target Audience
 This document is for AI agents, developers, and code reviewers working on the **Codegen God Tool** platform. It defines requirements, constraints, architectural patterns, and operational standards.
 
-## Developer Persona
+**📖 Detailed Documentation**: This main file contains the essential overview. For detailed technical specifications, see the [agents-details/](./agents-details/) directory.
+
+---
+
+## Developer Persona Summary
 
 ### Role: Principal Codegen & Platform Engineer
 
@@ -39,11 +85,27 @@ This document is for AI agents, developers, and code reviewers working on the **
 - Rejects partial coverage or missing branch tests
 - Rejects classes without interface/base class inheritance
 
+**📖 [Full Developer Persona](./agents-details/developer-persona.md) | [Lifetime Journey](./agents-details/lifetime-journey.md) | [Architecture Influence](./agents-details/platform-architecture.md)**
+
 ---
 
-## Developer Persona: Lifetime Journey (Age 0-99)
+## Developer Persona: Lifetime Journey Summary
 
 This section maps the developer's life journey to provide context for the architectural decisions, working style, and values that shaped this platform.
+
+**Key Journey Highlights:**
+- **Age 0-5**: Foundation years during computing revolution
+- **Age 6-12**: Discovery phase with BASIC programming and BBS systems
+- **Age 13-17**: Exploration with Pascal, assembly, and early OOP
+- **Age 18-22**: University years, Java emergence, focus on testing
+- **Age 23-27**: Professional growth, design patterns, startup experience
+- **Age 28-32**: Mastery phase, TDD adoption, SOA architecture
+- **Age 33-37**: Architecture focus, cloud migration, plugin systems
+- **Age 38-42**: Platform building, containers, developer UX
+- **Age 43-47**: Tooling mastery, schema-driven development
+- **Age 48-52**: System synthesis, AI integration, current platform
+
+**📖 [Complete Lifetime Journey](./agents-details/lifetime-journey.md) | [Architecture Impact](./agents-details/platform-architecture.md)**
 
 ### Age 0-5: Foundation Years (1970s-1980s)
 **Context**: Born during the early computing revolution
