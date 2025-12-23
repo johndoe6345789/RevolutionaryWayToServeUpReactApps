@@ -71,15 +71,15 @@ jobs:
           set -euo pipefail
 
           body=$(cat <<'BODY'
-@copilot Please resolve the merge conflicts in this pull request.
+          @copilot Please resolve the merge conflicts in this pull request.
 
-Requirements:
-- Merge the base branch into this PR branch and resolve conflicts correctly (do not drop changes).
-- Prefer minimal, correct resolutions; preserve intended behavior.
-- Run the repository’s tests/linters if available and fix any failures introduced by the merge resolution.
-- Open a new pull request with the conflict resolution on top of this PR, targeting the same base branch.
-BODY
-)
+          Requirements:
+          - Merge the base branch into this PR branch and resolve conflicts correctly (do not drop changes).
+          - Prefer minimal, correct resolutions; preserve intended behavior.
+          - Run the repository’s tests/linters if available and fix any failures introduced by the merge resolution.
+          - Open a new pull request with the conflict resolution on top of this PR, targeting the same base branch.
+          BODY
+          )
 
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
             -f "body=$body" >/dev/null
