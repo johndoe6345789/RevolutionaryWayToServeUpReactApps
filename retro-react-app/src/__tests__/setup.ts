@@ -1,8 +1,5 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
-import testData from "./fixtures/test-data.json";
-
-const translations = testData.translations as Record<string, any>;
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -14,14 +11,51 @@ vi.mock("next/navigation", () => ({
     refresh: vi.fn(),
     prefetch: vi.fn(),
   }),
-  usePathname: () => testData.mocks.navigation.pathname,
-  useSearchParams: () =>
-    new URLSearchParams(testData.mocks.navigation.searchParams),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 // Mock next-intl
 vi.mock("next-intl", () => ({
   useTranslations: (namespace?: string): any => {
+    const translations: Record<string, any> = {
+      hero: {
+        retro_gaming_hub: "Retro Gaming Hub",
+        press_start: "Press Start",
+        to_continue: "To Continue",
+        hero_description: "Discover the ultimate retro gaming experience...",
+        launch_arcade_mode: "Launch Arcade Mode",
+        browse_rom_library: "Browse ROM Library",
+        insert_coin: "Insert Coin",
+      },
+      games: {
+        featured_games: "Featured Games",
+        popular_games: "Popular Games",
+        all_games: "View All Games",
+      },
+      games_data: {
+        featured: [
+          {
+            id: "1",
+            title: "Super Mario Bros",
+            platform: "NES",
+            year: "1985",
+            description: "Classic platformer game",
+            image: "/mario.jpg",
+            rating: 4.5,
+          },
+        ],
+        systemTags: ["NES", "SNES", "Genesis", "PlayStation", "Arcade", "DOS"],
+      },
+      game: {
+        play: "Play",
+        description: "Details",
+      },
+      settings: {
+        language: "Language",
+      },
+    };
+
     const translator = (key: string): string => {
       if (namespace && translations[namespace]) {
         return translations[namespace][key] ?? key;
@@ -29,8 +63,8 @@ vi.mock("next-intl", () => ({
 
       // Fallback for keys without namespace
       for (const ns of Object.values(translations)) {
-        if (typeof ns === "object" && (ns as Record<string, string>)[key]) {
-          return (ns as Record<string, string>)[key];
+        if (typeof ns === "object" && ns[key]) {
+          return ns[key];
         }
       }
 
@@ -53,10 +87,10 @@ vi.mock("next-intl", () => ({
 // Mock next-themes
 vi.mock("next-themes", () => ({
   useTheme: (): any => ({
-    theme: testData.mocks.theme.theme,
+    theme: "dark",
     setTheme: vi.fn(),
-    themes: testData.mocks.theme.themes,
-    systemTheme: testData.mocks.theme.systemTheme,
+    themes: ["light", "dark", "system"],
+    systemTheme: "dark",
   }),
   ThemeProvider: ({
     children,
