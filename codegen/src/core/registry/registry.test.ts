@@ -23,6 +23,18 @@ const createMockComponent = (
   search,
 });
 
+class MockComponent implements MockComponentData {
+  public readonly uuid: string;
+  public readonly id: string;
+  public readonly search: MockComponentData['search'];
+
+  constructor(uuid: string, id: string, search: MockComponentData['search']) {
+    this.uuid = uuid;
+    this.id = id;
+    this.search = search;
+  }
+}
+
 // Create a concrete implementation for testing
 /**
  *

@@ -4,7 +4,7 @@
  * TypeScript strict typing with no 'any' types
  */
 
-import { Plugin } from '../../../core/plugin';
+import { Plugin } from '../../../../core/plugins/plugin';
 import type { ISpec } from '../../../core/interfaces/ispec';
 import type { ExecutionResults } from './types/execution-results';
 import type { ExecutorState } from './types/executor-state';

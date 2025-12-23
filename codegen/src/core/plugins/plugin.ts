@@ -4,7 +4,7 @@
  * TypeScript strict typing with no 'any' types
  */
 
-import { BaseComponent } from './base-component';
+import { BaseComponent } from '../codegen/base-component';
 import type { IPluginExecutionResult, IPluginRegistryManager } from './interfaces/index';
 import type { ISpec } from './interfaces/index';
 
