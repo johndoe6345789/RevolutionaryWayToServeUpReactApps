@@ -36,10 +36,13 @@ interface CommandSpec {
   };
   syntax?: string;
   examples?: string[];
-  subcommands?: Record<string, {
-    syntax: string;
-    examples: string[];
-  }>;
+  subcommands?: Record<
+    string,
+    {
+      syntax: string;
+      examples: string[];
+    }
+  >;
 }
 
 /**
@@ -99,11 +102,13 @@ export class CLIGenerator {
 
     fs.writeFileSync(filePath, cliCode);
 
-    const generated: GeneratedFile[] = [{
-      file: filePath,
-      type: 'cli',
-      name: 'generated-cli'
-    }];
+    const generated: GeneratedFile[] = [
+      {
+        file: filePath,
+        type: 'cli',
+        name: 'generated-cli',
+      },
+    ];
 
     return { success: true, generated, specs };
   }
@@ -207,8 +212,8 @@ export function createGeneratedCLI(entrypoint: CodegenEntrypoint): GeneratedCLI 
     const handlers: string[] = [];
 
     for (const [commandName, commandSpec] of Object.entries(commands)) {
-      const handlerName = '_handle' + commandName.charAt(0).toUpperCase() + commandName.slice(1);
-      const handler = this._generateCommandHandler(commandName, commandSpec, handlerName);
+      const handlerName = `_handle${commandName.charAt(0).toUpperCase()}${commandName.slice(1)}`,
+        handler = this._generateCommandHandler(commandName, commandSpec, handlerName);
       handlers.push(handler);
     }
 
@@ -221,7 +226,11 @@ export function createGeneratedCLI(entrypoint: CodegenEntrypoint): GeneratedCLI 
    * @param commandSpec
    * @param handlerName
    */
-  private _generateCommandHandler(commandName: string, commandSpec: CommandSpec, handlerName: string): string {
+  private _generateCommandHandler(
+    commandName: string,
+    commandSpec: CommandSpec,
+    handlerName: string,
+  ): string {
     const asyncHandler = `
   /**
    *
@@ -242,12 +251,12 @@ export function createGeneratedCLI(entrypoint: CodegenEntrypoint): GeneratedCLI 
    */
   private _generateCommandMap(commands: Record<string, CommandSpec>): string {
     const entries = Object.keys(commands)
-      .map(name => {
-        const handlerName = '_handle' + name.charAt(0).toUpperCase() + name.slice(1);
+      .map((name) => {
+        const handlerName = `_handle${name.charAt(0).toUpperCase()}${name.slice(1)}`;
         return `['${name}', {
         name: '${name}',
         description: '${commands[name].search.summary}',
-        syntax: '${commands[name].syntax || name + ' [options]'}',
+        syntax: '${commands[name].syntax || `${name} [options]`}',
         examples: ${JSON.stringify(commands[name].examples || [])},
         handler: this.${handlerName}.bind(this)
       }]`;

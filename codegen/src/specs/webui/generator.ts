@@ -37,10 +37,10 @@ interface ComponentSpec {
   features?: string[];
   capabilities?: string[];
   searchFields?: string[];
-  filters?: Array<{
+  filters?: {
     name: string;
     values: string[];
-  }>;
+  }[];
 }
 
 /**
@@ -173,7 +173,11 @@ export class WebUIGenerator {
    * @param pageSpec
    * @param components
    */
-  private _generatePage(pageName: string, pageSpec: PageSpec, components: Record<string, ComponentSpec>): GeneratedFile {
+  private _generatePage(
+    pageName: string,
+    pageSpec: PageSpec,
+    components: Record<string, ComponentSpec>,
+  ): GeneratedFile {
     const pageCode = this._generatePageCode(pageName, pageSpec, components),
       filePath = path.join(this.outputPath, 'app', pageSpec.route, 'page.tsx');
 
@@ -233,14 +237,20 @@ export default Generated${componentName.charAt(0).toUpperCase() + componentName.
    * @param pageSpec
    * @param components
    */
-  private _generatePageCode(pageName: string, pageSpec: PageSpec, components: Record<string, ComponentSpec>): string {
+  private _generatePageCode(
+    pageName: string,
+    pageSpec: PageSpec,
+    components: Record<string, ComponentSpec>,
+  ): string {
     const imports = pageSpec.components
-      .map(comp => `import { Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} } from '../../components/generated-${comp}';`)
-      .join('\n');
-
-    const componentUsage = pageSpec.components
-      .map(comp => `      <Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} />`)
-      .join('\n');
+        .map(
+          (comp) =>
+            `import { Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} } from '../../components/generated-${comp}';`,
+        )
+        .join('\n'),
+      componentUsage = pageSpec.components
+        .map((comp) => `      <Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} />`)
+        .join('\n');
 
     return `/**
  * Generated ${pageName} Page
@@ -301,7 +311,7 @@ export async function ${apiSpec.method.toUpperCase()}(request: NextRequest) {
       this.outputPath,
       path.join(this.outputPath, 'components'),
       path.join(this.outputPath, 'app'),
-      path.join(this.outputPath, 'app', 'api')
+      path.join(this.outputPath, 'app', 'api'),
     ];
 
     // Add page directories

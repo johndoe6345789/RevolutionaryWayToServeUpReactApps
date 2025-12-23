@@ -12,7 +12,11 @@ export type { IAggregateResults } from './aggregation/iaggregate-results';
 // Codegen interfaces
 export type { IBaseCodegenOptions } from './codegen/ibase-codegen-options';
 export type { ICodegenExecutionResults } from './codegen/icodegen-execution-results';
-export type { ILanguageGenerator, CodeGenerationContext, GeneratedCode } from './codegen/ilanguage-generator';
+export type {
+  ILanguageGenerator,
+  CodeGenerationContext,
+  GeneratedCode,
+} from './codegen/ilanguage-generator';
 
 // Common interfaces
 export type { IAdapter } from './common/iadapter';

@@ -5,47 +5,54 @@
  */
 
 import type { ISpec } from '../../../../core/interfaces/index';
-import type { ILanguageGenerator, CodeGenerationContext, GeneratedCode } from '../../../../core/interfaces/index';
+import type {
+  CodeGenerationContext,
+  GeneratedCode,
+  ILanguageGenerator,
+} from '../../../../core/interfaces/index';
 import { BaseComponent } from '../../../../core/codegen/base-component';
+import patternsData from '../patterns.json';
 
 /**
  * Python Generator - generates Python code from declarative templates
  * Uses Python conventions: snake_case, docstrings, type hints
+ * All patterns and constants extracted to JSON for maintainability
  */
 export class PythonGenerator extends BaseComponent implements ILanguageGenerator {
-  public readonly language = 'python';
-  public readonly extensions = ['.py'] as const;
-  public readonly supportedTemplates = [
-    'class', 'function', 'module', 'dataclass', 'script', 'test', 'enum'
-  ] as const;
+  private readonly patterns: typeof patternsData;
+  public readonly language: string;
+  public readonly extensions: readonly string[];
+  public readonly supportedTemplates: readonly string[];
 
-  /**
-   * Constructor with spec validation
-   */
   constructor(spec: ISpec) {
     super(spec);
+    this.patterns = patternsData;
+    this.language = this.patterns.constants.language;
+    this.extensions = this.patterns.constants.extensions;
+    this.supportedTemplates = this.patterns.constants.supportedTemplates;
     this.validateSpecData(spec);
   }
 
   /**
-   * initialise - load and validate language spec
+   * Initialise - load and validate language spec
    */
   public override initialise(): void {
     super.initialise();
   }
 
   /**
-   * validate - ensure generator is ready
+   * Validate - ensure generator is ready
    */
   public override validate(): void {
     super.validate();
     if (!this.spec.templates) {
-      throw new Error('Python spec not loaded');
+      throw new Error(this.patterns.errorMessages.specNotLoaded);
     }
   }
 
   /**
-   * execute - generate code (primary operational method)
+   * Execute - generate code (primary operational method)
+   * @param context
    */
   public override execute(context?: CodeGenerationContext): GeneratedCode | { status: string } {
     if (!context) {
@@ -54,11 +61,15 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
 
     const template = this.getTemplate(context.templateId);
     if (!template) {
-      throw new Error(`Template ${context.templateId} not supported`);
+      const errorMsg = this.patterns.errorMessages.templateNotSupported.replace(
+        '{templateId}',
+        context.templateId,
+      );
+      throw new Error(errorMsg);
     }
 
-    const content = this.renderTemplate(template.pattern, context.variables);
-    const extension = this.getFileExtension(context.templateId);
+    const content = this.renderTemplate(template.pattern, context.variables),
+      extension = this.getFileExtension(context.templateId);
 
     return {
       content,
@@ -67,21 +78,23 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
         language: this.language,
         template: context.templateId,
         generatedAt: new Date().toISOString(),
-        variables: Object.keys(context.variables)
-      }
+        variables: Object.keys(context.variables),
+      },
     };
   }
 
   /**
    * Generate Python code from template and context
+   * @param context
    */
-  public generate(context: CodeGenerationContext): Promise<GeneratedCode> {
+  public async generate(context: CodeGenerationContext): Promise<GeneratedCode> {
     const result = this.execute(context) as GeneratedCode;
     return Promise.resolve(result);
   }
 
   /**
-   * supportsTemplate - check if template is supported
+   * SupportsTemplate - check if template is supported
+   * @param templateId
    */
   public supportsTemplate(templateId: string): boolean {
     return this.supportedTemplates.includes(templateId as any);
@@ -89,6 +102,7 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
 
   /**
    * Get template pattern by ID
+   * @param templateId
    */
   private getTemplate(templateId: string): any {
     return (this.spec as any).templates?.[templateId];
@@ -96,6 +110,8 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
 
   /**
    * Render template with variable substitution and Python formatting
+   * @param pattern
+   * @param variables
    */
   private renderTemplate(pattern: string[], variables: Record<string, unknown>): string[] {
     const result: string[] = [];
@@ -110,14 +126,14 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
           result.push(line.replace('{init-body}', ''));
         }
       } else if (line.includes('{methods}')) {
-        const methods = variables['methods'];
+        const { methods } = variables;
         if (Array.isArray(methods)) {
           result.push(...methods);
         } else {
           result.push(line.replace('{methods}', ''));
         }
       } else if (line.includes('{body}')) {
-        const body = variables['body'];
+        const { body } = variables;
         if (Array.isArray(body)) {
           result.push(...body);
         } else {
@@ -128,7 +144,9 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
         let processedLine = line;
         processedLine = processedLine.replace(/\{([^}]+)\}/g, (match, key) => {
           const value = variables[key];
-          if (value === undefined) return match;
+          if (value === undefined) {
+            return match;
+          }
 
           // Python-specific formatting
           if (key === 'parameters' && Array.isArray(value)) {
@@ -149,21 +167,22 @@ export class PythonGenerator extends BaseComponent implements ILanguageGenerator
 
   /**
    * Get appropriate file extension for template
+   * @param templateId
    */
   private getFileExtension(templateId: string): string {
-    // Python uses .py for all files
-    return '.py';
+    return this.patterns.constants.defaultExtension;
   }
 
   /**
    * Validate spec contains required Python data
+   * @param spec
    */
   private validateSpecData(spec: ISpec): void {
     if (!spec.templates) {
-      throw new Error('Python spec missing templates');
+      throw new Error(this.patterns.errorMessages.specMissingTemplates);
     }
     if (!Array.isArray(spec.extensions)) {
-      throw new Error('Python spec missing extensions');
+      throw new Error(this.patterns.errorMessages.specMissingExtensions);
     }
   }
 }

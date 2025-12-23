@@ -7,8 +7,11 @@
  * TypeScript strict typing with no 'any' types
  */
 
-import { CodegenEntrypoint } from '../entrypoints/codegen-entrypoint';
+import type { CodegenEntrypoint } from '../entrypoints/codegen-entrypoint';
 
+/**
+ *
+ */
 export interface CLICommand {
   name: string;
   description: string;
@@ -17,6 +20,9 @@ export interface CLICommand {
   handler: (args: string[], entrypoint: CodegenEntrypoint) => Promise<void>;
 }
 
+/**
+ *
+ */
 export class GeneratedCLI {
   private readonly entrypoint: CodegenEntrypoint;
   private readonly commands: Map<string, CLICommand>;
@@ -24,55 +30,83 @@ export class GeneratedCLI {
   constructor(entrypoint: CodegenEntrypoint) {
     this.entrypoint = entrypoint;
     this.commands = new Map([
-      ['list', {
-        name: 'list',
-        description: 'List top-level aggregates or drill-down into registries',
-        syntax: 'codegen list [category] [subcategory]',
-        examples: ["codegen list","codegen list tooling","codegen list tooling.package-managers"],
-        handler: this._handleList.bind(this)
-      }],
-      ['describe', {
-        name: 'describe',
-        description: 'Show detailed information about components by ID or UUID',
-        syntax: 'codegen describe <id_or_uuid>',
-        examples: ["codegen describe tool.dev.git","codegen describe 550e8400-e29b-41d4-a716-446655440000"],
-        handler: this._handleDescribe.bind(this)
-      }],
-      ['search', {
-        name: 'search',
-        description: 'Full-text search across component metadata',
-        syntax: 'codegen search "<query>"',
-        examples: ["codegen search \"version control\"","codegen search \"package manager\""],
-        handler: this._handleSearch.bind(this)
-      }],
-      ['tool', {
-        name: 'tool',
-        description: 'Tool installation, verification, and execution operations',
-        syntax: 'tool [options]',
-        examples: [],
-        handler: this._handleTool.bind(this)
-      }],
-      ['runbook', {
-        name: 'runbook',
-        description: 'Generate and export installation/execution runbooks',
-        syntax: 'runbook [options]',
-        examples: [],
-        handler: this._handleRunbook.bind(this)
-      }],
-      ['profile', {
-        name: 'profile',
-        description: 'Profile management and selection',
-        syntax: 'profile [options]',
-        examples: [],
-        handler: this._handleProfile.bind(this)
-      }],
-      ['schema', {
-        name: 'schema',
-        description: 'Generate schema specifications with defaults',
-        syntax: 'codegen schema generate <type> --bulk --defaults',
-        examples: ["codegen schema generate tool --bulk --defaults"],
-        handler: this._handleSchema.bind(this)
-      }]
+      [
+        'list',
+        {
+          name: 'list',
+          description: 'List top-level aggregates or drill-down into registries',
+          syntax: 'codegen list [category] [subcategory]',
+          examples: [
+            'codegen list',
+            'codegen list tooling',
+            'codegen list tooling.package-managers',
+          ],
+          handler: this._handleList.bind(this),
+        },
+      ],
+      [
+        'describe',
+        {
+          name: 'describe',
+          description: 'Show detailed information about components by ID or UUID',
+          syntax: 'codegen describe <id_or_uuid>',
+          examples: [
+            'codegen describe tool.dev.git',
+            'codegen describe 550e8400-e29b-41d4-a716-446655440000',
+          ],
+          handler: this._handleDescribe.bind(this),
+        },
+      ],
+      [
+        'search',
+        {
+          name: 'search',
+          description: 'Full-text search across component metadata',
+          syntax: 'codegen search "<query>"',
+          examples: ['codegen search "version control"', 'codegen search "package manager"'],
+          handler: this._handleSearch.bind(this),
+        },
+      ],
+      [
+        'tool',
+        {
+          name: 'tool',
+          description: 'Tool installation, verification, and execution operations',
+          syntax: 'tool [options]',
+          examples: [],
+          handler: this._handleTool.bind(this),
+        },
+      ],
+      [
+        'runbook',
+        {
+          name: 'runbook',
+          description: 'Generate and export installation/execution runbooks',
+          syntax: 'runbook [options]',
+          examples: [],
+          handler: this._handleRunbook.bind(this),
+        },
+      ],
+      [
+        'profile',
+        {
+          name: 'profile',
+          description: 'Profile management and selection',
+          syntax: 'profile [options]',
+          examples: [],
+          handler: this._handleProfile.bind(this),
+        },
+      ],
+      [
+        'schema',
+        {
+          name: 'schema',
+          description: 'Generate schema specifications with defaults',
+          syntax: 'codegen schema generate <type> --bulk --defaults',
+          examples: ['codegen schema generate tool --bulk --defaults'],
+          handler: this._handleSchema.bind(this),
+        },
+      ],
     ]);
   }
 
@@ -82,9 +116,8 @@ export class GeneratedCLI {
    */
   public async run(args: string[]): Promise<void> {
     const commandName = args[0] || 'help',
-      commandArgs = args.slice(1);
-
-    const command = this.commands.get(commandName);
+      commandArgs = args.slice(1),
+      command = this.commands.get(commandName);
     if (!command) {
       this._displayHelp();
       return;
@@ -114,7 +147,6 @@ export class GeneratedCLI {
     console.log('Use "command --help" for detailed help on a specific command.');
   }
 
-
   /**
    *
    * @param args
@@ -124,7 +156,6 @@ export class GeneratedCLI {
     console.log('Executing list command with args:', args);
     // TODO: Implement list command logic
   }
-
 
   /**
    *
@@ -136,7 +167,6 @@ export class GeneratedCLI {
     // TODO: Implement describe command logic
   }
 
-
   /**
    *
    * @param args
@@ -146,7 +176,6 @@ export class GeneratedCLI {
     console.log('Executing search command with args:', args);
     // TODO: Implement search command logic
   }
-
 
   /**
    *
@@ -158,7 +187,6 @@ export class GeneratedCLI {
     // TODO: Implement tool command logic
   }
 
-
   /**
    *
    * @param args
@@ -169,7 +197,6 @@ export class GeneratedCLI {
     // TODO: Implement runbook command logic
   }
 
-
   /**
    *
    * @param args
@@ -179,7 +206,6 @@ export class GeneratedCLI {
     console.log('Executing profile command with args:', args);
     // TODO: Implement profile command logic
   }
-
 
   /**
    *

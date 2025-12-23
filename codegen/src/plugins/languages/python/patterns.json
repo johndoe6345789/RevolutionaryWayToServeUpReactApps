@@ -1,0 +1,47 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440034",
+  "id": "language.python.patterns",
+  "type": "patterns",
+  "search": {
+    "title": "Python Patterns",
+    "summary": "Regex patterns, constants, and configuration for Python code generation",
+    "keywords": ["python", "patterns", "regex", "constants", "templates"],
+    "domain": "codegen",
+    "capabilities": ["pattern-matching", "validation", "generation"]
+  },
+  "regex": {
+    "variableSubstitution": "\\{([^}]+)\\}",
+    "templateValidation": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "fileExtension": "\\.py$"
+  },
+  "constants": {
+    "supportedTemplates": [
+      "class",
+      "function",
+      "module",
+      "dataclass",
+      "enum",
+      "interface"
+    ],
+    "extensions": [".py"],
+    "defaultExtension": ".py",
+    "language": "python"
+  },
+  "validation": {
+    "requiredSpecFields": ["templates", "extensions"],
+    "maxTemplateLines": 50,
+    "minTemplateLines": 1
+  },
+  "errorMessages": {
+    "specNotLoaded": "Python spec not loaded",
+    "templateNotSupported": "Template {templateId} not supported",
+    "specMissingTemplates": "Python spec missing templates",
+    "specMissingExtensions": "Python spec missing extensions",
+    "invalidTemplateId": "Invalid template ID format"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-12-23",
+    "author": "Codegen Team"
+  }
+}

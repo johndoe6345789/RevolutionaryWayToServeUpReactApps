@@ -6,19 +6,23 @@
  * Auto-generated from spec.json
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     // TODO: Implement preview API logic
     return NextResponse.json({
       message: 'Generate preview of code output',
-      success: true
+      success: true,
     });
   } catch (error) {
-    return NextResponse.json({
-      message: 'API Error',
-      error: (error as Error).message
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        message: 'API Error',
+        error: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }

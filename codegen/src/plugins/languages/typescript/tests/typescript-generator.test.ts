@@ -3,12 +3,11 @@
  * Tests generation, validation, and lifecycle compliance
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { TypeScriptGenerator } from '../src/typescript-generator';
 
 describe('TypeScriptGenerator', () => {
-  let generator: TypeScriptGenerator;
-  let mockSpec: any;
+  let generator: TypeScriptGenerator, mockSpec: any;
 
   beforeEach(() => {
     mockSpec = {
@@ -18,20 +17,14 @@ describe('TypeScriptGenerator', () => {
         title: 'TypeScript',
         summary: 'Test spec',
         keywords: ['test'],
-        domain: 'codegen'
+        domain: 'codegen',
       },
       templates: {
         class: {
-          pattern: [
-            'export class {name} {',
-            '  constructor() {',
-            '    {body}',
-            '  }',
-            '}'
-          ]
-        }
+          pattern: ['export class {name} {', '  constructor() {', '    {body}', '  }', '}'],
+        },
       },
-      extensions: ['.ts', '.tsx']
+      extensions: ['.ts', '.tsx'],
     };
 
     generator = new TypeScriptGenerator(mockSpec);
@@ -75,27 +68,26 @@ describe('TypeScriptGenerator', () => {
       generator.validate();
 
       const context = {
-        templateId: 'class',
-        language: 'typescript',
-        variables: {
-          name: 'TestClass',
-          body: 'this.value = 42;'
+          templateId: 'class',
+          language: 'typescript',
+          variables: {
+            name: 'TestClass',
+            body: 'this.value = 42;',
+          },
+          output: {
+            directory: '/tmp',
+            filename: 'TestClass',
+            overwrite: false,
+          },
         },
-        output: {
-          directory: '/tmp',
-          filename: 'TestClass',
-          overwrite: false
-        }
-      };
-
-      const result = await generator.generate(context);
+        result = await generator.generate(context);
 
       expect(result.content).toEqual([
         'export class TestClass {',
         '  constructor() {',
         '    this.value = 42;',
         '  }',
-        '}'
+        '}',
       ]);
       expect(result.extension).toBe('.ts');
       expect(result.metadata.language).toBe('typescript');
@@ -104,22 +96,21 @@ describe('TypeScriptGenerator', () => {
     it('should handle component templates with tsx extension', async () => {
       // Add component template to mock spec
       mockSpec.templates.component = {
-        pattern: ['export const {name} = () => <div>Hello</div>;']
+        pattern: ['export const {name} = () => <div>Hello</div>;'],
       };
       mockSpec.supportedTemplates = ['class', 'component'];
 
       const context = {
-        templateId: 'component',
-        language: 'typescript',
-        variables: { name: 'MyComponent' },
-        output: {
-          directory: '/tmp',
-          filename: 'MyComponent',
-          overwrite: false
-        }
-      };
-
-      const result = await generator.generate(context);
+          templateId: 'component',
+          language: 'typescript',
+          variables: { name: 'MyComponent' },
+          output: {
+            directory: '/tmp',
+            filename: 'MyComponent',
+            overwrite: false,
+          },
+        },
+        result = await generator.generate(context);
       expect(result.extension).toBe('.tsx');
     });
   });
@@ -136,8 +127,8 @@ describe('TypeScriptGenerator', () => {
         output: {
           directory: '/tmp',
           filename: 'test',
-          overwrite: false
-        }
+          overwrite: false,
+        },
       };
 
       try {
@@ -152,7 +143,9 @@ describe('TypeScriptGenerator', () => {
       const invalidSpec = { ...mockSpec };
       delete invalidSpec.templates;
 
-      expect(() => new TypeScriptGenerator(invalidSpec)).toThrow('TypeScript spec missing templates');
+      expect(() => new TypeScriptGenerator(invalidSpec)).toThrow(
+        'TypeScript spec missing templates',
+      );
     });
   });
 });

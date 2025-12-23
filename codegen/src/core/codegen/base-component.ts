@@ -30,7 +30,7 @@ export abstract class BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * initialise - Called after construction, register with registry, prepare state
+   * Initialise - Called after construction, register with registry, prepare state
    */
   public initialise(): void {
     this.validateSpec();
@@ -38,7 +38,7 @@ export abstract class BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * validate - Pre-flight checks before execution, verify dependencies
+   * Validate - Pre-flight checks before execution, verify dependencies
    */
   public validate(): void {
     if (this.currentStatus === LifecycleStatus.UNINITIALIZED) {
@@ -48,7 +48,7 @@ export abstract class BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * execute - Primary operational method, return values via messaging
+   * Execute - Primary operational method, return values via messaging
    */
   public execute(): unknown {
     this.currentStatus = LifecycleStatus.EXECUTING;
@@ -60,14 +60,14 @@ export abstract class BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * cleanup - Resource cleanup and shutdown, idempotent
+   * Cleanup - Resource cleanup and shutdown, idempotent
    */
   public cleanup(): void {
     this.currentStatus = LifecycleStatus.DESTROYED;
   }
 
   /**
-   * debug - Return diagnostic data for debugging
+   * Debug - Return diagnostic data for debugging
    */
   public debug(): Record<string, unknown> {
     return {
@@ -79,14 +79,14 @@ export abstract class BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * reset - State reset for testing, return to uninitialized
+   * Reset - State reset for testing, return to uninitialized
    */
   public reset(): void {
     this.currentStatus = LifecycleStatus.UNINITIALIZED;
   }
 
   /**
-   * status - Return current lifecycle state
+   * Status - Return current lifecycle state
    */
   public status(): LifecycleStatus {
     return this.currentStatus;

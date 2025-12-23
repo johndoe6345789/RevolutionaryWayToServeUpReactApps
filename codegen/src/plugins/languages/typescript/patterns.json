@@ -1,0 +1,49 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440033",
+  "id": "language.typescript.patterns",
+  "type": "patterns",
+  "search": {
+    "title": "TypeScript Patterns",
+    "summary": "Regex patterns, constants, and configuration for TypeScript code generation",
+    "keywords": ["typescript", "patterns", "regex", "constants", "templates"],
+    "domain": "codegen",
+    "capabilities": ["pattern-matching", "validation", "generation"]
+  },
+  "regex": {
+    "variableSubstitution": "\\{([^}]+)\\}",
+    "templateValidation": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "fileExtension": "\\.tsx?$"
+  },
+  "constants": {
+    "supportedTemplates": [
+      "class",
+      "interface",
+      "function",
+      "module",
+      "component",
+      "enum",
+      "type"
+    ],
+    "extensions": [".ts", ".tsx"],
+    "componentExtension": ".tsx",
+    "defaultExtension": ".ts",
+    "language": "typescript"
+  },
+  "validation": {
+    "requiredSpecFields": ["templates", "extensions"],
+    "maxTemplateLines": 50,
+    "minTemplateLines": 1
+  },
+  "errorMessages": {
+    "specNotLoaded": "TypeScript spec not loaded",
+    "templateNotSupported": "Template {templateId} not supported",
+    "specMissingTemplates": "TypeScript spec missing templates",
+    "specMissingExtensions": "TypeScript spec missing extensions",
+    "invalidTemplateId": "Invalid template ID format"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-12-23",
+    "author": "Codegen Team"
+  }
+}

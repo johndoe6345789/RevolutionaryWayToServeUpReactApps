@@ -5,47 +5,54 @@
  */
 
 import type { ISpec } from '../../../../core/interfaces/index';
-import type { ILanguageGenerator, CodeGenerationContext, GeneratedCode } from '../../../../core/interfaces/index';
+import type {
+  CodeGenerationContext,
+  GeneratedCode,
+  ILanguageGenerator,
+} from '../../../../core/interfaces/index';
 import { BaseComponent } from '../../../../core/codegen/base-component';
+import patternsData from '../patterns.json';
 
 /**
  * TypeScript Generator - generates TypeScript code from declarative templates
  * Converts multiline strings to JSON arrays as per requirements
+ * All patterns and constants extracted to JSON for maintainability
  */
 export class TypeScriptGenerator extends BaseComponent implements ILanguageGenerator {
-  public readonly language = 'typescript';
-  public readonly extensions = ['.ts', '.tsx'] as const;
-  public readonly supportedTemplates = [
-    'class', 'interface', 'function', 'module', 'component', 'enum', 'type'
-  ] as const;
+  private readonly patterns: typeof patternsData;
+  public readonly language: string;
+  public readonly extensions: readonly string[];
+  public readonly supportedTemplates: readonly string[];
 
-  /**
-   * Constructor with spec validation
-   */
   constructor(spec: ISpec) {
     super(spec);
+    this.patterns = patternsData;
+    this.language = this.patterns.constants.language;
+    this.extensions = this.patterns.constants.extensions;
+    this.supportedTemplates = this.patterns.constants.supportedTemplates;
     this.validateSpecData(spec);
   }
 
   /**
-   * initialise - load and validate language spec
+   * Initialise - load and validate language spec
    */
   public override initialise(): void {
     super.initialise();
   }
 
   /**
-   * validate - ensure generator is ready
+   * Validate - ensure generator is ready
    */
   public override validate(): void {
     super.validate();
     if (!this.spec.templates) {
-      throw new Error('TypeScript spec not loaded');
+      throw new Error(this.patterns.errorMessages.specNotLoaded);
     }
   }
 
   /**
-   * execute - generate code (primary operational method)
+   * Execute - generate code (primary operational method)
+   * @param context
    */
   public override execute(context?: CodeGenerationContext): GeneratedCode | { status: string } {
     if (!context) {
@@ -54,11 +61,15 @@ export class TypeScriptGenerator extends BaseComponent implements ILanguageGener
 
     const template = this.getTemplate(context.templateId);
     if (!template) {
-      throw new Error(`Template ${context.templateId} not supported`);
+      const errorMsg = this.patterns.errorMessages.templateNotSupported.replace(
+        '{templateId}',
+        context.templateId,
+      );
+      throw new Error(errorMsg);
     }
 
-    const content = this.renderTemplate(template.pattern, context.variables);
-    const extension = this.getFileExtension(context.templateId);
+    const content = this.renderTemplate(template.pattern, context.variables),
+      extension = this.getFileExtension(context.templateId);
 
     return {
       content,
@@ -67,21 +78,23 @@ export class TypeScriptGenerator extends BaseComponent implements ILanguageGener
         language: this.language,
         template: context.templateId,
         generatedAt: new Date().toISOString(),
-        variables: Object.keys(context.variables)
-      }
+        variables: Object.keys(context.variables),
+      },
     };
   }
 
   /**
    * Generate TypeScript code from template and context
+   * @param context
    */
-  public generate(context: CodeGenerationContext): Promise<GeneratedCode> {
+  public async generate(context: CodeGenerationContext): Promise<GeneratedCode> {
     const result = this.execute(context) as GeneratedCode;
     return Promise.resolve(result);
   }
 
   /**
-   * supportsTemplate - check if template is supported
+   * SupportsTemplate - check if template is supported
+   * @param templateId
    */
   public supportsTemplate(templateId: string): boolean {
     return this.supportedTemplates.includes(templateId as any);
@@ -89,6 +102,7 @@ export class TypeScriptGenerator extends BaseComponent implements ILanguageGener
 
   /**
    * Get template pattern by ID
+   * @param templateId
    */
   private getTemplate(templateId: string): any {
     return (this.spec as any).templates?.[templateId];
@@ -96,32 +110,40 @@ export class TypeScriptGenerator extends BaseComponent implements ILanguageGener
 
   /**
    * Render template with variable substitution
+   * @param pattern
+   * @param variables
    */
   private renderTemplate(pattern: string[], variables: Record<string, unknown>): string[] {
-    return pattern.map(line => {
-      return line.replace(/\{([^}]+)\}/g, (match, key) => {
+    const regex = new RegExp(this.patterns.regex.variableSubstitution, 'g');
+    return pattern.map((line) =>
+      line.replace(regex, (match, key) => {
         const value = variables[key];
         return value ? String(value) : match;
-      });
-    });
+      }),
+    );
   }
 
   /**
    * Get appropriate file extension for template
+   * @param templateId
    */
   private getFileExtension(templateId: string): string {
-    return templateId === 'component' ? '.tsx' : '.ts';
+    return templateId === 'component'
+      ? this.patterns.constants.componentExtension
+      : this.patterns.constants.defaultExtension;
   }
 
   /**
    * Validate spec contains required TypeScript data
+   * @param spec
    */
   private validateSpecData(spec: ISpec): void {
+    const requiredFields = this.patterns.validation.requiredSpecFields;
     if (!spec.templates) {
-      throw new Error('TypeScript spec missing templates');
+      throw new Error(this.patterns.errorMessages.specMissingTemplates);
     }
     if (!Array.isArray(spec.extensions)) {
-      throw new Error('TypeScript spec missing extensions');
+      throw new Error(this.patterns.errorMessages.specMissingExtensions);
     }
   }
 }

@@ -22,38 +22,38 @@ export enum LifecycleStatus {
 export interface IStandardLifecycle {
   // Core lifecycle methods (MANDATORY)
   /**
-   * initialise - Called after construction, register with registry, prepare state
+   * Initialise - Called after construction, register with registry, prepare state
    */
   initialise: () => Promise<void> | void;
 
   /**
-   * validate - Pre-flight checks before execution, verify dependencies
+   * Validate - Pre-flight checks before execution, verify dependencies
    */
   validate: () => Promise<void> | void;
 
   /**
-   * execute - Primary operational method, return values via messaging
+   * Execute - Primary operational method, return values via messaging
    */
   execute: () => Promise<unknown> | unknown;
 
   /**
-   * cleanup - Resource cleanup and shutdown, idempotent
+   * Cleanup - Resource cleanup and shutdown, idempotent
    */
   cleanup: () => Promise<void> | void;
 
   // Debug and status methods (MANDATORY)
   /**
-   * debug - Return diagnostic data for debugging
+   * Debug - Return diagnostic data for debugging
    */
   debug: () => Record<string, unknown>;
 
   /**
-   * reset - State reset for testing, return to uninitialized
+   * Reset - State reset for testing, return to uninitialized
    */
   reset: () => Promise<void> | void;
 
   /**
-   * status - Return current lifecycle state
+   * Status - Return current lifecycle state
    */
   status: () => LifecycleStatus;
 }

@@ -5,9 +5,9 @@
  */
 
 import type {
-  IStandardLifecycle,
-  LifecycleBuilder as ILifecycleBuilder,
   CompositeLifecycle,
+  LifecycleBuilder as ILifecycleBuilder,
+  IStandardLifecycle,
 } from '../types/lifecycle';
 import { LifecycleStatus } from '../types/lifecycle';
 
@@ -18,14 +18,10 @@ class ComponentNode {
   public readonly lifecycle: IStandardLifecycle;
   public readonly startOrder: number;
   public readonly stopOrder: number;
-  public dependencies: Set<string> = new Set();
-  public dependents: Set<string> = new Set();
+  public dependencies = new Set<string>();
+  public dependents = new Set<string>();
 
-  constructor(
-    lifecycle: IStandardLifecycle,
-    startOrder: number = 0,
-    stopOrder: number = 0
-  ) {
+  constructor(lifecycle: IStandardLifecycle, startOrder = 0, stopOrder = 0) {
     this.lifecycle = lifecycle;
     this.startOrder = startOrder;
     this.stopOrder = stopOrder;
@@ -37,28 +33,29 @@ class ComponentNode {
  * MANDATORY: Declarative composition with explicit dependencies and error handling
  */
 export class LifecycleBuilder implements ILifecycleBuilder {
-  private components: Map<string, ComponentNode> = new Map();
+  private readonly components = new Map<string, ComponentNode>();
   private errorPolicy: 'fail-fast' | 'continue' | 'rollback' = 'fail-fast';
 
   /**
    * Add component to the lifecycle (fluent API)
+   * @param name
+   * @param lifecycle
+   * @param startOrder
+   * @param stopOrder
    */
-  public add(
-    name: string,
-    lifecycle: IStandardLifecycle,
-    startOrder: number = 0,
-    stopOrder: number = 0
-  ): this {
+  public add(name: string, lifecycle: IStandardLifecycle, startOrder = 0, stopOrder = 0): this {
     this.components.set(name, new ComponentNode(lifecycle, startOrder, stopOrder));
     return this;
   }
 
   /**
    * Define dependency between components (fluent API)
+   * @param name
+   * @param dependencyName
    */
   public dependsOn(name: string, dependencyName: string): this {
-    const component = this.components.get(name);
-    const dependency = this.components.get(dependencyName);
+    const component = this.components.get(name),
+      dependency = this.components.get(dependencyName);
 
     if (component && dependency) {
       component.dependencies.add(dependencyName);
@@ -69,6 +66,7 @@ export class LifecycleBuilder implements ILifecycleBuilder {
 
   /**
    * Set error handling policy (fluent API)
+   * @param policy
    */
   public onError(policy: 'fail-fast' | 'continue' | 'rollback'): this {
     this.errorPolicy = policy;
@@ -88,13 +86,13 @@ export class LifecycleBuilder implements ILifecycleBuilder {
  * Handles dependency resolution, startup/shutdown ordering, and error policies
  */
 class CompositeLifecycleImpl implements CompositeLifecycle {
-  private components: Map<string, IStandardLifecycle> = new Map();
-  private errorPolicy: 'fail-fast' | 'continue' | 'rollback';
+  private readonly components = new Map<string, IStandardLifecycle>();
+  private readonly errorPolicy: 'fail-fast' | 'continue' | 'rollback';
   private currentStatus: LifecycleStatus = LifecycleStatus.UNINITIALIZED;
 
   constructor(
     componentNodes: Map<string, ComponentNode>,
-    errorPolicy: 'fail-fast' | 'continue' | 'rollback'
+    errorPolicy: 'fail-fast' | 'continue' | 'rollback',
   ) {
     // Convert nodes to simple map for runtime
     for (const [name, node] of componentNodes) {
@@ -112,6 +110,7 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
 
   /**
    * Get status of specific component
+   * @param name
    */
   public getStatus(name: string): LifecycleStatus {
     const component = this.components.get(name);
@@ -125,7 +124,7 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
     this.currentStatus = LifecycleStatus.INITIALIZING;
 
     // Parallel validation first
-    const validations = Array.from(this.components.values()).map(c => c.validate());
+    const validations = Array.from(this.components.values()).map(async (c) => c.validate());
     await Promise.all(validations);
 
     // Then sequential initialisation in dependency order
@@ -143,7 +142,7 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
    */
   public async validate(): Promise<void> {
     this.currentStatus = LifecycleStatus.VALIDATING;
-    const validations = Array.from(this.components.values()).map(c => c.validate());
+    const validations = Array.from(this.components.values()).map(async (c) => c.validate());
     await Promise.all(validations);
     this.currentStatus = LifecycleStatus.READY;
   }
@@ -153,8 +152,8 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
    */
   public async execute(): Promise<unknown> {
     this.currentStatus = LifecycleStatus.EXECUTING;
-    const executions = Array.from(this.components.values()).map(c => c.execute());
-    const results = await Promise.all(executions);
+    const executions = Array.from(this.components.values()).map((c) => c.execute()),
+      results = await Promise.all(executions);
     return results;
   }
 
@@ -213,17 +212,18 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
    * Get initialisation order based on dependencies (topological sort)
    */
   private getInitialisationOrder(): string[] {
-    const visited = new Set<string>();
-    const order: string[] = [];
+    const visited = new Set<string>(),
+      order: string[] = [],
+      visit = (name: string) => {
+        if (visited.has(name)) {
+          return;
+        }
+        visited.add(name);
 
-    const visit = (name: string) => {
-      if (visited.has(name)) return;
-      visited.add(name);
-
-      // Visit dependencies first
-      // Note: In a full implementation, we'd need dependency graph resolution
-      order.push(name);
-    };
+        // Visit dependencies first
+        // Note: In a full implementation, we'd need dependency graph resolution
+        order.push(name);
+      };
 
     for (const name of this.components.keys()) {
       visit(name);
