@@ -38,6 +38,11 @@ async function runBuildSteps(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   await $`bun build codegen.js --outdir dist --target node`;
 
+  // Build WebUI
+  console.log('🌐 Building WebUI...');
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  await $`cd retro-react-app && bun run build`;
+
   // Generate documentation
   console.log('📚 Generating documentation...');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call

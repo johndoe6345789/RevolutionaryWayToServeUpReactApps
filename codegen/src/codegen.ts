@@ -34,15 +34,23 @@ export function createCodegenSystem(options: Record<string, unknown> = {}): {
   return { entrypoint, aggregator };
 }
 
-// CLI execution with new architecture
+// CLI and WebUI execution with dual entry points
 if (require.main === module) {
-  const { entrypoint } = createCodegenSystem(),
-    args = process.argv.slice(2);
+  const args = process.argv.slice(2);
 
-  entrypoint.runCLI(args).catch((error: unknown) => {
-    console.error('Fatal error:', error instanceof Error ? error.message : String(error));
-    process.exit(1);
-  });
+  // Check if WebUI mode is requested
+  if (args.includes('--webui') || args.includes('webui')) {
+    // Start WebUI
+    const { startWebUI } = require('./webui/index');
+    startWebUI();
+  } else {
+    // Run CLI
+    const { entrypoint } = createCodegenSystem();
+    entrypoint.runCLI(args).catch((error: unknown) => {
+      console.error('Fatal error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    });
+  }
 }
 
 // Export factory for programmatic use

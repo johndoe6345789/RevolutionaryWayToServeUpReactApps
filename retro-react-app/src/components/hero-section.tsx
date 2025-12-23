@@ -3,43 +3,85 @@
 import { Box, Chip, Typography, Stack, Button } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  IReactComponentLifecycle,
+  ComponentLifecycleStatus,
+  useComponentLifecycle
+} from "@/lib/lifecycle-manager";
+import componentPatterns from "@/lib/component-patterns.json";
 
-// SVG Console Icon Component
+// SVG Console Icon Component - now uses extracted patterns
 const ConsoleIcon: React.FC<{ text: string }> = ({ text }) => {
-  const svgContent = `
-    <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg" style="width: 100%; filter: drop-shadow(0 12px 24px rgba(0,0,0,0.8))">
-      <defs>
-        <linearGradient id="console-body" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a1a2e" />
-          <stop offset="100%" stop-color="#050510" />
-        </linearGradient>
-        <linearGradient id="screen-glow" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#ff6ec7" />
-          <stop offset="50%" stop-color="#00e5ff" />
-          <stop offset="100%" stop-color="#ffd54f" />
-        </linearGradient>
-      </defs>
-
-      <rect x="10" y="20" width="240" height="150" rx="18" ry="18" fill="url(#console-body)" stroke="#33334d" stroke-width="2" />
-      <rect x="35" y="40" width="190" height="90" rx="8" ry="8" fill="#05050c" stroke="#29293d" />
-      <rect x="40" y="45" width="180" height="80" rx="6" ry="6" fill="url(#screen-glow)" fill-opacity="0.18" />
-      <text x="130" y="92" text-anchor="middle" font-size="10" fill="#f5f5f5">${text}</text>
-      <circle cx="55" cy="135" r="10" fill="#22223a" />
-      <circle cx="205" cy="135" r="10" fill="#ff6ec7" />
-      <circle cx="185" cy="125" r="8" fill="#00e5ff" />
-      <circle cx="225" cy="145" r="8" fill="#ffd54f" />
-      <rect x="40" y="122" width="6" height="26" fill="#2f2f46" />
-      <rect x="34" y="128" width="18" height="6" fill="#2f2f46" />
-    </svg>
-  `;
+  const svgLines = componentPatterns.svg.consoleIcon;
+  const svgContent = svgLines.join('\n').replace('{text}', text);
 
   return <div dangerouslySetInnerHTML={{ __html: svgContent }} />;
 };
+
+// HeroSection lifecycle implementation
+class HeroSectionLifecycle implements IReactComponentLifecycle {
+  private componentStatus: ComponentLifecycleStatus = ComponentLifecycleStatus.UNINITIALIZED;
+  private translationsLoaded = false;
+  private routerReady = false;
+
+  public async initialise(): Promise<void> {
+    this.componentStatus = ComponentLifecycleStatus.INITIALIZING;
+    // Initialize component resources
+    this.translationsLoaded = true;
+    this.routerReady = true;
+  }
+
+  public async validate(): Promise<void> {
+    this.componentStatus = ComponentLifecycleStatus.VALIDATING;
+    // Validate required dependencies
+    if (!this.translationsLoaded) {
+      throw new Error('Translations not loaded');
+    }
+    if (!this.routerReady) {
+      throw new Error('Router not ready');
+    }
+  }
+
+  public async execute(): Promise<void> {
+    this.componentStatus = ComponentLifecycleStatus.EXECUTING;
+    // Component is ready for interaction
+  }
+
+  public async cleanup(): Promise<void> {
+    this.componentStatus = ComponentLifecycleStatus.CLEANING;
+    // Cleanup resources
+    this.translationsLoaded = false;
+    this.routerReady = false;
+    this.componentStatus = ComponentLifecycleStatus.DESTROYED;
+  }
+
+  public debug(): Record<string, unknown> {
+    return {
+      status: this.componentStatus,
+      translationsLoaded: this.translationsLoaded,
+      routerReady: this.routerReady,
+    };
+  }
+
+  public async reset(): Promise<void> {
+    await this.cleanup();
+    await this.initialise();
+  }
+
+  public status(): ComponentLifecycleStatus {
+    return this.componentStatus;
+  }
+}
 
 export function HeroSection(): React.JSX.Element {
   const t = useTranslations("hero");
   const gamesT = useTranslations("games_data");
   const router = useRouter();
+
+  // Create lifecycle instance
+  const lifecycleRef = useRef(new HeroSectionLifecycle());
+  const lifecycleStatus = useComponentLifecycle('hero-section', lifecycleRef.current);
 
   const systemTags = gamesT.raw("systemTags") as string[];
 
