@@ -1,0 +1,28 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440007",
+  "id": "plugin.tools.eslint-sync",
+  "version": "1.0.0",
+  "type": "tool",
+  "name": "ESLint Sync Tool Plugin",
+  "description": "Synchronize ESLint configurations across project subdirectories",
+  "author": "Codegen Team",
+  "license": "MIT",
+  "entry_point": "src/eslint-sync-plugin.js",
+  "spec_file": "spec.json",
+  "messages_file": "messages.json",
+  "dependencies": {
+    "core": ">=1.0.0",
+    "plugins": []
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "registries": ["DevWorkflowRegistry"],
+  "capabilities": ["execute", "verify", "help", "sync", "validate"],
+  "tests": {
+    "directory": "tests/",
+    "coverage_required": 100
+  }
+}

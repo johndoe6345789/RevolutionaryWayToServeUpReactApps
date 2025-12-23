@@ -1,0 +1,104 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440008",
+  "id": "tool.dev.eslint-sync",
+  "type": "tool",
+  "search": {
+    "title": "ESLint Sync",
+    "summary": "Synchronize ESLint configurations across project subdirectories",
+    "keywords": ["eslint", "linting", "sync", "config", "standardize", "consistency"],
+    "tags": ["dev-workflow", "code-quality", "linting", "essential"],
+    "aliases": ["eslint-sync", "lint-sync", "config-sync"],
+    "domain": "tooling",
+    "capabilities": ["sync", "validate", "generate", "diff"]
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "verify": {
+    "linux": ["which", "node"],
+    "mac": ["which", "node"],
+    "win": ["where", "node.exe"]
+  },
+  "help": {
+    "linux": ["echo", "ESLint Sync: Synchronize ESLint configurations across the project"],
+    "mac": ["echo", "ESLint Sync: Synchronize ESLint configurations across the project"],
+    "win": ["echo", "ESLint Sync: Synchronize ESLint configurations across the project"]
+  },
+  "oneLiners": [
+    {
+      "id": "sync-all",
+      "description": "Sync all ESLint configurations across the project",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": [
+        "node",
+        "-e",
+        "require('./src/eslint-sync-plugin.js').default.execute({ operation: 'sync', scope: 'all' })"
+      ]
+    },
+    {
+      "id": "validate-configs",
+      "description": "Validate all ESLint configurations for consistency",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": [
+        "node",
+        "-e",
+        "require('./src/eslint-sync-plugin.js').default.execute({ operation: 'validate' })"
+      ]
+    },
+    {
+      "id": "generate-missing",
+      "description": "Generate ESLint configs for projects that don't have them",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": [
+        "node",
+        "-e",
+        "require('./src/eslint-sync-plugin.js').default.execute({ operation: 'generate' })"
+      ]
+    },
+    {
+      "id": "show-diff",
+      "description": "Show differences between current and standard configurations",
+      "platforms": { "win": true, "mac": true, "linux": true },
+      "command": [
+        "node",
+        "-e",
+        "require('./src/eslint-sync-plugin.js').default.execute({ operation: 'diff' })"
+      ]
+    }
+  ],
+  "options": [
+    {
+      "flag": "--dry-run",
+      "description": "Show what would be synced without making changes",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--force",
+      "description": "Force sync without confirmation",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--scope",
+      "description": "Specify sync scope (all, project-name, or comma-separated projects)",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--level",
+      "description": "Specify configuration strictness level (base, strict, test)",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    },
+    {
+      "flag": "--backup",
+      "description": "Create backups before making changes",
+      "platforms": { "win": true, "mac": true, "linux": true }
+    }
+  ],
+  "dependencies": [],
+  "risks": {
+    "destructive": false,
+    "network": false,
+    "confirmation": "This will modify ESLint configuration files. Create backups first?"
+  }
+}

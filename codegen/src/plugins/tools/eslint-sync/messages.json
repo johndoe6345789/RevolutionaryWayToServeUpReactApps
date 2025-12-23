@@ -1,0 +1,142 @@
+{
+  "msg.tool.eslint-sync.title": {
+    "en": "ESLint Sync",
+    "es": "Sincronización ESLint",
+    "fr": "Synchronisation ESLint",
+    "de": "ESLint-Synchronisation",
+    "ja": "ESLint同期"
+  },
+  "msg.tool.eslint-sync.summary": {
+    "en": "Synchronize ESLint configurations across project subdirectories",
+    "es": "Sincronizar configuraciones ESLint en subdirectorios del proyecto",
+    "fr": "Synchroniser les configurations ESLint dans les sous-répertoires du projet",
+    "de": "ESLint-Konfigurationen in Projektunterverzeichnissen synchronisieren",
+    "ja": "プロジェクトのサブディレクトリ間でESLint設定を同期する"
+  },
+  "msg.tool.eslint-sync.oneliner.sync-all": {
+    "en": "Sync all ESLint configurations across the project",
+    "es": "Sincronizar todas las configuraciones ESLint en el proyecto",
+    "fr": "Synchroniser toutes les configurations ESLint dans le projet",
+    "de": "Alle ESLint-Konfigurationen im Projekt synchronisieren",
+    "ja": "プロジェクト全体のESLint設定を同期する"
+  },
+  "msg.tool.eslint-sync.oneliner.validate": {
+    "en": "Validate all ESLint configurations for consistency",
+    "es": "Validar todas las configuraciones ESLint para consistencia",
+    "fr": "Valider toutes les configurations ESLint pour la cohérence",
+    "de": "Alle ESLint-Konfigurationen auf Konsistenz prüfen",
+    "ja": "すべてのESLint設定の一貫性を検証する"
+  },
+  "msg.tool.eslint-sync.oneliner.generate": {
+    "en": "Generate ESLint configs for projects that don't have them",
+    "es": "Generar configuraciones ESLint para proyectos que no las tienen",
+    "fr": "Générer des configurations ESLint pour les projets qui n'en ont pas",
+    "de": "ESLint-Konfigurationen für Projekte generieren, die keine haben",
+    "ja": "設定を持っていないプロジェクトのESLint設定を生成する"
+  },
+  "msg.tool.eslint-sync.oneliner.diff": {
+    "en": "Show differences between current and standard configurations",
+    "es": "Mostrar diferencias entre configuraciones actuales y estándar",
+    "fr": "Afficher les différences entre les configurations actuelles et standard",
+    "de": "Unterschiede zwischen aktuellen und Standardkonfigurationen anzeigen",
+    "ja": "現在の設定と標準設定の違いを表示する"
+  },
+  "msg.tool.eslint-sync.opt.dry_run": {
+    "en": "Show what would be synced without making changes",
+    "es": "Mostrar qué se sincronizaría sin hacer cambios",
+    "fr": "Afficher ce qui serait synchronisé sans effectuer de modifications",
+    "de": "Anzeigen, was synchronisiert werden würde, ohne Änderungen vorzunehmen",
+    "ja": "変更を加えずに何が同期されるかを表示する"
+  },
+  "msg.tool.eslint-sync.opt.force": {
+    "en": "Force sync without confirmation",
+    "es": "Forzar sincronización sin confirmación",
+    "fr": "Forcer la synchronisation sans confirmation",
+    "de": "Synchronisation ohne Bestätigung erzwingen",
+    "ja": "確認なしで同期を強制する"
+  },
+  "msg.tool.eslint-sync.opt.scope": {
+    "en": "Specify sync scope (all, project-name, or comma-separated projects)",
+    "es": "Especificar alcance de sincronización (all, nombre-proyecto, o proyectos separados por comas)",
+    "fr": "Spécifier la portée de synchronisation (all, nom-projet, ou projets séparés par des virgules)",
+    "de": "Synchronisationsbereich angeben (all, Projektname oder durch Kommas getrennte Projekte)",
+    "ja": "同期範囲を指定する（all、プロジェクト名、またはコンマ区切りのプロジェクト）"
+  },
+  "msg.tool.eslint-sync.opt.level": {
+    "en": "Specify configuration strictness level (base, strict, test)",
+    "es": "Especificar nivel de rigurosidad de configuración (base, strict, test)",
+    "fr": "Spécifier le niveau de rigueur de configuration (base, strict, test)",
+    "de": "Konfigurationsstrenge angeben (base, strict, test)",
+    "ja": "設定の厳格さレベルを指定する（base、strict、test）"
+  },
+  "msg.tool.eslint-sync.opt.backup": {
+    "en": "Create backups before making changes",
+    "es": "Crear copias de seguridad antes de hacer cambios",
+    "fr": "Créer des sauvegardes avant d'effectuer des modifications",
+    "de": "Sicherungen vor Änderungen erstellen",
+    "ja": "変更を行う前にバックアップを作成する"
+  },
+  "msg.tool.eslint-sync.status.scanning": {
+    "en": "Scanning project directories for ESLint configurations...",
+    "es": "Escaneando directorios del proyecto para configuraciones ESLint...",
+    "fr": "Analyse des répertoires du projet pour les configurations ESLint...",
+    "de": "Projektdateien nach ESLint-Konfigurationen durchsuchen...",
+    "ja": "プロジェクトディレクトリでESLint設定をスキャンしています..."
+  },
+  "msg.tool.eslint-sync.status.found_configs": {
+    "en": "Found {count} ESLint configurations",
+    "es": "Encontradas {count} configuraciones ESLint",
+    "fr": "Trouvé {count} configurations ESLint",
+    "de": "{count} ESLint-Konfigurationen gefunden",
+    "ja": "{count}個のESLint設定が見つかりました"
+  },
+  "msg.tool.eslint-sync.status.syncing": {
+    "en": "Syncing ESLint configuration for {project}",
+    "es": "Sincronizando configuración ESLint para {project}",
+    "fr": "Synchronisation de la configuration ESLint pour {project}",
+    "de": "ESLint-Konfiguration für {project} synchronisieren",
+    "ja": "{project}のESLint設定を同期しています"
+  },
+  "msg.tool.eslint-sync.status.validating": {
+    "en": "Validating ESLint configuration consistency...",
+    "es": "Validando consistencia de configuración ESLint...",
+    "fr": "Validation de la cohérence des configurations ESLint...",
+    "de": "ESLint-Konfigurationskonsistenz prüfen...",
+    "ja": "ESLint設定の一貫性を検証しています..."
+  },
+  "msg.tool.eslint-sync.status.completed": {
+    "en": "ESLint sync completed successfully",
+    "es": "Sincronización ESLint completada exitosamente",
+    "fr": "Synchronisation ESLint terminée avec succès",
+    "de": "ESLint-Synchronisation erfolgreich abgeschlossen",
+    "ja": "ESLint同期が正常に完了しました"
+  },
+  "msg.tool.eslint-sync.error.no_configs": {
+    "en": "No ESLint configurations found in project",
+    "es": "No se encontraron configuraciones ESLint en el proyecto",
+    "fr": "Aucune configuration ESLint trouvée dans le projet",
+    "de": "Keine ESLint-Konfigurationen im Projekt gefunden",
+    "ja": "プロジェクトにESLint設定が見つかりません"
+  },
+  "msg.tool.eslint-sync.error.invalid_config": {
+    "en": "Invalid ESLint configuration in {project}: {error}",
+    "es": "Configuración ESLint inválida en {project}: {error}",
+    "fr": "Configuration ESLint invalide dans {project}: {error}",
+    "de": "Ungültige ESLint-Konfiguration in {project}: {error}",
+    "ja": "{project}のESLint設定が無効です: {error}"
+  },
+  "msg.tool.eslint-sync.warning.backup_created": {
+    "en": "Backup created: {backup_path}",
+    "es": "Copia de seguridad creada: {backup_path}",
+    "fr": "Sauvegarde créée: {backup_path}",
+    "de": "Sicherung erstellt: {backup_path}",
+    "ja": "バックアップが作成されました: {backup_path}"
+  },
+  "msg.tool.eslint-sync.confirmation.sync_changes": {
+    "en": "This will modify ESLint configuration files. Create backups first?",
+    "es": "Esto modificará los archivos de configuración ESLint. ¿Crear copias de seguridad primero?",
+    "fr": "Cela modifiera les fichiers de configuration ESLint. Créer des sauvegardes d'abord ?",
+    "de": "Dies wird ESLint-Konfigurationsdateien ändern. Zuerst Sicherungen erstellen?",
+    "ja": "これによりESLint設定ファイルが変更されます。まずバックアップを作成しますか？"
+  }
+}
