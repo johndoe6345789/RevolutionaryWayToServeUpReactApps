@@ -231,13 +231,13 @@ Required public methods:
    - Primary operational method (signature language-idiomatic)
    - Must be pure or mediated through injected adapters
 
-Optional public methods (≤3 total public methods including required):
+Optional public methods (<5 total public methods including required):
 - `validate(input)` → void/Result (no I/O unless at edges)
 - `describe()` → string/Descriptor
 - `shutdown()` → void/Result (cleanup, edge-only)
 
 ### 5. Registry Contract (MANDATORY)
-Public methods (≤3):
+Public methods (<5):
 1. `list_ids()` → list[string]
 2. `get(id_or_uuid: string)` → Component/Factory/Descriptor
 3. `describe(id_or_uuid: string)` → Descriptor (optional)
@@ -249,7 +249,7 @@ Requirements:
 - No global mutable state
 
 ### 6. Aggregate Contract (MANDATORY)
-Public methods (≤3):
+Public methods (<5):
 1. `list_children()` → list[string]
 2. `get_child(id_or_uuid: string)` → Aggregate|Registry
 3. `describe()` → Descriptor (optional)
