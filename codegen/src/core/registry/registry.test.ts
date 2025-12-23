@@ -1,6 +1,28 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Registry } from './registry';
 
+interface MockComponentData {
+  readonly uuid: string;
+  readonly id: string;
+  readonly search: {
+    title?: string;
+    summary?: string;
+    keywords?: string[];
+    domain?: string;
+    capabilities?: string[];
+  };
+}
+
+const createMockComponent = (
+  uuid: string,
+  id: string,
+  search: MockComponentData['search'] = {},
+): MockComponentData => ({
+  uuid,
+  id,
+  search,
+});
+
 // Create a concrete implementation for testing
 /**
  *
@@ -23,45 +45,29 @@ class TestRegistry extends Registry {
   }
 }
 
-// Mock component for testing
-/**
- *
- */
-class MockComponent {
-  public readonly uuid: string;
-  public readonly id: string;
-  public readonly search: any;
-
-  constructor(uuid: string, id: string, search: any = {}) {
-    this.uuid = uuid;
-    this.id = id;
-    this.search = search;
-  }
-}
-
 describe('Registry', () => {
-  let mockComponent1: MockComponent,
-    mockComponent2: MockComponent,
-    mockComponent3: MockComponent,
+  let mockComponent1: MockComponentData,
+    mockComponent2: MockComponentData,
+    mockComponent3: MockComponentData,
     registry: TestRegistry;
 
   beforeEach(() => {
     registry = new TestRegistry();
-    mockComponent1 = new MockComponent('11111111-1111-1111-1111-111111111111', 'comp1', {
+    mockComponent1 = createMockComponent('11111111-1111-1111-1111-111111111111', 'comp1', {
       title: 'Component 1',
       summary: 'First test component',
       keywords: ['test', 'component'],
       domain: 'testing',
       capabilities: ['testing'],
     });
-    mockComponent2 = new MockComponent('22222222-2222-2222-2222-222222222222', 'comp2', {
+    mockComponent2 = createMockComponent('22222222-2222-2222-2222-222222222222', 'comp2', {
       title: 'Component 2',
       summary: 'Second test component',
       keywords: ['test', 'component'],
       domain: 'testing',
       capabilities: ['testing'],
     });
-    mockComponent3 = new MockComponent('33333333-3333-3333-3333-333333333333', 'comp3', {
+    mockComponent3 = createMockComponent('33333333-3333-3333-3333-333333333333', 'comp3', {
       title: 'Component 3',
       summary: 'Third test component',
       keywords: ['test', 'component'],
@@ -140,7 +146,7 @@ describe('Registry', () => {
 
       it('should prioritize ID lookup over UUID lookup', () => {
         // Add a component with ID that matches another component's UUID
-        const conflictingComponent = new MockComponent(
+        const conflictingComponent = createMockComponent(
           '44444444-4444-4444-4444-444444444444',
           '22222222-2222-2222-2222-222222222222',
         );
@@ -161,7 +167,7 @@ describe('Registry', () => {
       ['numeric ID as string', '123'],
       ['ID with special chars', 'comp_1-test.value'],
     ])('should handle %s correctly', (description, id) => {
-      const component = new MockComponent('test-uuid', id);
+      const component = createMockComponent('test-uuid', id);
       (registry as any).components.set(id, component);
 
       const result = registry.get(id);
