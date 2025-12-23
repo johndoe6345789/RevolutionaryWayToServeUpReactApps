@@ -41,7 +41,7 @@ export function HeroSection(): React.JSX.Element {
   const gamesT = useTranslations("games_data");
   const router = useRouter();
 
-  const systemTags = gamesT.raw("systemTags");
+  const systemTags = gamesT.raw("systemTags") as string[];
 
   const handleLaunchArcade = (): void => {
     // Navigate to arcade mode

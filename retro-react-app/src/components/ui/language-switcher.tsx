@@ -12,7 +12,7 @@ export function LanguageSwitcher(): React.JSX.Element {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const handleLanguageChange = (event: SelectChangeEvent<string>): void => {
+  const handleLanguageChange = (event: SelectChangeEvent): void => {
     const newLocale = event.target.value;
     startTransition(() => {
       // Remove the current locale from pathname and add the new one
