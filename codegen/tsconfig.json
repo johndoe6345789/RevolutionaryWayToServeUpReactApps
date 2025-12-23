@@ -42,7 +42,7 @@
     "dist",
     "retro-react-app",
     "e2e",
-    "build.ts",
-    "lint.ts"
+    "codegen/src/build.ts",
+    "codegen/lint.ts"
   ]
 }

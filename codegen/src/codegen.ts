@@ -7,7 +7,7 @@
  */
 
 const path = require('path');
-const BaseCodegen = require('./codegen/core/base-codegen');
+const BaseCodegen = require('./core/base-codegen');
 
 class RevolutionaryCodegen extends BaseCodegen {
   constructor(options = {}) {
