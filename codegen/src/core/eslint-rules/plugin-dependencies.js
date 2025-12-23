@@ -37,25 +37,25 @@ export default {
       },
 
       create(context) {
-        const options = context.options[0] || {};
-        const pluginsDir = options.pluginsDir || 'codegen/src/plugins';
+        const options = context.options[0] || {},
+         pluginsDir = options.pluginsDir || 'codegen/src/plugins',
 
         // Track processed files to avoid duplicate checks
-        const processedFiles = new Set();
+         processedFiles = new Set();
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') return;
+            if (!filePath || filePath === '<input>') {return;}
 
             // Only run once per lint session
-            if (processedFiles.has('plugin-deps-checked')) return;
+            if (processedFiles.has('plugin-deps-checked')) {return;}
             processedFiles.add('plugin-deps-checked');
 
             try {
               // Resolve plugins directory path
-              const resolvedPluginsDir = path.resolve(process.cwd(), pluginsDir);
-              const linter = new PluginDependencyLinter(resolvedPluginsDir);
+              const resolvedPluginsDir = path.resolve(process.cwd(), pluginsDir),
+               linter = new PluginDependencyLinter(resolvedPluginsDir);
 
               // Analyze dependencies asynchronously
               linter

@@ -5,7 +5,7 @@
 
 import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, copyFileSync } from 'fs';
+import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 
 /**
@@ -92,7 +92,7 @@ export class ESLintSyncPlugin extends BasePlugin {
       new (require('../../../../core/plugin-spec-loader').PluginSpecLoader)(join(__dirname, '..'));
     (this as any).messageLoader =
       new (require('../../../../core/plugin-message-loader').PluginMessageLoader)(
-        join(__dirname, '..')
+        join(__dirname, '..'),
       );
   }
 
@@ -138,19 +138,18 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Sync results
    */
   private executeSync(context: Record<string, unknown>): unknown {
-    const { scope = 'all', level = 'auto', dryRun = false, force = false, backup = true } = context;
-
-    const projects = this.discoverProjects(scope as string);
-    const results: Array<{ project: string; synced: boolean; error?: string }> = [];
+    const { scope = 'all', level = 'auto', dryRun = false, force = false, backup = true } = context,
+      projects = this.discoverProjects(scope as string),
+      results: { project: string; synced: boolean; error?: string }[] = [];
 
     for (const project of projects) {
       try {
         const synced = this.syncProjectConfig(
           project,
           level as string,
-          !!dryRun,
-          !!force,
-          !!backup
+          Boolean(dryRun),
+          Boolean(force),
+          Boolean(backup),
         );
         results.push({ project, synced });
       } catch (error) {
@@ -181,10 +180,9 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Validation results
    */
   private executeValidate(context: Record<string, unknown>): unknown {
-    const { scope = 'all' } = context;
-
-    const projects = this.discoverProjects(scope as string);
-    const results: Array<{ project: string; valid: boolean; issues?: string[] }> = [];
+    const { scope = 'all' } = context,
+      projects = this.discoverProjects(scope as string),
+      results: { project: string; valid: boolean; issues?: string[] }[] = [];
 
     for (const project of projects) {
       try {
@@ -214,14 +212,18 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Generation results
    */
   private executeGenerate(context: Record<string, unknown>): unknown {
-    const { scope = 'all', level = 'base', dryRun = false, force = false } = context;
-
-    const projects = this.discoverProjects(scope as string);
-    const results: Array<{ project: string; generated: boolean; error?: string }> = [];
+    const { scope = 'all', level = 'base', dryRun = false, force = false } = context,
+      projects = this.discoverProjects(scope as string),
+      results: { project: string; generated: boolean; error?: string }[] = [];
 
     for (const project of projects) {
       try {
-        const generated = this.generateProjectConfig(project, level as string, !!dryRun, !!force);
+        const generated = this.generateProjectConfig(
+          project,
+          level as string,
+          Boolean(dryRun),
+          Boolean(force),
+        );
         results.push({ project, generated });
       } catch (error) {
         results.push({
@@ -250,10 +252,9 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Diff results
    */
   private executeDiff(context: Record<string, unknown>): unknown {
-    const { scope = 'all', level = 'auto' } = context;
-
-    const projects = this.discoverProjects(scope as string);
-    const results: Array<{ project: string; differences?: string[]; error?: string }> = [];
+    const { scope = 'all', level = 'auto' } = context,
+      projects = this.discoverProjects(scope as string),
+      results: { project: string; differences?: string[]; error?: string }[] = [];
 
     for (const project of projects) {
       try {
@@ -282,8 +283,8 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Array of project paths
    */
   private discoverProjects(scope: string): string[] {
-    const rootDir = resolve(process.cwd());
-    const projects: string[] = [];
+    const rootDir = resolve(process.cwd()),
+      projects: string[] = [];
 
     if (scope === 'all') {
       // Find all directories that might have ESLint configs
@@ -326,10 +327,10 @@ export class ESLintSyncPlugin extends BasePlugin {
     level: string,
     dryRun: boolean,
     force: boolean,
-    backup: boolean
+    backup: boolean,
   ): boolean {
-    const projectPath = resolve(process.cwd(), project);
-    const configPath = this.findESLintConfig(projectPath);
+    const projectPath = resolve(process.cwd(), project),
+      configPath = this.findESLintConfig(projectPath);
 
     if (!configPath) {
       // No existing config, generate new one
@@ -337,8 +338,8 @@ export class ESLintSyncPlugin extends BasePlugin {
     }
 
     // Determine target level if auto
-    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level;
-    const standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs];
+    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level,
+      standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs];
 
     if (!standardConfig) {
       throw new Error(`Unknown configuration level: ${targetLevel}`);
@@ -354,10 +355,9 @@ export class ESLintSyncPlugin extends BasePlugin {
     }
 
     // Read existing config
-    const existingConfig = this.readESLintConfig(configPath);
-
-    // Merge with standard config (keeping project-specific overrides)
-    const syncedConfig = this.mergeConfigs(standardConfig, existingConfig);
+    const existingConfig = this.readESLintConfig(configPath),
+      // Merge with standard config (keeping project-specific overrides)
+      syncedConfig = this.mergeConfigs(standardConfig, existingConfig);
 
     // Write back
     this.writeESLintConfig(configPath, syncedConfig);
@@ -371,16 +371,16 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Validation result
    */
   private validateProjectConfig(project: string): { valid: boolean; issues?: string[] } {
-    const projectPath = resolve(process.cwd(), project);
-    const configPath = this.findESLintConfig(projectPath);
+    const projectPath = resolve(process.cwd(), project),
+      configPath = this.findESLintConfig(projectPath);
 
     if (!configPath) {
       return { valid: false, issues: ['No ESLint configuration found'] };
     }
 
     try {
-      const config = this.readESLintConfig(configPath);
-      const issues: string[] = [];
+      const config = this.readESLintConfig(configPath),
+        issues: string[] = [];
 
       // Basic validation
       if (!config.rules) {
@@ -420,17 +420,17 @@ export class ESLintSyncPlugin extends BasePlugin {
     project: string,
     level: string,
     dryRun: boolean,
-    force: boolean
+    force: boolean,
   ): boolean {
-    const projectPath = resolve(process.cwd(), project);
-    const configPath = join(projectPath, 'eslint.config.js');
+    const projectPath = resolve(process.cwd(), project),
+      configPath = join(projectPath, 'eslint.config.js');
 
     if (existsSync(configPath) && !force) {
       throw new Error(`ESLint config already exists at ${configPath}. Use --force to overwrite.`);
     }
 
-    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level;
-    const standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs];
+    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level,
+      standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs];
 
     if (!standardConfig) {
       throw new Error(`Unknown configuration level: ${targetLevel}`);
@@ -455,16 +455,16 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Array of differences
    */
   private diffProjectConfig(project: string, level: string): string[] {
-    const projectPath = resolve(process.cwd(), project);
-    const configPath = this.findESLintConfig(projectPath);
+    const projectPath = resolve(process.cwd(), project),
+      configPath = this.findESLintConfig(projectPath);
 
     if (!configPath) {
       return [`No ESLint configuration found for ${project}`];
     }
 
-    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level;
-    const standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs];
-    const existingConfig = this.readESLintConfig(configPath);
+    const targetLevel = level === 'auto' ? this.detectProjectLevel(project) : level,
+      standardConfig = this.standardConfigs[targetLevel as keyof typeof this.standardConfigs],
+      existingConfig = this.readESLintConfig(configPath);
 
     return this.compareConfigs(existingConfig, standardConfig);
   }
@@ -480,19 +480,19 @@ export class ESLintSyncPlugin extends BasePlugin {
       return 'test';
     }
 
-    const projectPath = resolve(process.cwd(), project);
-    const packageJsonPath = join(projectPath, 'package.json');
+    const projectPath = resolve(process.cwd(), project),
+      packageJsonPath = join(projectPath, 'package.json');
 
     if (existsSync(packageJsonPath)) {
       try {
-        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-        const deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')),
+          deps = { ...packageJson.dependencies, ...packageJson.devDependencies };
 
-        if (deps['next']) {
+        if (deps.next) {
           return 'strict';
         }
 
-        if (deps['react']) {
+        if (deps.react) {
           return 'strict';
         }
       } catch (error) {
@@ -588,10 +588,9 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Project-specific configuration
    */
   private generateProjectSpecificConfig(project: string, baseConfig: any): any {
-    const projectPath = resolve(process.cwd(), project);
-
-    // Add project-specific settings
-    const config = { ...baseConfig };
+    const projectPath = resolve(process.cwd(), project),
+      // Add project-specific settings
+      config = { ...baseConfig };
 
     // Add file patterns based on project type
     if (project.includes('test') || project.includes('e2e')) {
@@ -626,11 +625,10 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Array of differences
    */
   private compareConfigs(config1: any, config2: any): string[] {
-    const differences: string[] = [];
-
-    // Simple comparison - in practice, you'd want deep diffing
-    const keys1 = Object.keys(config1);
-    const keys2 = Object.keys(config2);
+    const differences: string[] = [],
+      // Simple comparison - in practice, you'd want deep diffing
+      keys1 = Object.keys(config1),
+      keys2 = Object.keys(config2);
 
     for (const key of keys2) {
       if (!(key in config1)) {
@@ -657,9 +655,8 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Verification results
    */
   private verifySync(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.verify?.[platform]) {
       throw new Error(`ESLint sync verification not supported on platform: ${platform}`);
     }
@@ -694,9 +691,8 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @returns Help information
    */
   private getSyncHelp(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.help?.[platform]) {
       throw new Error(`ESLint sync help not available on platform: ${platform}`);
     }
@@ -733,9 +729,9 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param results - Operation results
    * @returns Summary string
    */
-  private generateSummary(results: Array<{ [key: string]: boolean | string }>): string {
-    const successful = results.filter((r) => r.synced || r.generated).length;
-    const failed = results.filter((r) => !(r.synced || r.generated)).length;
+  private generateSummary(results: Record<string, boolean | string>[]): string {
+    const successful = results.filter((r) => r.synced || r.generated).length,
+      failed = results.filter((r) => !(r.synced || r.generated)).length;
 
     let summary = `Processed ${results.length} projects`;
     if (successful > 0) {
@@ -753,10 +749,10 @@ export class ESLintSyncPlugin extends BasePlugin {
    * @param results - Validation results
    * @returns Summary string
    */
-  private generateValidationSummary(results: Array<{ valid: boolean; issues?: string[] }>): string {
-    const valid = results.filter((r) => r.valid).length;
-    const invalid = results.filter((r) => !r.valid).length;
-    const totalIssues = results.reduce((sum, r) => sum + (r.issues?.length || 0), 0);
+  private generateValidationSummary(results: { valid: boolean; issues?: string[] }[]): string {
+    const valid = results.filter((r) => r.valid).length,
+      invalid = results.filter((r) => !r.valid).length,
+      totalIssues = results.reduce((sum, r) => sum + (r.issues?.length || 0), 0);
 
     let summary = `Validated ${results.length} configurations`;
     if (valid > 0) {

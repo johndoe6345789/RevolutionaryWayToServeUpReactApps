@@ -3,7 +3,7 @@
  * Tests for the PluginSpecLoader class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PluginSpecLoader } from './plugin-spec-loader';
 import * as fs from 'fs';
 import type { ISpec } from './interfaces/index';
@@ -12,8 +12,7 @@ import type { ISpec } from './interfaces/index';
 vi.mock('fs');
 
 describe('PluginSpecLoader', () => {
-  let loader: PluginSpecLoader;
-  let mockBasePath: string;
+  let loader: PluginSpecLoader, mockBasePath: string;
 
   beforeEach(() => {
     mockBasePath = '/test/path';

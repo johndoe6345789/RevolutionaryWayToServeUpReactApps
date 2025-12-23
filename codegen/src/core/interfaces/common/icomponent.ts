@@ -17,13 +17,13 @@ export interface IComponent {
   /**
    *
    */
-  initialise(): Promise<IComponent>;
+  initialise: () => Promise<IComponent>;
   /**
    *
    */
-  execute(context: Record<string, unknown>): Promise<unknown>;
+  execute: (context: Record<string, unknown>) => Promise<unknown>;
   /**
    *
    */
-  validate(input: unknown): boolean;
+  validate: (input: unknown) => boolean;
 }

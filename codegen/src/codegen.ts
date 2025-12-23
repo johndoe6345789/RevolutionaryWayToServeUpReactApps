@@ -17,28 +17,27 @@ export function createCodegenSystem(options: Record<string, unknown> = {}): {
 } {
   // Create root aggregator
   const aggregator = new CodegenAggregator({
-    uuid: 'root-codegen-uuid',
-    id: 'CodegenAggregator',
-    type: 'aggregator',
-    search: {
-      title: 'Codegen Root Aggregator',
-      summary: 'Root aggregator for unlimited drill-down navigation',
-      keywords: ['codegen', 'root', 'aggregator'],
-      domain: 'core',
-      capabilities: ['navigation', 'orchestration'],
-    },
-  });
-
-  // Create entrypoint
-  const entrypoint = new CodegenEntrypoint(aggregator, options);
+      uuid: 'root-codegen-uuid',
+      id: 'CodegenAggregator',
+      type: 'aggregator',
+      search: {
+        title: 'Codegen Root Aggregator',
+        summary: 'Root aggregator for unlimited drill-down navigation',
+        keywords: ['codegen', 'root', 'aggregator'],
+        domain: 'core',
+        capabilities: ['navigation', 'orchestration'],
+      },
+    }),
+    // Create entrypoint
+    entrypoint = new CodegenEntrypoint(aggregator, options);
 
   return { entrypoint, aggregator };
 }
 
 // CLI execution with new architecture
 if (require.main === module) {
-  const { entrypoint } = createCodegenSystem();
-  const args = process.argv.slice(2);
+  const { entrypoint } = createCodegenSystem(),
+    args = process.argv.slice(2);
 
   entrypoint.runCLI(args).catch((error: unknown) => {
     console.error('Fatal error:', error instanceof Error ? error.message : String(error));

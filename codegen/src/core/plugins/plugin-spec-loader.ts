@@ -4,7 +4,7 @@
  * Single responsibility: spec loading and validation
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { ISpec } from './interfaces/index';
 
@@ -41,6 +41,6 @@ export class PluginSpecLoader {
    * @returns True if valid
    */
   public validateSpec(spec: ISpec): boolean {
-    return !!(spec.uuid && spec.id && spec.search && spec.type);
+    return Boolean(spec.uuid && spec.id && spec.search && spec.type);
   }
 }

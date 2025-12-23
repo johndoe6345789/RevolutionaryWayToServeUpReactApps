@@ -3,13 +3,12 @@ import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function run(command) {
   try {
-    execSync(command, { stdio: 'inherit', cwd: path.dirname(__dirname) });
-  } catch (error) {
+    execSync(command, { cwd: path.dirname(__dirname), stdio: 'inherit' });
+  } catch {
     process.exit(1);
   }
 }

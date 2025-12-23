@@ -2,7 +2,7 @@
  * Git Hooks Plugin Tests - AGENTS.md compliant test implementation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { GitHooksPlugin } from './git-hooks-plugin';
 import type { IPluginConfig } from '../../../../core/interfaces/index';
 
@@ -57,7 +57,7 @@ describe('GitHooksPlugin', () => {
 
     it('should throw error for unknown operation', async () => {
       await expect(plugin.execute({ operation: 'unknown' })).rejects.toThrow(
-        'Unknown Git hooks operation: unknown'
+        'Unknown Git hooks operation: unknown',
       );
     });
   });
@@ -68,7 +68,7 @@ describe('GitHooksPlugin', () => {
         plugin.execute({
           operation: 'create',
           hook: 'test-hook',
-        })
+        }),
       ).rejects.toThrow('Template not found: test-hook');
     });
 

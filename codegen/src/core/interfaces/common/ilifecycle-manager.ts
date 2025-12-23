@@ -12,13 +12,13 @@ export interface ILifecycleManager {
   /**
    *
    */
-  getState(component: IComponent): LifecycleState;
+  getState: (component: IComponent) => LifecycleState;
   /**
    *
    */
-  canTransition(component: IComponent, newState: LifecycleState): boolean;
+  canTransition: (component: IComponent, newState: LifecycleState) => boolean;
   /**
    *
    */
-  transition(component: IComponent, newState: LifecycleState): void;
+  transition: (component: IComponent, newState: LifecycleState) => void;
 }

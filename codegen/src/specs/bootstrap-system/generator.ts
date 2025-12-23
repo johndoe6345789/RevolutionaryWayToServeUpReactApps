@@ -99,10 +99,12 @@ export class BootstrapGenerator extends BaseComponent {
    * @param context
    */
   public async execute(context: Record<string, unknown>): Promise<ExecutionResult> {
-    if (!this.initialised) await this.initialise();
+    if (!this.initialised) {
+      await this.initialise();
+    }
 
-    const specs = this._loadSpecs();
-    const results = this._generateFromSpecs(specs);
+    const specs = this._loadSpecs(),
+      results = this._generateFromSpecs(specs);
 
     return { success: true, generated: results, specs };
   }
@@ -152,9 +154,9 @@ export class BootstrapGenerator extends BaseComponent {
    * @param moduleSpec
    */
   private _generateModule(moduleName: string, moduleSpec: ModuleSpec): GeneratedFile {
-    const className = this._toClassName(moduleName);
-    const filePath = path.join(this.outputPath, `${moduleName}.js`);
-    const code = this._generateModuleCode(className, moduleSpec);
+    const className = this._toClassName(moduleName),
+      filePath = path.join(this.outputPath, `${moduleName}.js`),
+      code = this._generateModuleCode(className, moduleSpec);
 
     fs.writeFileSync(filePath, code);
     return { file: filePath, type: 'module', name: moduleName };
@@ -166,9 +168,9 @@ export class BootstrapGenerator extends BaseComponent {
    * @param interfaceSpec
    */
   private _generateInterface(interfaceName: string, interfaceSpec: InterfaceSpec): GeneratedFile {
-    const fileName = `${interfaceName.toLowerCase()}.js`;
-    const filePath = path.join(this.outputPath, 'interfaces', fileName);
-    const code = this._generateInterfaceCode(interfaceName, interfaceSpec);
+    const fileName = `${interfaceName.toLowerCase()}.js`,
+      filePath = path.join(this.outputPath, 'interfaces', fileName),
+      code = this._generateInterfaceCode(interfaceName, interfaceSpec);
 
     fs.writeFileSync(filePath, code);
     return { file: filePath, type: 'interface', name: interfaceName };
@@ -179,8 +181,8 @@ export class BootstrapGenerator extends BaseComponent {
    * @param specs
    */
   private _generateDocs(specs: SpecsData): GeneratedFile {
-    const docsPath = path.join(__dirname, 'docs', 'README.md');
-    const content = this._generateDocsContent(specs);
+    const docsPath = path.join(__dirname, 'docs', 'README.md'),
+      content = this._generateDocsContent(specs);
 
     fs.writeFileSync(docsPath, content);
     return { file: docsPath, type: 'documentation', name: 'README' };
@@ -191,8 +193,8 @@ export class BootstrapGenerator extends BaseComponent {
    * @param specs
    */
   private _generateTests(specs: SpecsData): GeneratedFile {
-    const testsPath = path.join(__dirname, 'tests', 'bootstrap-system.test.js');
-    const content = this._generateTestsContent(specs);
+    const testsPath = path.join(__dirname, 'tests', 'bootstrap-system.test.js'),
+      content = this._generateTestsContent(specs);
 
     fs.writeFileSync(testsPath, content);
     return { file: testsPath, type: 'test', name: 'bootstrap-system' };
@@ -292,37 +294,39 @@ module.exports = ${interfaceName};`;
    */
   private _generateDocsContent(specs: SpecsData): string {
     const templates = JSON.parse(
-      fs.readFileSync(path.join(__dirname, 'docs-templates.json'), 'utf8')
-    );
-    const template = templates.README;
-
-    // Basic substitutions
-    const content = template
-      .map((line: string) => {
-        return line
-          .replace('{title}', specs.search.title)
-          .replace('{description}', specs.search.summary)
-          .replace('{systemName}', specs.search.title)
-          .replace('{capabilities}', specs.search.capabilities?.join(', ') || 'core functionality')
-          .replace('{moduleCount}', Object.keys(specs.modules).length)
-          .replace(
-            '{moduleList}',
-            Object.keys(specs.modules)
-              .map((name: string) => `1. ${name.replace('-', ' ')}`)
-              .join('\n')
-          )
-          .replace('{moduleDetails}', this._generateModuleDetails(specs))
-          .replace('{usageExamples}', this._generateUsageExamples(specs))
-          .replace('{integrationExample}', this._generateIntegrationExample())
-          .replace('{errorHandling}', this._generateErrorHandling())
-          .replace('{testing}', this._generateTesting())
-          .replace('{development}', this._generateDevelopment())
-          .replace('{performance}', this._generatePerformance())
-          .replace('{security}', this._generateSecurity())
-          .replace('{contributing}', this._generateContributing())
-          .replace('{license}', this._generateLicense());
-      })
-      .join('\n');
+        fs.readFileSync(path.join(__dirname, 'docs-templates.json'), 'utf8'),
+      ),
+      template = templates.README,
+      // Basic substitutions
+      content = template
+        .map((line: string) =>
+          line
+            .replace('{title}', specs.search.title)
+            .replace('{description}', specs.search.summary)
+            .replace('{systemName}', specs.search.title)
+            .replace(
+              '{capabilities}',
+              specs.search.capabilities?.join(', ') || 'core functionality',
+            )
+            .replace('{moduleCount}', Object.keys(specs.modules).length)
+            .replace(
+              '{moduleList}',
+              Object.keys(specs.modules)
+                .map((name: string) => `1. ${name.replace('-', ' ')}`)
+                .join('\n'),
+            )
+            .replace('{moduleDetails}', this._generateModuleDetails(specs))
+            .replace('{usageExamples}', this._generateUsageExamples(specs))
+            .replace('{integrationExample}', this._generateIntegrationExample())
+            .replace('{errorHandling}', this._generateErrorHandling())
+            .replace('{testing}', this._generateTesting())
+            .replace('{development}', this._generateDevelopment())
+            .replace('{performance}', this._generatePerformance())
+            .replace('{security}', this._generateSecurity())
+            .replace('{contributing}', this._generateContributing())
+            .replace('{license}', this._generateLicense()),
+        )
+        .join('\n');
 
     return content;
   }
@@ -333,23 +337,23 @@ module.exports = ${interfaceName};`;
    */
   private _generateTestsContent(specs: SpecsData): string {
     const templates = JSON.parse(
-      fs.readFileSync(path.join(__dirname, 'test-templates.json'), 'utf8')
-    );
-    const content: string[] = [];
+        fs.readFileSync(path.join(__dirname, 'test-templates.json'), 'utf8'),
+      ),
+      content: string[] = [];
 
     // Generate individual module tests
     for (const [moduleName, moduleSpec] of Object.entries(specs.modules)) {
-      const className = this._toClassName(moduleName);
-      const testSuite = (templates.testSuite as string[])
-        .map((line: string) => {
-          return line
-            .replace(/{moduleName}/g, moduleSpec.search.title)
-            .replace(/{className}/g, className)
-            .replace(/{fileName}/g, moduleName)
-            .replace('{specFields}', this._generateSpecFields(moduleSpec))
-            .replace('{methodTests}', this._generateMethodTests(moduleSpec));
-        })
-        .join('\n');
+      const className = this._toClassName(moduleName),
+        testSuite = (templates.testSuite as string[])
+          .map((line: string) =>
+            line
+              .replace(/{moduleName}/g, moduleSpec.search.title)
+              .replace(/{className}/g, className)
+              .replace(/{fileName}/g, moduleName)
+              .replace('{specFields}', this._generateSpecFields(moduleSpec))
+              .replace('{methodTests}', this._generateMethodTests(moduleSpec)),
+          )
+          .join('\n');
       content.push(testSuite);
     }
 
@@ -367,7 +371,7 @@ module.exports = ${interfaceName};`;
     return (
       (this.templates.methods as Record<string, string[]>)[methodName] ||
       (this.templates.defaultMethod as string[]).map((line: string) =>
-        line.replace(/{methodName}/g, methodName)
+        line.replace(/{methodName}/g, methodName),
       )
     );
   }
@@ -394,7 +398,9 @@ module.exports = ${interfaceName};`;
       path.join(__dirname, 'tests'),
     ];
     dirs.forEach((dir) => {
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
     });
   }
 

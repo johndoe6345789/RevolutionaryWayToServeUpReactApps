@@ -6,13 +6,13 @@ export interface IDependencyInjectionContainer {
   /**
    *
    */
-  register<T>(token: string | symbol, implementation: new (...args: never[]) => T): void;
+  register: <T>(token: string | symbol, implementation: new (...args: never[]) => T) => void;
   /**
    *
    */
-  resolve<T>(token: string | symbol): T;
+  resolve: <T>(token: string | symbol) => T;
   /**
    *
    */
-  has(token: string | symbol): boolean;
+  has: (token: string | symbol) => boolean;
 }

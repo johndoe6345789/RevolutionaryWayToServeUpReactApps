@@ -26,9 +26,7 @@ interface PluginInfo {
 /**
  * Interface for plugin constructors
  */
-interface PluginConstructor {
-  new (): IComponent;
-}
+type PluginConstructor = new () => IComponent;
 
 /**
  *
@@ -85,8 +83,8 @@ export class PluginAggregator extends BaseAggregator {
    *
    */
   private _discoverPlugins(): void {
-    const pluginsDir = path.join(__dirname, '../plugins');
-    const categories = ['tools', 'languages', 'templates', 'profiles'];
+    const pluginsDir = path.join(__dirname, '../plugins'),
+      categories = ['tools', 'languages', 'templates', 'profiles'];
 
     for (const category of categories) {
       const categoryDir = path.join(pluginsDir, category);
@@ -98,16 +96,16 @@ export class PluginAggregator extends BaseAggregator {
       const items = fs.readdirSync(categoryDir);
 
       for (const item of items) {
-        const pluginDir = path.join(categoryDir, item);
-        const manifestPath = path.join(pluginDir, 'plugin.json');
+        const pluginDir = path.join(categoryDir, item),
+          manifestPath = path.join(pluginDir, 'plugin.json');
 
         if (fs.existsSync(manifestPath)) {
           try {
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<
-              string,
-              unknown
-            >;
-            const pluginId = manifest.id;
+                string,
+                unknown
+              >,
+              pluginId = manifest.id;
             if (typeof pluginId === 'string') {
               this.discoveredPlugins.set(pluginId, {
                 ...(manifest as PluginInfo),
@@ -136,8 +134,8 @@ export class PluginAggregator extends BaseAggregator {
         ) {
           continue; // Skip plugins without valid path or entry point
         }
-        const entryPoint = path.join(pluginInfo.path, pluginInfo.entry_point);
-        const PluginClass = require(entryPoint) as PluginConstructor;
+        const entryPoint = path.join(pluginInfo.path, pluginInfo.entry_point),
+          PluginClass = require(entryPoint) as PluginConstructor;
         if (typeof PluginClass !== 'function') {
           continue; // Skip invalid plugin classes
         }

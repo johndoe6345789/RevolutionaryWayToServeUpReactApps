@@ -51,11 +51,11 @@ export default {
       },
 
       create(context) {
-        const options = context.options[0] || {};
-        const maxTemplateLiteralLines = options.maxTemplateLiteralLines || 5;
-        const maxStringPropertiesInObject = options.maxStringPropertiesInObject || 3;
-        const maxStringArrayLength = options.maxStringArrayLength || 5;
-        const ignoreInTests = options.ignoreInTests !== false;
+        const options = context.options[0] || {},
+         maxTemplateLiteralLines = options.maxTemplateLiteralLines || 5,
+         maxStringPropertiesInObject = options.maxStringPropertiesInObject || 3,
+         maxStringArrayLength = options.maxStringArrayLength || 5,
+         ignoreInTests = options.ignoreInTests !== false;
 
         // Skip test files if configured to do so
         if (
@@ -133,8 +133,8 @@ export default {
           VariableDeclarator(node) {
             // Check for large configuration objects assigned to variables
             if (node.init && node.init.type === 'ObjectExpression') {
-              const properties = node.init.properties;
-              const stringProperties = properties.filter(
+              const {properties} = node.init,
+               stringProperties = properties.filter(
                 (prop) =>
                   prop.type === 'Property' &&
                   prop.value.type === 'Literal' &&
@@ -173,15 +173,15 @@ export default {
  * Count the number of lines in a template literal
  */
 function getLineCount(node) {
-  if (!node.loc) return 0;
+  if (!node.loc) {return 0;}
 
   // Count newlines in the template literal
   let lineCount = 1; // Start with 1 for the first line
 
   for (const quasi of node.quasis) {
     if (quasi.type === 'TemplateElement') {
-      const text = quasi.value.raw || quasi.value.cooked;
-      const newlines = (text.match(/\n/g) || []).length;
+      const text = quasi.value.raw || quasi.value.cooked,
+       newlines = (text.match(/\n/g) || []).length;
       lineCount += newlines;
     }
   }

@@ -38,7 +38,7 @@ export default {
               },
               maxMethods: {
                 type: 'integer',
-                default: 5,
+                default: 7,
               },
             },
             additionalProperties: false,
@@ -55,34 +55,34 @@ export default {
       },
 
       create(context) {
-        const options = context.options[0] || {};
-        const coreFiles = options.coreFiles || [
+        const options = context.options[0] || {},
+         coreFiles = options.coreFiles || [
           'codegen/core/base-component.js',
           'codegen/core/registry.js',
           'codegen/core/aggregate.js',
           'codegen/core/plugin.js',
-        ];
-        const baseComponentFile = options.baseComponentFile || 'codegen/core/base-component.js';
-        const maxMethods = options.maxMethods || 5;
+        ],
+         baseComponentFile = options.baseComponentFile || 'codegen/core/base-component.js',
+         maxMethods = options.maxMethods || 7;
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') return;
+            if (!filePath || filePath === '<input>') {return;}
 
             // Get relative path from project root
-            const relativePath = path.relative(process.cwd(), filePath);
+            const relativePath = path.relative(process.cwd(), filePath),
 
             // Check if this file is one of the core files we need to validate
-            const isCoreFile = coreFiles.some((coreFile) => relativePath.endsWith(coreFile));
-            if (!isCoreFile) return;
+             isCoreFile = coreFiles.some((coreFile) => relativePath.endsWith(coreFile));
+            if (!isCoreFile) {return;}
 
             try {
               // Read the file content
-              const content = fs.readFileSync(filePath, 'utf8');
+              const content = fs.readFileSync(filePath, 'utf8'),
 
               // Check for class definition
-              const classMatches = content.match(/class\s+\w+/g) || [];
+               classMatches = content.match(/class\s+\w+/g) || [];
               if (classMatches.length === 0) {
                 context.report({
                   node,

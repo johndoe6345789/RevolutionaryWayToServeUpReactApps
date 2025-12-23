@@ -3,13 +3,12 @@
  * Tests for the BaseAggregator class
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BaseAggregator } from './base-aggregator';
 import type { ISpec } from './interfaces/index';
 
 describe('BaseAggregator', () => {
-  let mockSpec: ISpec;
-  let aggregator: BaseAggregator;
+  let aggregator: BaseAggregator, mockSpec: ISpec;
 
   beforeEach(() => {
     mockSpec = {

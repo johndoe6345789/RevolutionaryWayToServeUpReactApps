@@ -10,5 +10,5 @@ export interface IPluginRegistryManager {
   /**
    *
    */
-  register(id: string, spec: unknown): void;
+  register: (id: string, spec: unknown) => void;
 }

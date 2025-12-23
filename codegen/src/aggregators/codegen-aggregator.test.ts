@@ -3,7 +3,7 @@
  * Tests for the CodegenAggregator class
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { CodegenAggregator } from './codegen-aggregator';
 
 describe('CodegenAggregator', () => {

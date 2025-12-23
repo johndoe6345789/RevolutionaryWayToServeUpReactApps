@@ -70,7 +70,7 @@ export abstract class Plugin extends BaseComponent {
    * @returns Execution result
    */
   public override async execute(
-    _context: Record<string, unknown>
+    _context: Record<string, unknown>,
   ): Promise<IPluginExecutionResult> {
     if (!this.initialised) {
       await this.initialise();
@@ -98,7 +98,7 @@ export abstract class Plugin extends BaseComponent {
    * @param message - Message to log
    * @param _level - Log level
    */
-  protected log(message: string, _level: string = 'info'): void {
+  protected log(message: string, _level = 'info'): void {
     const prefix = `[${this.id}]`;
     console.log(`${prefix} ${message}`);
   }

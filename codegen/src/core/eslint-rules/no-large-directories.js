@@ -61,9 +61,9 @@ export default {
       },
 
       create(context) {
-        const options = context.options[0] || {};
-        const maxFiles = options.maxFiles || 10;
-        const excludePatterns = options.excludePatterns || [
+        const options = context.options[0] || {},
+         maxFiles = options.maxFiles || 10,
+         excludePatterns = options.excludePatterns || [
           'node_modules',
           '.git',
           'dist',
@@ -71,36 +71,36 @@ export default {
           '__pycache__',
           '.next',
           'coverage',
-        ];
-        const excludeExtensions = options.excludeExtensions || [
+        ],
+         excludeExtensions = options.excludeExtensions || [
           '.log',
           '.lock',
           '.map',
           '.min.js',
           '.min.css',
-        ];
-        const includeExtensions = options.includeExtensions || [
+        ],
+         includeExtensions = options.includeExtensions || [
           '.ts',
           '.tsx',
           '.js',
           '.jsx',
           '.json',
           '.md',
-        ];
+        ],
 
         // Track directories we've already checked
-        const checkedDirectories = new Set();
+         checkedDirectories = new Set();
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') return;
+            if (!filePath || filePath === '<input>') {return;}
 
             // Get the directory of the current file
             const directory = path.dirname(filePath);
 
             // Skip if we've already checked this directory
-            if (checkedDirectories.has(directory)) return;
+            if (checkedDirectories.has(directory)) {return;}
             checkedDirectories.add(directory);
 
             // Skip excluded directories
@@ -115,8 +115,8 @@ export default {
 
             try {
               // Count files in the directory
-              const files = fs.readdirSync(directory);
-              const relevantFiles = files.filter((file) => {
+              const files = fs.readdirSync(directory),
+               relevantFiles = files.filter((file) => {
                 const ext = path.extname(file);
 
                 // Exclude files with excluded extensions

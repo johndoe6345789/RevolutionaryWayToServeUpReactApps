@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpecValidator } from './spec-validator';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -7,21 +7,21 @@ import * as path from 'path';
 vi.mock('fs');
 vi.mock('path');
 
-const mockedFs = vi.mocked(fs);
-const mockedPath = vi.mocked(path);
+const mockedFs = vi.mocked(fs),
+  mockedPath = vi.mocked(path);
 
 describe('SpecValidator', () => {
   let validator: SpecValidator;
-  const mockSchemaPath = '/mock/schema.json';
-  const mockSchema = {
-    type: 'object',
-    properties: {
-      uuid: { type: 'string' },
-      id: { type: 'string' },
-      search: { type: 'object' },
-    },
-    required: ['uuid', 'id', 'search'],
-  };
+  const mockSchemaPath = '/mock/schema.json',
+    mockSchema = {
+      type: 'object',
+      properties: {
+        uuid: { type: 'string' },
+        id: { type: 'string' },
+        search: { type: 'object' },
+      },
+      required: ['uuid', 'id', 'search'],
+    };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -196,8 +196,8 @@ describe('SpecValidator', () => {
         ['empty string UUID', '', false, ['Invalid UUID format (must be RFC 4122)']],
         ['number UUID', 123456789, false, ['Invalid UUID format (must be RFC 4122)']],
       ])('should validate UUID: %s', (description, uuid, expectedValid, expectedErrors) => {
-        const spec = { ...validSpecTemplate, uuid };
-        const result = validator.validate(spec);
+        const spec = { ...validSpecTemplate, uuid },
+          result = validator.validate(spec);
         expect(result.valid).toBe(expectedValid);
         if (!expectedValid) {
           expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
@@ -246,8 +246,8 @@ describe('SpecValidator', () => {
         ['undefined id', undefined, false, ['Invalid ID format (must match pattern)']],
         ['empty string id', '', false, ['Invalid ID format (must match pattern)']],
       ])('should validate ID: %s', (description, id, expectedValid, expectedErrors) => {
-        const spec = { ...validSpecTemplate, id };
-        const result = validator.validate(spec);
+        const spec = { ...validSpecTemplate, id },
+          result = validator.validate(spec);
         expect(result.valid).toBe(expectedValid);
         if (!expectedValid) {
           expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
@@ -280,13 +280,13 @@ describe('SpecValidator', () => {
       ])(
         'should reject invalid search metadata: %s',
         (description, search, expectedValid, expectedErrors) => {
-          const spec = { ...validSpecTemplate, search };
-          const result = validator.validate(spec);
+          const spec = { ...validSpecTemplate, search },
+            result = validator.validate(spec);
           expect(result.valid).toBe(expectedValid);
           if (!expectedValid) {
             expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
           }
-        }
+        },
       );
 
       it.each([
@@ -339,13 +339,13 @@ describe('SpecValidator', () => {
       ])(
         'should reject incomplete search metadata: %s',
         (description, search, expectedValid, expectedErrors) => {
-          const spec = { ...validSpecTemplate, search };
-          const result = validator.validate(spec);
+          const spec = { ...validSpecTemplate, search },
+            result = validator.validate(spec);
           expect(result.valid).toBe(expectedValid);
           if (!expectedValid) {
             expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
           }
-        }
+        },
       );
 
       it.each([
@@ -383,13 +383,13 @@ describe('SpecValidator', () => {
       ])(
         'should validate keywords format: %s',
         (description, search, expectedValid, expectedErrors) => {
-          const spec = { ...validSpecTemplate, search };
-          const result = validator.validate(spec);
+          const spec = { ...validSpecTemplate, search },
+            result = validator.validate(spec);
           expect(result.valid).toBe(expectedValid);
           if (!expectedValid) {
             expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
           }
-        }
+        },
       );
 
       it.each([
@@ -428,13 +428,13 @@ describe('SpecValidator', () => {
       ])(
         'should accept valid search metadata: %s',
         (description, search, expectedValid, expectedErrors) => {
-          const spec = { ...validSpecTemplate, search };
-          const result = validator.validate(spec);
+          const spec = { ...validSpecTemplate, search },
+            result = validator.validate(spec);
           expect(result.valid).toBe(expectedValid);
           if (!expectedValid) {
             expect(result.errors).toEqual(expect.arrayContaining(expectedErrors));
           }
-        }
+        },
       );
     });
 

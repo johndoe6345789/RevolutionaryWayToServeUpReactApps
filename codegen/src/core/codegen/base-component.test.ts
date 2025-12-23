@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BaseComponent } from './base-component';
 
 // Create a concrete implementation for testing
@@ -10,8 +10,7 @@ class TestComponent extends BaseComponent {
 }
 
 describe('BaseComponent', () => {
-  let mockSpec: any;
-  let component: TestComponent;
+  let component: TestComponent, mockSpec: any;
 
   beforeEach(() => {
     mockSpec = {
@@ -58,14 +57,14 @@ describe('BaseComponent', () => {
         const invalidComponent = new TestComponent(invalidSpec);
 
         await expect(invalidComponent.initialise()).rejects.toThrow(expectedError);
-      }
+      },
     );
   });
 
   describe('execute', () => {
     it('should return success result with component id and timestamp', async () => {
-      const context = { test: 'data' };
-      const result = await component.execute(context);
+      const context = { test: 'data' },
+        result = await component.execute(context);
 
       expect(result).toEqual({
         success: true,

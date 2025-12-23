@@ -56,10 +56,10 @@ export default {
       },
 
       create(context) {
-        const options = context.options[0] || {};
-        const srcDir = options.srcDir || 'src';
-        const allowBarrelExports = options.allowBarrelExports !== false;
-        const excludePatterns = options.excludePatterns || [
+        const options = context.options[0] || {},
+         srcDir = options.srcDir || 'src',
+         allowBarrelExports = options.allowBarrelExports !== false,
+         excludePatterns = options.excludePatterns || [
           'node_modules',
           '.git',
           'dist',
@@ -72,7 +72,7 @@ export default {
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') return;
+            if (!filePath || filePath === '<input>') {return;}
 
             // Get relative path from project root
             const relativePath = path.relative(process.cwd(), filePath);
@@ -92,22 +92,22 @@ export default {
 
             try {
               // Read the file content
-              const content = fs.readFileSync(filePath, 'utf8');
+              const content = fs.readFileSync(filePath, 'utf8'),
 
               // Count different types of exports
-              const exportedClasses = (content.match(/export\s+(?:abstract\s+)?class\s+\w+/g) || [])
-                .length;
-              const exportedInterfaces = (content.match(/export\s+(interface|type)\s+\w+/g) || [])
-                .length;
-              const exportedFunctions = (
+               exportedClasses = (content.match(/export\s+(?:abstract\s+)?class\s+\w+/g) || [])
+                .length,
+               exportedInterfaces = (content.match(/export\s+(interface|type)\s+\w+/g) || [])
+                .length,
+               exportedFunctions = (
                 content.match(/export\s+(?:async\s+)?function\s+\w+/g) || []
-              ).length;
-              const exportedConstants = (content.match(/export\s+(?:const|let|var)\s+\w+/g) || [])
-                .length;
-              const exportedDefaults = (content.match(/export\s+default/g) || []).length;
+              ).length,
+               exportedConstants = (content.match(/export\s+(?:const|let|var)\s+\w+/g) || [])
+                .length,
+               exportedDefaults = (content.match(/export\s+default/g) || []).length,
 
               // Count total named exports
-              const totalNamedExports =
+               totalNamedExports =
                 exportedClasses + exportedInterfaces + exportedFunctions + exportedConstants;
 
               // Allow files with only default export + optionally one named export (for barrel exports)
@@ -118,11 +118,11 @@ export default {
               // Check for violations
               if (totalNamedExports > 1) {
                 const violations = [];
-                if (exportedClasses > 1) violations.push(`${exportedClasses} classes`);
+                if (exportedClasses > 1) {violations.push(`${exportedClasses} classes`);}
                 if (exportedInterfaces > 1)
-                  violations.push(`${exportedInterfaces} interfaces/types`);
-                if (exportedFunctions > 1) violations.push(`${exportedFunctions} functions`);
-                if (exportedConstants > 1) violations.push(`${exportedConstants} constants`);
+                  {violations.push(`${exportedInterfaces} interfaces/types`);}
+                if (exportedFunctions > 1) {violations.push(`${exportedFunctions} functions`);}
+                if (exportedConstants > 1) {violations.push(`${exportedConstants} constants`);}
 
                 context.report({
                   node,

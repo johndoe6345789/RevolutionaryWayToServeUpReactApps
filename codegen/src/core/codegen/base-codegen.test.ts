@@ -3,13 +3,12 @@
  * Tests for the BaseCodegen class
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { BaseCodegen } from './base-codegen';
 import type { IBaseCodegenOptions } from './interfaces/index';
 
 describe('BaseCodegen', () => {
-  let codegen: BaseCodegen;
-  let mockOptions: IBaseCodegenOptions;
+  let codegen: BaseCodegen, mockOptions: IBaseCodegenOptions;
 
   beforeEach(() => {
     mockOptions = {
@@ -111,8 +110,8 @@ describe('BaseCodegen', () => {
 
   describe('list', () => {
     it('should list registered components', () => {
-      const component1 = { id: 'component1' };
-      const component2 = { id: 'component2' };
+      const component1 = { id: 'component1' },
+        component2 = { id: 'component2' };
       codegen.register('plugin', 'component1', component1);
       codegen.register('plugin', 'component2', component2);
 
@@ -146,7 +145,7 @@ describe('BaseCodegen', () => {
     it('should throw error when not initialized', async () => {
       const context = { operation: 'test' };
       await expect(codegen.execute(context)).rejects.toThrow(
-        'Codegen system not initialized. Call initialize() first.'
+        'Codegen system not initialized. Call initialize() first.',
       );
     });
   });

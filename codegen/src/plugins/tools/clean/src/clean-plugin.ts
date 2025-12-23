@@ -5,7 +5,7 @@
 
 import type { IPluginConfig, IRegistryManager } from '../../../../core/interfaces/index';
 import { BasePlugin } from '../../../../core/base-plugin';
-import { rmSync, existsSync, statSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, rmSync, statSync } from 'fs';
 import { join, resolve } from 'path';
 
 /**
@@ -25,7 +25,7 @@ export class CleanPlugin extends BasePlugin {
       new (require('../../../../core/plugin-spec-loader').PluginSpecLoader)(join(__dirname, '..'));
     (this as any).messageLoader =
       new (require('../../../../core/plugin-message-loader').PluginMessageLoader)(
-        join(__dirname, '..')
+        join(__dirname, '..'),
       );
   }
 
@@ -66,17 +66,16 @@ export class CleanPlugin extends BasePlugin {
    */
   private executeCleanup(context: Record<string, unknown>): unknown {
     const {
-      targets = 'node_modules,dist,build,out,.cache,.next,coverage',
-      dryRun = false,
-      force = false,
-    } = context;
-
-    const targetPatterns = (targets as string).split(',').map((t) => t.trim());
-    const results: Array<{ target: string; removed: boolean; error?: string }> = [];
+        targets = 'node_modules,dist,build,out,.cache,.next,coverage',
+        dryRun = false,
+        force = false,
+      } = context,
+      targetPatterns = (targets as string).split(',').map((t) => t.trim()),
+      results: { target: string; removed: boolean; error?: string }[] = [];
 
     for (const pattern of targetPatterns) {
       try {
-        const removed = this.cleanTarget(pattern, !!dryRun, !!force);
+        const removed = this.cleanTarget(pattern, Boolean(dryRun), Boolean(force));
         results.push({ target: pattern, removed });
       } catch (error) {
         results.push({
@@ -104,9 +103,8 @@ export class CleanPlugin extends BasePlugin {
    * @returns Verification results
    */
   private verifyClean(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.verify?.[platform]) {
       throw new Error(`Clean verification not supported on platform: ${platform}`);
     }
@@ -139,9 +137,8 @@ export class CleanPlugin extends BasePlugin {
    * @returns Help information
    */
   private getCleanHelp(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.help?.[platform]) {
       throw new Error(`Clean help not available on platform: ${platform}`);
     }
@@ -222,7 +219,7 @@ export class CleanPlugin extends BasePlugin {
     rootDir: string,
     dirName: string,
     dryRun: boolean,
-    force: boolean
+    force: boolean,
   ): boolean {
     let removed = false;
 
@@ -231,8 +228,8 @@ export class CleanPlugin extends BasePlugin {
         const items = readdirSync(dir);
 
         for (const item of items) {
-          const fullPath = join(dir, item);
-          const stat = statSync(fullPath);
+          const fullPath = join(dir, item),
+            stat = statSync(fullPath);
 
           if (stat.isDirectory()) {
             if (item === dirName) {
@@ -264,12 +261,10 @@ export class CleanPlugin extends BasePlugin {
    * @param results - Cleanup results
    * @returns Summary string
    */
-  private generateSummary(
-    results: Array<{ target: string; removed: boolean; error?: string }>
-  ): string {
-    const successful = results.filter((r) => r.removed).length;
-    const failed = results.filter((r) => !r.removed).length;
-    const errors = results.filter((r) => r.error).length;
+  private generateSummary(results: { target: string; removed: boolean; error?: string }[]): string {
+    const successful = results.filter((r) => r.removed).length,
+      failed = results.filter((r) => !r.removed).length,
+      errors = results.filter((r) => r.error).length;
 
     let summary = `Cleaned ${successful} targets`;
     if (failed > 0) {

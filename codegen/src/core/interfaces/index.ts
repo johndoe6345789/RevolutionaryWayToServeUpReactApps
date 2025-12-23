@@ -5,41 +5,41 @@
  */
 
 // Aggregation interfaces
-export { IAggregate } from './aggregation/iaggregate';
-export { IAggregator } from './aggregation/iaggregator';
-export { IAggregateResults } from './aggregation/iaggregate-results';
+export type { IAggregate } from './aggregation/iaggregate';
+export type { IAggregator } from './aggregation/iaggregator';
+export type { IAggregateResults } from './aggregation/iaggregate-results';
 
 // Codegen interfaces
-export { IBaseCodegenOptions } from './codegen/ibase-codegen-options';
-export { ICodegenExecutionResults } from './codegen/icodegen-execution-results';
+export type { IBaseCodegenOptions } from './codegen/ibase-codegen-options';
+export type { ICodegenExecutionResults } from './codegen/icodegen-execution-results';
 
 // Common interfaces
-export { IAdapter } from './common/iadapter';
-export { IComponent } from './common/icomponent';
-export { IDependencyInjectionContainer } from './common/idependency-injection-container';
-export { ILifecycleManager } from './common/ilifecycle-manager';
-export { LifecycleState } from './common/lifecycle-state';
+export type { IAdapter } from './common/iadapter';
+export type { IComponent } from './common/icomponent';
+export type { IDependencyInjectionContainer } from './common/idependency-injection-container';
+export type { ILifecycleManager } from './common/ilifecycle-manager';
+export type { LifecycleState } from './common/lifecycle-state';
 
 // Plugin interfaces
-export { IPlugin } from './plugins/iplugin';
-export { IPluginConfig } from './plugins/iplugin-config';
-export { IPluginExecutionResult } from './plugins/iplugin-execution-result';
-export { IPluginInfo } from './plugins/iplugin-info';
-export { IPluginRegistryManager } from './plugins/iplugin-registry-manager';
+export type { IPlugin } from './plugins/iplugin';
+export type { IPluginConfig } from './plugins/iplugin-config';
+export type { IPluginExecutionResult } from './plugins/iplugin-execution-result';
+export type { IPluginInfo } from './plugins/iplugin-info';
+export type { IPluginRegistryManager } from './plugins/iplugin-registry-manager';
 
 // Registry interfaces
-export { IRegistry } from './registry/iregistry';
-export { IRegistryManager } from './registry/iregistry-manager';
+export type { IRegistry } from './registry/iregistry';
+export type { IRegistryManager } from './registry/iregistry-manager';
 
 // Search interfaces
-export { ISearchMetadata } from './search/isearch-metadata';
-export { ISearchMetadataForValidation } from './search/isearch-metadata-for-validation';
+export type { ISearchMetadata } from './search/isearch-metadata';
+export type { ISearchMetadataForValidation } from './search/isearch-metadata-for-validation';
 
 // Spec interfaces
-export { ISpec } from './specs/ispec';
-export { ISpecForValidation } from './specs/ispec-for-validation';
-export { ISpecValidatorOptions } from './specs/ispec-validator-options';
+export type { ISpec } from './specs/ispec';
+export type { ISpecForValidation } from './specs/ispec-for-validation';
+export type { ISpecValidatorOptions } from './specs/ispec-validator-options';
 
 // System interfaces
-export { ISystemStatus } from './system/isystem-status';
-export { IValidationResult } from './system/ivalidation-result';
+export type { ISystemStatus } from './system/isystem-status';
+export type { IValidationResult } from './system/ivalidation-result';

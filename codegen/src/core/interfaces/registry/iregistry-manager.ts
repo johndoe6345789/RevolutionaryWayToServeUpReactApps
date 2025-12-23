@@ -13,13 +13,13 @@ export interface IRegistryManager {
   /**
    *
    */
-  register(type: string, id: string, component: IComponent): void;
+  register: (type: string, id: string, component: IComponent) => void;
   /**
    *
    */
-  getRegistry(type: string): IRegistry;
+  getRegistry: (type: string) => IRegistry;
   /**
    *
    */
-  getAggregate(name: string): IAggregate;
+  getAggregate: (name: string) => IAggregate;
 }

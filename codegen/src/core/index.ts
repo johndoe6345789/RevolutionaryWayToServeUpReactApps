@@ -21,7 +21,8 @@ export { PluginAggregator } from './aggregators/plugin-aggregator';
 
 // Infrastructure - NEW: Functional error handling and logging
 export { logger, log } from './logging/logger';
-export { ok, err, isOk, isErr, map, andThen, collect, Result, ResultAsync } from './types/result';
+export type { Result, ResultAsync } from './types/result';
+export { ok, err, isOk, isErr, map, andThen, collect } from './types/result';
 
 // Re-export interfaces
-export * from './interfaces/index';
+export type * from './interfaces/index';

@@ -36,7 +36,7 @@ interface PluginDependency {
  */
 export class PluginDependencyLinter {
   private readonly pluginsDir: string;
-  private readonly discoveredPlugins: Map<string, PluginDependency> = new Map();
+  private readonly discoveredPlugins = new Map<string, PluginDependency>();
 
   constructor(pluginsDir = path.join(__dirname, '../plugins')) {
     this.pluginsDir = pluginsDir;
@@ -47,7 +47,9 @@ export class PluginDependencyLinter {
    * @param deps
    */
   private extractDependencies(deps?: string[] | { core?: string; plugins?: string[] }): string[] {
-    if (!deps) return [];
+    if (!deps) {
+      return [];
+    }
 
     if (Array.isArray(deps)) {
       return deps;
@@ -76,8 +78,8 @@ export class PluginDependencyLinter {
     this.discoverPlugins();
 
     // Analyze dependencies
-    const circularDeps = this.detectCircularDependencies();
-    const warnings = this.validateDependencies();
+    const circularDeps = this.detectCircularDependencies(),
+      warnings = this.validateDependencies();
 
     return {
       success: circularDeps.length === 0,
@@ -103,13 +105,13 @@ export class PluginDependencyLinter {
       const items = fs.readdirSync(categoryDir);
 
       for (const item of items) {
-        const pluginDir = path.join(categoryDir, item);
-        const manifestPath = path.join(pluginDir, 'plugin.json');
+        const pluginDir = path.join(categoryDir, item),
+          manifestPath = path.join(pluginDir, 'plugin.json');
 
         if (fs.existsSync(manifestPath)) {
           try {
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as PluginManifest;
-            const entryPath = path.join(pluginDir, manifest.entry_point);
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as PluginManifest,
+              entryPath = path.join(pluginDir, manifest.entry_point);
 
             this.discoveredPlugins.set(manifest.id, {
               pluginId: manifest.id,
@@ -129,37 +131,36 @@ export class PluginDependencyLinter {
    * Detect circular dependencies using DFS
    */
   private detectCircularDependencies(): string[][] {
-    const circularDeps: string[][] = [];
-    const visited = new Set<string>();
-    const recursionStack = new Set<string>();
+    const circularDeps: string[][] = [],
+      visited = new Set<string>(),
+      recursionStack = new Set<string>(),
+      dfs = (pluginId: string, currentPath: string[]): boolean => {
+        if (recursionStack.has(pluginId)) {
+          // Found cycle
+          const cycleStart = currentPath.indexOf(pluginId);
+          circularDeps.push([...currentPath.slice(cycleStart), pluginId]);
+          return true;
+        }
 
-    const dfs = (pluginId: string, currentPath: string[]): boolean => {
-      if (recursionStack.has(pluginId)) {
-        // Found cycle
-        const cycleStart = currentPath.indexOf(pluginId);
-        circularDeps.push([...currentPath.slice(cycleStart), pluginId]);
-        return true;
-      }
+        if (visited.has(pluginId)) {
+          return false;
+        }
 
-      if (visited.has(pluginId)) {
-        return false;
-      }
+        visited.add(pluginId);
+        recursionStack.add(pluginId);
 
-      visited.add(pluginId);
-      recursionStack.add(pluginId);
-
-      const plugin = this.discoveredPlugins.get(pluginId);
-      if (plugin) {
-        for (const depId of plugin.dependencies) {
-          if (dfs(depId, [...currentPath, pluginId])) {
-            return true;
+        const plugin = this.discoveredPlugins.get(pluginId);
+        if (plugin) {
+          for (const depId of plugin.dependencies) {
+            if (dfs(depId, [...currentPath, pluginId])) {
+              return true;
+            }
           }
         }
-      }
 
-      recursionStack.delete(pluginId);
-      return false;
-    };
+        recursionStack.delete(pluginId);
+        return false;
+      };
 
     for (const pluginId of this.discoveredPlugins.keys()) {
       if (!visited.has(pluginId)) {
@@ -219,11 +220,11 @@ export class PluginDependencyLinter {
   /**
    * Get plugin information
    */
-  public getPluginInfo(): Array<{
+  public getPluginInfo(): {
     id: string;
     dependencies: string[];
     entryPoint: string;
-  }> {
+  }[] {
     return Array.from(this.discoveredPlugins.values()).map((plugin) => ({
       id: plugin.pluginId,
       dependencies: plugin.dependencies,

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { DependencyInjectionContainer } from './dependency-injection';
 
 describe('DependencyInjectionContainer', () => {
@@ -72,7 +72,7 @@ describe('DependencyInjectionContainer', () => {
      *
      */
     class ParamService {
-      constructor(public value: string = 'default') {}
+      constructor(public value = 'default') {}
     }
     /**
      *
@@ -131,8 +131,8 @@ describe('DependencyInjectionContainer', () => {
     });
 
     it('should return new instance on each resolve call', () => {
-      const instance1 = container.resolve('testService');
-      const instance2 = container.resolve('testService');
+      const instance1 = container.resolve('testService'),
+        instance2 = container.resolve('testService');
 
       expect(instance1).not.toBe(instance2);
       expect(instance1).toBeInstanceOf(TestService);
@@ -149,8 +149,8 @@ describe('DependencyInjectionContainer', () => {
         container.register(token, TestService);
       }
 
-      const instance1 = container.resolve('testService');
-      const instance2 = container.resolve(token);
+      const instance1 = container.resolve('testService'),
+        instance2 = container.resolve(token);
 
       expect(instance1).toBeInstanceOf(TestService);
       expect(instance2).toBeInstanceOf(TestService);
@@ -279,12 +279,12 @@ describe('DependencyInjectionContainer', () => {
     ])(
       'should provide singleton-like behavior within resolution context for %s',
       (description, token) => {
-        const instance1 = container.resolve(token);
-        const instance2 = container.resolve(token);
+        const instance1 = container.resolve(token),
+          instance2 = container.resolve(token);
 
         expect(instance1).not.toBe(instance2); // New instances each time
         expect(instance1).toBeInstanceOf((instance2 as any).constructor);
-      }
+      },
     );
   });
 });

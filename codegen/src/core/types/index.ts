@@ -1,4 +1,4 @@
 // Core type exports
 export * from './result';
-export * from './messaging';
+export type * from './messaging';
 export * from './lifecycle';

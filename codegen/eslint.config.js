@@ -190,7 +190,11 @@ export default [
     },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-console': 'warn',
+      'no-console': 'off', // Allow console in scripts
+      'no-underscore-dangle': 'off', // Allow __dirname in scripts
+      'func-style': 'off', // Allow function declarations in scripts
+      'one-var': 'off', // Allow multiple const declarations
+      'no-magic-numbers': 'off', // Allow magic numbers in scripts
     },
   },
   {

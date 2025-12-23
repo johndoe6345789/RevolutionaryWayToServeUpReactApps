@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Registry } from './registry';
 
 // Create a concrete implementation for testing
@@ -40,10 +40,10 @@ class MockComponent {
 }
 
 describe('Registry', () => {
-  let registry: TestRegistry;
-  let mockComponent1: MockComponent;
-  let mockComponent2: MockComponent;
-  let mockComponent3: MockComponent;
+  let mockComponent1: MockComponent,
+    mockComponent2: MockComponent,
+    mockComponent3: MockComponent,
+    registry: TestRegistry;
 
   beforeEach(() => {
     registry = new TestRegistry();
@@ -83,15 +83,15 @@ describe('Registry', () => {
     });
 
     it('should return empty array for cleared registry', () => {
-      const emptyRegistry = new TestRegistry();
-      const result = emptyRegistry.listIds();
+      const emptyRegistry = new TestRegistry(),
+        result = emptyRegistry.listIds();
       expect(result).toEqual([]);
       expect(result).toHaveLength(0);
     });
 
     it('should return new array instance each time', () => {
-      const result1 = registry.listIds();
-      const result2 = registry.listIds();
+      const result1 = registry.listIds(),
+        result2 = registry.listIds();
       expect(result1).not.toBe(result2);
       expect(result1).toEqual(result2);
     });
@@ -142,11 +142,11 @@ describe('Registry', () => {
         // Add a component with ID that matches another component's UUID
         const conflictingComponent = new MockComponent(
           '44444444-4444-4444-4444-444444444444',
-          '22222222-2222-2222-2222-222222222222'
+          '22222222-2222-2222-2222-222222222222',
         );
         (registry as any).components.set(
           '22222222-2222-2222-2222-222222222222',
-          conflictingComponent
+          conflictingComponent,
         );
 
         // Should return component with matching ID, not UUID
@@ -251,11 +251,11 @@ describe('Registry', () => {
     it('should validate proper component objects', () => {
       // Test with plain objects that match the expected interface
       const validComponent = {
-        uuid: '12345678-1234-4123-8123-123456789012',
-        id: 'test-id',
-        search: { title: 'Test' },
-      };
-      const result = (registry as any)._validateComponent(validComponent);
+          uuid: '12345678-1234-4123-8123-123456789012',
+          id: 'test-id',
+          search: { title: 'Test' },
+        },
+        result = (registry as any)._validateComponent(validComponent);
       expect(result).toBe(true);
     });
 
@@ -283,8 +283,8 @@ describe('Registry', () => {
         ['empty string UUID', '', false],
         ['number UUID', 123456789, false],
       ])('should validate UUID in component: %s', (description, uuid, expectedValid) => {
-        const component = { uuid, id: 'test-id', search: { title: 'Test' } };
-        const result = (registry as any)._validateComponent(component);
+        const component = { uuid, id: 'test-id', search: { title: 'Test' } },
+          result = (registry as any)._validateComponent(component);
         expect(result).toBe(expectedValid);
       });
     });
@@ -333,8 +333,8 @@ describe('Registry', () => {
       expect(component).toBe(mockComponent1);
 
       // Verify components are not modifiable through registry
-      const list1 = registry.listIds();
-      const list2 = registry.listIds();
+      const list1 = registry.listIds(),
+        list2 = registry.listIds();
       expect(list1).not.toBe(list2); // Different array instances
       expect(list1).toEqual(list2); // Same content
     });

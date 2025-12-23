@@ -3,13 +3,12 @@
  * Tests for the Aggregate base class
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Aggregate } from './aggregate';
 import type { ISpec } from './interfaces/index';
 
 describe('Aggregate', () => {
-  let mockSpec: ISpec;
-  let aggregate: Aggregate;
+  let aggregate: Aggregate, mockSpec: ISpec;
 
   beforeEach(() => {
     mockSpec = {
@@ -68,7 +67,7 @@ describe('Aggregate', () => {
          * @param _items
          * @returns Promise resolving to processed items
          */
-        protected _processItems(_items: unknown[]): Promise<unknown[]> {
+        protected async _processItems(_items: unknown[]): Promise<unknown[]> {
           return Promise.resolve([]);
         }
         /**
@@ -93,21 +92,21 @@ describe('Aggregate', () => {
 
   describe('execute', () => {
     it('should execute with valid input', async () => {
-      const input = { items: [1, 2, 3] };
-      const result = await aggregate.execute(input);
+      const input = { items: [1, 2, 3] },
+        result = await aggregate.execute(input);
       expect(result).toBeDefined();
       expect(typeof result).toBe('object');
     });
 
     it('should handle empty input', async () => {
-      const input = { items: [] };
-      const result = await aggregate.execute(input);
+      const input = { items: [] },
+        result = await aggregate.execute(input);
       expect(result).toBeDefined();
     });
 
     it('should execute with string input', async () => {
-      const input = { operation: 'test' };
-      const result = await aggregate.execute(input);
+      const input = { operation: 'test' },
+        result = await aggregate.execute(input);
       expect(result).toBeDefined();
     });
   });

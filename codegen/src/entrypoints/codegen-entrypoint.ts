@@ -73,8 +73,8 @@ export class CodegenEntrypoint extends BaseComponent {
    * @param args
    */
   public async runCLI(args: string[]): Promise<void> {
-    const command = args[0] || 'help';
-    const options = this._parseCLIArgs(args.slice(1));
+    const command = args[0] || 'help',
+      options = this._parseCLIArgs(args.slice(1));
 
     try {
       await this.initialise();
@@ -121,15 +121,14 @@ export class CodegenEntrypoint extends BaseComponent {
    */
   private async _runGenerate(options: CLIArgs): Promise<void> {
     const context = {
-      operation: 'generate',
-      specPath: options.spec,
-      outputDir: options.output,
-      language: options.language,
-      profile: options.profile,
-      template: options.template,
-    };
-
-    const target = this.drillDown(['ExecutionAggregator']);
+        operation: 'generate',
+        specPath: options.spec,
+        outputDir: options.output,
+        language: options.language,
+        profile: options.profile,
+        template: options.template,
+      },
+      target = this.drillDown(['ExecutionAggregator']);
     if (target) {
       await target.execute(context);
     }
@@ -181,9 +180,8 @@ export class CodegenEntrypoint extends BaseComponent {
    * @param options
    */
   private async _runSearch(options: CLIArgs): Promise<void> {
-    const query = options.query;
+    const { query } = options;
     if (!query) {
-      return;
     }
   }
 

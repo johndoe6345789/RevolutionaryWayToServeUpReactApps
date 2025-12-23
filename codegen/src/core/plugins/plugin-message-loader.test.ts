@@ -3,7 +3,7 @@
  * Tests for the PluginMessageLoader class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PluginMessageLoader } from './plugin-message-loader';
 import * as fs from 'fs';
 
@@ -11,8 +11,7 @@ import * as fs from 'fs';
 vi.mock('fs');
 
 describe('PluginMessageLoader', () => {
-  let loader: PluginMessageLoader;
-  let mockBasePath: string;
+  let loader: PluginMessageLoader, mockBasePath: string;
 
   beforeEach(() => {
     mockBasePath = '/test/path';
@@ -40,7 +39,7 @@ describe('PluginMessageLoader', () => {
       expect(result).toEqual(mockMessages);
       expect(fs.readFileSync).toHaveBeenCalledWith(
         expect.stringContaining('messages.json'),
-        'utf8'
+        'utf8',
       );
     });
 
@@ -71,19 +70,19 @@ describe('PluginMessageLoader', () => {
 
     it('should reject null messages', () => {
       expect(
-        loader.validateMessages(null as unknown as Record<string, Record<string, string>>)
+        loader.validateMessages(null as unknown as Record<string, Record<string, string>>),
       ).toBe(false);
     });
 
     it('should reject non-object messages', () => {
       expect(
-        loader.validateMessages('string' as unknown as Record<string, Record<string, string>>)
+        loader.validateMessages('string' as unknown as Record<string, Record<string, string>>),
       ).toBe(false);
     });
 
     it('should reject invalid locale structure', () => {
       const invalidMessages = {
-        en: { hello: 'Hello', goodbye: 123 }, // number instead of string
+        en: { hello: 'Hello', goodbye: 123 }, // Number instead of string
       };
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

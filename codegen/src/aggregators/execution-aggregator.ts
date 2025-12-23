@@ -119,7 +119,7 @@ export class ExecutionAggregator extends BaseAggregator {
             /**
              *
              */
-            shutdown(): Promise<void>;
+            shutdown: () => Promise<void>;
           }
         ).shutdown();
       }

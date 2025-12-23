@@ -3,13 +3,12 @@
  * Tests for the Plugin base class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Plugin } from './plugin';
-import type { ISpec, IPluginRegistryManager } from './interfaces/index';
+import type { IPluginRegistryManager, ISpec } from './interfaces/index';
 
 describe('Plugin', () => {
-  let plugin: Plugin;
-  let mockSpec: ISpec;
+  let mockSpec: ISpec, plugin: Plugin;
 
   beforeEach(() => {
     mockSpec = {
@@ -68,20 +67,20 @@ describe('Plugin', () => {
       expect(result).toBe(plugin);
       // Create a plugin instance to check initialized state
       const initializedPlugin = new (class extends Plugin {
-        constructor() {
-          super(mockSpec);
-        }
-        /**
-         *
-         */
-        async initializeAndCheck() {
-          await this.initialise();
+          constructor() {
+            super(mockSpec);
+          }
+          /**
+           *
+           */
+          async initializeAndCheck() {
+            await this.initialise();
 
-          return (this as any).initialised;
-        }
-      })();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const isInitialized = await initializedPlugin.initializeAndCheck();
+            return (this as any).initialised;
+          }
+        })(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        isInitialized = await initializedPlugin.initializeAndCheck();
       expect(isInitialized).toBe(true);
     });
   });
@@ -100,28 +99,28 @@ describe('Plugin', () => {
       await plugin.register(mockRegistryManager);
       // Create a plugin instance to check initialized state
       const registeredPlugin = new (class extends Plugin {
-        constructor() {
-          super(mockSpec);
-        }
-        /**
-         *
-         */
-        async registerAndCheck() {
-          await this.register(mockRegistryManager);
+          constructor() {
+            super(mockSpec);
+          }
+          /**
+           *
+           */
+          async registerAndCheck() {
+            await this.register(mockRegistryManager);
 
-          return (this as any).initialised;
-        }
-      })();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const isInitialized = await registeredPlugin.registerAndCheck();
+            return (this as any).initialised;
+          }
+        })(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        isInitialized = await registeredPlugin.registerAndCheck();
       expect(isInitialized).toBe(true);
     });
   });
 
   describe('execute', () => {
     it('should initialize if not initialized and return default result', async () => {
-      const context = { operation: 'test' };
-      const result = await plugin.execute(context);
+      const context = { operation: 'test' },
+        result = await plugin.execute(context);
       expect(result).toEqual({
         success: true,
         plugin: mockSpec.id,

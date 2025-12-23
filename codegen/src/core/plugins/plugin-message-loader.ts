@@ -4,7 +4,7 @@
  * Single responsibility: message loading and validation
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -48,7 +48,7 @@ export class PluginMessageLoader {
       (localeMessages) =>
         typeof localeMessages === 'object' &&
         localeMessages !== null &&
-        Object.values(localeMessages).every((msg) => typeof msg === 'string')
+        Object.values(localeMessages).every((msg) => typeof msg === 'string'),
     );
   }
 }

@@ -59,11 +59,9 @@ export class GitPlugin extends BasePlugin {
    * @returns Installation results
    */
   private installGit(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-    const packageManager =
-      (context.packageManager as string) || this.detectPackageManager(platform);
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      packageManager = (context.packageManager as string) || this.detectPackageManager(platform),
+      { spec } = this;
     if (!spec.install?.[platform]) {
       throw new Error(`Git installation not supported on platform: ${platform}`);
     }
@@ -91,15 +89,14 @@ export class GitPlugin extends BasePlugin {
    * @returns Verification results
    */
   private verifyGit(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.verify?.[platform]) {
       throw new Error(`Git verification not supported on platform: ${platform}`);
     }
 
-    const verifyCommand = spec.verify[platform];
-    const output = execSync(verifyCommand.join(' '), { encoding: 'utf8' });
+    const verifyCommand = spec.verify[platform],
+      output = execSync(verifyCommand.join(' '), { encoding: 'utf8' });
 
     this.verified = true;
     return {
@@ -123,11 +120,11 @@ export class GitPlugin extends BasePlugin {
       throw new Error('Git command not specified');
     }
 
-    const fullCommand = ['git', command as string, ...(args as string[])];
-    const execOptions: Record<string, unknown> = {
-      encoding: 'utf8',
-      maxBuffer: 1024 * 1024 * 10, // 10MB buffer
-    };
+    const fullCommand = ['git', command as string, ...(args as string[])],
+      execOptions: Record<string, unknown> = {
+        encoding: 'utf8',
+        maxBuffer: 1024 * 1024 * 10, // 10MB buffer
+      };
 
     if (cwd) {
       execOptions.cwd = cwd;
@@ -163,15 +160,14 @@ export class GitPlugin extends BasePlugin {
    * @returns Help information
    */
   private getGitHelp(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform;
-
-    const spec = this.spec;
+    const platform = (context.platform as string) || process.platform,
+      { spec } = this;
     if (!spec.help?.[platform]) {
       throw new Error(`Git help not available on platform: ${platform}`);
     }
 
-    const helpCommand = spec.help[platform];
-    const output = execSync(helpCommand.join(' '), { encoding: 'utf8' });
+    const helpCommand = spec.help[platform],
+      output = execSync(helpCommand.join(' '), { encoding: 'utf8' });
 
     return {
       platform,

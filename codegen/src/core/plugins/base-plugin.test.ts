@@ -4,9 +4,9 @@
  */
 
 import type { Mocked } from 'vitest';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BasePlugin } from './base-plugin';
-import type { IPluginConfig, ISpec, IRegistryManager } from './interfaces/index';
+import type { IPluginConfig, IRegistryManager, ISpec } from './interfaces/index';
 import { PluginSpecLoader } from './plugin-spec-loader';
 import { PluginMessageLoader } from './plugin-message-loader';
 
@@ -15,10 +15,10 @@ vi.mock('./plugin-spec-loader');
 vi.mock('./plugin-message-loader');
 
 describe('BasePlugin', () => {
-  let plugin: BasePlugin;
-  let mockConfig: IPluginConfig;
-  let mockSpecLoader: Mocked<PluginSpecLoader>;
-  let mockMessageLoader: Mocked<PluginMessageLoader>;
+  let mockConfig: IPluginConfig,
+    mockMessageLoader: Mocked<PluginMessageLoader>,
+    mockSpecLoader: Mocked<PluginSpecLoader>,
+    plugin: BasePlugin;
 
   beforeEach(() => {
     mockConfig = {
@@ -133,23 +133,22 @@ describe('BasePlugin', () => {
   describe('register', () => {
     it('should initialize plugin if not initialized', async () => {
       const mockRegistryManager: IRegistryManager = {
-        register: vi.fn(),
-        getRegistry: vi.fn(),
-        getAggregate: vi.fn(),
-      };
-
-      const mockSpec: ISpec = {
-        uuid: 'test-uuid-123',
-        id: 'test-plugin',
-        type: 'plugin',
-        search: {
-          title: 'Test Plugin',
-          summary: 'Test plugin',
-          keywords: ['test'],
-          domain: 'test',
-          capabilities: ['testing'],
+          register: vi.fn(),
+          getRegistry: vi.fn(),
+          getAggregate: vi.fn(),
         },
-      };
+        mockSpec: ISpec = {
+          uuid: 'test-uuid-123',
+          id: 'test-plugin',
+          type: 'plugin',
+          search: {
+            title: 'Test Plugin',
+            summary: 'Test plugin',
+            keywords: ['test'],
+            domain: 'test',
+            capabilities: ['testing'],
+          },
+        };
 
       mockSpecLoader.loadSpec.mockResolvedValue(mockSpec);
       mockSpecLoader.validateSpec.mockReturnValue(true);

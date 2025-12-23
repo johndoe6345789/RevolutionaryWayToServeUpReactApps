@@ -16,17 +16,17 @@ export interface IPlugin extends IComponent {
   /**
    *
    */
-  getSpec(): Promise<ISpec>;
+  getSpec: () => Promise<ISpec>;
   /**
    *
    */
-  getMessages(): Promise<Record<string, Record<string, string>>>;
+  getMessages: () => Promise<Record<string, Record<string, string>>>;
   /**
    *
    */
-  register(registryManager: IRegistryManager): Promise<void>;
+  register: (registryManager: IRegistryManager) => Promise<void>;
   /**
    *
    */
-  shutdown(): Promise<void>;
+  shutdown: () => Promise<void>;
 }

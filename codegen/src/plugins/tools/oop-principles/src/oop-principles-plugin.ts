@@ -72,13 +72,12 @@ export class OOPPrinciplesPlugin extends Plugin {
     }
 
     const results: AnalysisResults = {
-      success: true,
-      violations: [],
-      summary: { analyzed: 0, compliant: 0, violations: 0 },
-    };
-
-    // Analyze current codebase for AGENTS.md compliance
-    const analysis = this._analyzeCodebase(context);
+        success: true,
+        violations: [],
+        summary: { analyzed: 0, compliant: 0, violations: 0 },
+      },
+      // Analyze current codebase for AGENTS.md compliance
+      analysis = this._analyzeCodebase(context);
     results.violations = analysis.violations;
     results.summary = analysis.summary;
 
@@ -94,8 +93,8 @@ export class OOPPrinciplesPlugin extends Plugin {
     violations: string[];
     summary: { analyzed: number; compliant: number; violations: number };
   } {
-    const violations: string[] = [];
-    const summary = { analyzed: 0, compliant: 0, violations: 0 };
+    const violations: string[] = [],
+      summary = { analyzed: 0, compliant: 0, violations: 0 };
 
     // Simple analysis - can be expanded later
     // This is a placeholder for the full analysis logic

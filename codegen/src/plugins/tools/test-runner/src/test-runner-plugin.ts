@@ -83,13 +83,12 @@ export class TestRunnerPlugin extends Plugin {
     }
 
     const results: TestResults = {
-      success: true,
-      framework: 'bun',
-      summary: { total: 0, passed: 0, failed: 0 },
-    };
-
-    // Execute tests using detected framework
-    const execution = this._executeTests(context);
+        success: true,
+        framework: 'bun',
+        summary: { total: 0, passed: 0, failed: 0 },
+      },
+      // Execute tests using detected framework
+      execution = this._executeTests(context);
     results.summary = execution.summary;
 
     return results;

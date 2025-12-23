@@ -3,13 +3,12 @@
  * Tests for the CodegenEntrypoint class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodegenEntrypoint } from './codegen-entrypoint';
 import type { IAggregator } from '../core/interfaces/index';
 
 describe('CodegenEntrypoint', () => {
-  let entrypoint: CodegenEntrypoint;
-  let mockAggregator: IAggregator;
+  let entrypoint: CodegenEntrypoint, mockAggregator: IAggregator;
 
   beforeEach(() => {
     mockAggregator = {

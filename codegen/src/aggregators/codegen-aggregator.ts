@@ -33,30 +33,29 @@ export class CodegenAggregator extends BaseAggregator {
 
     // Create and initialize child aggregators
     const pluginAggregator = new PluginAggregator({
-      uuid: 'plugin-agg-uuid',
-      id: 'PluginAggregator',
-      type: 'aggregator',
-      search: {
-        title: 'Plugin Aggregator',
-        summary: 'Manages plugin discovery and loading',
-        keywords: ['plugin', 'aggregator'],
-        domain: 'core',
-        capabilities: ['discovery', 'loading'],
-      },
-    });
-
-    const executionAggregator = new ExecutionAggregator({
-      uuid: 'exec-agg-uuid',
-      id: 'ExecutionAggregator',
-      type: 'aggregator',
-      search: {
-        title: 'Execution Aggregator',
-        summary: 'Coordinates code generation execution',
-        keywords: ['execution', 'aggregator'],
-        domain: 'core',
-        capabilities: ['execution', 'coordination'],
-      },
-    });
+        uuid: 'plugin-agg-uuid',
+        id: 'PluginAggregator',
+        type: 'aggregator',
+        search: {
+          title: 'Plugin Aggregator',
+          summary: 'Manages plugin discovery and loading',
+          keywords: ['plugin', 'aggregator'],
+          domain: 'core',
+          capabilities: ['discovery', 'loading'],
+        },
+      }),
+      executionAggregator = new ExecutionAggregator({
+        uuid: 'exec-agg-uuid',
+        id: 'ExecutionAggregator',
+        type: 'aggregator',
+        search: {
+          title: 'Execution Aggregator',
+          summary: 'Coordinates code generation execution',
+          keywords: ['execution', 'aggregator'],
+          domain: 'core',
+          capabilities: ['execution', 'coordination'],
+        },
+      });
 
     // Initialize aggregators
     await pluginAggregator.initialise();
@@ -102,7 +101,7 @@ export class CodegenAggregator extends BaseAggregator {
             /**
              *
              */
-            shutdown(): Promise<void>;
+            shutdown: () => Promise<void>;
           }
         ).shutdown();
       }

@@ -14,24 +14,24 @@ export interface IAggregator extends IComponent {
    * @param path - Single path segment
    * @returns Child aggregator or component
    */
-  getChild(path: string): IAggregator | IComponent | null;
+  getChild: (path: string) => IAggregator | IComponent | null;
 
   /**
    * Drill down through multiple path segments (unlimited depth)
    * @param path - Array of path segments
    * @returns Target component or null
    */
-  drillDown(path: readonly string[]): IAggregator | IComponent | null;
+  drillDown: (path: readonly string[]) => IAggregator | IComponent | null;
 
   /**
    * List child component IDs
    * @returns Array of child IDs
    */
-  listChildren(): readonly string[];
+  listChildren: () => readonly string[];
 
   /**
    * Get current lifecycle state
    * @returns Current lifecycle state
    */
-  getLifecycleState(): LifecycleState;
+  getLifecycleState: () => LifecycleState;
 }
