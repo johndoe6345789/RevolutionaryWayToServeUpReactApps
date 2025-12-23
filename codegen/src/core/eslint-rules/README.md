@@ -139,58 +139,15 @@ README file "src/components/README.md" is too short (25 characters, minimum 50).
 }
 ```
 
-## require-docstrings
+**Usage**: All three rules run automatically as part of the project's linting process and help maintain comprehensive code quality, documentation, and organizational standards across the codebase.
 
-**Purpose**: Ensures comprehensive API documentation by requiring JSDoc comments on classes, interfaces, and methods, promoting maintainable and well-documented codebases.
+## Additional JSDoc Rules
 
-**What it detects**:
-- Classes without JSDoc documentation
-- Interfaces without JSDoc documentation
-- Methods (both class and interface) without JSDoc documentation
-- Properties without JSDoc documentation (optional)
-- Missing @param documentation for method parameters
-- Missing @return documentation for non-void methods
-- Missing @throws documentation for methods with throw statements
-- Insufficient JSDoc description length
+The project also uses `eslint-plugin-jsdoc` for comprehensive JSDoc documentation enforcement:
 
-**Why this matters**: Proper documentation is essential for:
-- **API usability** - Clear contracts for how to use classes and methods
-- **Code maintenance** - Future developers understand purpose and usage
-- **Type safety** - JSDoc provides additional type information
-- **IDE support** - Better IntelliSense and autocomplete
-- **Professional standards** - Well-documented APIs are more trustworthy
+- `jsdoc/require-jsdoc` - Requires JSDoc comments on classes, interfaces, and methods
+- `jsdoc/require-param` - Requires @param documentation for method parameters
+- `jsdoc/require-returns` - Requires @return documentation for non-void methods
+- `jsdoc/require-throws` - Requires @throws documentation for methods with throw statements
 
-**Example violations**:
-```
-Class "UserService" requires JSDoc documentation.
-Method "validateEmail" requires JSDoc documentation.
-Parameter "email" in method "validateEmail" requires @param documentation.
-Method "saveUser" requires @return documentation.
-JSDoc comment for "getUserById" must have a description of at least 10 characters.
-```
-
-**Recommended solutions**:
-- Add comprehensive JSDoc comments to all public APIs
-- Document parameters with @param tags
-- Document return values with @return/@returns tags
-- Document thrown exceptions with @throws/@throw tags
-- Keep documentation current with code changes
-
-**Configuration options**:
-```json
-{
-  "requireClassDocs": true,
-  "requireInterfaceDocs": true,
-  "requireMethodDocs": true,
-  "requirePropertyDocs": false,
-  "excludePrivate": true,
-  "excludeConstructors": true,
-  "excludeGettersSetters": true,
-  "minDescriptionLength": 10,
-  "requireParams": true,
-  "requireReturns": true,
-  "requireThrows": false
-}
-```
-
-**Usage**: All four rules run automatically as part of the project's linting process and help maintain comprehensive code quality, documentation, and organizational standards across the codebase.
+These rules ensure proper API documentation and are configured to exclude constructors, getters, and setters for cleaner code.

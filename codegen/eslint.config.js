@@ -2,10 +2,10 @@ import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
+import jsdoc from 'eslint-plugin-jsdoc';
 import noHardcodedStrings from './src/core/eslint-rules/no-hardcoded-strings.js';
 import noLargeDirectories from './src/core/eslint-rules/no-large-directories.js';
 import requireReadme from './src/core/eslint-rules/require-readme.js';
-import requireDocstrings from './src/core/eslint-rules/require-docstrings.js';
 
 export default [
   js.configs.recommended,
@@ -31,10 +31,10 @@ export default [
     plugins: {
       '@typescript-eslint': tseslint,
       prettier,
+      jsdoc,
       'no-hardcoded-strings': noHardcodedStrings,
       'no-large-directories': noLargeDirectories,
       'require-readme': requireReadme,
-      'require-docstrings': requireDocstrings,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
@@ -104,19 +104,23 @@ export default [
         minContentLength: 50,
         checkContent: true,
       }],
-      'require-docstrings/require-docstrings': ['warn', {
-        requireClassDocs: true,
-        requireInterfaceDocs: true,
-        requireMethodDocs: true,
-        requirePropertyDocs: false,
-        excludePrivate: true,
-        excludeConstructors: true,
-        excludeGettersSetters: true,
-        minDescriptionLength: 10,
-        requireParams: true,
-        requireReturns: true,
-        requireThrows: false,
+      'jsdoc/require-jsdoc': ['warn', {
+        require: {
+          ClassDeclaration: true,
+          MethodDefinition: true,
+          FunctionDeclaration: false,
+        },
+        contexts: [
+          'TSInterfaceDeclaration',
+          'TSMethodSignature',
+        ],
+        checkConstructors: false,
+        checkGetters: false,
+        checkSetters: false,
       }],
+      'jsdoc/require-param': 'warn',
+      'jsdoc/require-returns': 'warn',
+      'jsdoc/require-throws': 'warn',
     },
   },
   {
