@@ -151,21 +151,146 @@
       "id": "webui.api.generate",
       "route": "/api/generate",
       "method": "POST",
-      "description": "Generate artifact from specs"
+      "description": "Generate artifact from specs",
+      "params": [
+        {
+          "name": "format",
+          "in": "query",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "body": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "type": "object",
+              "required": true,
+              "properties": {
+                "name": { "type": "string", "required": true },
+                "version": { "type": "string" }
+              }
+            },
+            "optimize": { "type": "boolean" }
+          }
+        }
+      },
+      "responses": {
+        "success": {
+          "status": 201,
+          "description": "Artifact generated",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": { "type": "boolean" },
+              "artifactId": { "type": "string" },
+              "format": { "type": "string" }
+            }
+          }
+        },
+        "errors": [
+          {
+            "status": 400,
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "errors": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        ]
+      }
     },
     "preview": {
       "uuid": "550e8400-e29b-41d4-a716-446655440029",
       "id": "webui.api.preview",
       "route": "/api/preview",
       "method": "POST",
-      "description": "Generate preview of code output"
+      "description": "Generate preview of code output",
+      "body": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "snippet": { "type": "string", "required": true },
+            "language": { "type": "string", "required": true }
+          }
+        }
+      },
+      "responses": {
+        "success": {
+          "status": 200,
+          "description": "Preview generated",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": { "type": "boolean" },
+              "preview": { "type": "string" }
+            }
+          }
+        },
+        "errors": [
+          {
+            "status": 422,
+            "description": "Preview generation failed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        ]
+      }
     },
     "search": {
       "uuid": "550e8400-e29b-41d4-a716-446655440030",
       "id": "webui.api.search",
       "route": "/api/search",
       "method": "GET",
-      "description": "Search components by query and filters"
+      "description": "Search components by query and filters",
+      "params": [
+        { "name": "q", "in": "query", "type": "string", "required": true },
+        { "name": "limit", "in": "query", "type": "number" }
+      ],
+      "responses": {
+        "success": {
+          "status": 200,
+          "description": "Search results",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": { "type": "boolean" },
+              "results": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "errors": [
+          {
+            "status": 400,
+            "description": "Missing query",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        ]
+      }
     }
   },
   "implementation": {
