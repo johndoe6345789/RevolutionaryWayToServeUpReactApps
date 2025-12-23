@@ -1,52 +1,88 @@
 const BaseClass = require('../bootstrap/base/base-class.js');
-const fs = require('fs');
-const path = require('path');
+const { StringLoader } = require('./string-loader.js');
+const { StringCache } = require('./string-cache.js');
+const { StringValidator } = require('./string-validator.js');
 
 /**
- * String Service for centralized access to internationalized strings and configuration data
+ * StringService - Enterprise-grade internationalization service
+ * Single responsibility: Provide internationalized strings with caching and validation
  */
 class StringService extends BaseClass {
-  constructor(data = {}) {
-    super(data);
+  constructor(config = {}) {
+    super(config);
+    this.loader = new StringLoader(config.loader);
+    this.cache = new StringCache(config.cache);
+    this.validator = new StringValidator(config.validator);
+
+    this.currentLanguage = config.defaultLanguage || 'en';
+    this.fallbackLanguage = config.fallbackLanguage || 'en';
     this.data = null;
-    this.currentLanguage = 'en';
-    this.fallbackLanguage = 'en';
-    this.loadData();
+    this.initialized = false;
   }
 
   /**
-   * Load the unified data file
+   * Initialize the service (lazy loading)
    */
-  loadData() {
-    try {
-      // Load strings.json
-      const dataPath = path.resolve(__dirname, 'strings.json');
-      const rawData = fs.readFileSync(dataPath, 'utf8');
-      this.data = JSON.parse(rawData);
-    } catch (error) {
-      console.error('Failed to load strings data:', error);
-      this.data = { i18n: { en: {} }, config: {}, constants: {} };
+  async initialize() {
+    if (!this.initialized) {
+      try {
+        await this.loadData();
+        this.initialized = true;
+      } catch (error) {
+        console.error('StringService initialization failed:', error.message);
+        this.data = { i18n: { en: {} }, config: {}, constants: {} };
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Ensure service is initialized before use
+   */
+  async ensureInitialized() {
+    if (!this.initialized) {
+      await this.initialize();
     }
   }
 
   /**
-   * Get a string by key with optional parameters interpolation
-   * @param {string} key - Dot notation key (e.g., 'errors.item_name_required')
-   * @param {object} params - Parameters for string interpolation
-   * @param {string} language - Target language (defaults to currentLanguage)
-   * @returns {string}
+   * Load string data with caching
    */
-  get(key, params = {}, language = null) {
+  async loadData() {
+    const cacheKey = 'stringData';
+
+    let data = this.cache.get(cacheKey);
+    if (!data) {
+      data = await this.loader.load();
+      const validation = this.validator.validateStringData(data);
+      if (!validation.isValid) {
+        throw new Error(`Invalid string data: ${validation.errors.join(', ')}`);
+      }
+      this.cache.set(cacheKey, data);
+    }
+
+    this.data = data;
+  }
+
+  /**
+   * Get string by key with interpolation
+   */
+  async get(key, params = {}, language = null) {
+    await this.ensureInitialized();
+
+    if (!this.validator.isValidKey(key)) {
+      return key;
+    }
+
     const lang = language || this.currentLanguage;
     const value = this.getNestedValue(this.data?.i18n?.[lang], key);
-    
+
     if (value === undefined) {
-      // Fallback to English
       const fallbackValue = this.getNestedValue(this.data?.i18n?.[this.fallbackLanguage], key);
       if (fallbackValue !== undefined) {
         return this.interpolate(fallbackValue, params);
       }
-      return key; // Return key if not found
+      return key;
     }
 
     return this.interpolate(value, params);
@@ -54,57 +90,41 @@ class StringService extends BaseClass {
 
   /**
    * Get error message by key
-   * @param {string} key - Error key
-   * @param {object} params - Parameters for interpolation
-   * @returns {string}
    */
-  getError(key, params = {}) {
-    return this.get(`errors.${key}`, params);
+  async getError(key, params = {}) {
+    return await this.get(`errors.${key}`, params);
   }
 
   /**
    * Get message by key
-   * @param {string} key - Message key
-   * @param {object} params - Parameters for interpolation
-   * @returns {string}
    */
-  getMessage(key, params = {}) {
-    return this.get(`messages.${key}`, params);
+  async getMessage(key, params = {}) {
+    return await this.get(`messages.${key}`, params);
   }
 
   /**
    * Get label by key
-   * @param {string} key - Label key
-   * @param {object} params - Parameters for interpolation
-   * @returns {string}
    */
-  getLabel(key, params = {}) {
-    return this.get(`labels.${key}`, params);
+  async getLabel(key, params = {}) {
+    return await this.get(`labels.${key}`, params);
   }
 
   /**
    * Get console message by key
-   * @param {string} key - Console key
-   * @param {object} params - Parameters for interpolation
-   * @returns {string}
    */
-  getConsole(key, params = {}) {
-    return this.get(`console.${key}`, params);
+  async getConsole(key, params = {}) {
+    return await this.get(`console.${key}`, params);
   }
 
   /**
    * Get system identifier by key
-   * @param {string} key - System key
-   * @returns {string}
    */
-  getSystem(key) {
-    return this.get(`system.${key}`);
+  async getSystem(key) {
+    return await this.get(`system.${key}`);
   }
 
   /**
    * Get configuration value
-   * @param {string} key - Configuration key (dot notation)
-   * @returns {any}
    */
   getConfig(key) {
     return this.getNestedValue(this.data?.config, key);
@@ -112,8 +132,6 @@ class StringService extends BaseClass {
 
   /**
    * Get constant value
-   * @param {string} key - Constant name
-   * @returns {any}
    */
   getConstant(key) {
     return this.data?.constants?.[key];
@@ -121,8 +139,6 @@ class StringService extends BaseClass {
 
   /**
    * Get template data
-   * @param {string} template - Template type
-   * @returns {any}
    */
   getTemplate(template) {
     return this.data?.templates?.[template];
@@ -130,8 +146,6 @@ class StringService extends BaseClass {
 
   /**
    * Get metadata
-   * @param {string} key - Metadata key
-   * @returns {any}
    */
   getMetadata(key) {
     return this.getNestedValue(this.data?.metadata, key);
@@ -139,8 +153,6 @@ class StringService extends BaseClass {
 
   /**
    * Get game data
-   * @param {string} type - Game data type (featured, systemTags)
-   * @returns {any}
    */
   getGameData(type) {
     return this.data?.gamedata?.[type];
@@ -148,7 +160,6 @@ class StringService extends BaseClass {
 
   /**
    * Set current language
-   * @param {string} language - Language code
    */
   setLanguage(language) {
     if (this.data?.i18n?.[language]) {
@@ -160,7 +171,6 @@ class StringService extends BaseClass {
 
   /**
    * Get current language
-   * @returns {string}
    */
   getCurrentLanguage() {
     return this.currentLanguage;
@@ -168,7 +178,6 @@ class StringService extends BaseClass {
 
   /**
    * Get available languages
-   * @returns {string[]}
    */
   getAvailableLanguages() {
     return Object.keys(this.data?.i18n || {});
@@ -176,25 +185,24 @@ class StringService extends BaseClass {
 
   /**
    * Interpolate parameters into string
-   * @param {string} template - String template with {param} placeholders
-   * @param {object} params - Parameters to interpolate
-   * @returns {string}
    */
   interpolate(template, params = {}) {
     if (typeof template !== 'string') {
       return template;
     }
 
+    const validation = this.validator.validateInterpolation(template, params);
+    if (!validation.isValid) {
+      console.warn(`Interpolation validation failed for template: ${template}`);
+    }
+
     return template.replace(/\{(\w+)\}/g, (match, key) => {
-      return params[key] !== undefined ? params[key] : match;
+      return params[key] !== undefined ? String(params[key]) : match;
     });
   }
 
   /**
    * Get nested value from object using dot notation
-   * @param {object} obj - Source object
-   * @param {string} path - Dot notation path
-   * @returns {any}
    */
   getNestedValue(obj, path) {
     if (!obj || typeof path !== 'string') {
@@ -209,14 +217,13 @@ class StringService extends BaseClass {
   /**
    * Reload data from file
    */
-  reload() {
-    this.loadData();
+  async reload() {
+    this.cache.clear();
+    await this.loadData();
   }
 
   /**
-   * Validate that required strings are available
-   * @param {string[]} keys - Array of required keys
-   * @returns {object} - Validation result with missing keys
+   * Validate required strings
    */
   validateStrings(keys) {
     const missing = [];
@@ -224,7 +231,7 @@ class StringService extends BaseClass {
 
     keys.forEach(key => {
       const value = this.get(key);
-      if (value === key) { // Key not found
+      if (value === key) {
         missing.push(key);
       }
     });
@@ -237,21 +244,4 @@ class StringService extends BaseClass {
   }
 }
 
-// Singleton instance
-let stringServiceInstance = null;
-
-/**
- * Get the singleton StringService instance
- * @returns {StringService}
- */
-function getStringService() {
-  if (!stringServiceInstance) {
-    stringServiceInstance = new StringService();
-  }
-  return stringServiceInstance;
-}
-
-module.exports = {
-  StringService,
-  getStringService
-};
+module.exports = { StringService };
