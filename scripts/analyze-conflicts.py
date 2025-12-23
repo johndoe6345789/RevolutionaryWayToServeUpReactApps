@@ -139,17 +139,25 @@ def main():
     
     # Fetch main
     print("\nFetching main branch...")
-    # First fetch, then force-update local branch if it exists
+    # Fetch main from origin
     code, stdout, stderr = run_command(["git", "fetch", "origin", "main"])
     if code != 0:
-        print(f"❌ Failed to fetch main: {stderr}")
-        sys.exit(1)
+        # Check if it's a network or permission error
+        if "could not read" in stderr.lower() or "connection" in stderr.lower():
+            print(f"❌ Network or connection error: {stderr}")
+            sys.exit(1)
+        # Other errors might be non-fatal, continue with warning
+        print(f"⚠️  Warning during fetch: {stderr}")
     
     # Force-update local main branch to match origin
     code, stdout, stderr = run_command(["git", "branch", "-f", "main", "FETCH_HEAD"])
     if code != 0:
         print(f"❌ Failed to update main branch: {stderr}")
-        sys.exit(1)
+        # Try creating the branch if it doesn't exist
+        code2, _, _ = run_command(["git", "branch", "main", "FETCH_HEAD"])
+        if code2 != 0:
+            print("❌ Could not create or update main branch")
+            sys.exit(1)
     
     # Analyze each PR
     results = []

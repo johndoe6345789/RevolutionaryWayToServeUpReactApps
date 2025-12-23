@@ -31,10 +31,16 @@ resolve_branch_conflicts() {
     echo -e "${YELLOW}Processing branch: ${branch_name}${NC}"
     
     # Fetch the latest version of the branch
-    git fetch origin "$branch_name:$branch_name" 2>/dev/null || {
+    echo "Fetching branch $branch_name..."
+    if ! git fetch origin "$branch_name:$branch_name"; then
         echo -e "${RED}Failed to fetch branch $branch_name${NC}"
-        return 1
-    }
+        echo "This may be expected if the branch already exists locally."
+        echo "Attempting to update existing branch..."
+        git fetch origin "$branch_name" && git branch -f "$branch_name" FETCH_HEAD || {
+            echo -e "${RED}Could not fetch or update branch $branch_name${NC}"
+            return 1
+        }
+    fi
     
     # Checkout the branch
     git checkout "$branch_name" || {
