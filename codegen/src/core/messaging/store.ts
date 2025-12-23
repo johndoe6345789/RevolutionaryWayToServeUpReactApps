@@ -1,11 +1,9 @@
-import type {
-  Action,
-  Reducer,
-  Store,
-  Dispatch,
-  Middleware,
-  MiddlewareAPI,
-} from '../types/messaging';
+import type { Action } from '../types/messaging';
+import type { Reducer } from '../types/reducer';
+import type { Store } from '../types/store';
+import type { Dispatch } from '../types/dispatch';
+import type { Middleware } from '../types/middleware';
+import type { MiddlewareAPI } from '../types/middleware-api';
 
 /**
  * Redux-like store implementation for internal messaging
@@ -71,14 +69,17 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     };
 
     // Compose middleware from right to left
-    let dispatch: (action: Readonly<A>) => S = (action: Readonly<A>) => this.reducer(this.state, action);
+    let dispatch: Dispatch<A> = (action: Readonly<A>) => {
+      this.state = this.reducer(this.state, action);
+    };
 
     for (let i = this.middleware.length - 1; i >= 0; i--) {
       const middleware = this.middleware[i];
       dispatch = middleware(api)(dispatch);
     }
 
-    return dispatch(action);
+    dispatch(action);
+    return this.state;
   }
 }
 

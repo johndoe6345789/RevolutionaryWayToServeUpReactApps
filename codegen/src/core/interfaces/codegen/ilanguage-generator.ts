@@ -3,7 +3,7 @@
  * AGENTS.md compliant: IStandardLifecycle, language abstraction, declarative specs
  */
 
-import type { IStandardLifecycle } from '../../types/lifecycle';
+import type { IStandardLifecycle } from '../../types/standard-lifecycle';
 import type { ISpec } from '../specs/ispec';
 
 /**

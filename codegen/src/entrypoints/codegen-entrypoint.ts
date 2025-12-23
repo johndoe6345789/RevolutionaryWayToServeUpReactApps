@@ -7,7 +7,8 @@
  */
 
 import { BaseComponent } from '../core/codegen/base-component';
-import type { LifecycleBuilder, CompositeLifecycle } from '../core/types/lifecycle';
+import type { LifecycleBuilder } from '../core/types/lifecycle-builder';
+import type { CompositeLifecycle } from '../core/types/composite-lifecycle';
 
 /**
  *

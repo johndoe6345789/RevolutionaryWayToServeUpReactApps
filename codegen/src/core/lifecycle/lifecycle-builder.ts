@@ -4,12 +4,10 @@
  * ≤3 public methods per class, ≤10 lines per function
  */
 
-import type {
-  CompositeLifecycle,
-  LifecycleBuilder as ILifecycleBuilder,
-  IStandardLifecycle,
-} from '../types/lifecycle';
-import { LifecycleStatus } from '../types/lifecycle';
+import type { CompositeLifecycle } from '../types/composite-lifecycle';
+import type { LifecycleBuilder as ILifecycleBuilder } from '../types/lifecycle-builder';
+import type { IStandardLifecycle } from '../types/standard-lifecycle';
+import { LifecycleStatus } from '../types/lifecycle-status';
 
 /**
  * ComponentNode - Internal representation of a component with metadata
@@ -179,11 +177,11 @@ class CompositeLifecycleImpl implements CompositeLifecycle {
     const debugInfo: Record<string, unknown> = {
       status: this.currentStatus,
       errorPolicy: this.errorPolicy,
-      components: {},
+      components: {} as Record<string, unknown>,
     };
 
     for (const [name, component] of this.components) {
-      debugInfo.components[name] = component.debug();
+      (debugInfo.components as Record<string, unknown>)[name] = component.debug();
     }
 
     return debugInfo;

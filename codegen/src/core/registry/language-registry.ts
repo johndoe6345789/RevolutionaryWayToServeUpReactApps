@@ -5,7 +5,7 @@
 
 import type { ILanguageGenerator } from '../interfaces/codegen/ilanguage-generator';
 import type { ILanguageRegistry } from '../interfaces/registry/ilanguage-registry';
-import type { IStandardLifecycle } from '../types/lifecycle';
+import type { IStandardLifecycle } from '../types/standard-lifecycle';
 import { BaseComponent } from '../codegen/base-component';
 
 /**

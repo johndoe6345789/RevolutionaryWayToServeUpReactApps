@@ -4,9 +4,7 @@
  */
 
 export { LifecycleBuilder } from './lifecycle-builder';
-export type {
-  IStandardLifecycle,
-  LifecycleBuilder as ILifecycleBuilder,
-  CompositeLifecycle,
-} from '../types/lifecycle';
-export { LifecycleStatus } from '../types/lifecycle';
+export type { IStandardLifecycle } from '../types/standard-lifecycle';
+export type { LifecycleBuilder as ILifecycleBuilder } from '../types/lifecycle-builder';
+export type { CompositeLifecycle } from '../types/composite-lifecycle';
+export { LifecycleStatus } from '../types/lifecycle-status';
