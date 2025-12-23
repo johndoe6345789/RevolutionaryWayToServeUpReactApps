@@ -1,0 +1,34 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440033",
+  "id": "plugin.language.python",
+  "version": "1.0.0",
+  "type": "language",
+  "name": "Python Language Plugin",
+  "description": "Code generator for Python with modern syntax and type hints",
+  "author": "Codegen Team",
+  "license": "MIT",
+  "entry_point": "src/python-generator.ts:PythonGenerator",
+  "spec_file": "spec.json",
+  "messages_file": "messages.json",
+  "dependencies": {
+    "core": ">=1.0.0",
+    "plugins": []
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "registries": [
+    "LanguageRegistry"
+  ],
+  "capabilities": [
+    "generate",
+    "validate",
+    "format"
+  ],
+  "tests": {
+    "directory": "tests/",
+    "coverage_required": 100
+  }
+}

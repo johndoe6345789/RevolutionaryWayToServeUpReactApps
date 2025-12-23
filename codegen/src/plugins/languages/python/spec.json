@@ -1,0 +1,97 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440034",
+  "id": "language.python",
+  "type": "language",
+  "search": {
+    "title": "Python",
+    "summary": "Dynamically typed programming language with extensive libraries",
+    "keywords": ["python", "dynamic-typing", "libraries", "scripting"],
+    "tags": ["language", "interpreted", "dynamic"],
+    "aliases": ["py", "python"],
+    "domain": "codegen",
+    "capabilities": ["generate", "execute", "library-support"]
+  },
+  "language": {
+    "name": "Python",
+    "version": "3.8+",
+    "paradigm": "object-oriented",
+    "typing": "dynamic",
+    "compilation": "interpreted"
+  },
+  "extensions": [".py"],
+  "supportedTemplates": [
+    "class",
+    "function",
+    "module",
+    "dataclass",
+    "script",
+    "test",
+    "enum"
+  ],
+  "syntax": {
+    "keywords": [
+      "class", "def", "if", "elif", "else",
+      "for", "while", "try", "except", "finally",
+      "import", "from", "as", "return", "yield",
+      "self", "super", "__init__", "__name__"
+    ],
+    "types": [
+      "str", "int", "float", "bool", "list", "dict", "tuple", "set",
+      "Optional[T]", "List[T]", "Dict[K,V]", "Union[T1,T2]"
+    ],
+    "modifiers": ["@staticmethod", "@classmethod", "@property"]
+  },
+  "conventions": {
+    "fileNaming": "snake-case",
+    "classNaming": "pascal-case",
+    "methodNaming": "snake-case",
+    "propertyNaming": "snake-case",
+    "constantNaming": "upper-snake-case",
+    "functionNaming": "snake-case",
+    "moduleNaming": "snake-case",
+    "privatePrefix": "_",
+    "dunderPrefix": "__"
+  },
+  "templates": {
+    "class": {
+      "pattern": [
+        "class {name}:",
+        "    \"\"\"{docstring}\"\"\"",
+        "",
+        "    def __init__(self{parameters}):",
+        "{init-body}",
+        "",
+        "{methods}"
+      ]
+    },
+    "function": {
+      "pattern": [
+        "def {name}({parameters}){return-type}:",
+        "    \"\"\"{docstring}\"\"\"",
+        "{body}",
+        "    return {return-value}"
+      ]
+    },
+    "dataclass": {
+      "pattern": [
+        "from dataclasses import dataclass",
+        "",
+        "@dataclass",
+        "class {name}:",
+        "    \"\"\"{docstring}\"\"\"",
+        "{fields}",
+        "",
+        "{methods}"
+      ]
+    }
+  },
+  "features": {
+    "typeHints": true,
+    "dataclasses": true,
+    "asyncAwait": true,
+    "decorators": true,
+    "generics": true,
+    "contextManagers": true,
+    "properties": true
+  }
+}

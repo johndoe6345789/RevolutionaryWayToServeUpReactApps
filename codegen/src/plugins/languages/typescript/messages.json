@@ -1,0 +1,26 @@
+{
+  "en": {
+    "msg.language.typescript.title": "TypeScript",
+    "msg.language.typescript.summary": "Statically typed superset of JavaScript",
+    "msg.language.typescript.description": "Generates TypeScript code with strict typing and modern ES6+ features",
+    "msg.language.typescript.template.class": "Class Template",
+    "msg.language.typescript.template.interface": "Interface Template",
+    "msg.language.typescript.template.function": "Function Template",
+    "msg.language.typescript.template.component": "React Component Template",
+    "msg.language.typescript.error.template-not-supported": "Template '{template}' is not supported by TypeScript generator",
+    "msg.language.typescript.error.spec-validation-failed": "TypeScript spec validation failed: {reason}",
+    "msg.language.typescript.success.generation-complete": "TypeScript code generation completed successfully"
+  },
+  "es": {
+    "msg.language.typescript.title": "TypeScript",
+    "msg.language.typescript.summary": "Superset tipado estáticamente de JavaScript",
+    "msg.language.typescript.description": "Genera código TypeScript con tipado estricto y características modernas ES6+",
+    "msg.language.typescript.template.class": "Plantilla de Clase",
+    "msg.language.typescript.template.interface": "Plantilla de Interfaz",
+    "msg.language.typescript.template.function": "Plantilla de Función",
+    "msg.language.typescript.template.component": "Plantilla de Componente React",
+    "msg.language.typescript.error.template-not-supported": "La plantilla '{template}' no es compatible con el generador TypeScript",
+    "msg.language.typescript.error.spec-validation-failed": "La validación de especificaciones TypeScript falló: {reason}",
+    "msg.language.typescript.success.generation-complete": "Generación de código TypeScript completada exitosamente"
+  }
+}

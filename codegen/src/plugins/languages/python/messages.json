@@ -1,0 +1,24 @@
+{
+  "en": {
+    "msg.language.python.title": "Python",
+    "msg.language.python.summary": "Dynamically typed programming language with extensive libraries",
+    "msg.language.python.description": "Generates Python code with modern syntax, type hints, and best practices",
+    "msg.language.python.template.class": "Class Template",
+    "msg.language.python.template.function": "Function Template",
+    "msg.language.python.template.dataclass": "Dataclass Template",
+    "msg.language.python.error.template-not-supported": "Template '{template}' is not supported by Python generator",
+    "msg.language.python.error.spec-validation-failed": "Python spec validation failed: {reason}",
+    "msg.language.python.success.generation-complete": "Python code generation completed successfully"
+  },
+  "es": {
+    "msg.language.python.title": "Python",
+    "msg.language.python.summary": "Lenguaje de programación de tipado dinámico con bibliotecas extensas",
+    "msg.language.python.description": "Genera código Python con sintaxis moderna, type hints y mejores prácticas",
+    "msg.language.python.template.class": "Plantilla de Clase",
+    "msg.language.python.template.function": "Plantilla de Función",
+    "msg.language.python.template.dataclass": "Plantilla de Dataclass",
+    "msg.language.python.error.template-not-supported": "La plantilla '{template}' no es compatible con el generador Python",
+    "msg.language.python.error.spec-validation-failed": "La validación de especificaciones Python falló: {reason}",
+    "msg.language.python.success.generation-complete": "Generación de código Python completada exitosamente"
+  }
+}

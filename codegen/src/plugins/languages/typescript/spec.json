@@ -1,0 +1,95 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440032",
+  "id": "language.typescript",
+  "type": "language",
+  "search": {
+    "title": "TypeScript",
+    "summary": "Statically typed superset of JavaScript with modern features",
+    "keywords": ["typescript", "javascript", "static-typing", "classes", "interfaces"],
+    "tags": ["language", "compiled", "typed"],
+    "aliases": ["ts", "typescript"],
+    "domain": "codegen",
+    "capabilities": ["generate", "compile", "type-check"]
+  },
+  "language": {
+    "name": "TypeScript",
+    "version": "5.0+",
+    "paradigm": "object-oriented",
+    "typing": "static",
+    "compilation": "transpiled"
+  },
+  "extensions": [".ts", ".tsx"],
+  "supportedTemplates": [
+    "class",
+    "interface",
+    "function",
+    "module",
+    "component",
+    "enum",
+    "type"
+  ],
+  "syntax": {
+    "keywords": [
+      "class", "interface", "type", "enum",
+      "function", "const", "let", "var",
+      "public", "private", "protected",
+      "async", "await", "try", "catch",
+      "if", "else", "for", "while",
+      "import", "export", "from", "as"
+    ],
+    "types": [
+      "string", "number", "boolean", "object",
+      "any", "unknown", "never", "void",
+      "Array<T>", "Record<K,V>", "Promise<T>"
+    ],
+    "modifiers": ["readonly", "abstract", "static", "async"]
+  },
+  "conventions": {
+    "fileNaming": "pascal-case",
+    "classNaming": "pascal-case",
+    "methodNaming": "camel-case",
+    "propertyNaming": "camel-case",
+    "constantNaming": "upper-snake-case",
+    "typeNaming": "pascal-case",
+    "interfacePrefix": "I",
+    "abstractPrefix": "Abstract"
+  },
+  "templates": {
+    "class": {
+      "pattern": [
+        "export class {name} {",
+        "  constructor({parameters}) {",
+        "    {constructor-body}",
+        "  }",
+        "",
+        "  {methods}",
+        "}"
+      ]
+    },
+    "interface": {
+      "pattern": [
+        "export interface {name} {",
+        "  {properties}",
+        "  {methods}",
+        "}"
+      ]
+    },
+    "function": {
+      "pattern": [
+        "export function {name}({parameters}): {return-type} {",
+        "  {body}",
+        "}"
+      ]
+    }
+  },
+  "features": {
+    "strictMode": true,
+    "decorators": true,
+    "generics": true,
+    "asyncAwait": true,
+    "optionalChaining": true,
+    "nullishCoalescing": true,
+    "typeGuards": true,
+    "utilityTypes": true
+  }
+}
