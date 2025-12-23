@@ -10,7 +10,9 @@ export async function generateMetadata({
   params,
 }: LayoutProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const locale = Array.isArray(resolvedParams.locale) ? resolvedParams.locale[0] : resolvedParams.locale;
+  const locale = Array.isArray(resolvedParams.locale)
+    ? resolvedParams.locale[0]
+    : resolvedParams.locale;
   const t = await getTranslations({ locale, namespace: "navigation" });
 
   return {

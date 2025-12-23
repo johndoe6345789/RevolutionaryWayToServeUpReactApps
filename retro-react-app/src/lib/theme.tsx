@@ -1,3 +1,3 @@
 // Re-export theme functionality from separate files
-export { createAppTheme } from './create-app-theme';
-export { ThemeProviderWrapper } from './theme-provider-wrapper';
+export { createAppTheme } from "./create-app-theme";
+export { ThemeProviderWrapper } from "./theme-provider-wrapper";
