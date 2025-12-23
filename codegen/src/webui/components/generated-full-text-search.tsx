@@ -85,7 +85,7 @@ const mockSearchResults: SearchResult[] = [
   },
 ];
 
-export const GeneratedFullTextSearch: React.FC<GeneratedFullTextSearchProps> = ({
+const GeneratedFullTextSearch: React.FC<GeneratedFullTextSearchProps> = ({
   onResultSelect,
   placeholder = "Search components, tools, profiles...",
   filters = {},

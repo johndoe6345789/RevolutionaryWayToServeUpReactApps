@@ -19,8 +19,8 @@ import {
   Grid,
   Paper,
 } from '@mui/material';
-import { GeneratedTreeNavigation } from '../components/generated-tree-navigation';
-import { GeneratedFullTextSearch } from '../components/generated-full-text-search';
+import GeneratedTreeNavigation from '../components/generated-tree-navigation';
+import GeneratedFullTextSearch from '../components/generated-full-text-search';
 
 // Create Material UI theme
 const theme = createTheme({

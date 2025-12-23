@@ -3,24 +3,9 @@
  * Fluent API for composing complex component hierarchies with dependency management
  */
 
-import React, { ReactNode } from 'react';
-
-// Component configuration interface
-export interface ComponentConfig {
-  id: string;
-  component: React.ComponentType<any>;
-  props?: Record<string, unknown>;
-  dependencies?: string[];
-  children?: ComponentConfig[];
-}
-
-// Builder interface (matches AGENTS.md LifecycleBuilder)
-export interface IComponentBuilder {
-  add(id: string, component: React.ComponentType<any>, props?: Record<string, unknown>): this;
-  dependsOn(id: string, dependencyId: string): this;
-  withChildren(id: string, children: ComponentConfig[]): this;
-  build(): ReactNode;
-}
+import type { ReactNode } from 'react';
+import type { ComponentConfig } from './component-config';
+import type { IComponentBuilder } from './component-builder-interface';
 
 // Component builder implementation
 export class ComponentBuilder implements IComponentBuilder {
@@ -28,13 +13,11 @@ export class ComponentBuilder implements IComponentBuilder {
   private dependencies = new Map<string, Set<string>>();
   private childrenMap = new Map<string, ComponentConfig[]>();
 
-  /**
-   * Add component to the builder
-   * @param id - Unique component identifier
-   * @param component - React component
-   * @param props - Component props
-   */
-  public add(id: string, component: React.ComponentType<any>, props?: Record<string, unknown>): this {
+  public add(
+    id: string,
+    component: ComponentConfig['component'],
+    props?: Record<string, unknown>,
+  ): this {
     this.components.set(id, {
       id,
       component,
@@ -44,11 +27,6 @@ export class ComponentBuilder implements IComponentBuilder {
     return this;
   }
 
-  /**
-   * Define dependency between components
-   * @param id - Component ID
-   * @param dependencyId - Dependency component ID
-   */
   public dependsOn(id: string, dependencyId: string): this {
     if (!this.dependencies.has(id)) {
       this.dependencies.set(id, new Set());
@@ -57,20 +35,11 @@ export class ComponentBuilder implements IComponentBuilder {
     return this;
   }
 
-  /**
-   * Add children to a component
-   * @param id - Parent component ID
-   * @param children - Child component configurations
-   */
   public withChildren(id: string, children: ComponentConfig[]): this {
     this.childrenMap.set(id, children);
     return this;
   }
 
-  /**
-   * Build the component hierarchy
-   * Performs topological sort based on dependencies
-   */
   public build(): ReactNode {
     const sortedIds = this.getDependencyOrder();
     const renderedComponents = new Map<string, ReactNode>();
@@ -104,11 +73,6 @@ export class ComponentBuilder implements IComponentBuilder {
     return rootComponents.length === 1 ? rootComponents[0] : <>{rootComponents}</>;
   }
 
-  /**
-   * Render a component configuration
-   * @param config - Component configuration
-   * @param renderedComponents - Map of already rendered components
-   */
   private renderComponentConfig(
     config: ComponentConfig,
     renderedComponents: Map<string, ReactNode>
@@ -124,9 +88,6 @@ export class ComponentBuilder implements IComponentBuilder {
     return <Component key={config.id} {...componentProps} />;
   }
 
-  /**
-   * Get dependency order using topological sort
-   */
   private getDependencyOrder(): string[] {
     const visited = new Set<string>();
     const visiting = new Set<string>();
@@ -160,24 +121,4 @@ export class ComponentBuilder implements IComponentBuilder {
 
     return order;
   }
-}
-
-// Factory function for creating component builders
-export function createComponentBuilder(): IComponentBuilder {
-  return new ComponentBuilder();
-}
-
-// Utility function to create component config
-export function componentConfig(
-  id: string,
-  component: React.ComponentType<any>,
-  props?: Record<string, unknown>,
-  children?: ComponentConfig[]
-): ComponentConfig {
-  return {
-    id,
-    component,
-    props: props || {},
-    children,
-  };
 }

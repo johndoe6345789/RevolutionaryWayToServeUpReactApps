@@ -8,11 +8,11 @@
 
 import React from 'react';
 
-interface GeneratedRunbook-generatorProps {
+interface GeneratedRunbookGeneratorProps {
   // TODO: Define props based on spec
 }
 
-export const GeneratedRunbook-generator: React.FC<GeneratedRunbook-generatorProps> = (props) => {
+const GeneratedRunbookGenerator: React.FC<GeneratedRunbookGeneratorProps> = () => {
   return (
     <div>
       <h2>Runbook Generator</h2>
@@ -22,4 +22,4 @@ export const GeneratedRunbook-generator: React.FC<GeneratedRunbook-generatorProp
   );
 };
 
-export default GeneratedRunbook-generator;
+export default GeneratedRunbookGenerator;

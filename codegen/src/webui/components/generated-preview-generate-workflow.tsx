@@ -8,11 +8,11 @@
 
 import React from 'react';
 
-interface GeneratedPreview-generate-workflowProps {
+interface GeneratedPreviewGenerateWorkflowProps {
   // TODO: Define props based on spec
 }
 
-export const GeneratedPreview-generate-workflow: React.FC<GeneratedPreview-generate-workflowProps> = (props) => {
+const GeneratedPreviewGenerateWorkflow: React.FC<GeneratedPreviewGenerateWorkflowProps> = () => {
   return (
     <div>
       <h2>Preview/Generate Workflow</h2>
@@ -22,4 +22,4 @@ export const GeneratedPreview-generate-workflow: React.FC<GeneratedPreview-gener
   );
 };
 
-export default GeneratedPreview-generate-workflow;
+export default GeneratedPreviewGenerateWorkflow;

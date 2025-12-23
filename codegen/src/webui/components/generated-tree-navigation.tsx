@@ -42,7 +42,7 @@ interface GeneratedTreeNavigationProps {
   selectedNodeId: string | undefined;
 }
 
-export const GeneratedTreeNavigation: React.FC<GeneratedTreeNavigationProps> = ({
+const GeneratedTreeNavigation: React.FC<GeneratedTreeNavigationProps> = ({
   data,
   onNodeSelect,
   selectedNodeId,

@@ -1,7 +1,9 @@
+import type { ComponentType } from 'react';
+
 // Component configuration interface
 export interface ComponentConfig {
   id: string;
-  component: React.ComponentType<any>;
+  component: ComponentType<any>;
   props?: Record<string, unknown>;
   dependencies?: string[];
   children?: ComponentConfig[];

@@ -42,7 +42,7 @@ interface GeneratedMonacoEditorProps {
   onFormat?: () => void;
 }
 
-export const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
+const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   value,
   onChange,
   language = 'json',
