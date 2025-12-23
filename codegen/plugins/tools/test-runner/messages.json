@@ -1,0 +1,53 @@
+{
+  "messageKeys": {
+    "msg.tool.test-runner.oneliner.run": {
+      "en": "Execute test suite using detected framework",
+      "es": "Ejecutar suite de pruebas usando framework detectado",
+      "fr": "Exécuter la suite de tests en utilisant le framework détecté",
+      "de": "Test-Suite mit erkanntem Framework ausführen",
+      "ja": "検出されたフレームワークを使用してテストスイートを実行する"
+    },
+    "msg.tool.test-runner.opt.framework": {
+      "en": "Specify test framework (auto-detect if not provided)",
+      "es": "Especificar framework de pruebas (auto-detectar si no se proporciona)",
+      "fr": "Spécifier le framework de test (détection automatique si non fourni)",
+      "de": "Test-Framework angeben (automatische Erkennung falls nicht angegeben)",
+      "ja": "テストフレームワークを指定（指定しない場合は自動検出）"
+    },
+    "msg.tool.test-runner.opt.coverage": {
+      "en": "Generate code coverage report",
+      "es": "Generar reporte de cobertura de código",
+      "fr": "Générer un rapport de couverture de code",
+      "de": "Codeabdeckungsbericht generieren",
+      "ja": "コードカバレッジレポートを生成する"
+    },
+    "msg.tool.test-runner.execution.start": {
+      "en": "Starting AGENTS.md compliant test execution...",
+      "es": "Iniciando ejecución de pruebas compatible con AGENTS.md...",
+      "fr": "Démarrage de l'exécution des tests conforme AGENTS.md...",
+      "de": "AGENTS.md konforme Testausführung wird gestartet...",
+      "ja": "AGENTS.md準拠のテスト実行を開始しています..."
+    },
+    "msg.tool.test-runner.execution.complete": {
+      "en": "Test execution completed successfully",
+      "es": "Ejecución de pruebas completada exitosamente",
+      "fr": "Exécution des tests terminée avec succès",
+      "de": "Testausführung erfolgreich abgeschlossen",
+      "ja": "テスト実行が正常に完了しました"
+    },
+    "msg.tool.test-runner.framework.detected": {
+      "en": "Detected test framework: {framework}",
+      "es": "Framework de pruebas detectado: {framework}",
+      "fr": "Framework de test détecté: {framework}",
+      "de": "Erkanntes Test-Framework: {framework}",
+      "ja": "検出されたテストフレームワーク: {framework}"
+    },
+    "msg.tool.test-runner.results.summary": {
+      "en": "Test Results: {passed}/{total} passed",
+      "es": "Resultados de pruebas: {passed}/{total} pasaron",
+      "fr": "Résultats des tests: {passed}/{total} réussis",
+      "de": "Testergebnisse: {passed}/{total} bestanden",
+      "ja": "テスト結果: {passed}/{total} 成功"
+    }
+  }
+}

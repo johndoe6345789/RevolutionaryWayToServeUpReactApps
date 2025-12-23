@@ -1,0 +1,133 @@
+{
+  "uuid": "550e8400-e29b-41d4-a716-446655440000",
+  "id": "system.bootstrap",
+  "type": "system",
+  "search": {
+    "title": "Bootstrap System",
+    "summary": "AGENTS.md compliant module loading and dependency injection system",
+    "keywords": ["bootstrap", "module-loader", "di", "dependency-injection", "initialization"],
+    "tags": ["core", "system", "infrastructure"],
+    "aliases": ["module-system", "loader-system"],
+    "domain": "codegen",
+    "capabilities": ["load-modules", "inject-dependencies", "initialize-system"]
+  },
+  "platforms": {
+    "win": true,
+    "mac": true,
+    "linux": true
+  },
+  "modules": {
+    "module-loader": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440001",
+      "id": "bootstrap.module-loader",
+      "type": "module",
+      "search": {
+        "title": "Module Loader",
+        "summary": "Dynamic module loading system with CDN and local support",
+        "keywords": ["module", "loader", "dynamic", "cdn", "local"],
+        "domain": "codegen"
+      },
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "dependencies": [],
+      "interfaces": ["IModuleLoader"],
+      "implementation": {
+        "constructor": "ModuleLoader",
+        "methods": ["loadModule", "resolvePath", "validateModule"]
+      }
+    },
+    "plugin-system": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440002",
+      "id": "bootstrap.plugin-system",
+      "type": "module",
+      "search": {
+        "title": "Plugin System",
+        "summary": "Plugin discovery, loading, and management system",
+        "keywords": ["plugin", "discovery", "loading", "management"],
+        "domain": "codegen"
+      },
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "dependencies": ["bootstrap.module-loader"],
+      "interfaces": ["IPluginManager"],
+      "implementation": {
+        "constructor": "PluginSystem",
+        "methods": ["discoverPlugins", "loadPlugin", "registerPlugin"]
+      }
+    },
+    "di-container": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440003",
+      "id": "bootstrap.di-container",
+      "type": "module",
+      "search": {
+        "title": "DI Container",
+        "summary": "Dependency injection container with service registration",
+        "keywords": ["di", "dependency-injection", "container", "services"],
+        "domain": "codegen"
+      },
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "dependencies": [],
+      "interfaces": ["IDIContainer"],
+      "implementation": {
+        "constructor": "DIContainer",
+        "methods": ["register", "resolve", "inject"]
+      }
+    },
+    "registry-system": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440004",
+      "id": "bootstrap.registry-system",
+      "type": "module",
+      "search": {
+        "title": "Registry System",
+        "summary": "Component registry and aggregate management",
+        "keywords": ["registry", "aggregate", "component", "management"],
+        "domain": "codegen"
+      },
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "dependencies": ["bootstrap.di-container"],
+      "interfaces": ["IRegistryManager"],
+      "implementation": {
+        "constructor": "RegistrySystem",
+        "methods": ["createRegistry", "registerComponent", "resolveComponent"]
+      }
+    },
+    "configuration-manager": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440005",
+      "id": "bootstrap.configuration-manager",
+      "type": "module",
+      "search": {
+        "title": "Configuration Manager",
+        "summary": "Configuration loading and validation system",
+        "keywords": ["configuration", "config", "validation", "loading"],
+        "domain": "codegen"
+      },
+      "platforms": {"win": true, "mac": true, "linux": true},
+      "dependencies": [],
+      "interfaces": ["IConfigurationManager"],
+      "implementation": {
+        "constructor": "ConfigurationManager",
+        "methods": ["loadConfig", "validateConfig", "getSetting"]
+      }
+    }
+  },
+  "interfaces": {
+    "IModuleLoader": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440006",
+      "methods": ["loadModule", "resolvePath", "validateModule"]
+    },
+    "IPluginManager": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440007",
+      "methods": ["discoverPlugins", "loadPlugin", "registerPlugin"]
+    },
+    "IDIContainer": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440008",
+      "methods": ["register", "resolve", "inject"]
+    },
+    "IRegistryManager": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440009",
+      "methods": ["createRegistry", "registerComponent", "resolveComponent"]
+    },
+    "IConfigurationManager": {
+      "uuid": "550e8400-e29b-41d4-a716-446655440010",
+      "methods": ["loadConfig", "validateConfig", "getSetting"]
+    }
+  }
+}

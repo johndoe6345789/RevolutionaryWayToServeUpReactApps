@@ -1,5 +1,25 @@
 {
-  "dependencies": {
-    "cline": "^1.0.8"
-  }
+  "name": "revolutionary-codegen",
+  "version": "1.0.0",
+  "description": "AGENTS.md compliant codegen platform - spec-driven, plugin-based development",
+  "main": "codegen.js",
+  "scripts": {
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "lint": "bun run lint.ts",
+    "codegen": "bun run codegen.js",
+    "generate-bootstrap": "bun run scripts/generate-bootstrap.ts",
+    "dev": "bun run dev.ts",
+    "clean": "bun run clean.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "@types/node": "latest"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["codegen", "agile", "plugin", "spec-driven", "oop"],
+  "author": "Codegen Team",
+  "license": "MIT"
 }
