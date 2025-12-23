@@ -38,3 +38,4 @@ test-tooling/tests/.log/linkSrcNodeModules.log
 string-extractor-backups/
 *.log
 generated/
+package-lock.json
