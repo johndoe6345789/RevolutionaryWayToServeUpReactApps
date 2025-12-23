@@ -60,7 +60,7 @@ Additional required methods:
 The interface is intentionally lean. Optional extensions (pause/resume/stop) added via interface inheritance only.
 
 ### 5. Registry Contract (MANDATORY)
-Public methods (53):
+Public methods (≤3):
 1. `list_ids()` → list[string]
 2. `get(id_or_uuid: string)` → Component/Factory/Descriptor
 3. `describe(id_or_uuid: string)` → Descriptor (optional)
@@ -90,7 +90,7 @@ Requirements:
 - Topological dependency resolution for initialization order
 
 ### 7. Strict Method & File Constraints (MANDATORY)
-- **≤5 public methods per class** (constructors excluded)
+- **Small classes with focused helpers**: keep the public surface under five methods (constructors excluded) while relying on many short helpers to keep the class compact.
 - **≤10 lines per function** (strict, no exceptions)
 - **One primary class per file**
 - If a function exceeds 10 lines, refactor into helper methods

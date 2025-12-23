@@ -251,7 +251,7 @@ class Plugin(ABC):
         """Register this plugin's components with appropriate registries."""
         pass
     
-    # Optional: 53 public methods total
+    # Optional: ≤5 public methods total
     def shutdown(self) -> None:
         """Cleanup plugin resources."""
         pass
