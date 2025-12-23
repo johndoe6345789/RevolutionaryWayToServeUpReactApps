@@ -3,25 +3,25 @@
  * Fluent API for composing complex component hierarchies with dependency management
  */
 
-import type { ReactNode } from 'react';
-import type { ComponentConfig } from './component-config';
-import type { IComponentBuilder } from './component-builder-interface';
+import type { ComponentType, ReactNode } from "react";
+import type { ComponentConfig, ComponentProps } from "./component-config";
+import type { IComponentBuilder } from "./component-builder-interface";
 
 // Component builder implementation
 export class ComponentBuilder implements IComponentBuilder {
-  private components = new Map<string, ComponentConfig>();
-  private dependencies = new Map<string, Set<string>>();
-  private childrenMap = new Map<string, ComponentConfig[]>();
+  private readonly components = new Map<string, ComponentConfig>();
+  private readonly dependencies = new Map<string, Set<string>>();
+  private readonly childrenMap = new Map<string, ComponentConfig[]>();
 
-  public add(
+  public add<TProps extends ComponentProps = ComponentProps>(
     id: string,
-    component: ComponentConfig['component'],
-    props?: Record<string, unknown>,
+    component: ComponentType<TProps>,
+    props?: Partial<TProps>,
   ): this {
     this.components.set(id, {
       id,
       component,
-      props: props || {},
+      props: props ?? {},
       dependencies: [],
     });
     return this;
@@ -49,12 +49,14 @@ export class ComponentBuilder implements IComponentBuilder {
       const config = this.components.get(id);
       if (!config) continue;
 
-      const children = this.childrenMap.get(id) || [];
-      const renderedChildren = children.map(child => this.renderComponentConfig(child, renderedComponents));
+      const children = this.childrenMap.get(id) ?? [];
+      const renderedChildren = children.map((child) =>
+        this.renderComponentConfig(child, renderedComponents),
+      );
 
       const Component = config.component;
       const componentProps = {
-        ...config.props,
+        ...(config.props ?? {}),
         children: renderedChildren.length > 0 ? renderedChildren : undefined,
       };
 
@@ -64,24 +66,33 @@ export class ComponentBuilder implements IComponentBuilder {
     // Return root components (those with no dependents)
     const rootComponents: ReactNode[] = [];
     for (const [id, component] of renderedComponents) {
-      const hasDependents = Array.from(this.dependencies.values()).some(deps => deps.has(id));
+      const hasDependents = Array.from(this.dependencies.values()).some(
+        (deps) => deps.has(id),
+      );
       if (!hasDependents) {
         rootComponents.push(component);
       }
     }
 
-    return rootComponents.length === 1 ? rootComponents[0] : <>{rootComponents}</>;
+    return rootComponents.length === 1 ? (
+      rootComponents[0]
+    ) : (
+      <>{rootComponents}</>
+    );
   }
 
   private renderComponentConfig(
     config: ComponentConfig,
-    renderedComponents: Map<string, ReactNode>
+    renderedComponents: Map<string, ReactNode>,
   ): ReactNode {
     const Component = config.component;
-    const children = config.children?.map(child => this.renderComponentConfig(child, renderedComponents)) || [];
+    const children =
+      config.children?.map((child) =>
+        this.renderComponentConfig(child, renderedComponents),
+      ) ?? [];
 
     const componentProps = {
-      ...config.props,
+      ...(config.props ?? {}),
       children: children.length > 0 ? children : undefined,
     };
 

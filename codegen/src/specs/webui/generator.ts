@@ -140,6 +140,18 @@ export class WebUIGenerator {
    * @param componentSpec
    */
   private _generateComponentCode(componentName: string, componentSpec: ComponentSpec): string {
+    const pascalName = WebUIGenerator.pascalCase(componentName);
+    const inputDefinitions = JSON.stringify(componentSpec.inputs ?? [], null, 2);
+    const actionDefinitions = JSON.stringify(componentSpec.actions ?? [], null, 2);
+    const defaultInputs = JSON.stringify(
+      (componentSpec.inputs ?? []).reduce<Record<string, string>>((acc, input) => {
+        acc[input.name] = input.defaultValue ?? '';
+        return acc;
+      }, {}),
+      null,
+      2,
+    );
+
     return `/**
  * Generated ${componentSpec.search.title}
  *
@@ -148,23 +160,148 @@ export class WebUIGenerator {
  * Auto-generated from spec.json
  */
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
-interface Generated${componentName.charAt(0).toUpperCase() + componentName.slice(1)}Props {
-  // TODO: Define props based on spec
+const inputDefinitions = ${inputDefinitions} as const;
+const actionDefinitions = ${actionDefinitions} as const;
+
+type InputName = (typeof inputDefinitions)[number] extends { name: infer N } ? N : never;
+type ActionName = (typeof actionDefinitions)[number] extends { name: infer N } ? N : never;
+
+interface Generated${pascalName}Props {
+  /** Override the default title derived from the spec search metadata */
+  title?: string;
+  /** Override the default summary derived from the spec search metadata */
+  summary?: string;
+  /** Provide initial input values mapped by the spec input names */
+  inputs?: Partial<Record<InputName, string>>;
+  /** Override action labels mapped by the spec action names */
+  actions?: Partial<Record<ActionName, string>>;
+  /** Input change callback invoked with the spec-defined input name and current value */
+  onInputChange?: (name: InputName, value: string) => void;
+  /** Action callback invoked with the action name and the current form values */
+  onAction?: (action: ActionName, values: Record<InputName, string>) => void;
 }
 
-export const Generated${componentName.charAt(0).toUpperCase() + componentName.slice(1)}: React.FC<Generated${componentName.charAt(0).toUpperCase() + componentName.slice(1)}Props> = (props) => {
+const defaultTitle = ${JSON.stringify(componentSpec.search.title)};
+const defaultSummary = ${JSON.stringify(componentSpec.search.summary)};
+const defaultInputs = ${defaultInputs} as Record<InputName, string>;
+
+export const Generated${pascalName}: React.FC<Generated${pascalName}Props> = ({
+  title = defaultTitle,
+  summary = defaultSummary,
+  inputs = {} as Partial<Record<InputName, string>>,
+  actions: actionOverrides = {} as Partial<Record<ActionName, string>>,
+  onInputChange,
+  onAction,
+}) => {
+  const [formValues, setFormValues] = useState<Record<InputName, string>>({
+    ...defaultInputs,
+    ...(inputs as Partial<Record<InputName, string>>),
+  });
+
+  const hasInputs = useMemo(() => inputDefinitions.length > 0, []);
+  const hasActions = useMemo(() => actionDefinitions.length > 0, []);
+
+  const handleInputChange = (name: InputName, value: string) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    onInputChange?.(name, value);
+  };
+
+  const handleAction = (action: ActionName) => {
+    onAction?.(action, formValues);
+  };
+
   return (
-    <div>
-      <h2>${componentSpec.search.title}</h2>
-      <p>${componentSpec.search.summary}</p>
-      {/* TODO: Implement component based on spec capabilities */}
-    </div>
+    <section aria-label={title} className="generated-component">
+      <header>
+        <h2>{title}</h2>
+        <p>{summary}</p>
+      </header>
+
+      {hasInputs && (
+        <div className="generated-inputs" role="form">
+          {inputDefinitions.map((input) => {
+            const value = formValues[input.name as InputName] ?? '';
+            const inputId = '${componentName}-input-' + String(input.name);
+
+            if (input.type === 'select' && input.options?.length) {
+              return (
+                <label key={input.name} htmlFor={inputId} className="generated-input">
+                  <span className="generated-input__label">{input.label}</span>
+                  <select
+                    id={inputId}
+                    value={value ?? ''}
+                    onChange={(event) => handleInputChange(input.name as InputName, event.target.value)}
+                  >
+                    <option value="" disabled>
+                      {input.placeholder ?? 'Select an option'}
+                    </option>
+                    {input.options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  {input.helperText && <small className="generated-input__help">{input.helperText}</small>}
+                </label>
+              );
+            }
+
+            if (input.type === 'textarea') {
+              return (
+                <label key={input.name} htmlFor={inputId} className="generated-input">
+                  <span className="generated-input__label">{input.label}</span>
+                  <textarea
+                    id={inputId}
+                    placeholder={input.placeholder}
+                    value={value ?? ''}
+                    onChange={(event) => handleInputChange(input.name as InputName, event.target.value)}
+                  />
+                  {input.helperText && <small className="generated-input__help">{input.helperText}</small>}
+                </label>
+              );
+            }
+
+            return (
+              <label key={input.name} htmlFor={inputId} className="generated-input">
+                <span className="generated-input__label">{input.label}</span>
+                <input
+                  id={inputId}
+                  type={input.type ?? 'text'}
+                  placeholder={input.placeholder}
+                  value={value ?? ''}
+                  onChange={(event) => handleInputChange(input.name as InputName, event.target.value)}
+                />
+                {input.helperText && <small className="generated-input__help">{input.helperText}</small>}
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {hasActions && (
+        <div className="generated-actions" role="group" aria-label="Actions">
+          {actionDefinitions.map((action) => (
+            <button
+              key={action.name}
+              type="button"
+              onClick={() => handleAction(action.name as ActionName)}
+              aria-label={action.helperText ?? action.label}
+            >
+              {actionOverrides[action.name as ActionName] ?? action.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 
-export default Generated${componentName.charAt(0).toUpperCase() + componentName.slice(1)};`;
+export default Generated${pascalName};`;
   }
 
   /**
@@ -181,11 +318,11 @@ export default Generated${componentName.charAt(0).toUpperCase() + componentName.
     const imports = pageSpec.components
         .map(
           (comp) =>
-            `import { Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} } from '../../components/generated-${comp}';`,
+            `import { Generated${WebUIGenerator.pascalCase(comp)} } from '../../components/generated-${comp}';`,
         )
         .join('\n'),
       componentUsage = pageSpec.components
-        .map((comp) => `      <Generated${comp.charAt(0).toUpperCase() + comp.slice(1)} />`)
+        .map((comp) => `      <Generated${WebUIGenerator.pascalCase(comp)} />`)
         .join('\n');
 
     return `/**
@@ -203,7 +340,7 @@ export default function ${pageName.charAt(0).toUpperCase() + pageName.slice(1)}P
       <h1>${pageName.charAt(0).toUpperCase() + pageName.slice(1)} Page</h1>
 ${componentUsage}
     </div>
-  );
+ );
 }`;
   }
 
@@ -353,6 +490,14 @@ export async function ${method}(request: NextRequest) {
     return NextResponse.json(errorPayload ?? { success: false, message: 'API Error' }, { status: ${errorStatus} });
   }
 }`;
+  }
+
+  private static pascalCase(value: string): string {
+    return value
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join('');
   }
 
   /**
