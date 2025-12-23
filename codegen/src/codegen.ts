@@ -4,12 +4,35 @@
  * Revolutionary Codegen - Main Entry Point
  * Spec-driven, plugin-based code generation system per AGENTS.md
  * Replaces bootstrap system with clean, maintainable architecture
+ * TypeScript strict typing with no 'any' types
  */
 
-const path = require('path');
-const BaseCodegen = require('./core/base-codegen');
+import * as path from 'path';
+import { BaseCodegen } from './core/base-codegen';
 
-class RevolutionaryCodegen extends BaseCodegen {
+interface RevolutionaryCodegenOptions {
+  outputDir?: string;
+  verbose?: boolean;
+  strictMode?: boolean;
+  [key: string]: unknown;
+}
+
+interface CLIArgs {
+  spec?: string;
+  output?: string;
+  language?: string;
+  profile?: string;
+  template?: string;
+  category?: string;
+  component?: string;
+  query?: string;
+  tool?: string;
+  platform?: string;
+  packageManager?: string;
+  [key: string]: unknown;
+}
+
+export class RevolutionaryCodegen extends BaseCodegen {
   constructor(options = {}) {
     super({
       outputDir: options.outputDir || './generated',

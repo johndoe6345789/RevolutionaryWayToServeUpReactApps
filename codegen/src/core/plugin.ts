@@ -1,16 +1,33 @@
 /**
  * Plugin - AGENTS.md compliant plugin base class
  * Implements plugin contract: initialise, getSpec, register
+ * TypeScript strict typing with no 'any' types
  */
 
-const BaseComponent = require('./base-component');
+import { BaseComponent } from './base-component';
+import { IPlugin } from './interfaces/iplugin';
+import { ISpec } from './interfaces/ispec';
 
-class Plugin extends BaseComponent {
+interface PluginExecutionResult {
+  success: boolean;
+  plugin: string;
+  timestamp: string;
+  output: Record<string, unknown>;
+}
+
+interface RegistryManager {
+  register(id: string, spec: unknown): void;
+}
+
+export abstract class Plugin extends BaseComponent implements IPlugin {
+  protected initialised: boolean;
+  protected specCache: unknown | null;
+
   /**
    * Constructor with single spec parameter (AGENTS.md requirement)
-   * @param {Object} spec - Plugin specification
+   * @param spec - Plugin specification
    */
-  constructor(spec) {
+  constructor(spec: ISpec) {
     super(spec);
     this.initialised = false;
     this.specCache = null;
@@ -18,9 +35,9 @@ class Plugin extends BaseComponent {
 
   /**
    * Initialise plugin (plugin contract method, ≤10 lines)
-   * @returns {Promise<Plugin>} Initialised plugin
+   * @returns Promise<Plugin> Initialised plugin
    */
-  async initialise() {
+  public async initialise(): Promise<IPlugin> {
     await super.initialise();
     this.initialised = true;
     this.log(`Plugin ${this.id} initialised`);
@@ -29,9 +46,9 @@ class Plugin extends BaseComponent {
 
   /**
    * Get plugin specification (plugin contract method, ≤10 lines)
-   * @returns {Object} Plugin specification
+   * @returns Plugin specification
    */
-  getSpec() {
+  public getSpec(): unknown {
     if (!this.specCache) {
       // Load spec from filesystem or embedded data
       this.specCache = this._loadSpec();
@@ -41,9 +58,9 @@ class Plugin extends BaseComponent {
 
   /**
    * Register with registry manager (plugin contract method, ≤10 lines)
-   * @param {Object} registryManager - Registry manager instance
+   * @param registryManager - Registry manager instance
    */
-  async register(registryManager) {
+  public async register(registryManager: RegistryManager): Promise<void> {
     if (!this.initialised) {
       await this.initialise();
     }
@@ -57,10 +74,10 @@ class Plugin extends BaseComponent {
 
   /**
    * Execute plugin (extended from base, ≤10 lines)
-   * @param {Object} context - Execution context
-   * @returns {Object} Execution result
+   * @param context - Execution context
+   * @returns Execution result
    */
-  async execute(context) {
+  public async execute(context: Record<string, unknown>): Promise<PluginExecutionResult> {
     if (!this.initialised) {
       await this.initialise();
     }
@@ -75,22 +92,20 @@ class Plugin extends BaseComponent {
 
   /**
    * Load plugin specification (protected method, ≤10 lines)
-   * @returns {Object} Plugin specification
+   * @returns Plugin specification
    */
-  _loadSpec() {
+  protected _loadSpec(): unknown {
     // Default implementation - override in subclasses
     return this.spec;
   }
 
   /**
    * Log plugin message (convenience method, ≤10 lines)
-   * @param {string} message - Message to log
-   * @param {string} level - Log level
+   * @param message - Message to log
+   * @param level - Log level
    */
-  log(message, level = 'info') {
+  protected log(message: string, level: string = 'info'): void {
     const prefix = `[${this.id}]`;
     console.log(`${prefix} ${message}`);
   }
 }
-
-module.exports = Plugin;

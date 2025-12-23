@@ -1,17 +1,46 @@
 /**
  * SpecValidator - AGENTS.md compliant specification validator
  * Validates specs against JSON schema and AGENTS.md constraints
+ * TypeScript strict typing with no 'any' types
  */
 
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
-class SpecValidator {
+interface SpecValidatorOptions {
+  schemaPath?: string;
+  strictMode?: boolean;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+interface Spec {
+  uuid: string;
+  id: string;
+  search: SearchMetadata;
+  [key: string]: unknown;
+}
+
+interface SearchMetadata {
+  title: string;
+  summary: string;
+  keywords: string[];
+  [key: string]: unknown;
+}
+
+export class SpecValidator {
+  private schemaPath: string;
+  private strictMode: boolean;
+  private schema: unknown | null;
+
   /**
    * Constructor with single options parameter
-   * @param {Object} options - Validator options
+   * @param options - Validator options
    */
-  constructor(options = {}) {
+  constructor(options: SpecValidatorOptions = {}) {
     this.schemaPath = options.schemaPath || path.join(__dirname, '../schemas/spec-schema.json');
     this.strictMode = options.strictMode !== false;
     this.schema = null;
@@ -19,20 +48,20 @@ class SpecValidator {
 
   /**
    * Initialise validator (loads schema)
-   * @returns {Promise<SpecValidator>} Initialised validator
+   * @returns Promise<SpecValidator> Initialised validator
    */
-  async initialise() {
+  public async initialise(): Promise<SpecValidator> {
     this.schema = JSON.parse(fs.readFileSync(this.schemaPath, 'utf8'));
     return this;
   }
 
   /**
    * Validate specification
-   * @param {Object} spec - Specification to validate
-   * @returns {Object} Validation result
+   * @param spec - Specification to validate
+   * @returns Validation result
    */
-  validate(spec) {
-    const errors = [];
+  public validate(spec: unknown): ValidationResult {
+    const errors: string[] = [];
 
     // Basic structure validation
     if (!this._validateBasicStructure(spec, errors)) {
@@ -40,7 +69,7 @@ class SpecValidator {
     }
 
     // AGENTS.md specific validations
-    if (!this._validateAgentsMdCompliance(spec, errors)) {
+    if (!this._validateAgentsMdCompliance(spec as Spec, errors)) {
       return { valid: false, errors };
     }
 
@@ -49,19 +78,20 @@ class SpecValidator {
 
   /**
    * Validate basic structure
-   * @param {Object} spec - Spec to validate
-   * @param {Array} errors - Error accumulator
-   * @returns {boolean} Is valid
+   * @param spec - Spec to validate
+   * @param errors - Error accumulator
+   * @returns Is valid
    */
-  _validateBasicStructure(spec, errors) {
+  private _validateBasicStructure(spec: unknown, errors: string[]): boolean {
     if (!spec || typeof spec !== 'object') {
       errors.push('Spec must be an object');
       return false;
     }
 
+    const specObj = spec as Record<string, unknown>;
     const required = ['uuid', 'id', 'search'];
     for (const field of required) {
-      if (!(field in spec)) {
+      if (!(field in specObj)) {
         errors.push(`Missing required field: ${field}`);
       }
     }
@@ -71,11 +101,11 @@ class SpecValidator {
 
   /**
    * Validate AGENTS.md compliance
-   * @param {Object} spec - Spec to validate
-   * @param {Array} errors - Error accumulator
-   * @returns {boolean} Is valid
+   * @param spec - Spec to validate
+   * @param errors - Error accumulator
+   * @returns Is valid
    */
-  _validateAgentsMdCompliance(spec, errors) {
+  private _validateAgentsMdCompliance(spec: Spec, errors: string[]): boolean {
     // UUID format validation
     if (!this._isValidUUID(spec.uuid)) {
       errors.push('Invalid UUID format (must be RFC 4122)');
@@ -96,11 +126,11 @@ class SpecValidator {
 
   /**
    * Validate search metadata
-   * @param {Object} search - Search metadata
-   * @param {Array} errors - Error accumulator
-   * @returns {boolean} Is valid
+   * @param search - Search metadata
+   * @param errors - Error accumulator
+   * @returns Is valid
    */
-  _validateSearchMetadata(search, errors) {
+  private _validateSearchMetadata(search: SearchMetadata, errors: string[]): boolean {
     if (!search || typeof search !== 'object') {
       errors.push('Search metadata must be an object');
       return false;
@@ -122,23 +152,21 @@ class SpecValidator {
 
   /**
    * Validate UUID format
-   * @param {string} uuid - UUID to validate
-   * @returns {boolean} Is valid
+   * @param uuid - UUID to validate
+   * @returns Is valid
    */
-  _isValidUUID(uuid) {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  private _isValidUUID(uuid: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return typeof uuid === 'string' && uuidRegex.test(uuid);
   }
 
   /**
    * Validate ID format
-   * @param {string} id - ID to validate
-   * @returns {boolean} Is valid
+   * @param id - ID to validate
+   * @returns Is valid
    */
-  _isValidId(id) {
+  private _isValidId(id: string): boolean {
     const idRegex = /^[a-z][a-z0-9.-]*$/;
     return typeof id === 'string' && idRegex.test(id);
   }
 }
-
-module.exports = SpecValidator;

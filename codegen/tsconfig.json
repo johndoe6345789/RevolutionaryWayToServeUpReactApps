@@ -34,7 +34,6 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "codegen/**/*.js",
     "specs/**/*.json"
   ],
   "exclude": [
