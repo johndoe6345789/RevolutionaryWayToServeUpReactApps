@@ -71,16 +71,21 @@ jobs:
       - name: Request Codex task pickup
         if: env.CODEX_WEBHOOK_URL != ''
         run: |
-          cat >payload.json <<'PAYLOAD'
-          {
-            "type": "ai-issue-pickup",
-            "source": "github-actions",
-            "repository": "${{ github.repository }}",
-            "issue": "${{ github.event.issue.number }}",
-            "url": "${{ github.event.issue.html_url }}",
-            "title": "${{ github.event.issue.title }}"
-          }
-PAYLOAD
+          jq -n \
+            --arg type "ai-issue-pickup" \
+            --arg source "github-actions" \
+            --arg repository "${{ github.repository }}" \
+            --arg issue "${{ github.event.issue.number }}" \
+            --arg url "${{ github.event.issue.html_url }}" \
+            --arg title "${{ github.event.issue.title }}" \
+            '{
+              type: $type,
+              source: $source,
+              repository: $repository,
+              issue: $issue,
+              url: $url,
+              title: $title
+            }' > payload.json
 
           curl --fail --show-error --silent -X POST \
             -H "Content-Type: application/json" \
