@@ -9,6 +9,7 @@ Summary of the automation that runs in this repository:
 - **release-zip.yml** – packages build artifacts into a zip for distribution.
 - **copilot-conflict-resolver.yml** – asks Copilot to fix merge conflicts on same-repo PRs and escalates to Codex with a PR comment when Copilot is skipped (e.g., on forked branches).
 - **ai-code-review.yml** – asks both Copilot and Codex for a code review on every pull request event (including when the PR is closed).
+- **workflow-doctor.yml** – runs the workflow diagnostics helper after CI failures (or on demand) and publishes a report plus an artifact with the raw JSON results.
 
 When adding new workflows, keep them documented here so maintainers can see the full CI/CD surface at a glance.
 
