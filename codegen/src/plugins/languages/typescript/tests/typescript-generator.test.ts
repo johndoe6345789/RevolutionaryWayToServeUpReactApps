@@ -7,7 +7,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { TypeScriptGenerator } from '../src/typescript-generator';
 
 describe('TypeScriptGenerator', () => {
-  let generator: TypeScriptGenerator, mockSpec: any;
+  let generator: TypeScriptGenerator;
+  let mockSpec: any;
 
   beforeEach(() => {
     mockSpec = {
@@ -68,19 +69,19 @@ describe('TypeScriptGenerator', () => {
       generator.validate();
 
       const context = {
-          templateId: 'class',
-          language: 'typescript',
-          variables: {
-            name: 'TestClass',
-            body: 'this.value = 42;',
-          },
-          output: {
-            directory: '/tmp',
-            filename: 'TestClass',
-            overwrite: false,
-          },
+        templateId: 'class',
+        language: 'typescript',
+        variables: {
+          name: 'TestClass',
+          body: 'this.value = 42;',
         },
-        result = await generator.generate(context);
+        output: {
+          directory: '/tmp',
+          filename: 'TestClass',
+          overwrite: false,
+        },
+      };
+      const result = await generator.generate(context);
 
       expect(result.content).toEqual([
         'export class TestClass {',
@@ -101,16 +102,16 @@ describe('TypeScriptGenerator', () => {
       mockSpec.supportedTemplates = ['class', 'component'];
 
       const context = {
-          templateId: 'component',
-          language: 'typescript',
-          variables: { name: 'MyComponent' },
-          output: {
-            directory: '/tmp',
-            filename: 'MyComponent',
-            overwrite: false,
-          },
+        templateId: 'component',
+        language: 'typescript',
+        variables: { name: 'MyComponent' },
+        output: {
+          directory: '/tmp',
+          filename: 'MyComponent',
+          overwrite: false,
         },
-        result = await generator.generate(context);
+      };
+      const result = await generator.generate(context);
       expect(result.extension).toBe('.tsx');
     });
   });

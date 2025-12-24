@@ -42,22 +42,25 @@ export default {
 
       create(context) {
         const options = context.options[0] || {},
-         specFiles = options.specFiles || [
-          'codegen/src/plugins/tools/oop-principles/spec.json',
-          'codegen/src/plugins/tools/test-runner/spec.json',
-          'codegen/src/specs/bootstrap-system/spec.json',
-        ],
-
-        // Track processed files to avoid duplicate checks
-         processedFiles = new Set();
+          specFiles = options.specFiles || [
+            'codegen/src/plugins/tools/oop-principles/spec.json',
+            'codegen/src/plugins/tools/test-runner/spec.json',
+            'codegen/src/specs/bootstrap-system/spec.json',
+          ],
+          // Track processed files to avoid duplicate checks
+          processedFiles = new Set();
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') {return;}
+            if (!filePath || filePath === '<input>') {
+              return;
+            }
 
             // Only run once per lint session
-            if (processedFiles.has('specs-validated')) {return;}
+            if (processedFiles.has('specs-validated')) {
+              return;
+            }
             processedFiles.add('specs-validated');
 
             // Validate all spec files

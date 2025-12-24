@@ -44,9 +44,9 @@ export class CLIGenerator {
    * @param context
    */
   public async execute(context: Record<string, unknown>): Promise<ExecutionResult> {
-    const specs = this._loadSpecs(),
-      cliCode = this._generateCLI(specs),
-      filePath = path.join(this.outputPath, 'generated-cli.ts');
+    const specs = this._loadSpecs();
+    const cliCode = this._generateCLI(specs);
+    const filePath = path.join(this.outputPath, 'generated-cli.ts');
 
     fs.writeFileSync(filePath, cliCode);
 
@@ -74,8 +74,8 @@ export class CLIGenerator {
    * @param specs
    */
   private _generateCLI(specs: CLISpecData): string {
-    const commandHandlers = this._generateCommandHandlers(specs.commands),
-      commandMap = this._generateCommandMap(specs.commands);
+    const commandHandlers = this._generateCommandHandlers(specs.commands);
+    const commandMap = this._generateCommandMap(specs.commands);
 
     return `/**
  * Generated CLI - ${specs.search.title}
@@ -160,8 +160,8 @@ export function createGeneratedCLI(entrypoint: CodegenEntrypoint): GeneratedCLI 
     const handlers: string[] = [];
 
     for (const [commandName, commandSpec] of Object.entries(commands)) {
-      const handlerName = `_handle${commandName.charAt(0).toUpperCase()}${commandName.slice(1)}`,
-        handler = this._generateCommandHandler(commandName, commandSpec, handlerName);
+      const handlerName = `_handle${commandName.charAt(0).toUpperCase()}${commandName.slice(1)}`;
+      const handler = this._generateCommandHandler(commandName, commandSpec, handlerName);
       handlers.push(handler);
     }
 

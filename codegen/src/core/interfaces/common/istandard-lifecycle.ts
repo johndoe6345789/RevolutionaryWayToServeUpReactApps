@@ -12,37 +12,37 @@ import type { LifecycleStatus } from './lifecycle-status';
  */
 export interface IStandardLifecycle {
   /**
-   * initialise() - Called after construction, register with dependency registry
+   * Initialise() - Called after construction, register with dependency registry
    */
-  initialise(): Promise<void> | void;
+  initialise: () => Promise<void> | void;
 
   /**
-   * validate() - Pre-flight checks before execution, fail fast if possible
+   * Validate() - Pre-flight checks before execution, fail fast if possible
    */
-  validate(): Promise<void> | void;
+  validate: () => Promise<void> | void;
 
   /**
-   * execute() - Primary operational method, return values via internal messaging service
+   * Execute() - Primary operational method, return values via internal messaging service
    */
-  execute(): Promise<unknown> | unknown;
+  execute: () => Promise<unknown> | unknown;
 
   /**
-   * cleanup() - Resource cleanup and shutdown, should be idempotent
+   * Cleanup() - Resource cleanup and shutdown, should be idempotent
    */
-  cleanup(): Promise<void> | void;
+  cleanup: () => Promise<void> | void;
 
   /**
-   * debug() - Return diagnostic data for troubleshooting
+   * Debug() - Return diagnostic data for troubleshooting
    */
-  debug(): Record<string, unknown>;
+  debug: () => Record<string, unknown>;
 
   /**
-   * reset() - Reset component to initial state, useful for testing
+   * Reset() - Reset component to initial state, useful for testing
    */
-  reset(): Promise<void> | void;
+  reset: () => Promise<void> | void;
 
   /**
-   * status() - Return current lifecycle status
+   * Status() - Return current lifecycle status
    */
-  status(): LifecycleStatus;
+  status: () => LifecycleStatus;
 }

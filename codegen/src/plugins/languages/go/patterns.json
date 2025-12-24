@@ -32,15 +32,7 @@
     "defaultExtension": ".go",
     "language": "go",
     "packageMain": "main",
-    "commonImports": [
-      "fmt",
-      "os",
-      "strings",
-      "strconv",
-      "time",
-      "sync",
-      "context"
-    ]
+    "commonImports": ["fmt", "os", "strings", "strconv", "time", "sync", "context"]
   },
   "validation": {
     "requiredSpecFields": ["templates", "extensions"],
@@ -59,16 +51,8 @@
     "missingPackageDeclaration": "Go file missing package declaration"
   },
   "codeSnippets": {
-    "mainFunction": [
-      "func main() {",
-      "    {body}",
-      "}"
-    ],
-    "errorHandling": [
-      "if err != nil {",
-      "    {error-handling}",
-      "}"
-    ],
+    "mainFunction": ["func main() {", "    {body}", "}"],
+    "errorHandling": ["if err != nil {", "    {error-handling}", "}"],
     "goroutineLaunch": [
       "go func() {",
       "    defer func() {",

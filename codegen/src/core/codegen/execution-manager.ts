@@ -11,17 +11,18 @@ import type { IStandardLifecycle } from '../interfaces/index';
  * ExecutionManager - Coordinates code generation execution
  */
 export class ExecutionManager extends BaseComponent implements IStandardLifecycle {
-  private executionContext: Map<string, unknown> = new Map();
+  private readonly executionContext = new Map<string, unknown>();
 
   /**
    * Constructor with spec
+   * @param spec
    */
   constructor(spec: any) {
     super(spec);
   }
 
   /**
-   * initialise - Prepare execution environment
+   * Initialise - Prepare execution environment
    */
   public override async initialise(): Promise<void> {
     await super.initialise();
@@ -29,7 +30,7 @@ export class ExecutionManager extends BaseComponent implements IStandardLifecycl
   }
 
   /**
-   * validate - Validate execution context
+   * Validate - Validate execution context
    */
   public override async validate(): Promise<void> {
     await super.validate();
@@ -37,7 +38,7 @@ export class ExecutionManager extends BaseComponent implements IStandardLifecycl
   }
 
   /**
-   * execute - Execute code generation operations
+   * Execute - Execute code generation operations
    */
   public override async execute(): Promise<unknown> {
     // Code generation execution logic
@@ -45,7 +46,7 @@ export class ExecutionManager extends BaseComponent implements IStandardLifecycl
   }
 
   /**
-   * cleanup - Clean up execution resources
+   * Cleanup - Clean up execution resources
    */
   public override async cleanup(): Promise<void> {
     this.executionContext.clear();
@@ -54,6 +55,7 @@ export class ExecutionManager extends BaseComponent implements IStandardLifecycl
 
   /**
    * Execute with specific context
+   * @param context
    */
   public async executeWithContext(context: Record<string, unknown>): Promise<unknown> {
     for (const [key, value] of Object.entries(context)) {

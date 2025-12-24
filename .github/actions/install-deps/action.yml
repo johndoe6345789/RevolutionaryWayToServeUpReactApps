@@ -1,0 +1,22 @@
+name: 'Install Project Dependencies'
+description: 'Install dependencies for specified projects'
+inputs:
+  projects:
+    description: 'Comma-separated list of project directories (e.g., codegen,retro-react-app,e2e)'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        IFS=',' read -ra PROJECTS <<< "${{ inputs.projects }}"
+        for project in "${PROJECTS[@]}"; do
+          project=$(echo "$project" | xargs)
+          if [ -d "$project" ]; then
+            echo "Installing dependencies in $project..."
+            (cd "$project" && bun install)
+          else
+            echo "Warning: Directory $project does not exist"
+          fi
+        done

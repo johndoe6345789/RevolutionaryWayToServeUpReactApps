@@ -7,7 +7,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { PythonGenerator } from '../src/python-generator';
 
 describe('PythonGenerator', () => {
-  let generator: PythonGenerator, mockSpec: any;
+  let generator: PythonGenerator;
+  let mockSpec: any;
 
   beforeEach(() => {
     mockSpec = {
@@ -85,26 +86,26 @@ describe('PythonGenerator', () => {
       generator.validate();
 
       const context = {
-          templateId: 'class',
-          language: 'python',
-          variables: {
-            name: 'TestClass',
-            docstring: 'A test class',
-            parameters: ['name: str', 'age: int'],
-            'init-body': ['        self.name = name', '        self.age = age'],
-            methods: [
-              '    def greet(self) -> str:',
-              '        """Return a greeting message."""',
-              '        return f"Hello, {self.name}!"',
-            ],
-          },
-          output: {
-            directory: '/tmp',
-            filename: 'TestClass',
-            overwrite: false,
-          },
+        templateId: 'class',
+        language: 'python',
+        variables: {
+          name: 'TestClass',
+          docstring: 'A test class',
+          parameters: ['name: str', 'age: int'],
+          'init-body': ['        self.name = name', '        self.age = age'],
+          methods: [
+            '    def greet(self) -> str:',
+            '        """Return a greeting message."""',
+            '        return f"Hello, {self.name}!"',
+          ],
         },
-        result = await generator.generate(context);
+        output: {
+          directory: '/tmp',
+          filename: 'TestClass',
+          overwrite: false,
+        },
+      };
+      const result = await generator.generate(context);
 
       expect(result.content).toEqual([
         'class TestClass:',
@@ -134,23 +135,23 @@ describe('PythonGenerator', () => {
       };
 
       const context = {
-          templateId: 'function',
-          language: 'python',
-          variables: {
-            name: 'calculate_sum',
-            parameters: 'a: int, b: int',
-            'return-type': 'int',
-            docstring: 'Calculate the sum of two numbers',
-            body: ['    """Calculate the sum of two integers."""', '    result = a + b'],
-            'return-value': 'result',
-          },
-          output: {
-            directory: '/tmp',
-            filename: 'utils',
-            overwrite: false,
-          },
+        templateId: 'function',
+        language: 'python',
+        variables: {
+          name: 'calculate_sum',
+          parameters: 'a: int, b: int',
+          'return-type': 'int',
+          docstring: 'Calculate the sum of two numbers',
+          body: ['    """Calculate the sum of two integers."""', '    result = a + b'],
+          'return-value': 'result',
         },
-        result = await generator.generate(context);
+        output: {
+          directory: '/tmp',
+          filename: 'utils',
+          overwrite: false,
+        },
+      };
+      const result = await generator.generate(context);
       expect(result.content.join('\n')).toContain('def calculate_sum(a: int, b: int) -> int:');
       expect(result.content.join('\n')).toContain('"""Calculate the sum of two numbers"""');
       expect(result.extension).toBe('.py');

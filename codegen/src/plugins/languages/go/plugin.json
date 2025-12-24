@@ -19,15 +19,8 @@
     "mac": true,
     "linux": true
   },
-  "registries": [
-    "LanguageRegistry"
-  ],
-  "capabilities": [
-    "generate",
-    "validate",
-    "format",
-    "test"
-  ],
+  "registries": ["LanguageRegistry"],
+  "capabilities": ["generate", "validate", "format", "test"],
   "tests": {
     "directory": "tests/",
     "coverage_required": 100

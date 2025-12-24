@@ -15,14 +15,7 @@
     "fileExtension": "\\.rs$"
   },
   "constants": {
-    "supportedTemplates": [
-      "struct",
-      "impl",
-      "function",
-      "module",
-      "enum",
-      "trait"
-    ],
+    "supportedTemplates": ["struct", "impl", "function", "module", "enum", "trait"],
     "extensions": [".rs"],
     "componentExtension": ".rs",
     "defaultExtension": ".rs",

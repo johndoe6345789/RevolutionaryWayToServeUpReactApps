@@ -19,25 +19,42 @@
     "compilation": "interpreted"
   },
   "extensions": [".py"],
-  "supportedTemplates": [
-    "class",
-    "function",
-    "module",
-    "dataclass",
-    "script",
-    "test",
-    "enum"
-  ],
+  "supportedTemplates": ["class", "function", "module", "dataclass", "script", "test", "enum"],
   "syntax": {
     "keywords": [
-      "class", "def", "if", "elif", "else",
-      "for", "while", "try", "except", "finally",
-      "import", "from", "as", "return", "yield",
-      "self", "super", "__init__", "__name__"
+      "class",
+      "def",
+      "if",
+      "elif",
+      "else",
+      "for",
+      "while",
+      "try",
+      "except",
+      "finally",
+      "import",
+      "from",
+      "as",
+      "return",
+      "yield",
+      "self",
+      "super",
+      "__init__",
+      "__name__"
     ],
     "types": [
-      "str", "int", "float", "bool", "list", "dict", "tuple", "set",
-      "Optional[T]", "List[T]", "Dict[K,V]", "Union[T1,T2]"
+      "str",
+      "int",
+      "float",
+      "bool",
+      "list",
+      "dict",
+      "tuple",
+      "set",
+      "Optional[T]",
+      "List[T]",
+      "Dict[K,V]",
+      "Union[T1,T2]"
     ],
     "modifiers": ["@staticmethod", "@classmethod", "@property"]
   },

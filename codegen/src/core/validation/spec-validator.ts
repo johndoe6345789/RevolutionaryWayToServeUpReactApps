@@ -73,8 +73,8 @@ export class SpecValidator {
       return false;
     }
 
-    const specObj = spec as Record<string, unknown>,
-      required = ['uuid', 'id', 'search'];
+    const specObj = spec as Record<string, unknown>;
+    const required = ['uuid', 'id', 'search'];
     for (const field of required) {
       if (!(field in specObj)) {
         errors.push(`Missing required field: ${field}`);

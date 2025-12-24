@@ -12,7 +12,8 @@ import type { ISpec } from './interfaces/index';
 vi.mock('fs');
 
 describe('PluginSpecLoader', () => {
-  let loader: PluginSpecLoader, mockBasePath: string;
+  let loader: PluginSpecLoader;
+  let mockBasePath: string;
 
   beforeEach(() => {
     mockBasePath = '/test/path';

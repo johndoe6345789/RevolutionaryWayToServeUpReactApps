@@ -148,9 +148,9 @@ export abstract class BaseCodegen {
   protected _discoverPlugins(): void {
     this.log('Discovering plugins...', 'info');
 
-    const pluginsDir = path.join(__dirname, '../plugins'),
-      // Discover from each plugin category
-      categories = ['tools', 'languages', 'templates', 'profiles'];
+    const pluginsDir = path.join(__dirname, '../plugins');
+    // Discover from each plugin category
+    const categories = ['tools', 'languages', 'templates', 'profiles'];
 
     for (const category of categories) {
       const categoryDir = path.join(pluginsDir, category);
@@ -162,17 +162,17 @@ export abstract class BaseCodegen {
       const items = fs.readdirSync(categoryDir);
 
       for (const item of items) {
-        const pluginDir = path.join(categoryDir, item),
-          manifestPath = path.join(pluginDir, 'plugin.json');
+        const pluginDir = path.join(categoryDir, item);
+        const manifestPath = path.join(pluginDir, 'plugin.json');
 
         if (fs.existsSync(manifestPath)) {
           try {
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<
-                string,
-                unknown
-              >,
-              pluginId = manifest.id as string,
-              entryPoint = manifest.entry_point as string;
+              string,
+              unknown
+            >;
+            const pluginId = manifest.id as string;
+            const entryPoint = manifest.entry_point as string;
             this.discoveredPlugins.set(pluginId, {
               id: pluginId,
               name: manifest.name as string | undefined,
@@ -207,10 +207,10 @@ export abstract class BaseCodegen {
         const entryPoint = path.join(pluginInfo.path, pluginInfo.entry_point);
         // Note: require() is used here as plugins may be CommonJS or ESM
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const PluginClass = require(entryPoint),
-          // Create plugin instance
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-          plugin = new PluginClass();
+        const PluginClass = require(entryPoint);
+        // Create plugin instance
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+        const plugin = new PluginClass();
 
         // Initialize plugin
         if (typeof plugin.initialize === 'function') {
@@ -458,8 +458,8 @@ export abstract class BaseCodegen {
       return;
     }
 
-    const timestamp = new Date().toISOString().split('T')[1].split('.')[0],
-      prefix = `[${timestamp}] [Codegen]`;
+    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+    const prefix = `[${timestamp}] [Codegen]`;
 
     switch (level) {
       case 'success':

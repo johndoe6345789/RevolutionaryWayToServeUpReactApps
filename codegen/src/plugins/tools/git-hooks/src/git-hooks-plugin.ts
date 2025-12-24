@@ -78,9 +78,10 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Installation results
    */
   private installGit(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform,
-      packageManager = (context.packageManager as string) || this.detectPackageManager(platform),
-      { spec } = this;
+    const platform = (context.platform as string) || process.platform;
+    const packageManager =
+      (context.packageManager as string) || this.detectPackageManager(platform);
+    const { spec } = this;
     if (!spec.install?.[platform]) {
       throw new Error(`Git installation not supported on platform: ${platform}`);
     }
@@ -108,8 +109,8 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Setup results
    */
   private setupHooks(context: Record<string, unknown>): unknown {
-    const hooksToSetup = (context.hooks as string[]) || Object.keys(this.getHookTemplates()),
-      results: Record<string, unknown>[] = [];
+    const hooksToSetup = (context.hooks as string[]) || Object.keys(this.getHookTemplates());
+    const results: Record<string, unknown>[] = [];
 
     this.ensureHooksDirectory();
 
@@ -141,13 +142,13 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Verification results
    */
   private verifyHooks(context: Record<string, unknown>): unknown {
-    const hooksToVerify = (context.hooks as string[]) || Object.keys(this.getHookTemplates()),
-      results: Record<string, unknown>[] = [];
+    const hooksToVerify = (context.hooks as string[]) || Object.keys(this.getHookTemplates());
+    const results: Record<string, unknown>[] = [];
 
     for (const hookName of hooksToVerify) {
-      const hookPath = path.join(this.hooksPath, hookName),
-        exists = fs.existsSync(hookPath),
-        executable = exists ? this.isExecutable(hookPath) : false;
+      const hookPath = path.join(this.hooksPath, hookName);
+      const exists = fs.existsSync(hookPath);
+      const executable = exists ? this.isExecutable(hookPath) : false;
 
       results.push({
         hook: hookName,
@@ -176,15 +177,15 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns List results
    */
   private listHooks(context: Record<string, unknown>): unknown {
-    const templates = this.getHookTemplates(),
-      installed: Record<string, unknown>[] = [],
-      available: Record<string, unknown>[] = [];
+    const templates = this.getHookTemplates();
+    const installed: Record<string, unknown>[] = [];
+    const available: Record<string, unknown>[] = [];
 
     // Check installed hooks
     for (const hookName of Object.keys(templates)) {
-      const hookPath = path.join(this.hooksPath, hookName),
-        exists = fs.existsSync(hookPath),
-        executable = exists ? this.isExecutable(hookPath) : false;
+      const hookPath = path.join(this.hooksPath, hookName);
+      const exists = fs.existsSync(hookPath);
+      const executable = exists ? this.isExecutable(hookPath) : false;
 
       if (exists) {
         installed.push({
@@ -221,8 +222,8 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Create results
    */
   private createHook(context: Record<string, unknown>): unknown {
-    const hookName = context.hook as string,
-      templateName = (context.template as string) || hookName;
+    const hookName = context.hook as string;
+    const templateName = (context.template as string) || hookName;
 
     if (!hookName) {
       throw new Error('Hook name is required');
@@ -237,13 +238,13 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Remove results
    */
   private removeHook(context: Record<string, unknown>): unknown {
-    const hooksToRemove = (context.hooks as string[]) || [],
-      results: Record<string, unknown>[] = [];
+    const hooksToRemove = (context.hooks as string[]) || [];
+    const results: Record<string, unknown>[] = [];
 
     for (const hookName of hooksToRemove) {
       try {
-        const hookPath = path.join(this.hooksPath, hookName),
-          backupPath = `${hookPath}.backup`;
+        const hookPath = path.join(this.hooksPath, hookName);
+        const backupPath = `${hookPath}.backup`;
 
         if (fs.existsSync(hookPath)) {
           // Create backup
@@ -286,17 +287,17 @@ export class GitHooksPlugin extends BasePlugin {
    * @returns Installation result
    */
   private installHook(hookName: string, context: Record<string, unknown>): unknown {
-    const templates = this.getHookTemplates(),
-      templateName = (context.template as string) || hookName,
-      template = templates[templateName];
+    const templates = this.getHookTemplates();
+    const templateName = (context.template as string) || hookName;
+    const template = templates[templateName];
 
     if (!template) {
       throw new Error(`Template not found: ${templateName}`);
     }
 
-    const hookPath = path.join(this.hooksPath, hookName),
-      // Read template content
-      templateContent = this.getTemplateContent(template.template, context);
+    const hookPath = path.join(this.hooksPath, hookName);
+    // Read template content
+    const templateContent = this.getTemplateContent(template.template, context);
 
     // Write hook file
     fs.writeFileSync(hookPath, templateContent, { mode: 0o755 });
@@ -321,10 +322,10 @@ export class GitHooksPlugin extends BasePlugin {
     try {
       // In test environment, use the current directory
       const pluginDir =
-          this.config.entry_point && typeof this.config.entry_point === 'string'
-            ? path.dirname(this.config.entry_point.replace('src/git-hooks-plugin.js', ''))
-            : __dirname.replace('/src', ''),
-        templatesFile = path.join(pluginDir, this.templatesPath);
+        this.config.entry_point && typeof this.config.entry_point === 'string'
+          ? path.dirname(this.config.entry_point.replace('src/git-hooks-plugin.js', ''))
+          : __dirname.replace('/src', '');
+      const templatesFile = path.join(pluginDir, this.templatesPath);
 
       if (fs.existsSync(templatesFile)) {
         const templatesData = fs.readFileSync(templatesFile, 'utf8');
@@ -359,8 +360,8 @@ export class GitHooksPlugin extends BasePlugin {
    */
   private getTemplateContent(templateName: string, context: Record<string, unknown>): string {
     // Extract template name from path if it's a full path
-    const baseName = templateName.replace('templates/', '').replace('.sh', ''),
-      templateLines = this.templates[baseName];
+    const baseName = templateName.replace('templates/', '').replace('.sh', '');
+    const templateLines = this.templates[baseName];
     if (templateLines && Array.isArray(templateLines)) {
       return templateLines.join('\n');
     }

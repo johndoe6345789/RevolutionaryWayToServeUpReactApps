@@ -11,7 +11,8 @@ import * as fs from 'fs';
 vi.mock('fs');
 
 describe('PluginMessageLoader', () => {
-  let loader: PluginMessageLoader, mockBasePath: string;
+  let loader: PluginMessageLoader;
+  let mockBasePath: string;
 
   beforeEach(() => {
     mockBasePath = '/test/path';

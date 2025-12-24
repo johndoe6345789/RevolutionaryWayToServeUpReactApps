@@ -9,7 +9,13 @@
     "tags": ["interface", "webui", "generated", "nextjs"],
     "aliases": ["web-interface", "browser-interface"],
     "domain": "codegen",
-    "capabilities": ["tree-navigation", "full-text-search", "monaco-editor", "preview-generate", "runbook-generator"]
+    "capabilities": [
+      "tree-navigation",
+      "full-text-search",
+      "monaco-editor",
+      "preview-generate",
+      "runbook-generator"
+    ]
   },
   "platforms": {
     "win": true,

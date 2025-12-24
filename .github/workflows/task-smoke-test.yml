@@ -1,0 +1,37 @@
+name: Smoke Test Task
+
+on:
+  workflow_call:
+    inputs:
+      bun-version:
+        description: 'Bun version to use'
+        required: false
+        type: string
+        default: '1.3.4'
+
+jobs:
+  smoke-test:
+    name: Playwright smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bun-version: ${{ inputs.bun-version }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-deps
+        with:
+          projects: 'retro-react-app,e2e'
+
+      - name: Verify Playwright browsers exist
+        working-directory: e2e
+        run: |
+          test -d "$HOME/.cache/ms-playwright" || echo "Browsers will be installed by postinstall hook"
+          bun x playwright --version
+
+      - name: Run Playwright smoke test
+        run: bun run test
+        working-directory: e2e

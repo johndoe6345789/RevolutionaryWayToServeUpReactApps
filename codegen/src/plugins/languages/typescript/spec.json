@@ -19,28 +19,45 @@
     "compilation": "transpiled"
   },
   "extensions": [".ts", ".tsx"],
-  "supportedTemplates": [
-    "class",
-    "interface",
-    "function",
-    "module",
-    "component",
-    "enum",
-    "type"
-  ],
+  "supportedTemplates": ["class", "interface", "function", "module", "component", "enum", "type"],
   "syntax": {
     "keywords": [
-      "class", "interface", "type", "enum",
-      "function", "const", "let", "var",
-      "public", "private", "protected",
-      "async", "await", "try", "catch",
-      "if", "else", "for", "while",
-      "import", "export", "from", "as"
+      "class",
+      "interface",
+      "type",
+      "enum",
+      "function",
+      "const",
+      "let",
+      "var",
+      "public",
+      "private",
+      "protected",
+      "async",
+      "await",
+      "try",
+      "catch",
+      "if",
+      "else",
+      "for",
+      "while",
+      "import",
+      "export",
+      "from",
+      "as"
     ],
     "types": [
-      "string", "number", "boolean", "object",
-      "any", "unknown", "never", "void",
-      "Array<T>", "Record<K,V>", "Promise<T>"
+      "string",
+      "number",
+      "boolean",
+      "object",
+      "any",
+      "unknown",
+      "never",
+      "void",
+      "Array<T>",
+      "Record<K,V>",
+      "Promise<T>"
     ],
     "modifiers": ["readonly", "abstract", "static", "async"]
   },
@@ -67,19 +84,10 @@
       ]
     },
     "interface": {
-      "pattern": [
-        "export interface {name} {",
-        "  {properties}",
-        "  {methods}",
-        "}"
-      ]
+      "pattern": ["export interface {name} {", "  {properties}", "  {methods}", "}"]
     },
     "function": {
-      "pattern": [
-        "export function {name}({parameters}): {return-type} {",
-        "  {body}",
-        "}"
-      ]
+      "pattern": ["export function {name}({parameters}): {return-type} {", "  {body}", "}"]
     }
   },
   "features": {

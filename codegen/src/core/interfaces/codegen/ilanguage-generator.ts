@@ -25,16 +25,16 @@ export interface ILanguageGenerator extends IStandardLifecycle {
    * Generate code for specified template and context
    * @param context - Generation context with template ID and variables
    */
-  generate(context: CodeGenerationContext): Promise<GeneratedCode>;
+  generate: (context: CodeGenerationContext) => Promise<GeneratedCode>;
 
   /**
    * Check if template is supported by this generator
    * @param templateId - Template identifier to check
    */
-  supportsTemplate(templateId: string): boolean;
+  supportsTemplate: (templateId: string) => boolean;
 
   /**
    * Validate generator state and configuration
    */
-  validate(): void;
+  validate: () => void;
 }

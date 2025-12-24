@@ -15,10 +15,10 @@ vi.mock('./plugin-spec-loader');
 vi.mock('./plugin-message-loader');
 
 describe('BasePlugin', () => {
-  let mockConfig: IPluginConfig,
-    mockMessageLoader: Mocked<PluginMessageLoader>,
-    mockSpecLoader: Mocked<PluginSpecLoader>,
-    plugin: BasePlugin;
+  let mockConfig: IPluginConfig;
+  let mockMessageLoader: Mocked<PluginMessageLoader>;
+  let mockSpecLoader: Mocked<PluginSpecLoader>;
+  let plugin: BasePlugin;
 
   beforeEach(() => {
     mockConfig = {
@@ -133,22 +133,22 @@ describe('BasePlugin', () => {
   describe('register', () => {
     it('should initialize plugin if not initialized', async () => {
       const mockRegistryManager: IRegistryManager = {
-          register: vi.fn(),
-          getRegistry: vi.fn(),
-          getAggregate: vi.fn(),
+        register: vi.fn(),
+        getRegistry: vi.fn(),
+        getAggregate: vi.fn(),
+      };
+      const mockSpec: ISpec = {
+        uuid: 'test-uuid-123',
+        id: 'test-plugin',
+        type: 'plugin',
+        search: {
+          title: 'Test Plugin',
+          summary: 'Test plugin',
+          keywords: ['test'],
+          domain: 'test',
+          capabilities: ['testing'],
         },
-        mockSpec: ISpec = {
-          uuid: 'test-uuid-123',
-          id: 'test-plugin',
-          type: 'plugin',
-          search: {
-            title: 'Test Plugin',
-            summary: 'Test plugin',
-            keywords: ['test'],
-            domain: 'test',
-            capabilities: ['testing'],
-          },
-        };
+      };
 
       mockSpecLoader.loadSpec.mockResolvedValue(mockSpec);
       mockSpecLoader.validateSpec.mockReturnValue(true);

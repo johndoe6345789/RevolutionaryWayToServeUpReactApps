@@ -130,14 +130,18 @@ describe('GeneratedCLI command outputs', () => {
   it('shows usage when tool subcommand is missing', async () => {
     const consoleCapture = captureConsole();
     await cli.run(['tool']);
-    expect(consoleCapture.errors()).toContain('Usage: codegen tool install <tool-id> [--profile=<profile>]');
+    expect(consoleCapture.errors()).toContain(
+      'Usage: codegen tool install <tool-id> [--profile=<profile>]',
+    );
     consoleCapture.restore();
   });
 
   it('generates a runbook with required flags', async () => {
     const consoleCapture = captureConsole();
     await cli.run(['runbook', 'generate', '--profile=fullstack-dev', '--platform=linux']);
-    expect(consoleCapture.logs()).toContain("Runbook generated for profile 'fullstack-dev' on platform 'linux'.");
+    expect(consoleCapture.logs()).toContain(
+      "Runbook generated for profile 'fullstack-dev' on platform 'linux'.",
+    );
     consoleCapture.restore();
   });
 
@@ -156,7 +160,9 @@ describe('GeneratedCLI command outputs', () => {
   it('generates schema definitions with flags', async () => {
     const consoleCapture = captureConsole();
     await cli.run(['schema', 'generate', 'tool', '--bulk', '--defaults']);
-    expect(consoleCapture.logs()).toContain("Schema generation requested for type 'tool'. Bulk=true, Defaults=true.");
+    expect(consoleCapture.logs()).toContain(
+      "Schema generation requested for type 'tool'. Bulk=true, Defaults=true.",
+    );
     consoleCapture.restore();
   });
 

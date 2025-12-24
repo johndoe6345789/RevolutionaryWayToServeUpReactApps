@@ -13,6 +13,9 @@ export class Logger {
 
   private constructor() {}
 
+  /**
+   *
+   */
   static getInstance(): Logger {
     if (!Logger.instance) {
       Logger.instance = new Logger();
@@ -20,36 +23,62 @@ export class Logger {
     return Logger.instance;
   }
 
+  /**
+   *
+   * @param level
+   */
   setLevel(level: LogLevel): void {
     this.currentLevel = level;
   }
 
+  /**
+   *
+   * @param context
+   */
   pushContext(context: LogContext): void {
     this.contextStack.push(context);
   }
 
+  /**
+   *
+   */
   popContext(): void {
     this.contextStack.pop();
   }
 
+  /**
+   *
+   */
   private getCurrentContext(): LogContext | undefined {
     return this.contextStack.length > 0 ? Object.assign({}, ...this.contextStack) : undefined;
   }
 
+  /**
+   *
+   * @param level
+   */
   private shouldLog(level: LogLevel): boolean {
     return level >= this.currentLevel;
   }
 
+  /**
+   *
+   * @param entry
+   */
   private formatMessage(entry: LogEntry): string {
-    const levelStr = LogLevel[entry.level],
-      timestamp = entry.timestamp.toISOString(),
-      contextStr = entry.context ? ` ${JSON.stringify(entry.context)}` : '',
-      durationStr = entry.duration ? ` (${entry.duration}ms)` : '',
-      errorStr = entry.error ? ` Error: ${entry.error.message}` : '';
+    const levelStr = LogLevel[entry.level];
+    const timestamp = entry.timestamp.toISOString();
+    const contextStr = entry.context ? ` ${JSON.stringify(entry.context)}` : '';
+    const durationStr = entry.duration ? ` (${entry.duration}ms)` : '';
+    const errorStr = entry.error ? ` Error: ${entry.error.message}` : '';
 
     return `[${timestamp}] ${levelStr}: ${entry.message}${contextStr}${durationStr}${errorStr}`;
   }
 
+  /**
+   *
+   * @param entry
+   */
   private log(entry: LogEntry): void {
     if (!this.shouldLog(entry.level)) {
       return;
@@ -77,6 +106,11 @@ export class Logger {
     }
   }
 
+  /**
+   *
+   * @param message
+   * @param context
+   */
   debug(message: string, context?: LogContext): void {
     this.log({
       level: LogLevel.DEBUG,
@@ -86,6 +120,11 @@ export class Logger {
     });
   }
 
+  /**
+   *
+   * @param message
+   * @param context
+   */
   info(message: string, context?: LogContext): void {
     this.log({
       level: LogLevel.INFO,
@@ -95,6 +134,11 @@ export class Logger {
     });
   }
 
+  /**
+   *
+   * @param message
+   * @param context
+   */
   warn(message: string, context?: LogContext): void {
     this.log({
       level: LogLevel.WARN,
@@ -104,6 +148,12 @@ export class Logger {
     });
   }
 
+  /**
+   *
+   * @param message
+   * @param error
+   * @param context
+   */
   error(message: string, error?: Error, context?: LogContext): void {
     this.log({
       level: LogLevel.ERROR,
@@ -114,6 +164,12 @@ export class Logger {
     });
   }
 
+  /**
+   *
+   * @param message
+   * @param error
+   * @param context
+   */
   fatal(message: string, error?: Error, context?: LogContext): void {
     this.log({
       level: LogLevel.FATAL,
@@ -124,9 +180,14 @@ export class Logger {
     });
   }
 
+  /**
+   *
+   * @param operation
+   * @param context
+   */
   startTimer(operation: string, context?: LogContext): () => void {
-    const startTime = Date.now(),
-      timerContext = { ...this.getCurrentContext(), ...context, operation };
+    const startTime = Date.now();
+    const timerContext = { ...this.getCurrentContext(), ...context, operation };
 
     this.debug(`Starting operation: ${operation}`, timerContext);
 
@@ -136,6 +197,13 @@ export class Logger {
     };
   }
 
+  /**
+   *
+   * @param level
+   * @param message
+   * @param data
+   * @param context
+   */
   structured(
     level: LogLevel,
     message: string,

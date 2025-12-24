@@ -77,6 +77,9 @@ export abstract class BasePlugin extends BaseComponent implements IPlugin {
     // Implementation will be provided by subclasses
   }
 
+  /**
+   *
+   */
   public override async initialise(): Promise<this> {
     if (!this.initialized) {
       await this.initializePlugin();

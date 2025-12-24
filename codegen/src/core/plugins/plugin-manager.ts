@@ -11,17 +11,18 @@ import type { IStandardLifecycle } from '../interfaces/index';
  * PluginManager - Manages plugin lifecycle and discovery
  */
 export class PluginManager extends BaseComponent implements IStandardLifecycle {
-  private plugins: Map<string, IStandardLifecycle> = new Map();
+  private readonly plugins = new Map<string, IStandardLifecycle>();
 
   /**
    * Constructor with spec
+   * @param spec
    */
   constructor(spec: any) {
     super(spec);
   }
 
   /**
-   * initialise - Load and initialise plugins
+   * Initialise - Load and initialise plugins
    */
   public override async initialise(): Promise<void> {
     await super.initialise();
@@ -30,7 +31,7 @@ export class PluginManager extends BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * validate - Validate plugin configurations
+   * Validate - Validate plugin configurations
    */
   public override async validate(): Promise<void> {
     await super.validate();
@@ -38,7 +39,7 @@ export class PluginManager extends BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * execute - Execute plugin operations
+   * Execute - Execute plugin operations
    */
   public override async execute(): Promise<unknown> {
     // Plugin execution logic
@@ -46,7 +47,7 @@ export class PluginManager extends BaseComponent implements IStandardLifecycle {
   }
 
   /**
-   * cleanup - Clean up plugin resources
+   * Cleanup - Clean up plugin resources
    */
   public override async cleanup(): Promise<void> {
     this.plugins.clear();

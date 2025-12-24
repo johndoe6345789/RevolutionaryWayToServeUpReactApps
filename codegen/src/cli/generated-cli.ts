@@ -106,9 +106,9 @@ export class GeneratedCLI {
    * @param args
    */
   public async run(args: string[]): Promise<void> {
-    const commandName = args[0] || 'help',
-      commandArgs = args.slice(1),
-      command = this.commands.get(commandName);
+    const commandName = args[0] || 'help';
+    const commandArgs = args.slice(1);
+    const command = this.commands.get(commandName);
     if (!command) {
       this._displayHelp();
       return;
@@ -169,7 +169,7 @@ export class GeneratedCLI {
       if (pluginAggregator && 'debug' in pluginAggregator) {
         const debugInfo = pluginAggregator.debug();
         console.log('Plugins:');
-        const plugins = debugInfo.discoveredPlugins as string[] || [];
+        const plugins = (debugInfo.discoveredPlugins as string[]) || [];
         for (const plugin of plugins) {
           console.log(`  ${plugin}`);
         }
@@ -208,7 +208,7 @@ export class GeneratedCLI {
     const pluginAggregator = entrypoint.getComponent('pluginAggregator');
     if (pluginAggregator && 'debug' in pluginAggregator) {
       const debugInfo = pluginAggregator.debug();
-      const loadedPlugins = debugInfo.loadedPlugins as string[] || [];
+      const loadedPlugins = (debugInfo.loadedPlugins as string[]) || [];
       if (loadedPlugins.includes(targetId)) {
         console.log(`Component: ${targetId}`);
         console.log(`Type: plugin`);
@@ -220,8 +220,6 @@ export class GeneratedCLI {
     console.error(`Component '${targetId}' not found`);
     process.exit(1);
   }
-
-
 
   /**
    * Display detailed component information
@@ -330,7 +328,10 @@ export class GeneratedCLI {
     const subcommand = args[0];
     if (!subcommand || !subcommands[subcommand]) {
       console.error('Invalid or missing tool subcommand.');
-      this._printUsage('tool', Object.values(subcommands).map((s) => s.syntax));
+      this._printUsage(
+        'tool',
+        Object.values(subcommands).map((s) => s.syntax),
+      );
       return;
     }
 
@@ -376,12 +377,18 @@ export class GeneratedCLI {
           throw new Error(`Tool '${toolId}' is not installed.`);
         }
 
-        const tool = plugins.get(toolId) as { execute?: (cmd: string, cmdArgs: string[]) => unknown };
+        const tool = plugins.get(toolId) as {
+          execute?: (cmd: string, cmdArgs: string[]) => unknown;
+        };
         if (tool?.execute) {
           const result = await tool.execute(command, commandArgs);
-          console.log(`Executed '${toolId}' with command '${command}'. Result: ${JSON.stringify(result)}`);
+          console.log(
+            `Executed '${toolId}' with command '${command}'. Result: ${JSON.stringify(result)}`,
+          );
         } else {
-          console.log(`Ran '${toolId}' with command '${command}' and args [${commandArgs.join(', ')}].`);
+          console.log(
+            `Ran '${toolId}' with command '${command}' and args [${commandArgs.join(', ')}].`,
+          );
         }
         break;
       }
@@ -408,7 +415,10 @@ export class GeneratedCLI {
     const subcommand = args[0];
     if (!subcommand || !subcommands[subcommand]) {
       console.error('Invalid or missing runbook subcommand.');
-      this._printUsage('runbook', Object.values(subcommands).map((s) => s.syntax));
+      this._printUsage(
+        'runbook',
+        Object.values(subcommands).map((s) => s.syntax),
+      );
       return;
     }
 
@@ -466,8 +476,14 @@ export class GeneratedCLI {
   private async _handleProfile(args: string[], entrypoint: CodegenEntrypoint): Promise<void> {
     const subcommands: Record<string, { syntax: string; examples: string[] }> = {
       list: { syntax: 'codegen profile list', examples: ['codegen profile list'] },
-      show: { syntax: 'codegen profile show <profile-id>', examples: ['codegen profile show fullstack-dev'] },
-      apply: { syntax: 'codegen profile apply <profile-id>', examples: ['codegen profile apply fullstack-dev'] },
+      show: {
+        syntax: 'codegen profile show <profile-id>',
+        examples: ['codegen profile show fullstack-dev'],
+      },
+      apply: {
+        syntax: 'codegen profile apply <profile-id>',
+        examples: ['codegen profile apply fullstack-dev'],
+      },
     };
 
     const profiles = ['default', 'fullstack-dev', 'data-science'];
@@ -475,7 +491,10 @@ export class GeneratedCLI {
 
     if (!subcommand || !subcommands[subcommand]) {
       console.error('Invalid or missing profile subcommand.');
-      this._printUsage('profile', Object.values(subcommands).map((s) => s.syntax));
+      this._printUsage(
+        'profile',
+        Object.values(subcommands).map((s) => s.syntax),
+      );
       return;
     }
 
@@ -495,7 +514,9 @@ export class GeneratedCLI {
 
     if (subcommand === 'show') {
       console.log(`Profile '${profileId}':`);
-      console.log(`  Description: ${profileId === 'default' ? 'Baseline tooling' : 'Specialized stack'}`);
+      console.log(
+        `  Description: ${profileId === 'default' ? 'Baseline tooling' : 'Specialized stack'}`,
+      );
       return;
     }
 
@@ -504,7 +525,10 @@ export class GeneratedCLI {
         executeWithContext?: (context: Record<string, unknown>) => Promise<unknown>;
       };
       if (executionManager?.executeWithContext) {
-        await executionManager.executeWithContext({ operation: 'profile-apply', profile: profileId });
+        await executionManager.executeWithContext({
+          operation: 'profile-apply',
+          profile: profileId,
+        });
       }
       console.log(`Profile '${profileId}' applied.`);
     }
@@ -548,7 +572,9 @@ export class GeneratedCLI {
         defaults,
       });
 
-      console.log(`Schema generation requested for type '${type}'. Bulk=${bulk}, Defaults=${defaults}.`);
+      console.log(
+        `Schema generation requested for type '${type}'. Bulk=${bulk}, Defaults=${defaults}.`,
+      );
       console.log(`Result: ${JSON.stringify(result)}`);
       return;
     }

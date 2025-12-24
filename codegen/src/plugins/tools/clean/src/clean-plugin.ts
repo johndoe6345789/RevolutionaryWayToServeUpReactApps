@@ -22,7 +22,9 @@ export class CleanPlugin extends BasePlugin {
     super(config);
     // Override the base path to point to plugin root directory
     (this as any).specLoader =
-      new (require('../../../../core/plugins/plugin-spec-loader').PluginSpecLoader)(join(__dirname, '..'));
+      new (require('../../../../core/plugins/plugin-spec-loader').PluginSpecLoader)(
+        join(__dirname, '..'),
+      );
     (this as any).messageLoader =
       new (require('../../../../core/plugins/plugin-message-loader').PluginMessageLoader)(
         join(__dirname, '..'),
@@ -66,12 +68,12 @@ export class CleanPlugin extends BasePlugin {
    */
   private executeCleanup(context: Record<string, unknown>): unknown {
     const {
-        targets = 'node_modules,dist,build,out,.cache,.next,coverage',
-        dryRun = false,
-        force = false,
-      } = context,
-      targetPatterns = (targets as string).split(',').map((t) => t.trim()),
-      results: { target: string; removed: boolean; error?: string }[] = [];
+      targets = 'node_modules,dist,build,out,.cache,.next,coverage',
+      dryRun = false,
+      force = false,
+    } = context;
+    const targetPatterns = (targets as string).split(',').map((t) => t.trim());
+    const results: { target: string; removed: boolean; error?: string }[] = [];
 
     for (const pattern of targetPatterns) {
       try {
@@ -103,8 +105,8 @@ export class CleanPlugin extends BasePlugin {
    * @returns Verification results
    */
   private verifyClean(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform,
-      { spec } = this;
+    const platform = (context.platform as string) || process.platform;
+    const { spec } = this;
     if (!spec.verify?.[platform]) {
       throw new Error(`Clean verification not supported on platform: ${platform}`);
     }
@@ -137,8 +139,8 @@ export class CleanPlugin extends BasePlugin {
    * @returns Help information
    */
   private getCleanHelp(context: Record<string, unknown>): unknown {
-    const platform = (context.platform as string) || process.platform,
-      { spec } = this;
+    const platform = (context.platform as string) || process.platform;
+    const { spec } = this;
     if (!spec.help?.[platform]) {
       throw new Error(`Clean help not available on platform: ${platform}`);
     }
@@ -228,8 +230,8 @@ export class CleanPlugin extends BasePlugin {
         const items = readdirSync(dir);
 
         for (const item of items) {
-          const fullPath = join(dir, item),
-            stat = statSync(fullPath);
+          const fullPath = join(dir, item);
+          const stat = statSync(fullPath);
 
           if (stat.isDirectory()) {
             if (item === dirName) {
@@ -262,9 +264,9 @@ export class CleanPlugin extends BasePlugin {
    * @returns Summary string
    */
   private generateSummary(results: { target: string; removed: boolean; error?: string }[]): string {
-    const successful = results.filter((r) => r.removed).length,
-      failed = results.filter((r) => !r.removed).length,
-      errors = results.filter((r) => r.error).length;
+    const successful = results.filter((r) => r.removed).length;
+    const failed = results.filter((r) => !r.removed).length;
+    const errors = results.filter((r) => r.error).length;
 
     let summary = `Cleaned ${successful} targets`;
     if (failed > 0) {

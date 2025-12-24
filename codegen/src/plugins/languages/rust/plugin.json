@@ -19,11 +19,7 @@
     "mac": true,
     "linux": true
   },
-  "capabilities": [
-    "generate",
-    "validate",
-    "templates"
-  ],
+  "capabilities": ["generate", "validate", "templates"],
   "tests": {
     "directory": "tests/",
     "coverage_required": 100

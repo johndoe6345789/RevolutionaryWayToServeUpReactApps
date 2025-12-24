@@ -6,29 +6,33 @@
  * Auto-generated from spec.json
  */
 
-import React, { useRef, useEffect } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
+import React, { useEffect, useRef } from 'react';
+import type { Monaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import {
+  Alert,
   Box,
-  Paper,
-  Typography,
   Button,
   ButtonGroup,
-  ToggleButton,
-  ToggleButtonGroup,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
-  Alert,
+  Paper,
+  Select,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from '@mui/material';
 import {
-  FormatAlignLeft as FormatIcon,
-  Compare as DiffIcon,
   Code as CodeIcon,
+  Compare as DiffIcon,
+  FormatAlignLeft as FormatIcon,
   Save as SaveIcon,
 } from '@mui/icons-material';
 
+/**
+ *
+ */
 interface GeneratedMonacoEditorProps {
   value: string;
   onChange?: (value: string) => void;
@@ -49,7 +53,7 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   schema,
   readOnly = false,
   height = 600,
-  showDiff = false,
+  showDiff: _showDiff = false,
   originalValue,
   onSave,
   onFormat,
@@ -95,7 +99,7 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   };
 
   const handleViewModeChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newMode: 'editor' | 'diff',
   ) => {
     if (newMode !== null) {
@@ -114,17 +118,11 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   return (
     <Paper sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">
-          Monaco Editor
-        </Typography>
+        <Typography variant="h6">Monaco Editor</Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Language</InputLabel>
-            <Select
-              value={currentLanguage}
-              label="Language"
-              onChange={handleLanguageChange}
-            >
+            <Select value={currentLanguage} label="Language" onChange={handleLanguageChange}>
               <MenuItem value="json">JSON</MenuItem>
               <MenuItem value="typescript">TypeScript</MenuItem>
               <MenuItem value="javascript">JavaScript</MenuItem>
@@ -145,11 +143,7 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
             </ToggleButton>
           </ToggleButtonGroup>
           <ButtonGroup size="small">
-            <Button
-              startIcon={<FormatIcon />}
-              onClick={handleFormat}
-              disabled={readOnly}
-            >
+            <Button startIcon={<FormatIcon />} onClick={handleFormat} disabled={readOnly}>
               Format
             </Button>
             <Button

@@ -18,40 +18,45 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
-  createServer(async (req, res) => {
-    try {
-      // Parse URL
-      const parsedUrl = parse(req.url!, true);
+app
+  .prepare()
+  .then(() => {
+    createServer(async (req, res) => {
+      try {
+        // Parse URL
+        const parsedUrl = parse(req.url!, true);
 
-      // Handle API routes
-      if (parsedUrl.pathname?.startsWith('/api/')) {
-        await handle(req, res, parsedUrl);
-        return;
-      }
+        // Handle API routes
+        if (parsedUrl.pathname?.startsWith('/api/')) {
+          await handle(req, res, parsedUrl);
+          return;
+        }
 
-      // Handle static files
-      if (parsedUrl.pathname?.startsWith('/_next/') ||
+        // Handle static files
+        if (
+          parsedUrl.pathname?.startsWith('/_next/') ||
           parsedUrl.pathname?.startsWith('/static/') ||
-          parsedUrl.pathname?.includes('.')) {
-        await handle(req, res, parsedUrl);
-        return;
-      }
+          parsedUrl.pathname?.includes('.')
+        ) {
+          await handle(req, res, parsedUrl);
+          return;
+        }
 
-      // Default to index page
-      await app.render(req, res, '/', parsedUrl.query);
-    } catch (err) {
-      console.error('Error occurred handling', req.url, err);
-      res.statusCode = 500;
-      res.end('Internal server error');
-    }
-  }).listen(port, () => {
-    console.log(`🚀 Revolutionary Codegen WebUI ready at http://${hostname}:${port}`);
-    console.log(`📊 Tree navigation and Monaco editor enabled`);
-    console.log(`🔍 Full-text search and filtering active`);
-    console.log(`📋 Runbook generation ready`);
+        // Default to index page
+        await app.render(req, res, '/', parsedUrl.query);
+      } catch (err) {
+        console.error('Error occurred handling', req.url, err);
+        res.statusCode = 500;
+        res.end('Internal server error');
+      }
+    }).listen(port, () => {
+      console.log(`🚀 Revolutionary Codegen WebUI ready at http://${hostname}:${port}`);
+      console.log(`📊 Tree navigation and Monaco editor enabled`);
+      console.log(`🔍 Full-text search and filtering active`);
+      console.log(`📋 Runbook generation ready`);
+    });
+  })
+  .catch((ex: unknown) => {
+    console.error('Failed to start WebUI:', ex);
+    process.exit(1);
   });
-}).catch((ex) => {
-  console.error('Failed to start WebUI:', ex);
-  process.exit(1);
-});

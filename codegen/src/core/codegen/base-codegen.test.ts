@@ -8,7 +8,8 @@ import { BaseCodegen } from './base-codegen';
 import type { IBaseCodegenOptions } from './interfaces/index';
 
 describe('BaseCodegen', () => {
-  let codegen: BaseCodegen, mockOptions: IBaseCodegenOptions;
+  let codegen: BaseCodegen;
+  let mockOptions: IBaseCodegenOptions;
 
   beforeEach(() => {
     mockOptions = {
@@ -110,8 +111,8 @@ describe('BaseCodegen', () => {
 
   describe('list', () => {
     it('should list registered components', () => {
-      const component1 = { id: 'component1' },
-        component2 = { id: 'component2' };
+      const component1 = { id: 'component1' };
+      const component2 = { id: 'component2' };
       codegen.register('plugin', 'component1', component1);
       codegen.register('plugin', 'component2', component2);
 

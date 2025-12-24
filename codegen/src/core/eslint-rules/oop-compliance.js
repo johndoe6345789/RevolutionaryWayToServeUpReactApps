@@ -56,33 +56,35 @@ export default {
 
       create(context) {
         const options = context.options[0] || {},
-         coreFiles = options.coreFiles || [
-          'codegen/core/base-component.js',
-          'codegen/core/registry.js',
-          'codegen/core/aggregate.js',
-          'codegen/core/plugin.js',
-        ],
-         baseComponentFile = options.baseComponentFile || 'codegen/core/base-component.js',
-         maxMethods = options.maxMethods || 5;
+          coreFiles = options.coreFiles || [
+            'codegen/core/base-component.js',
+            'codegen/core/registry.js',
+            'codegen/core/aggregate.js',
+            'codegen/core/plugin.js',
+          ],
+          baseComponentFile = options.baseComponentFile || 'codegen/core/base-component.js',
+          maxMethods = options.maxMethods || 5;
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') {return;}
+            if (!filePath || filePath === '<input>') {
+              return;
+            }
 
             // Get relative path from project root
             const relativePath = path.relative(process.cwd(), filePath),
-
-            // Check if this file is one of the core files we need to validate
-             isCoreFile = coreFiles.some((coreFile) => relativePath.endsWith(coreFile));
-            if (!isCoreFile) {return;}
+              // Check if this file is one of the core files we need to validate
+              isCoreFile = coreFiles.some((coreFile) => relativePath.endsWith(coreFile));
+            if (!isCoreFile) {
+              return;
+            }
 
             try {
               // Read the file content
               const content = fs.readFileSync(filePath, 'utf8'),
-
-              // Check for class definition
-               classMatches = content.match(/class\s+\w+/g) || [];
+                // Check for class definition
+                classMatches = content.match(/class\s+\w+/g) || [];
               if (classMatches.length === 0) {
                 context.report({
                   node,

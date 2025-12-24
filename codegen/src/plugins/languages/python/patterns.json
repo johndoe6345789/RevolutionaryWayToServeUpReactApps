@@ -15,14 +15,7 @@
     "fileExtension": "\\.py$"
   },
   "constants": {
-    "supportedTemplates": [
-      "class",
-      "function",
-      "module",
-      "dataclass",
-      "enum",
-      "interface"
-    ],
+    "supportedTemplates": ["class", "function", "module", "dataclass", "enum", "interface"],
     "extensions": [".py"],
     "defaultExtension": ".py",
     "language": "python"

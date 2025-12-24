@@ -45,7 +45,9 @@ const createLifecycleBuilder = (composite: CompositeLifecycle): LifecycleBuilder
 
 describe('CodegenEntrypoint', () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>;
-  let entrypoint: CodegenEntrypoint, pluginManager: PluginManager, executionManager: ExecutionManager;
+  let entrypoint: CodegenEntrypoint;
+  let executionManager: ExecutionManager;
+  let pluginManager: PluginManager;
 
   beforeEach(() => {
     consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});

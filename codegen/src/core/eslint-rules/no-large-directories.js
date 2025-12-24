@@ -62,52 +62,55 @@ export default {
 
       create(context) {
         const options = context.options[0] || {},
-         maxFiles = options.maxFiles || 10,
-         excludePatterns = options.excludePatterns || [
-          'node_modules',
-          '.git',
-          'dist',
-          'build',
-          '__pycache__',
-          '.next',
-          'coverage',
-        ],
-         excludeExtensions = options.excludeExtensions || [
-          '.log',
-          '.lock',
-          '.map',
-          '.min.js',
-          '.min.css',
-        ],
-         includeExtensions = options.includeExtensions || [
-          '.ts',
-          '.tsx',
-          '.js',
-          '.jsx',
-          '.json',
-          '.md',
-        ],
-
-        // Track directories we've already checked
-         checkedDirectories = new Set();
+          maxFiles = options.maxFiles || 10,
+          excludePatterns = options.excludePatterns || [
+            'node_modules',
+            '.git',
+            'dist',
+            'build',
+            '__pycache__',
+            '.next',
+            'coverage',
+          ],
+          excludeExtensions = options.excludeExtensions || [
+            '.log',
+            '.lock',
+            '.map',
+            '.min.js',
+            '.min.css',
+          ],
+          includeExtensions = options.includeExtensions || [
+            '.ts',
+            '.tsx',
+            '.js',
+            '.jsx',
+            '.json',
+            '.md',
+          ],
+          // Track directories we've already checked
+          checkedDirectories = new Set();
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') {return;}
+            if (!filePath || filePath === '<input>') {
+              return;
+            }
 
             // Get the directory of the current file
             const directory = path.dirname(filePath);
 
             // Skip if we've already checked this directory
-            if (checkedDirectories.has(directory)) {return;}
+            if (checkedDirectories.has(directory)) {
+              return;
+            }
             checkedDirectories.add(directory);
 
             // Skip excluded directories
             const dirName = path.basename(directory);
             if (
               excludePatterns.some(
-                (pattern) => dirName.includes(pattern) || directory.includes(pattern)
+                (pattern) => dirName.includes(pattern) || directory.includes(pattern),
               )
             ) {
               return;
@@ -116,17 +119,17 @@ export default {
             try {
               // Count files in the directory
               const files = fs.readdirSync(directory),
-               relevantFiles = files.filter((file) => {
-                const ext = path.extname(file);
+                relevantFiles = files.filter((file) => {
+                  const ext = path.extname(file);
 
-                // Exclude files with excluded extensions
-                if (excludeExtensions.some((exclExt) => file.endsWith(exclExt))) {
-                  return false;
-                }
+                  // Exclude files with excluded extensions
+                  if (excludeExtensions.some((exclExt) => file.endsWith(exclExt))) {
+                    return false;
+                  }
 
-                // Include files with included extensions or no extension (directories)
-                return includeExtensions.some((inclExt) => file.endsWith(inclExt)) || !ext;
-              });
+                  // Include files with included extensions or no extension (directories)
+                  return includeExtensions.some((inclExt) => file.endsWith(inclExt)) || !ext;
+                });
 
               if (relevantFiles.length > maxFiles) {
                 context.report({

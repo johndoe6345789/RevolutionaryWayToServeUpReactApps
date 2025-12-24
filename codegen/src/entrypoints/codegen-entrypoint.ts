@@ -8,7 +8,7 @@
 
 import { BaseComponent } from '../core/codegen/base-component';
 import { ExecutionManager } from '../core/codegen/execution-manager';
-import { PluginManager } from '../core/plugins/plugin-manager';
+import type { PluginManager } from '../core/plugins/plugin-manager';
 import type { LifecycleBuilder } from '../core/types/lifecycle-builder';
 import type { CompositeLifecycle } from '../core/types/composite-lifecycle';
 import type { CLIArgs } from './types/cli-args';
@@ -78,8 +78,11 @@ export class CodegenEntrypoint extends BaseComponent {
 
   /**
    * Get a component by name from the lifecycle
+   * @param name
    */
-  public getComponent<TComponent extends BaseComponent = BaseComponent>(name: string): TComponent | undefined {
+  public getComponent<TComponent extends BaseComponent = BaseComponent>(
+    name: string,
+  ): TComponent | undefined {
     const children = this.getCompositeLifecycle().getChildren();
     const component = children.get(name);
     return component instanceof BaseComponent ? (component as TComponent) : undefined;
@@ -91,7 +94,9 @@ export class CodegenEntrypoint extends BaseComponent {
    */
   private async handleGenerate(options: CLIArgs): Promise<void> {
     const executionManager = findExecutionManager(this);
-    if (!executionManager) return;
+    if (!executionManager) {
+      return;
+    }
 
     await executionManager.executeWithContext(createGenerateContext(options));
   }
@@ -99,14 +104,21 @@ export class CodegenEntrypoint extends BaseComponent {
   /**
    *
    * @param _options
+   * @param options
    */
   private async handleList(options: CLIArgs): Promise<void> {
     const pluginManager = findPluginManager(this);
-    if (!pluginManager) return;
+    if (!pluginManager) {
+      return;
+    }
 
     const category = options.category || 'all';
-    if (category === 'plugins' || category === 'all') this.logComponents(pluginManager, 'Plugins');
-    if (category === 'tools' || category === 'all') this.logComponents(pluginManager, 'Tools');
+    if (category === 'plugins' || category === 'all') {
+      this.logComponents(pluginManager, 'Plugins');
+    }
+    if (category === 'tools' || category === 'all') {
+      this.logComponents(pluginManager, 'Tools');
+    }
   }
 
   /**
@@ -115,10 +127,16 @@ export class CodegenEntrypoint extends BaseComponent {
    */
   private async handleDescribe(options: CLIArgs): Promise<void> {
     const componentId = options.component;
-    if (!componentId) return;
+    if (!componentId) {
+      return;
+    }
 
-    if (this.describePlugin(componentId)) return;
-    if (this.describeExecution(componentId)) return;
+    if (this.describePlugin(componentId)) {
+      return;
+    }
+    if (this.describeExecution(componentId)) {
+      return;
+    }
 
     console.log(`Component '${componentId}' not found`);
   }
@@ -144,8 +162,11 @@ export class CodegenEntrypoint extends BaseComponent {
     const options: CLIArgs = {};
     for (let i = 0; i < args.length; i += 1) {
       const arg = args[i];
-      if (!arg.startsWith('--') && !options.component) options.component = arg;
-      else if (arg.startsWith('--')) options[arg.slice(2)] = this.readOption(args, i);
+      if (!arg.startsWith('--') && !options.component) {
+        options.component = arg;
+      } else if (arg.startsWith('--')) {
+        options[arg.slice(2)] = this.readOption(args, i);
+      }
     }
     return options;
   }
@@ -157,44 +178,79 @@ export class CodegenEntrypoint extends BaseComponent {
     console.log('Usage: codegen <command> [options]');
   }
 
+  /**
+   *
+   * @param componentId
+   */
   private describePlugin(componentId: string): boolean {
     const pluginManager = findPluginManager(this);
-    if (!pluginManager) return false;
+    if (!pluginManager) {
+      return false;
+    }
 
     const hasPlugin = pluginManager.getPlugins().has(componentId);
-    if (hasPlugin) console.log(`Component: ${componentId} (Plugin)`);
+    if (hasPlugin) {
+      console.log(`Component: ${componentId} (Plugin)`);
+    }
     return hasPlugin;
   }
 
+  /**
+   *
+   * @param componentId
+   */
   private describeExecution(componentId: string): boolean {
     const executionManager = findExecutionManager(this);
-    if (!executionManager) return false;
+    if (!executionManager) {
+      return false;
+    }
 
     console.log(`Component: ${componentId} (Execution)`);
     console.log('Debug Info:', executionManager.debug());
     return true;
   }
 
-  private dispatchCommand(command: string, options: CLIArgs): Promise<void> {
+  /**
+   *
+   * @param command
+   * @param options
+   */
+  private async dispatchCommand(command: string, options: CLIArgs): Promise<void> {
     const handlers: Record<string, (cliOptions: CLIArgs) => Promise<void> | void> = {
-      describe: (cliOptions) => this.handleDescribe(cliOptions),
-      generate: (cliOptions) => this.handleGenerate(cliOptions),
-      help: () => this.displayHelp(),
-      list: (cliOptions) => this.handleList(cliOptions),
-      search: (cliOptions) => this.handleSearch(cliOptions),
+      describe: async (cliOptions) => this.handleDescribe(cliOptions),
+      generate: async (cliOptions) => this.handleGenerate(cliOptions),
+      help: () => {
+        this.displayHelp();
+      },
+      list: async (cliOptions) => this.handleList(cliOptions),
+      search: async (cliOptions) => this.handleSearch(cliOptions),
     };
     return Promise.resolve((handlers[command] ?? this.displayHelp.bind(this))(options));
   }
 
+  /**
+   *
+   * @param pluginManager
+   * @param label
+   */
   private logComponents(pluginManager: PluginManager, label: string): void {
     console.log(`${label}:`, Array.from(pluginManager.getPlugins().keys()));
   }
 
+  /**
+   *
+   * @param args
+   */
   private parseCommand(args: string[]): { command: string; options: CLIArgs } {
-    const [command = 'help', ...rest] = args;
+    const [command, ...rest] = args;
     return { command, options: this.parseCLIArgs(rest) };
   }
 
+  /**
+   *
+   * @param args
+   * @param index
+   */
   private readOption(args: string[], index: number): string | boolean {
     const value = args[index + 1];
     return value && !value.startsWith('--') ? value : true;

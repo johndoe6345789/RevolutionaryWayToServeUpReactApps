@@ -4,6 +4,9 @@
  */
 import type { IStandardLifecycle } from '../types/standard-lifecycle';
 
+/**
+ *
+ */
 export class ComponentNode {
   public readonly lifecycle: IStandardLifecycle;
   public readonly startOrder: number;

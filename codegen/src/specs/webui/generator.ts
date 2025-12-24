@@ -46,11 +46,11 @@ export class WebUIGenerator {
 
   /**
    *
-   * @param context
+   * @param _context
    */
-  public async execute(context: Record<string, unknown>): Promise<ExecutionResult> {
-    const specs = this._loadSpecs(),
-      generatedFiles = this._generateWebUI(specs);
+  public async execute(_context: Record<string, unknown>): Promise<ExecutionResult> {
+    const specs = this._loadSpecs();
+    const generatedFiles = this._generateWebUI(specs);
 
     return { success: true, generated: generatedFiles, specs };
   }
@@ -94,8 +94,8 @@ export class WebUIGenerator {
    * @param componentSpec
    */
   private _generateComponent(componentName: string, componentSpec: ComponentSpec): GeneratedFile {
-    const componentCode = this._generateComponentCode(componentName, componentSpec),
-      filePath = path.join(this.outputPath, 'components', `generated-${componentName}.tsx`);
+    const componentCode = this._generateComponentCode(componentName, componentSpec);
+    const filePath = path.join(this.outputPath, 'components', `generated-${componentName}.tsx`);
 
     fs.writeFileSync(filePath, componentCode);
     return { file: filePath, type: 'component', name: componentName };
@@ -112,8 +112,8 @@ export class WebUIGenerator {
     pageSpec: PageSpec,
     components: Record<string, ComponentSpec>,
   ): GeneratedFile {
-    const pageCode = this._generatePageCode(pageName, pageSpec, components),
-      filePath = path.join(this.outputPath, 'app', pageSpec.route, 'page.tsx');
+    const pageCode = this._generatePageCode(pageName, pageSpec, components);
+    const filePath = path.join(this.outputPath, 'app', pageSpec.route, 'page.tsx');
 
     fs.writeFileSync(filePath, pageCode);
     return { file: filePath, type: 'page', name: pageName };
@@ -125,8 +125,14 @@ export class WebUIGenerator {
    * @param apiSpec
    */
   private _generateAPIRoute(apiName: string, apiSpec: APIRouteSpec): GeneratedFile {
-    const apiCode = this._generateAPICode(apiName, apiSpec),
-      filePath = path.join(this.outputPath, 'app', 'api', this._normaliseRoute(apiSpec.route), 'route.ts');
+    const apiCode = this._generateAPICode(apiName, apiSpec);
+    const filePath = path.join(
+      this.outputPath,
+      'app',
+      'api',
+      this._normaliseRoute(apiSpec.route),
+      'route.ts',
+    );
 
     fs.writeFileSync(filePath, apiCode);
     return { file: filePath, type: 'api', name: apiName };
@@ -311,17 +317,17 @@ export default Generated${pascalName};`;
   private _generatePageCode(
     pageName: string,
     pageSpec: PageSpec,
-    components: Record<string, ComponentSpec>,
+    _components: Record<string, ComponentSpec>,
   ): string {
     const imports = pageSpec.components
-        .map(
-          (comp) =>
-            `import { Generated${WebUIGenerator.pascalCase(comp)} } from '../../components/generated-${comp}';`,
-        )
-        .join('\n'),
-      componentUsage = pageSpec.components
-        .map((comp) => `      <Generated${WebUIGenerator.pascalCase(comp)} />`)
-        .join('\n');
+      .map(
+        (comp) =>
+          `import { Generated${WebUIGenerator.pascalCase(comp)} } from '../../components/generated-${comp}';`,
+      )
+      .join('\n');
+    const componentUsage = pageSpec.components
+      .map((comp) => `      <Generated${WebUIGenerator.pascalCase(comp)} />`)
+      .join('\n');
 
     return `/**
  * Generated ${pageName} Page
@@ -348,20 +354,20 @@ ${componentUsage}
    * @param apiSpec
    */
   private _generateAPICode(apiName: string, apiSpec: APIRouteSpec): string {
-    const method = apiSpec.method.toUpperCase(),
-      paramsSchema = this._buildParamsSchema(apiSpec.params),
-      requestBodySchema = apiSpec.body?.schema ?? null,
-      successResponse = apiSpec.responses?.success,
-      errorResponse = this._selectErrorResponse(apiSpec.responses?.errors),
-      successStatus = successResponse?.status ?? 200,
-      errorStatus = errorResponse?.status ?? 400,
-      stubResponse = this._buildExampleFromSchema(successResponse?.schema ?? null),
-      paramsExtractionCode = this._buildParamsExtraction(apiSpec.params ?? []),
-      paramSchemaLiteral = this._schemaToLiteral(paramsSchema),
-      requestSchemaLiteral = this._schemaToLiteral(requestBodySchema),
-      successSchemaLiteral = this._schemaToLiteral(successResponse?.schema ?? null),
-      errorSchemaLiteral = this._schemaToLiteral(errorResponse?.schema ?? null),
-      adapterName = this._buildAdapterName(apiName);
+    const method = apiSpec.method.toUpperCase();
+    const paramsSchema = this._buildParamsSchema(apiSpec.params);
+    const requestBodySchema = apiSpec.body?.schema ?? null;
+    const successResponse = apiSpec.responses?.success;
+    const errorResponse = this._selectErrorResponse(apiSpec.responses?.errors);
+    const successStatus = successResponse?.status ?? 200;
+    const errorStatus = errorResponse?.status ?? 400;
+    const stubResponse = this._buildExampleFromSchema(successResponse?.schema ?? null);
+    const paramsExtractionCode = this._buildParamsExtraction(apiSpec.params ?? []);
+    const paramSchemaLiteral = this._schemaToLiteral(paramsSchema);
+    const requestSchemaLiteral = this._schemaToLiteral(requestBodySchema);
+    const successSchemaLiteral = this._schemaToLiteral(successResponse?.schema ?? null);
+    const errorSchemaLiteral = this._schemaToLiteral(errorResponse?.schema ?? null);
+    const adapterName = this._buildAdapterName(apiName);
 
     return `/**
  * Generated ${apiSpec.description}
@@ -490,6 +496,10 @@ export async function ${method}(request: NextRequest) {
 }`;
   }
 
+  /**
+   *
+   * @param value
+   */
   private static pascalCase(value: string): string {
     return value
       .split(/[-_\s]+/)
@@ -542,30 +552,50 @@ export async function ${method}(request: NextRequest) {
     );
   }
 
+  /**
+   *
+   * @param schema
+   */
   private _schemaToLiteral(schema: SchemaDefinition | null): string {
     return JSON.stringify(schema, null, 2);
   }
 
+  /**
+   *
+   * @param params
+   */
   private _buildParamsSchema(params?: APIRouteParam[]): SchemaDefinition | null {
-    if (!params?.length) return null;
+    if (!params?.length) {
+      return null;
+    }
 
     const properties: Record<string, SchemaDefinition> = {};
     for (const param of params) {
-      properties[param.name] = {
+      const propDef: SchemaDefinition = {
         type: param.type,
-        required: param.required,
       };
+      if (param.required !== undefined) {
+        propDef.required = param.required;
+      }
+      properties[param.name] = propDef;
     }
 
     return { type: 'object', properties };
   }
 
+  /**
+   *
+   * @param params
+   */
   private _buildParamsExtraction(params: APIRouteParam[]): string {
     if (!params.length) {
       return 'const params: Record<string, unknown> = {};';
     }
 
-    const lines: string[] = ['const url = new URL(request.url);', 'const params: Record<string, unknown> = {'];
+    const lines: string[] = [
+      'const url = new URL(request.url);',
+      'const params: Record<string, unknown> = {',
+    ];
 
     for (const param of params) {
       const getter =
@@ -581,7 +611,15 @@ export async function ${method}(request: NextRequest) {
     return lines.join('\n    ');
   }
 
-  private _wrapTypeConversion(type: ResponseSpec['schema']['type'] | undefined, expression: string): string {
+  /**
+   *
+   * @param type
+   * @param expression
+   */
+  private _wrapTypeConversion(
+    type: ResponseSpec['schema']['type'] | undefined,
+    expression: string,
+  ): string {
     switch (type) {
       case 'number':
         return `(${expression} !== null ? Number(${expression}) : undefined)`;
@@ -592,8 +630,14 @@ export async function ${method}(request: NextRequest) {
     }
   }
 
+  /**
+   *
+   * @param schema
+   */
   private _buildExampleFromSchema(schema: SchemaDefinition | null): unknown {
-    if (!schema) return {};
+    if (!schema) {
+      return {};
+    }
 
     switch (schema.type) {
       case 'string':
@@ -616,19 +660,36 @@ export async function ${method}(request: NextRequest) {
     }
   }
 
+  /**
+   *
+   * @param errors
+   */
   private _selectErrorResponse(errors?: ResponseSpec[]): ResponseSpec | null {
-    if (!errors?.length) return null;
+    if (!errors?.length) {
+      return null;
+    }
     return errors[0];
   }
 
+  /**
+   *
+   * @param apiName
+   */
   private _buildAdapterName(apiName: string): string {
     const [first, ...rest] = apiName.split(/[-_]/);
-    const pascal = [first, ...rest.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))]
+    const pascal = [
+      first,
+      ...rest.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1)),
+    ]
       .join('')
       .replace(/^(\w)/, (match) => match.toUpperCase());
     return `invoke${pascal}Adapter`;
   }
 
+  /**
+   *
+   * @param route
+   */
   private _normaliseRoute(route: string): string {
     return route.replace(/^\/+/, '');
   }

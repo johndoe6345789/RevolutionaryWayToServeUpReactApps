@@ -18,6 +18,9 @@ export interface ComponentSpec {
   }[];
 }
 
+/**
+ *
+ */
 export interface ComponentInputSpec {
   name: string;
   label: string;
@@ -28,6 +31,9 @@ export interface ComponentInputSpec {
   options?: string[];
 }
 
+/**
+ *
+ */
 export interface ComponentActionSpec {
   name: string;
   label: string;

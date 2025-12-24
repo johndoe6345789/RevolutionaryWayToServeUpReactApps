@@ -44,13 +44,13 @@ const treeNodeLabel = (node: TreeNode): React.ReactElement => (
     <Typography variant="body2" sx={{ marginLeft: 1 }}>
       {node.name}
     </Typography>
-    {nodeCountChip({ count: node.metadata?.count })}
-    {nodeDomainChip({ domain: node.metadata?.domain })}
+    {node.metadata?.count !== undefined && nodeCountChip({ count: node.metadata.count })}
+    {node.metadata?.domain !== undefined && nodeDomainChip({ domain: node.metadata.domain })}
   </Box>
 );
 
 const treeNodeItem = (node: TreeNode): React.ReactElement => (
-  <TreeItem key={node.id} nodeId={node.id} label={treeNodeLabel(node)}>
+  <TreeItem key={node.id} itemId={node.id} label={treeNodeLabel(node)}>
     {(node.children ?? []).map((child) => treeNodeItem(child))}
   </TreeItem>
 );
@@ -71,11 +71,8 @@ const generatedTreeNavigation = ({
 }: GeneratedTreeNavigationProps): React.ReactElement => {
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  const handleExpansionChange = (
-    _event: React.SyntheticEvent,
-    nodeIds: readonly string[],
-  ): void => {
-    setExpanded(Array.from(nodeIds));
+  const handleExpansionChange = (_event: React.SyntheticEvent | null, nodeIds: string[]): void => {
+    setExpanded(nodeIds);
   };
 
   const handleSelectionChange = (

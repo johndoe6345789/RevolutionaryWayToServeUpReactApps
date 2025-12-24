@@ -9,7 +9,15 @@
     "tags": ["interface", "cli", "generated"],
     "aliases": ["command-line", "terminal-interface"],
     "domain": "codegen",
-    "capabilities": ["list", "describe", "search", "tool-operations", "profile-management", "runbook-generation", "schema-generation"]
+    "capabilities": [
+      "list",
+      "describe",
+      "search",
+      "tool-operations",
+      "profile-management",
+      "runbook-generation",
+      "schema-generation"
+    ]
   },
   "platforms": {
     "win": true,
@@ -28,11 +36,7 @@
         "domain": "codegen"
       },
       "syntax": "codegen list [category] [subcategory]",
-      "examples": [
-        "codegen list",
-        "codegen list tooling",
-        "codegen list tooling.package-managers"
-      ],
+      "examples": ["codegen list", "codegen list tooling", "codegen list tooling.package-managers"],
       "options": []
     },
     "describe": {
@@ -63,10 +67,7 @@
         "domain": "codegen"
       },
       "syntax": "codegen search \"<query>\"",
-      "examples": [
-        "codegen search \"version control\"",
-        "codegen search \"package manager\""
-      ],
+      "examples": ["codegen search \"version control\"", "codegen search \"package manager\""],
       "options": []
     },
     "tool": {
@@ -82,7 +83,10 @@
       "subcommands": {
         "install": {
           "syntax": "codegen tool install <tool-id> [--profile=<profile>]",
-          "examples": ["codegen tool install git", "codegen tool install git --profile=fullstack-dev"]
+          "examples": [
+            "codegen tool install git",
+            "codegen tool install git --profile=fullstack-dev"
+          ]
         },
         "verify": {
           "syntax": "codegen tool verify <tool-id>",

@@ -30,17 +30,53 @@
   ],
   "syntax": {
     "keywords": [
-      "package", "import", "func", "struct", "interface",
-      "type", "var", "const", "if", "else", "for",
-      "range", "switch", "case", "default", "go",
-      "chan", "select", "defer", "return", "break",
-      "continue", "fallthrough", "goto"
+      "package",
+      "import",
+      "func",
+      "struct",
+      "interface",
+      "type",
+      "var",
+      "const",
+      "if",
+      "else",
+      "for",
+      "range",
+      "switch",
+      "case",
+      "default",
+      "go",
+      "chan",
+      "select",
+      "defer",
+      "return",
+      "break",
+      "continue",
+      "fallthrough",
+      "goto"
     ],
     "types": [
-      "bool", "string", "int", "int8", "int16", "int32", "int64",
-      "uint", "uint8", "uint16", "uint32", "uint64", "uintptr",
-      "float32", "float64", "complex64", "complex128",
-      "[]T", "map[K]V", "chan T", "*T"
+      "bool",
+      "string",
+      "int",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "uint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "uintptr",
+      "float32",
+      "float64",
+      "complex64",
+      "complex128",
+      "[]T",
+      "map[K]V",
+      "chan T",
+      "*T"
     ],
     "modifiers": ["public", "private"]
   },
@@ -57,39 +93,19 @@
   },
   "templates": {
     "struct": {
-      "pattern": [
-        "type {name} struct {",
-        "    {fields}",
-        "}"
-      ]
+      "pattern": ["type {name} struct {", "    {fields}", "}"]
     },
     "interface": {
-      "pattern": [
-        "type {name} interface {",
-        "    {methods}",
-        "}"
-      ]
+      "pattern": ["type {name} interface {", "    {methods}", "}"]
     },
     "function": {
-      "pattern": [
-        "func {name}({parameters}) {return-type} {",
-        "    {body}",
-        "}"
-      ]
+      "pattern": ["func {name}({parameters}) {return-type} {", "    {body}", "}"]
     },
     "method": {
-      "pattern": [
-        "func ({receiver}) {name}({parameters}) {return-type} {",
-        "    {body}",
-        "}"
-      ]
+      "pattern": ["func ({receiver}) {name}({parameters}) {return-type} {", "    {body}", "}"]
     },
     "goroutine": {
-      "pattern": [
-        "go func() {",
-        "    {body}",
-        "}()"
-      ]
+      "pattern": ["go func() {", "    {body}", "}()"]
     }
   },
   "features": {

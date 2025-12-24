@@ -10,7 +10,8 @@ class TestComponent extends BaseComponent {
 }
 
 describe('BaseComponent', () => {
-  let component: TestComponent, mockSpec: any;
+  let component: TestComponent;
+  let mockSpec: any;
 
   beforeEach(() => {
     mockSpec = {
@@ -63,8 +64,8 @@ describe('BaseComponent', () => {
 
   describe('execute', () => {
     it('should return success result with component id and timestamp', async () => {
-      const context = { test: 'data' },
-        result = await component.execute(context);
+      const context = { test: 'data' };
+      const result = await component.execute(context);
 
       expect(result).toEqual({
         success: true,

@@ -1,4 +1,4 @@
-import type { IComponent, IStandardLifecycle, ISpec } from '../interfaces/index';
+import type { IComponent, ISpec, IStandardLifecycle } from '../interfaces/index';
 import { LifecycleStatus } from '../interfaces/index';
 
 /**
@@ -18,17 +18,28 @@ export abstract class BaseComponent implements IComponent, IStandardLifecycle {
     this.spec = spec;
   }
 
+  /**
+   *
+   */
   public async initialise(): Promise<this> {
     this.validateSpec();
     this.currentStatus = LifecycleStatus.READY;
     return this;
   }
 
+  /**
+   *
+   * @param input
+   */
   public validate(input: unknown): boolean {
     const isObjectOrArray = typeof input === 'object' && input !== null;
     return isObjectOrArray;
   }
 
+  /**
+   *
+   * @param _context
+   */
   public async execute(_context: Record<string, unknown>): Promise<unknown> {
     this.currentStatus = LifecycleStatus.EXECUTING;
     return {
@@ -38,10 +49,16 @@ export abstract class BaseComponent implements IComponent, IStandardLifecycle {
     };
   }
 
+  /**
+   *
+   */
   public cleanup(): void {
     this.currentStatus = LifecycleStatus.DESTROYED;
   }
 
+  /**
+   *
+   */
   public debug(): Record<string, unknown> {
     return {
       uuid: this.uuid,
@@ -51,14 +68,23 @@ export abstract class BaseComponent implements IComponent, IStandardLifecycle {
     };
   }
 
+  /**
+   *
+   */
   public reset(): void {
     this.currentStatus = LifecycleStatus.UNINITIALIZED;
   }
 
+  /**
+   *
+   */
   public status(): LifecycleStatus {
     return this.currentStatus;
   }
 
+  /**
+   *
+   */
   private validateSpec(): void {
     if (!this.isValidUUID(this.uuid)) {
       throw new Error(`Invalid UUID: ${this.uuid}`);
@@ -68,6 +94,10 @@ export abstract class BaseComponent implements IComponent, IStandardLifecycle {
     }
   }
 
+  /**
+   *
+   * @param uuid
+   */
   private isValidUUID(uuid: string): boolean {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const hyphenCount = typeof uuid === 'string' ? (uuid.match(/-/g)?.length ?? 0) : 0;

@@ -12,22 +12,31 @@ import type { WebUIGeneratorSpec } from './types/webui-generator-spec';
 import type { WebUISpecData } from './types/webui-spec-data';
 
 vi.mock('next/server', () => {
+  /**
+   *
+   */
   class MockRequest {
     url: string;
-    private body: unknown;
+    private readonly body: unknown;
 
     constructor(url: string, body?: unknown) {
       this.url = url;
       this.body = body;
     }
 
+    /**
+     *
+     */
     async json() {
       return this.body;
     }
   }
 
   const NextResponse = {
-    json: (payload: unknown, init?: { status?: number }) => ({ status: init?.status ?? 200, body: payload }),
+    json: (payload: unknown, init?: { status?: number }) => ({
+      status: init?.status ?? 200,
+      body: payload,
+    }),
   };
 
   return { NextRequest: MockRequest, NextResponse };
@@ -75,13 +84,20 @@ describe('WebUIGenerator component generation', () => {
   it('derives prop types, defaults, and JSX bindings from the spec', () => {
     const generator = new WebUIGenerator(generatorConfig);
 
-    const componentCode = (generator as unknown as { _generateComponentCode: (name: string, spec: ComponentSpec) => string }).
-      _generateComponentCode('preview-generate-workflow', baseComponentSpec);
+    const componentCode = (
+      generator as unknown as {
+        _generateComponentCode: (name: string, spec: ComponentSpec) => string;
+      }
+    )._generateComponentCode('preview-generate-workflow', baseComponentSpec);
 
     expect(componentCode).toContain('GeneratedPreviewGenerateWorkflow');
-    expect(componentCode).toContain('onAction?: (action: ActionName, values: Record<InputName, string>) => void;');
+    expect(componentCode).toContain(
+      'onAction?: (action: ActionName, values: Record<InputName, string>) => void;',
+    );
     expect(componentCode).toContain('const defaultTitle = "Preview/Generate Workflow"');
-    expect(componentCode).toContain('const defaultInputs = {\n  "snippet": "api-handler",\n  "language": "TypeScript"\n}');
+    expect(componentCode).toContain(
+      'const defaultInputs = {\n  "snippet": "api-handler",\n  "language": "TypeScript"\n}',
+    );
     expect(componentCode).toContain('Build Artifact');
     expect(componentCode).toContain('language');
   });
@@ -94,13 +110,21 @@ describe('WebUIGenerator component generation', () => {
       route: '/editor',
       components: ['preview-generate-workflow'],
     };
-    const pageCode = (generator as unknown as {
-      _generatePageCode: (name: string, page: PageSpec, components: Record<string, ComponentSpec>) => string;
-    })._generatePageCode('editor', pageSpec, {
+    const pageCode = (
+      generator as unknown as {
+        _generatePageCode: (
+          name: string,
+          page: PageSpec,
+          components: Record<string, ComponentSpec>,
+        ) => string;
+      }
+    )._generatePageCode('editor', pageSpec, {
       'preview-generate-workflow': baseComponentSpec,
     });
 
-    expect(pageCode).toContain("import { GeneratedPreviewGenerateWorkflow } from '../../components/generated-preview-generate-workflow';");
+    expect(pageCode).toContain(
+      "import { GeneratedPreviewGenerateWorkflow } from '../../components/generated-preview-generate-workflow';",
+    );
     expect(pageCode).toContain('<GeneratedPreviewGenerateWorkflow />');
   });
 });
@@ -126,14 +150,19 @@ async function generateRouteModule(apiSpec: APIRouteSpec) {
   const outputPath = fs.mkdtempSync(path.join(os.tmpdir(), 'webui-output-'));
   writeSpec(specsPath, apiSpec);
 
-  const generator = new WebUIGenerator({ uuid: 'test', id: 'webui', search: { title: 't', summary: 's' }, specsPath, outputPath });
+  const generator = new WebUIGenerator({
+    uuid: 'test',
+    id: 'webui',
+    search: { title: 't', summary: 's' },
+    specsPath,
+    outputPath,
+  });
   await generator.initialise();
   await generator.execute({});
 
   const normalisedRoute = apiSpec.route.replace(/^\/+/, '');
   const modulePath = path.join(outputPath, 'app', 'api', normalisedRoute, 'route.ts');
   const moduleUrl = pathToFileURL(modulePath).href;
-  // eslint-disable-next-line vitest/await-expect
   return import(moduleUrl);
 }
 

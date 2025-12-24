@@ -1,3 +1,6 @@
+/**
+ *
+ */
 export interface LogContext {
   component?: string;
   operation?: string;

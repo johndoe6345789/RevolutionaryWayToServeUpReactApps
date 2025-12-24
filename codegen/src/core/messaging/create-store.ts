@@ -6,11 +6,14 @@ import { MessagingStore } from './messaging-store';
 
 /**
  * Factory function to create a messaging store
+ * @param reducer
+ * @param initialState
+ * @param middleware
  */
 export function createStore<S, A extends Action>(
   reducer: Reducer<S, A>,
   initialState: S,
-  middleware: Middleware<S, A>[] = []
+  middleware: Middleware<S, A>[] = [],
 ): Store<S, A> {
   return new MessagingStore(reducer, initialState, middleware);
 }

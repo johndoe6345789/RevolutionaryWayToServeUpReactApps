@@ -3,7 +3,7 @@
  * AGENTS.md compliant: comprehensive test coverage, lifecycle testing
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RustGenerator } from '../src/rust-generator';
 import specData from '../spec.json';
 
@@ -64,7 +64,9 @@ describe('RustGenerator', () => {
   });
 
   it('should execute lifecycle methods', () => {
-    expect(() => generator.reset()).not.toThrow();
+    expect(() => {
+      generator.reset();
+    }).not.toThrow();
     expect(generator.status()).toBeDefined();
     expect(generator.debug()).toBeDefined();
   });

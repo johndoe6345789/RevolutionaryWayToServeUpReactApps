@@ -3,9 +3,10 @@ import type { Reducer } from '../types/reducer';
 
 /**
  * Combine multiple reducers into a single reducer
+ * @param reducers
  */
 export function combineReducers<S, A extends Action>(
-  reducers: Record<string, Reducer<any, A>>
+  reducers: Record<string, Reducer<any, A>>,
 ): Reducer<S, A> {
   return (state: S, action: A) => {
     const nextState = { ...state };

@@ -15,15 +15,7 @@
     "fileExtension": "\\.tsx?$"
   },
   "constants": {
-    "supportedTemplates": [
-      "class",
-      "interface",
-      "function",
-      "module",
-      "component",
-      "enum",
-      "type"
-    ],
+    "supportedTemplates": ["class", "interface", "function", "module", "component", "enum", "type"],
     "extensions": [".ts", ".tsx"],
     "componentExtension": ".tsx",
     "defaultExtension": ".ts",

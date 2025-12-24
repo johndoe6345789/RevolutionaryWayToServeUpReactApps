@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Registry } from './registry';
 
+/**
+ *
+ */
 interface MockComponentData {
   readonly uuid: string;
   readonly id: string;
@@ -23,6 +26,9 @@ const createMockComponent = (
   search,
 });
 
+/**
+ *
+ */
 class MockComponent implements MockComponentData {
   public readonly uuid: string;
   public readonly id: string;
@@ -58,10 +64,10 @@ class TestRegistry extends Registry {
 }
 
 describe('Registry', () => {
-  let mockComponent1: MockComponentData,
-    mockComponent2: MockComponentData,
-    mockComponent3: MockComponentData,
-    registry: TestRegistry;
+  let mockComponent1: MockComponentData;
+  let mockComponent2: MockComponentData;
+  let mockComponent3: MockComponentData;
+  let registry: TestRegistry;
 
   beforeEach(() => {
     registry = new TestRegistry();
@@ -101,15 +107,15 @@ describe('Registry', () => {
     });
 
     it('should return empty array for cleared registry', () => {
-      const emptyRegistry = new TestRegistry(),
-        result = emptyRegistry.listIds();
+      const emptyRegistry = new TestRegistry();
+      const result = emptyRegistry.listIds();
       expect(result).toEqual([]);
       expect(result).toHaveLength(0);
     });
 
     it('should return new array instance each time', () => {
-      const result1 = registry.listIds(),
-        result2 = registry.listIds();
+      const result1 = registry.listIds();
+      const result2 = registry.listIds();
       expect(result1).not.toBe(result2);
       expect(result1).toEqual(result2);
     });
@@ -269,11 +275,11 @@ describe('Registry', () => {
     it('should validate proper component objects', () => {
       // Test with plain objects that match the expected interface
       const validComponent = {
-          uuid: '12345678-1234-4123-8123-123456789012',
-          id: 'test-id',
-          search: { title: 'Test' },
-        },
-        result = (registry as any)._validateComponent(validComponent);
+        uuid: '12345678-1234-4123-8123-123456789012',
+        id: 'test-id',
+        search: { title: 'Test' },
+      };
+      const result = (registry as any)._validateComponent(validComponent);
       expect(result).toBe(true);
     });
 
@@ -301,8 +307,8 @@ describe('Registry', () => {
         ['empty string UUID', '', false],
         ['number UUID', 123456789, false],
       ])('should validate UUID in component: %s', (description, uuid, expectedValid) => {
-        const component = { uuid, id: 'test-id', search: { title: 'Test' } },
-          result = (registry as any)._validateComponent(component);
+        const component = { uuid, id: 'test-id', search: { title: 'Test' } };
+        const result = (registry as any)._validateComponent(component);
         expect(result).toBe(expectedValid);
       });
     });
@@ -351,8 +357,8 @@ describe('Registry', () => {
       expect(component).toBe(mockComponent1);
 
       // Verify components are not modifiable through registry
-      const list1 = registry.listIds(),
-        list2 = registry.listIds();
+      const list1 = registry.listIds();
+      const list2 = registry.listIds();
       expect(list1).not.toBe(list2); // Different array instances
       expect(list1).toEqual(list2); // Same content
     });

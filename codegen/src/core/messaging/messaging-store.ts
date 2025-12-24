@@ -11,9 +11,9 @@ import type { MiddlewareAPI } from '../types/middleware-api';
  */
 export class MessagingStore<S, A extends Action> implements Store<S, A> {
   private state: S;
-  private reducer: Reducer<S, A>;
-  private listeners: Set<() => void> = new Set();
-  private middleware: Middleware<S, A>[] = [];
+  private readonly reducer: Reducer<S, A>;
+  private readonly listeners = new Set<() => void>();
+  private readonly middleware: Middleware<S, A>[] = [];
   private isDispatching = false;
 
   constructor(reducer: Reducer<S, A>, initialState: S, middleware: Middleware<S, A>[] = []) {
@@ -22,10 +22,17 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     this.middleware = middleware;
   }
 
+  /**
+   *
+   */
   getState(): Readonly<S> {
     return this.state;
   }
 
+  /**
+   *
+   * @param action
+   */
   dispatch(action: Readonly<A>): void {
     if (this.isDispatching) {
       throw new Error('Messaging store: Reducers may not dispatch actions.');
@@ -39,7 +46,7 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     }
 
     // Notify all listeners
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener();
       } catch (error) {
@@ -48,6 +55,10 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     });
   }
 
+  /**
+   *
+   * @param listener
+   */
   subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
 
@@ -57,6 +68,10 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     };
   }
 
+  /**
+   *
+   * @param action
+   */
   private applyMiddleware(action: Readonly<A>): S {
     if (this.middleware.length === 0) {
       return this.reducer(this.state, action);
@@ -65,7 +80,9 @@ export class MessagingStore<S, A extends Action> implements Store<S, A> {
     // Build middleware chain
     const api: MiddlewareAPI<S, A> = {
       getState: () => this.state,
-      dispatch: (action: Readonly<A>) => this.dispatch(action),
+      dispatch: (action: Readonly<A>) => {
+        this.dispatch(action);
+      },
     };
 
     // Compose middleware from right to left

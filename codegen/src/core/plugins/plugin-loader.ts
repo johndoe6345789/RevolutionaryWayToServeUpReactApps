@@ -3,8 +3,8 @@
  * AGENTS.md compliant: Plugin loading process with discovery, dependency resolution, loading, and validation
  */
 
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { resolve, join } from 'path';
+import { readdirSync, readFileSync, statSync } from 'fs';
+import { join, resolve } from 'path';
 import type { IPlugin } from '../interfaces/plugins/iplugin';
 import type { IPluginRegistryManager } from '../interfaces/plugins/iplugin-registry-manager';
 import type { IRegistryManager } from '../interfaces/registry/iregistry-manager';
@@ -115,6 +115,7 @@ export class PluginLoader {
 
   /**
    * Dependency Resolution - topological sort based on dependencies
+   * @param manifests
    */
   private resolveDependencies(manifests: PluginManifest[]): PluginManifest[] {
     const manifestMap = new Map<string, PluginManifest>();
@@ -143,7 +144,9 @@ export class PluginLoader {
     const order: PluginManifest[] = [];
 
     const visit = (id: string): void => {
-      if (visited.has(id)) return;
+      if (visited.has(id)) {
+        return;
+      }
       if (visiting.has(id)) {
         throw new Error(`Circular dependency detected: ${id}`);
       }
@@ -176,6 +179,7 @@ export class PluginLoader {
 
   /**
    * Loading Phase - load individual plugin
+   * @param manifest
    */
   private async loadPlugin(manifest: PluginManifest): Promise<IPlugin> {
     const pluginPath = this.getPluginPath(manifest);
@@ -184,9 +188,10 @@ export class PluginLoader {
     try {
       // Dynamic import of plugin
       const pluginModule = await import(entryPoint);
-      const PluginClass = pluginModule[manifest.name.replace(/\s+/g, '')] ||
-                         pluginModule.default ||
-                         pluginModule.Plugin;
+      const PluginClass =
+        pluginModule[manifest.name.replace(/\s+/g, '')] ||
+        pluginModule.default ||
+        pluginModule.Plugin;
 
       if (!PluginClass) {
         throw new Error(`Plugin class not found in ${entryPoint}`);
@@ -206,6 +211,7 @@ export class PluginLoader {
 
   /**
    * Validation Phase - validate loaded plugins
+   * @param plugins
    */
   private async validatePlugins(plugins: IPlugin[]): Promise<void> {
     const uuids = new Set<string>();
@@ -238,6 +244,7 @@ export class PluginLoader {
 
   /**
    * Validate spec completeness
+   * @param spec
    */
   private validateSpecCompleteness(spec: any): void {
     const requiredFields = ['uuid', 'id', 'type', 'search', 'capabilities'];
@@ -256,11 +263,12 @@ export class PluginLoader {
 
   /**
    * Get plugin directory path from manifest
+   * @param manifest
    */
   private getPluginPath(manifest: PluginManifest): string {
     // Extract plugin type from ID (e.g., 'plugin.language.typescript' -> 'languages')
     const idParts = manifest.id.split('.');
-    let pluginType = 'tools'; // default
+    let pluginType = 'tools'; // Default
 
     if (idParts.length >= 3) {
       switch (idParts[1]) {

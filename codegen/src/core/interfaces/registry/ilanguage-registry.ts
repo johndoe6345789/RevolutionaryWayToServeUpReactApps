@@ -15,22 +15,22 @@ export interface ILanguageRegistry extends IRegistry {
    * Get language generator by language identifier
    * @param languageId - Language identifier (e.g., 'typescript', 'python')
    */
-  getGenerator(languageId: string): ILanguageGenerator | undefined;
+  getGenerator: (languageId: string) => ILanguageGenerator | undefined;
 
   /**
    * Register language generator
    * @param generator - Language generator implementation
    */
-  registerGenerator(generator: ILanguageGenerator): void;
+  registerGenerator: (generator: ILanguageGenerator) => void;
 
   /**
    * Get all supported languages
    */
-  getSupportedLanguages(): string[];
+  getSupportedLanguages: () => string[];
 
   /**
    * Check if language is supported
    * @param languageId - Language identifier to check
    */
-  supportsLanguage(languageId: string): boolean;
+  supportsLanguage: (languageId: string) => boolean;
 }

@@ -68,8 +68,8 @@ export class GoGenerator extends BaseComponent implements ILanguageGenerator {
       throw new Error(errorMsg);
     }
 
-    const content = this.renderTemplate(template.pattern, context.variables),
-      extension = this.getFileExtension(context.templateId);
+    const content = this.renderTemplate(template.pattern, context.variables);
+    const extension = this.getFileExtension(context.templateId);
 
     return {
       content,

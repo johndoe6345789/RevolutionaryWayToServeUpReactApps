@@ -73,44 +73,47 @@ export default {
 
       create(context) {
         const options = context.options[0] || {},
-         requireInRoot = options.requireInRoot !== false,
-         requireInSubdirs = options.requireInSubdirs || false,
-         readmeNames = options.readmeNames || ['README.md', 'readme.md', 'Readme.md'],
-         excludePatterns = options.excludePatterns || [
-          'node_modules',
-          '.git',
-          'dist',
-          'build',
-          '__pycache__',
-          '.next',
-          'coverage',
-          '.vscode',
-          '.github',
-        ],
-         minContentLength = options.minContentLength || 50,
-         checkContent = options.checkContent !== false,
-
-        // Track directories we've already checked
-         checkedDirectories = new Set();
+          requireInRoot = options.requireInRoot !== false,
+          requireInSubdirs = options.requireInSubdirs || false,
+          readmeNames = options.readmeNames || ['README.md', 'readme.md', 'Readme.md'],
+          excludePatterns = options.excludePatterns || [
+            'node_modules',
+            '.git',
+            'dist',
+            'build',
+            '__pycache__',
+            '.next',
+            'coverage',
+            '.vscode',
+            '.github',
+          ],
+          minContentLength = options.minContentLength || 50,
+          checkContent = options.checkContent !== false,
+          // Track directories we've already checked
+          checkedDirectories = new Set();
 
         return {
           Program(node) {
             const filePath = context.filename;
-            if (!filePath || filePath === '<input>') {return;}
+            if (!filePath || filePath === '<input>') {
+              return;
+            }
 
             // Get the directory of the current file
             const directory = path.dirname(filePath),
-             relativeDir = path.relative(process.cwd(), directory);
+              relativeDir = path.relative(process.cwd(), directory);
 
             // Skip if we've already checked this directory
-            if (checkedDirectories.has(directory)) {return;}
+            if (checkedDirectories.has(directory)) {
+              return;
+            }
             checkedDirectories.add(directory);
 
             // Check if we should skip this directory based on patterns
             const dirName = path.basename(directory);
             if (
               excludePatterns.some(
-                (pattern) => dirName.includes(pattern) || directory.includes(pattern)
+                (pattern) => dirName.includes(pattern) || directory.includes(pattern),
               )
             ) {
               return;
@@ -118,8 +121,12 @@ export default {
 
             // Determine if we should check this directory
             const isRootDir = relativeDir === '' || relativeDir === '.';
-            if (isRootDir && !requireInRoot) {return;}
-            if (!isRootDir && !requireInSubdirs) {return;}
+            if (isRootDir && !requireInRoot) {
+              return;
+            }
+            if (!isRootDir && !requireInSubdirs) {
+              return;
+            }
 
             // Check for README files
             let readmeFound = null;
@@ -152,7 +159,7 @@ export default {
             if (checkContent) {
               try {
                 const content = fs.readFileSync(readmeFound.path, 'utf8'),
-                 contentLength = content.trim().length;
+                  contentLength = content.trim().length;
 
                 if (contentLength === 0) {
                   context.report({

@@ -11,5 +11,5 @@ export enum LifecycleStatus {
   EXECUTING = 'executing',
   CLEANING = 'cleaning',
   ERROR = 'error',
-  DESTROYED = 'destroyed'
+  DESTROYED = 'destroyed',
 }

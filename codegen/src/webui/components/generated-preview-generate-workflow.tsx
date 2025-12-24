@@ -11,6 +11,9 @@ import React, { useMemo, useState } from 'react';
 type InputName = 'snippet' | 'language';
 type ActionName = 'preview' | 'generate';
 
+/**
+ *
+ */
 interface GeneratedPreviewGenerateWorkflowProps {
   title?: string;
   summary?: string;
@@ -20,7 +23,7 @@ interface GeneratedPreviewGenerateWorkflowProps {
   onAction?: (action: ActionName, values: Record<InputName, string>) => void;
 }
 
-const inputDefinitions: Array<{
+const inputDefinitions: {
   name: InputName;
   label: string;
   type: 'select';
@@ -28,7 +31,7 @@ const inputDefinitions: Array<{
   defaultValue: string;
   options: string[];
   helperText: string;
-}> = [
+}[] = [
   {
     name: 'snippet',
     label: 'Snippet or group',
@@ -49,11 +52,11 @@ const inputDefinitions: Array<{
   },
 ];
 
-const actionDefinitions: Array<{
+const actionDefinitions: {
   name: ActionName;
   label: string;
   helperText?: string;
-}> = [
+}[] = [
   {
     name: 'preview',
     label: 'Generate Preview',
@@ -79,10 +82,13 @@ const GeneratedPreviewGenerateWorkflow: React.FC<GeneratedPreviewGenerateWorkflo
 }) => {
   const defaultInputs = useMemo(
     () =>
-      inputDefinitions.reduce<Record<InputName, string>>((acc, input) => {
-        acc[input.name] = input.defaultValue;
-        return acc;
-      }, {} as Record<InputName, string>),
+      inputDefinitions.reduce<Record<InputName, string>>(
+        (acc, input) => {
+          acc[input.name] = input.defaultValue;
+          return acc;
+        },
+        {} as Record<InputName, string>,
+      ),
     [],
   );
 
@@ -121,7 +127,9 @@ const GeneratedPreviewGenerateWorkflow: React.FC<GeneratedPreviewGenerateWorkflo
               <select
                 id={inputId}
                 value={value}
-                onChange={(event) => handleInputChange(input.name, event.target.value)}
+                onChange={(event) => {
+                  handleInputChange(input.name, event.target.value);
+                }}
               >
                 <option value="" disabled>
                   {input.placeholder}
@@ -132,7 +140,9 @@ const GeneratedPreviewGenerateWorkflow: React.FC<GeneratedPreviewGenerateWorkflo
                   </option>
                 ))}
               </select>
-              {input.helperText && <small className="generated-input__help">{input.helperText}</small>}
+              {input.helperText && (
+                <small className="generated-input__help">{input.helperText}</small>
+              )}
             </label>
           );
         })}
@@ -143,7 +153,9 @@ const GeneratedPreviewGenerateWorkflow: React.FC<GeneratedPreviewGenerateWorkflo
           <button
             key={action.name}
             type="button"
-            onClick={() => handleAction(action.name)}
+            onClick={() => {
+              handleAction(action.name);
+            }}
             aria-label={action.helperText ?? action.label}
           >
             {actionOverrides[action.name] ?? action.label}

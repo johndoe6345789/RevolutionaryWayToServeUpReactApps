@@ -29,44 +29,23 @@
       "variables": ["name", "fields", "defaults"]
     },
     "function": {
-      "pattern": [
-        "pub fn {name}({params}) -> {return_type} {",
-        "    {body}",
-        "}"
-      ],
+      "pattern": ["pub fn {name}({params}) -> {return_type} {", "    {body}", "}"],
       "variables": ["name", "params", "return_type", "body"]
     },
     "impl": {
-      "pattern": [
-        "impl {struct_name} {",
-        "    {methods}",
-        "}"
-      ],
+      "pattern": ["impl {struct_name} {", "    {methods}", "}"],
       "variables": ["struct_name", "methods"]
     },
     "enum": {
-      "pattern": [
-        "#[derive(Debug, Clone)]",
-        "pub enum {name} {",
-        "    {variants}",
-        "}"
-      ],
+      "pattern": ["#[derive(Debug, Clone)]", "pub enum {name} {", "    {variants}", "}"],
       "variables": ["name", "variants"]
     },
     "trait": {
-      "pattern": [
-        "pub trait {name} {",
-        "    {methods}",
-        "}"
-      ],
+      "pattern": ["pub trait {name} {", "    {methods}", "}"],
       "variables": ["name", "methods"]
     },
     "module": {
-      "pattern": [
-        "pub mod {name} {",
-        "    {content}",
-        "}"
-      ],
+      "pattern": ["pub mod {name} {", "    {content}", "}"],
       "variables": ["name", "content"]
     }
   },
