@@ -14,9 +14,6 @@ permissions:
   pull-requests: write
   contents: read
 
-env:
-  CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
-
 jobs:
   prepare-ai-issue:
     name: Prep AI task from issue
@@ -69,37 +66,6 @@ jobs:
               issue_number: issueNumber,
               body: message,
             });
-
-      # GitHub Actions evaluates unset secrets as empty strings, not null/undefined.
-      # Therefore, checking != '' correctly identifies when the secret is configured.
-      - name: Request Codex task pickup
-        if: env.CODEX_WEBHOOK_URL != ''
-        run: |
-          jq -n \
-            --arg type "ai-issue-pickup" \
-            --arg source "github-actions" \
-            --arg repository "${{ github.repository }}" \
-            --arg issue "${{ github.event.issue.number }}" \
-            --arg url "${{ github.event.issue.html_url }}" \
-            --arg title "${{ github.event.issue.title }}" \
-            '{
-              type: $type,
-              source: $source,
-              repository: $repository,
-              issue: $issue,
-              url: $url,
-              title: $title
-            }' > payload.json
-
-          curl --fail --show-error --silent -X POST \
-            -H "Content-Type: application/json" \
-            --data @payload.json \
-            "$CODEX_WEBHOOK_URL" || { echo "Codex webhook request failed"; exit 1; }
-
-      # When the secret is not set, the env var is an empty string.
-      - name: Log skipped Codex request
-        if: env.CODEX_WEBHOOK_URL == ''
-        run: echo "CODEX_WEBHOOK_URL not configured; relying on GitHub-native AI labels."
 
   tag-pr-for-ai-review:
     name: Tag PRs for AI review
