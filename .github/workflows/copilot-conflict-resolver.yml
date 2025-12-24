@@ -1,4 +1,5 @@
-name: Copilot conflict resolver
+# Automated merge conflict resolution workflow
+name: Copilot Conflict Resolver
 
 on:
   pull_request_target:
@@ -13,7 +14,7 @@ jobs:
   request-copilot-conflict-fix:
     runs-on: ubuntu-latest
     steps:
-      - name: Decide whether PR has merge conflicts
+      - name: Detect merge conflicts
         id: detect
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,9 +23,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Only request Copilot when the PR branch is in this repository (avoid forks with pull_request_target).
+          # Only request Copilot when the PR branch is in this repository (avoid forks)
           head_repo="$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.head.repo.full_name')"
           base_repo="$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.base.repo.full_name')"
+
           if [ "$head_repo" != "$base_repo" ]; then
             echo "copilot_allowed=false" >> "$GITHUB_OUTPUT"
             echo "skip_reason=forked_pull_request" >> "$GITHUB_OUTPUT"
@@ -33,11 +35,12 @@ jobs:
             echo "skip_reason=" >> "$GITHUB_OUTPUT"
           fi
 
-          # mergeable_state can be "unknown" briefly; retry.
+          # Wait for mergeable_state to be computed (can be "unknown" briefly)
           state="unknown"
           for i in 1 2 3 4 5 6; do
             state="$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.mergeable_state // "unknown"')"
             echo "Attempt $i: mergeable_state=$state"
+
             if [ "$state" != "unknown" ]; then
               break
             fi
@@ -45,13 +48,14 @@ jobs:
           done
 
           echo "mergeable_state=$state" >> "$GITHUB_OUTPUT"
+
           if [ "$state" = "dirty" ]; then
             echo "has_conflicts=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_conflicts=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Add label (optional)
+      - name: Apply conflict label
         if: steps.detect.outputs.copilot_allowed == 'true' && steps.detect.outputs.has_conflicts == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +66,7 @@ jobs:
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/labels" \
             -f "labels[]=copilot/conflict-fix-requested" >/dev/null || true
 
-      - name: Ask Copilot to resolve conflicts and open a new PR
+      - name: Request Copilot conflict resolution
         if: steps.detect.outputs.copilot_allowed == 'true' && steps.detect.outputs.has_conflicts == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,7 +89,3 @@ jobs:
 
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
             -f "body=$body" >/dev/null
-
-          gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
-            -f "body=$body" >/dev/null
-

@@ -1,3 +1,4 @@
+# Reusable workflow task for linting
 name: Lint Task
 
 on:
