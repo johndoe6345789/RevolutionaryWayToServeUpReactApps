@@ -70,7 +70,8 @@ jobs:
               body: message,
             });
 
-      # Note: GitHub Actions treats unset secrets as empty strings, so checking != '' works correctly
+      # GitHub Actions evaluates unset secrets as empty strings, not null/undefined.
+      # Therefore, checking != '' correctly identifies when the secret is configured.
       - name: Request Codex task pickup
         if: env.CODEX_WEBHOOK_URL != ''
         run: |
@@ -95,6 +96,7 @@ jobs:
             --data @payload.json \
             "$CODEX_WEBHOOK_URL" || { echo "Codex webhook request failed"; exit 1; }
 
+      # When the secret is not set, the env var is an empty string.
       - name: Log skipped Codex request
         if: env.CODEX_WEBHOOK_URL == ''
         run: echo "CODEX_WEBHOOK_URL not configured; relying on GitHub-native AI labels."
