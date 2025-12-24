@@ -1,0 +1,86 @@
+name: Workflow Doctor
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - ci.yml
+      - ci-tasks.yml
+      - task-lint.yml
+      - task-unit-tests.yml
+      - task-smoke-test.yml
+      - e2e-tasks.yml
+      - docker-publish.yml
+      - release-zip.yml
+      - ai-remediation.yml
+      - copilot-conflict-resolver.yml
+      - bot_issue.yml
+    types: [completed]
+
+jobs:
+  diagnose:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: '1.1.24'
+
+      - name: Install workflow doctor dependencies
+        working-directory: codegen
+        run: bun install --frozen-lockfile
+
+      - name: Run workflow doctor
+        run: bun run codegen/scripts/workflow-diagnostics.ts --json > workflow-diagnostics.json
+
+      - name: Summarize diagnostics
+        id: summarize
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+
+          const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+          const outputPath = process.env.GITHUB_OUTPUT;
+          const data = JSON.parse(fs.readFileSync('workflow-diagnostics.json', 'utf8'));
+          const lines = [];
+          let issues = 0;
+          let errors = 0;
+
+          lines.push('## Workflow Doctor Report');
+          for (const report of data.reports) {
+            lines.push(`- **${report.file}** (${report.jobs} job${report.jobs === 1 ? '' : 's'})`);
+            if (!report.diagnostics.length) {
+              lines.push('  - No issues detected.');
+              continue;
+            }
+            for (const diag of report.diagnostics) {
+              issues++;
+              if (diag.severity === 'error') errors++;
+              const scope = diag.jobId ? `job \`${diag.jobId}\`` : 'workflow';
+              const step = diag.stepName ? `, step \`${diag.stepName}\`` : '';
+              const hint = diag.hint ? ` Hint: ${diag.hint}` : '';
+              lines.push(`  - **${diag.severity.toUpperCase()}** (${scope}${step}): ${diag.message}.${hint}`);
+            }
+          }
+
+          fs.appendFileSync(summaryPath, lines.join('\n') + '\n');
+          fs.appendFileSync(outputPath, `issues=${issues > 0}\n`);
+          fs.appendFileSync(outputPath, `errors=${errors > 0}\n`);
+          EOF
+
+      - name: Upload doctor report
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-doctor-report
+          path: workflow-diagnostics.json
+
+      - name: Fail on workflow errors
+        if: steps.summarize.outputs.errors == 'true'
+        run: |
+          echo "Workflow doctor found workflow errors. See summary above for details."
+          exit 1
