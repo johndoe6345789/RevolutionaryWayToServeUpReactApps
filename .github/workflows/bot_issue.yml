@@ -1,6 +1,11 @@
+name: Auto-assign Copilot on CI failure
+
 on:
   issues:
     types: [labeled]
+
+permissions:
+  issues: write
 
 jobs:
   auto_assign_copilot:
