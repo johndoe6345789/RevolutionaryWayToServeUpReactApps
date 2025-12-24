@@ -91,6 +91,12 @@ export const DOCS_STRUCTURE: DocSection[] = [
     path: "systems",
     files: [
       {
+        id: "ai-assisted-github-workflows",
+        title: "AI-Assisted GitHub Workflows",
+        path: "systems/ai-assisted-github-workflows.md",
+        section: "systems",
+      },
+      {
         id: "i18n-system",
         title: "i18n System",
         path: "systems/i18n-system.md",

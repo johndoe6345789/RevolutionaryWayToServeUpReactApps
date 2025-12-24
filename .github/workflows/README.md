@@ -9,3 +9,5 @@ Summary of the automation that runs in this repository:
 - **ai-code-review.yml** – asks both Copilot and Codex for a code review on every pull request event (including when the PR is closed).
 
 When adding new workflows, keep them documented here so maintainers can see the full CI/CD surface at a glance.
+
+AI-focused automation should follow the label- and comment-driven patterns in `../ai-assisted-workflows.md` (e.g., responding to `ai-ready`, `ai-needs-review`, or `/run-tests`). When you add new triggers, document the label or slash command in both the workflow file and that guide so the behavior stays discoverable.
