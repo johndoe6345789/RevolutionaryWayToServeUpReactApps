@@ -26,6 +26,10 @@ jobs:
         with:
           projects: 'retro-react-app,e2e'
 
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: bun x playwright install --with-deps
+
       - name: Verify Playwright browsers exist
         working-directory: e2e
         run: |

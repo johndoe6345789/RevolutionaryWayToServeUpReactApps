@@ -12,8 +12,6 @@ permissions:
 jobs:
   request-copilot-conflict-fix:
     runs-on: ubuntu-latest
-    env:
-      CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
     steps:
       - name: Decide whether PR has merge conflicts
         id: detect
@@ -88,55 +86,6 @@ jobs:
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
             -f "body=$body" >/dev/null
 
-      - name: Explain why Copilot was not requested
-        if: steps.detect.outputs.has_conflicts == 'true' && steps.detect.outputs.copilot_allowed != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          SKIP_REASON: ${{ steps.detect.outputs.skip_reason }}
-        run: |
-          set -euo pipefail
-
-          reason_message="Copilot conflict resolution was skipped."
-          if [ -n "$SKIP_REASON" ]; then
-            reason_message+=" Reason: $SKIP_REASON."
-          fi
-
-          body=$(cat <<BODY
-          $reason_message
-
-          We detected merge conflicts but avoided auto-requesting Copilot. A Codex request will be sent if a webhook is configured.
-          BODY
-          )
-
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
             -f "body=$body" >/dev/null
-
-      - name: Request Codex help as fallback
-        if: steps.detect.outputs.has_conflicts == 'true' && steps.detect.outputs.copilot_allowed != 'true' && env.CODEX_WEBHOOK_URL != ''
-        env:
-          CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-          BASE_REF: ${{ github.event.pull_request.base.ref }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: |
-          set -euo pipefail
-
-          cat >payload.json <<EOF
-          {
-            "type": "merge-conflict-resolution",
-            "repository": "$REPO",
-            "pullRequest": $PR_NUMBER,
-            "base": "$BASE_REF",
-            "head": "$HEAD_REF",
-            "message": "Copilot conflict resolution was skipped; request Codex to prepare a merge-conflict fix."
-          }
-          EOF
-
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            --data @payload.json \
-            "$CODEX_WEBHOOK_URL"
 
