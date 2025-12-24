@@ -1,3 +1,4 @@
+# Reusable workflow for E2E smoke tests
 name: E2E Tasks
 
 on:
