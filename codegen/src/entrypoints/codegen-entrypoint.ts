@@ -13,6 +13,7 @@ import type { LifecycleBuilder } from '../core/types/lifecycle-builder';
 import type { CompositeLifecycle } from '../core/types/composite-lifecycle';
 import type { CLIArgs } from './types/cli-args';
 import type { CodegenOptions } from './types/codegen-options';
+import { findExecutionManager, findPluginManager } from './component-utils';
 
 /**
  * CodegenEntrypoint - Uses lifecycle builder for component orchestration
@@ -51,28 +52,10 @@ export class CodegenEntrypoint extends BaseComponent {
    * @param args
    */
   public async runCLI(args: string[]): Promise<void> {
-    const command = args[0] || 'help',
-      options = this._parseCLIArgs(args.slice(1));
-
+    const { command, options } = this.parseCommand(args);
     try {
       await this.initialise();
-
-      switch (command) {
-        case 'generate':
-          await this._runGenerate(options);
-          break;
-        case 'list':
-          await this._runList(options);
-          break;
-        case 'describe':
-          await this._runDescribe(options);
-          break;
-        case 'search':
-          await this._runSearch(options);
-          break;
-        default:
-          this._displayHelp();
-      }
+      await this.dispatchCommand(command, options);
     } catch (error) {
       throw new Error(`CLI execution failed: ${(error as Error).message}`);
     }
@@ -89,101 +72,53 @@ export class CodegenEntrypoint extends BaseComponent {
    * Get the composite lifecycle (builds it if not already built)
    */
   public getCompositeLifecycle(): CompositeLifecycle {
-    if (!this.compositeLifecycle) {
-      this.compositeLifecycle = this.lifecycleBuilder.build();
-    }
+    this.compositeLifecycle ||= this.lifecycleBuilder.build();
     return this.compositeLifecycle;
   }
 
   /**
    * Get a component by name from the lifecycle
    */
-  public getComponent<TComponent extends BaseComponent = BaseComponent>(
-    name: string,
-  ): TComponent | undefined {
-    const lifecycle = this.getCompositeLifecycle();
-    const children = lifecycle.getChildren();
+  public getComponent<TComponent extends BaseComponent = BaseComponent>(name: string): TComponent | undefined {
+    const children = this.getCompositeLifecycle().getChildren();
     const component = children.get(name);
-
-    if (this.isBaseComponent(component)) {
-      return component as TComponent;
-    }
-
-    return undefined;
+    return component instanceof BaseComponent ? (component as TComponent) : undefined;
   }
 
   /**
    *
    * @param options
    */
-  private async _runGenerate(options: CLIArgs): Promise<void> {
-    const context = {
-        operation: 'generate',
-        specPath: options.spec,
-        outputDir: options.output,
-        language: options.language,
-        profile: options.profile,
-        template: options.template,
-      },
-      executionManager = this.getComponent<ExecutionManager>('executionManager');
-    if (this.isExecutionManager(executionManager)) {
-      await executionManager.executeWithContext(context);
-    }
+  private async handleGenerate(options: CLIArgs): Promise<void> {
+    const executionManager = findExecutionManager(this);
+    if (!executionManager) return;
+
+    await executionManager.executeWithContext(createGenerateContext(options));
   }
 
   /**
    *
    * @param _options
    */
-  private async _runList(_options: CLIArgs): Promise<void> {
-    const category = _options.category || 'all';
+  private async handleList(options: CLIArgs): Promise<void> {
+    const pluginManager = findPluginManager(this);
+    if (!pluginManager) return;
 
-    if (category === 'plugins' || category === 'all') {
-      const pluginManager = this.getComponent<PluginManager>('pluginManager');
-      if (this.isPluginManager(pluginManager)) {
-        const plugins = pluginManager.getPlugins();
-        console.log('Plugins:', Array.from(plugins.keys()));
-      }
-    }
-
-    if (category === 'tools' || category === 'all') {
-      // For now, just show plugin info as tools are plugins
-      const pluginManager = this.getComponent<PluginManager>('pluginManager');
-      if (this.isPluginManager(pluginManager)) {
-        const plugins = pluginManager.getPlugins();
-        console.log('Tools:', Array.from(plugins.keys()));
-      }
-    }
+    const category = options.category || 'all';
+    if (category === 'plugins' || category === 'all') this.logComponents(pluginManager, 'Plugins');
+    if (category === 'tools' || category === 'all') this.logComponents(pluginManager, 'Tools');
   }
 
   /**
    *
    * @param options
    */
-  private async _runDescribe(options: CLIArgs): Promise<void> {
+  private async handleDescribe(options: CLIArgs): Promise<void> {
     const componentId = options.component;
-    if (!componentId) {
-      return;
-    }
+    if (!componentId) return;
 
-    // Check both components for the requested component
-    const pluginManager = this.getComponent<PluginManager>('pluginManager');
-    const executionManager = this.getComponent<ExecutionManager>('executionManager');
-
-    if (this.isPluginManager(pluginManager)) {
-      const plugins = pluginManager.getPlugins();
-      if (plugins.has(componentId)) {
-        console.log(`Component: ${componentId} (Plugin)`);
-        return;
-      }
-    }
-
-    if (this.isExecutionManager(executionManager)) {
-      const debugInfo = executionManager.debug();
-      console.log(`Component: ${componentId} (Execution)`);
-      console.log('Debug Info:', debugInfo);
-      return;
-    }
+    if (this.describePlugin(componentId)) return;
+    if (this.describeExecution(componentId)) return;
 
     console.log(`Component '${componentId}' not found`);
   }
@@ -192,26 +127,25 @@ export class CodegenEntrypoint extends BaseComponent {
    *
    * @param options
    */
-  private async _runSearch(options: CLIArgs): Promise<void> {
-    const { query } = options;
-    if (!query) {
+  private async handleSearch(options: CLIArgs): Promise<void> {
+    if (!options.query) {
+      console.log('Search query required');
+      return;
     }
+
+    console.log(`Searching for '${options.query}'...`);
   }
 
   /**
    *
    * @param args
    */
-  private _parseCLIArgs(args: string[]): CLIArgs {
+  private parseCLIArgs(args: string[]): CLIArgs {
     const options: CLIArgs = {};
-    for (let i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i += 1) {
       const arg = args[i];
-      if (arg.startsWith('--')) {
-        const key = arg.slice(2);
-        options[key] = args[i + 1] && !args[i + 1].startsWith('--') ? args[++i] : true;
-      } else if (!options.component) {
-        options.component = arg;
-      }
+      if (!arg.startsWith('--') && !options.component) options.component = arg;
+      else if (arg.startsWith('--')) options[arg.slice(2)] = this.readOption(args, i);
     }
     return options;
   }
@@ -219,24 +153,59 @@ export class CodegenEntrypoint extends BaseComponent {
   /**
    *
    */
-  private _displayHelp(): void {
-    // Help display functionality
+  private displayHelp(): void {
+    console.log('Usage: codegen <command> [options]');
   }
 
-  private isBaseComponent(component: unknown): component is BaseComponent {
-    return component instanceof BaseComponent;
+  private describePlugin(componentId: string): boolean {
+    const pluginManager = findPluginManager(this);
+    if (!pluginManager) return false;
+
+    const hasPlugin = pluginManager.getPlugins().has(componentId);
+    if (hasPlugin) console.log(`Component: ${componentId} (Plugin)`);
+    return hasPlugin;
   }
 
-  private isPluginManager(component: BaseComponent | undefined): component is PluginManager {
-    return component instanceof PluginManager || typeof (component as PluginManager | undefined)?.getPlugins === 'function';
+  private describeExecution(componentId: string): boolean {
+    const executionManager = findExecutionManager(this);
+    if (!executionManager) return false;
+
+    console.log(`Component: ${componentId} (Execution)`);
+    console.log('Debug Info:', executionManager.debug());
+    return true;
   }
 
-  private isExecutionManager(
-    component: BaseComponent | undefined,
-  ): component is ExecutionManager {
-    return (
-      component instanceof ExecutionManager ||
-      typeof (component as ExecutionManager | undefined)?.executeWithContext === 'function'
-    );
+  private dispatchCommand(command: string, options: CLIArgs): Promise<void> {
+    const handlers: Record<string, (cliOptions: CLIArgs) => Promise<void> | void> = {
+      describe: (cliOptions) => this.handleDescribe(cliOptions),
+      generate: (cliOptions) => this.handleGenerate(cliOptions),
+      help: () => this.displayHelp(),
+      list: (cliOptions) => this.handleList(cliOptions),
+      search: (cliOptions) => this.handleSearch(cliOptions),
+    };
+    return Promise.resolve((handlers[command] ?? this.displayHelp.bind(this))(options));
+  }
+
+  private logComponents(pluginManager: PluginManager, label: string): void {
+    console.log(`${label}:`, Array.from(pluginManager.getPlugins().keys()));
+  }
+
+  private parseCommand(args: string[]): { command: string; options: CLIArgs } {
+    const [command = 'help', ...rest] = args;
+    return { command, options: this.parseCLIArgs(rest) };
+  }
+
+  private readOption(args: string[], index: number): string | boolean {
+    const value = args[index + 1];
+    return value && !value.startsWith('--') ? value : true;
   }
 }
+
+const createGenerateContext = (options: CLIArgs): Record<string, unknown> => ({
+  operation: 'generate',
+  specPath: options.spec,
+  outputDir: options.output,
+  language: options.language,
+  profile: options.profile,
+  template: options.template,
+});
