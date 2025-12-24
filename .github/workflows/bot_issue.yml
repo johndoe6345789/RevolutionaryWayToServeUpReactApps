@@ -1,13 +1,18 @@
+name: Auto-assign Copilot on CI failure
+
 on:
   issues:
     types: [labeled]
+
+permissions:
+  issues: write
 
 jobs:
   auto_assign_copilot:
     runs-on: ubuntu-latest
     steps:
       - name: Auto assign Copilot
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             if (github.context.payload.label.name === 'ci-failure') {
