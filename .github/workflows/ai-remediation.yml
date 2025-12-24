@@ -103,12 +103,31 @@ PAYLOAD
           script: |
             const { owner, repo } = context.repo;
             const issueNumber = context.payload.pull_request.number;
-            await github.rest.issues.addLabels({
+            
+            // Check if PR has AI-related labels
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
               owner,
               repo,
               issue_number: issueNumber,
-              labels: ['ai-needs-review'],
             });
+            
+            const labelNames = labels.map(label => label.name);
+            const hasAiLabel = labelNames.some(name => 
+              name === 'ai-task' || name === 'ai-in-progress'
+            );
+            
+            // Only apply ai-needs-review if PR is associated with AI work
+            if (hasAiLabel) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                labels: ['ai-needs-review'],
+              });
+              console.log('Applied ai-needs-review label to AI-related PR');
+            } else {
+              console.log('Skipped ai-needs-review label - not an AI-related PR');
+            }
 
   open-follow-up-issue:
     name: Open follow-up on AI rejection
