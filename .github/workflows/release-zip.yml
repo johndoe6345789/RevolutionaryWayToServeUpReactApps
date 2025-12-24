@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Collect source files
         run: python3 python/rwtra_scripts/copy_sources.py --clean
