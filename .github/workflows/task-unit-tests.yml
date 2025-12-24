@@ -16,17 +16,15 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
         with:
           bun-version: ${{ inputs.bun-version }}
 
-      - name: Install codegen dependencies
-        run: bun install
-        working-directory: codegen
+      - name: Install dependencies
+        uses: ./.github/actions/install-deps
+        with:
+          projects: 'codegen'
 
       - name: Run codegen unit tests
         run: npm test

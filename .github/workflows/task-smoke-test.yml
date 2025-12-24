@@ -16,21 +16,15 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
         with:
           bun-version: ${{ inputs.bun-version }}
 
-      - name: Install retro-react-app dependencies
-        run: bun install
-        working-directory: retro-react-app
-
-      - name: Install e2e dependencies
-        run: bun install
-        working-directory: e2e
+      - name: Install dependencies
+        uses: ./.github/actions/install-deps
+        with:
+          projects: 'retro-react-app,e2e'
 
       - name: Verify Playwright browsers exist
         working-directory: e2e
