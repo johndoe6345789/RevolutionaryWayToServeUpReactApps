@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Apply AI workflow labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -45,7 +45,7 @@ jobs:
             }
 
       - name: Post AI work expectations
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -76,7 +76,7 @@ jobs:
 
     steps:
       - name: Apply ai-needs-review label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -154,7 +154,7 @@ jobs:
 
     steps:
       - name: Create follow-up issue for AI rejections
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
