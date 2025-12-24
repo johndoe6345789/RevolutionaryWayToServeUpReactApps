@@ -13,3 +13,7 @@ Summary of the automation that runs in this repository:
 When adding new workflows, keep them documented here so maintainers can see the full CI/CD surface at a glance.
 
 AI-focused automation should follow the label- and comment-driven patterns in `../ai-assisted-workflows.md` (e.g., responding to `ai-ready`, `ai-needs-review`, or `/run-tests`). When you add new triggers, document the label or slash command in both the workflow file and that guide so the behavior stays discoverable.
+
+## Diagnostics for AI helpers
+- Use `bun run codegen/scripts/workflow-diagnostics.ts` to quickly flag broken `needs` chains, missing `runs-on` definitions, or unpinned `uses` blocks before asking Copilot/Codex to debug CI failures.
+- Pass `--workflow=<filename>` to narrow the scan or `--json` to pipe results into another tool without parsing console formatting.
