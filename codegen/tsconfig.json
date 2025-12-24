@@ -39,6 +39,7 @@
     "retro-react-app",
     "e2e",
     "codegen/src/build.ts",
-    "codegen/lint.ts"
+    "codegen/lint.ts",
+    "src/webui/**/*"
   ]
 }

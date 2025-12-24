@@ -56,7 +56,7 @@ app
       console.log(`📋 Runbook generation ready`);
     });
   })
-  .catch((ex) => {
+  .catch((ex: unknown) => {
     console.error('Failed to start WebUI:', ex);
     process.exit(1);
   });

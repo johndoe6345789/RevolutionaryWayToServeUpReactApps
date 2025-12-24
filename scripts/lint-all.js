@@ -34,8 +34,8 @@ runStep(
 );
 
 runStep(
-  'Linting retro-react-app via bunx',
-  resolveCommand('bunx'),
+  'Linting retro-react-app via npx',
+  resolveCommand('npx'),
   ['eslint', '.'],
   path.join(repoRoot, 'retro-react-app'),
 );

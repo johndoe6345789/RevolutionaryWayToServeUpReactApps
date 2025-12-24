@@ -4,7 +4,6 @@
  * Auto-generated from spec.json
  */
 
-import React from 'react';
 import GeneratedRunbookGenerator from '../../components/generated-runbook-generator';
 
 export default function RunbookPage() {

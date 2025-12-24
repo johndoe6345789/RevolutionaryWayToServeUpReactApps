@@ -53,7 +53,7 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   schema,
   readOnly = false,
   height = 600,
-  showDiff = false,
+  showDiff: _showDiff = false,
   originalValue,
   onSave,
   onFormat,
@@ -99,7 +99,7 @@ const GeneratedMonacoEditor: React.FC<GeneratedMonacoEditorProps> = ({
   };
 
   const handleViewModeChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newMode: 'editor' | 'diff',
   ) => {
     if (newMode !== null) {

@@ -6,14 +6,13 @@
  * Auto-generated from spec.json
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AppBar,
   Box,
   Container,
   createTheme,
   CssBaseline,
-  Grid,
   Paper,
   ThemeProvider,
   Toolbar,

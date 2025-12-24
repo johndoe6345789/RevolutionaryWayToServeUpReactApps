@@ -46,9 +46,9 @@ export class WebUIGenerator {
 
   /**
    *
-   * @param context
+   * @param _context
    */
-  public async execute(context: Record<string, unknown>): Promise<ExecutionResult> {
+  public async execute(_context: Record<string, unknown>): Promise<ExecutionResult> {
     const specs = this._loadSpecs();
     const generatedFiles = this._generateWebUI(specs);
 
@@ -317,7 +317,7 @@ export default Generated${pascalName};`;
   private _generatePageCode(
     pageName: string,
     pageSpec: PageSpec,
-    components: Record<string, ComponentSpec>,
+    _components: Record<string, ComponentSpec>,
   ): string {
     const imports = pageSpec.components
       .map(
@@ -571,10 +571,13 @@ export async function ${method}(request: NextRequest) {
 
     const properties: Record<string, SchemaDefinition> = {};
     for (const param of params) {
-      properties[param.name] = {
+      const propDef: SchemaDefinition = {
         type: param.type,
-        required: param.required,
       };
+      if (param.required !== undefined) {
+        propDef.required = param.required;
+      }
+      properties[param.name] = propDef;
     }
 
     return { type: 'object', properties };

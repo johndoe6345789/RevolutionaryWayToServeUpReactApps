@@ -9,7 +9,6 @@
 import React, { useMemo, useState } from 'react';
 import type { SelectChangeEvent } from '@mui/material';
 import {
-  Badge,
   Box,
   Chip,
   Divider,
