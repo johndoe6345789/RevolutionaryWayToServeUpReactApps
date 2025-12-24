@@ -63,6 +63,16 @@ chmod +x revolutionary-codegen.js
 ./revolutionary-codegen.js generate --spec-path my-project.json --enable-innovations --enable-typescript --enable-tests
 ```
 
+## 🧹 Linting
+
+Run all lint suites to keep both packages healthy:
+
+```bash
+node scripts/lint-all.js
+```
+
+This script runs `npm run lint` inside `codegen/` and `bunx eslint` inside `retro-react-app/` so both lint configurations stay in sync.
+
 ## 📖 Project Specification
 
 The project is defined by a JSON specification file that includes:

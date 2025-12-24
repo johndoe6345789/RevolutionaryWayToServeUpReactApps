@@ -39,7 +39,7 @@ jobs:
         working-directory: e2e
 
       - name: Run comprehensive linting
-        run: bun run lint.ts
+        run: node scripts/lint-all.js
 
   smoke-test:
     name: Playwright smoke test
