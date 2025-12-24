@@ -7,6 +7,8 @@
  */
 
 import { BaseComponent } from '../core/codegen/base-component';
+import { ExecutionManager } from '../core/codegen/execution-manager';
+import { PluginManager } from '../core/plugins/plugin-manager';
 import type { LifecycleBuilder } from '../core/types/lifecycle-builder';
 import type { CompositeLifecycle } from '../core/types/composite-lifecycle';
 import type { CLIArgs } from './types/cli-args';
@@ -96,10 +98,18 @@ export class CodegenEntrypoint extends BaseComponent {
   /**
    * Get a component by name from the lifecycle
    */
-  public getComponent(name: string): any {
+  public getComponent<TComponent extends BaseComponent = BaseComponent>(
+    name: string,
+  ): TComponent | undefined {
     const lifecycle = this.getCompositeLifecycle();
     const children = lifecycle.getChildren();
-    return children.get(name);
+    const component = children.get(name);
+
+    if (this.isBaseComponent(component)) {
+      return component as TComponent;
+    }
+
+    return undefined;
   }
 
   /**
@@ -115,8 +125,8 @@ export class CodegenEntrypoint extends BaseComponent {
         profile: options.profile,
         template: options.template,
       },
-      executionManager = this.getComponent('executionManager');
-    if (executionManager && 'executeWithContext' in executionManager) {
+      executionManager = this.getComponent<ExecutionManager>('executionManager');
+    if (this.isExecutionManager(executionManager)) {
       await executionManager.executeWithContext(context);
     }
   }
@@ -129,8 +139,8 @@ export class CodegenEntrypoint extends BaseComponent {
     const category = _options.category || 'all';
 
     if (category === 'plugins' || category === 'all') {
-      const pluginManager = this.getComponent('pluginManager');
-      if (pluginManager && 'getPlugins' in pluginManager) {
+      const pluginManager = this.getComponent<PluginManager>('pluginManager');
+      if (this.isPluginManager(pluginManager)) {
         const plugins = pluginManager.getPlugins();
         console.log('Plugins:', Array.from(plugins.keys()));
       }
@@ -138,8 +148,8 @@ export class CodegenEntrypoint extends BaseComponent {
 
     if (category === 'tools' || category === 'all') {
       // For now, just show plugin info as tools are plugins
-      const pluginManager = this.getComponent('pluginManager');
-      if (pluginManager && 'getPlugins' in pluginManager) {
+      const pluginManager = this.getComponent<PluginManager>('pluginManager');
+      if (this.isPluginManager(pluginManager)) {
         const plugins = pluginManager.getPlugins();
         console.log('Tools:', Array.from(plugins.keys()));
       }
@@ -157,10 +167,10 @@ export class CodegenEntrypoint extends BaseComponent {
     }
 
     // Check both components for the requested component
-    const pluginManager = this.getComponent('pluginManager');
-    const executionManager = this.getComponent('executionManager');
+    const pluginManager = this.getComponent<PluginManager>('pluginManager');
+    const executionManager = this.getComponent<ExecutionManager>('executionManager');
 
-    if (pluginManager && 'getPlugins' in pluginManager) {
+    if (this.isPluginManager(pluginManager)) {
       const plugins = pluginManager.getPlugins();
       if (plugins.has(componentId)) {
         console.log(`Component: ${componentId} (Plugin)`);
@@ -168,7 +178,7 @@ export class CodegenEntrypoint extends BaseComponent {
       }
     }
 
-    if (executionManager && 'debug' in executionManager) {
+    if (this.isExecutionManager(executionManager)) {
       const debugInfo = executionManager.debug();
       console.log(`Component: ${componentId} (Execution)`);
       console.log('Debug Info:', debugInfo);
@@ -211,5 +221,22 @@ export class CodegenEntrypoint extends BaseComponent {
    */
   private _displayHelp(): void {
     // Help display functionality
+  }
+
+  private isBaseComponent(component: unknown): component is BaseComponent {
+    return component instanceof BaseComponent;
+  }
+
+  private isPluginManager(component: BaseComponent | undefined): component is PluginManager {
+    return component instanceof PluginManager || typeof (component as PluginManager | undefined)?.getPlugins === 'function';
+  }
+
+  private isExecutionManager(
+    component: BaseComponent | undefined,
+  ): component is ExecutionManager {
+    return (
+      component instanceof ExecutionManager ||
+      typeof (component as ExecutionManager | undefined)?.executeWithContext === 'function'
+    );
   }
 }
