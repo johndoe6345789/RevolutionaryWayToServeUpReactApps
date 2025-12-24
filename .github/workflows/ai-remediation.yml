@@ -116,6 +116,7 @@ jobs:
             // Check if PR has AI-related labels
             const prLabels = context.payload.pull_request.labels || [];
             const aiLabels = ['ai-task', 'ai-in-progress', 'ai-follow-up'];
+            const aiIssueLabels = [...aiLabels, 'ai-ready'];
             const hasAiLabel = prLabels.some(label => aiLabels.includes(label.name));
             
             if (hasAiLabel) {
@@ -130,7 +131,8 @@ jobs:
             }
             
             // Check if PR references an issue with AI labels
-            const issueRefPattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+            // Matches: closes/fixed/resolves #123 (case-insensitive)
+            const issueRefPattern = /(?:close[sd]?|fix(?:e[sd]|ing)?|resolve[sd]?)\s+#(\d+)/gi;
             const matches = [...prBody.matchAll(issueRefPattern)];
             
             if (matches.length === 0) {
@@ -148,7 +150,7 @@ jobs:
                 });
                 
                 const issueLabels = issue.labels.map(label => typeof label === 'string' ? label : label.name);
-                const hasAiIssueLabel = issueLabels.some(label => aiLabels.includes(label) || label === 'ai-ready');
+                const hasAiIssueLabel = issueLabels.some(label => aiIssueLabels.includes(label));
                 
                 if (hasAiIssueLabel) {
                   core.info(`PR #${prNumber} references issue #${issueNumber} with AI labels; applying ai-needs-review.`);
