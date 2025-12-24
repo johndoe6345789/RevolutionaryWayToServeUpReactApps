@@ -12,6 +12,8 @@ permissions:
 jobs:
   request-copilot-conflict-fix:
     runs-on: ubuntu-latest
+    env:
+      CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
     steps:
       - name: Decide whether PR has merge conflicts
         id: detect
@@ -22,14 +24,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Only act on PRs originating from the same repo (avoid forks with pull_request_target).
+          # Only request Copilot when the PR branch is in this repository (avoid forks with pull_request_target).
           head_repo="$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.head.repo.full_name')"
           base_repo="$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.base.repo.full_name')"
           if [ "$head_repo" != "$base_repo" ]; then
-            echo "same_repo=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            echo "copilot_allowed=false" >> "$GITHUB_OUTPUT"
+            echo "skip_reason=forked_pull_request" >> "$GITHUB_OUTPUT"
+          else
+            echo "copilot_allowed=true" >> "$GITHUB_OUTPUT"
+            echo "skip_reason=" >> "$GITHUB_OUTPUT"
           fi
-          echo "same_repo=true" >> "$GITHUB_OUTPUT"
 
           # mergeable_state can be "unknown" briefly; retry.
           state="unknown"
@@ -50,7 +54,7 @@ jobs:
           fi
 
       - name: Add label (optional)
-        if: steps.detect.outputs.same_repo == 'true' && steps.detect.outputs.has_conflicts == 'true'
+        if: steps.detect.outputs.copilot_allowed == 'true' && steps.detect.outputs.has_conflicts == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -61,7 +65,7 @@ jobs:
             -f "labels[]=copilot/conflict-fix-requested" >/dev/null || true
 
       - name: Ask Copilot to resolve conflicts and open a new PR
-        if: steps.detect.outputs.same_repo == 'true' && steps.detect.outputs.has_conflicts == 'true'
+        if: steps.detect.outputs.copilot_allowed == 'true' && steps.detect.outputs.has_conflicts == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -83,4 +87,56 @@ jobs:
 
           gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
             -f "body=$body" >/dev/null
+
+      - name: Explain why Copilot was not requested
+        if: steps.detect.outputs.has_conflicts == 'true' && steps.detect.outputs.copilot_allowed != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_REASON: ${{ steps.detect.outputs.skip_reason }}
+        run: |
+          set -euo pipefail
+
+          reason_message="Copilot conflict resolution was skipped."
+          if [ -n "$SKIP_REASON" ]; then
+            reason_message+=" Reason: $SKIP_REASON."
+          fi
+
+          body=$(cat <<BODY
+          $reason_message
+
+          We detected merge conflicts but avoided auto-requesting Copilot. A Codex request will be sent if a webhook is configured.
+          BODY
+          )
+
+          gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" \
+            -f "body=$body" >/dev/null
+
+      - name: Request Codex help as fallback
+        if: steps.detect.outputs.has_conflicts == 'true' && steps.detect.outputs.copilot_allowed != 'true' && env.CODEX_WEBHOOK_URL != ''
+        env:
+          CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+
+          cat >payload.json <<EOF
+          {
+            "type": "merge-conflict-resolution",
+            "repository": "$REPO",
+            "pullRequest": $PR_NUMBER,
+            "base": "$BASE_REF",
+            "head": "$HEAD_REF",
+            "message": "Copilot conflict resolution was skipped; request Codex to prepare a merge-conflict fix."
+          }
+          EOF
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data @payload.json \
+            "$CODEX_WEBHOOK_URL"
 
