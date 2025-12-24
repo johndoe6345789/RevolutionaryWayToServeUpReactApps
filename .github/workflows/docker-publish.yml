@@ -1,4 +1,5 @@
-name: Package site image
+# Docker image build and publish workflow
+name: Package Site Image
 
 on:
   push:

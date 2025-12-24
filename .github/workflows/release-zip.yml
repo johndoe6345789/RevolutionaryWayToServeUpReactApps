@@ -1,3 +1,4 @@
+# Release artifact packaging workflow
 name: Release Zip
 
 on:
@@ -25,15 +26,16 @@ jobs:
         run: |
           release_tag="${{ github.event.release.tag_name }}"
           zip_name="rwtra-${release_tag}.zip"
+          # Replace slashes with dashes for valid filename
           zip_name="${zip_name//\//-}"
           cd dist
           zip -r "$GITHUB_WORKSPACE/$zip_name" .
           echo "zip_name=$zip_name" >> "$GITHUB_OUTPUT"
 
       - name: Upload zip to release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ github.workspace }}/${{ steps.package.outputs.zip_name }}
-          asset_name: ${{ steps.package.outputs.zip_name }}
-          asset_content_type: application/zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "${{ github.workspace }}/${{ steps.package.outputs.zip_name }}" \
+            --clobber

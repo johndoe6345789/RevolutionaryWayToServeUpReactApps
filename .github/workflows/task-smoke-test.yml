@@ -1,3 +1,4 @@
+# Reusable workflow task for Playwright smoke tests
 name: Smoke Test Task
 
 on:
