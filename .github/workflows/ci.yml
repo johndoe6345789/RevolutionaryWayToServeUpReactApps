@@ -125,7 +125,7 @@ jobs:
             const { repo, owner } = context.repo;
             const runUrl = `https://github.com/${owner}/${repo}/actions/runs/${context.runId}`;
             const title = `Fix CI test failure for run #${context.runNumber}`;
-            const labels = ['ci-failure', 'tests', 'github-pro-task'];
+            const labels = ['ci-failure', 'tests', 'github-pro-task', 'ai-ready', 'ai-task'];
 
             const existing = await github.paginate(github.rest.issues.listForRepo, {
               owner,
@@ -156,6 +156,21 @@ jobs:
               title,
               body,
               labels,
+            });
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issue.number,
+              body: [
+                'AI maintainers: tests failed in CI. Please pick this up.',
+                '',
+                '- Start by acknowledging this issue and set the `ai-in-progress` label.',
+                '- Investigate the linked CI run and reproduce locally.',
+                '- Push a branch that references this issue in the PR description so it auto-closes.',
+                '- When ready for review, request an AI code review; the `ai-needs-review` label will be applied automatically by the workflow.',
+                '- If the fix is rejected, tag `ai-follow-up` and open a new issue for the next cycle.',
+              ].join('\n'),
             });
 
             core.info(`Created GitHub Pro task issue: ${issue.html_url}`);

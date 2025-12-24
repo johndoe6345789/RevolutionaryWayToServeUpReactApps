@@ -10,12 +10,12 @@ This repo prefers GitHub-native automation for AI assistance. Drive work with la
 - **Auditability**: Keep decisions and status updates in the thread so humans can follow along and intervene.
 
 ## Recommended flow
-1. **Open/prepare an issue** with the problem statement, acceptance criteria, and `ai-ready` label when it is actionable.
+1. **Open/prepare an issue** with the problem statement, acceptance criteria, and `ai-ready` label when it is actionable. CI failures now auto-open issues with `ai-ready` plus guidance for the AI.
 2. **Draft a PR** from the AI and outline the plan in the description; keep status updates in comments rather than API callbacks.
 3. **Track tasks** with Markdown checklists that the AI checks off as work completes.
-4. **Hand off for review** by swapping to `ai-needs-review` and posting a recap of changes and verification notes.
+4. **Hand off for review** by swapping to `ai-needs-review` and posting a recap of changes and verification notes. The AI remediation workflow automatically adds `ai-needs-review` to new or updated PRs.
 5. **Trigger validation** through labels or slash commands (e.g., `/run-tests`) that workflows can parse—never by custom endpoints.
-6. **Close out** by merging via the PR UI, closing linked issues, and posting a final changelog comment plus any `ai-follow-up` tags.
+6. **Close out** by merging via the PR UI, closing linked issues, and posting a final changelog comment plus any `ai-follow-up` tags. If an AI reviewer requests changes, the workflow opens an `ai-follow-up` issue to restart the loop.
 
 ## Comment and tag patterns
 - **Status**: “Completed lint setup; waiting on `/run-tests`.”

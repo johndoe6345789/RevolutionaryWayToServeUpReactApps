@@ -1,0 +1,247 @@
+# Drive AI triage for CI failures and follow-up reviews.
+name: AI remediation loop
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize, labeled]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+env:
+  CODEX_WEBHOOK_URL: ${{ secrets.CODEX_WEBHOOK_URL }}
+
+jobs:
+  prepare-ai-issue:
+    name: Prep AI task from issue
+    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'ai-ready')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label issue for AI intake
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issueNumber = context.payload.issue.number;
+            const existingLabels = Array.isArray(context.payload.issue.labels)
+              ? new Set(context.payload.issue.labels.map(label => label.name))
+              : new Set();
+            const desiredLabels = ['ai-in-progress', 'ai-task'];
+            const labelsToApply = desiredLabels.filter(label => !existingLabels.has(label));
+
+            if (labelsToApply.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                labels: labelsToApply,
+              });
+            }
+
+      - name: Outline AI work expectations
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issueNumber = context.payload.issue.number;
+            const prHint = 'Reference this issue in the PR body so it auto-closes on merge.';
+            const message = [
+              'AI agent: you are clear to begin work on this issue.',
+              '',
+              '- Post a short plan, then open a branch to ship the fix.',
+              '- Run lint and tests; paste results in a comment or use `/run-tests` if available.',
+              `- ${prHint}`,
+              '- When the PR is ready, apply the `ai-needs-review` label.',
+              '- If a reviewer requests changes, keep the thread updated or let the workflow open a follow-up issue.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issueNumber,
+              body: message,
+            });
+
+      # GitHub Actions evaluates unset secrets as empty strings, not null/undefined.
+      # Therefore, checking != '' correctly identifies when the secret is configured.
+      - name: Request Codex task pickup
+        if: env.CODEX_WEBHOOK_URL != ''
+        run: |
+          jq -n \
+            --arg type "ai-issue-pickup" \
+            --arg source "github-actions" \
+            --arg repository "${{ github.repository }}" \
+            --arg issue "${{ github.event.issue.number }}" \
+            --arg url "${{ github.event.issue.html_url }}" \
+            --arg title "${{ github.event.issue.title }}" \
+            '{
+              type: $type,
+              source: $source,
+              repository: $repository,
+              issue: $issue,
+              url: $url,
+              title: $title
+            }' > payload.json
+
+          curl --fail --show-error --silent -X POST \
+            -H "Content-Type: application/json" \
+            --data @payload.json \
+            "$CODEX_WEBHOOK_URL" || { echo "Codex webhook request failed"; exit 1; }
+
+      # When the secret is not set, the env var is an empty string.
+      - name: Log skipped Codex request
+        if: env.CODEX_WEBHOOK_URL == ''
+        run: echo "CODEX_WEBHOOK_URL not configured; relying on GitHub-native AI labels."
+
+  tag-pr-for-ai-review:
+    name: Tag PRs for AI review
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply ai-needs-review label
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+            const prBody = context.payload.pull_request.body || '';
+            
+            // Check if PR has AI-related labels
+            const prLabels = context.payload.pull_request.labels || [];
+            const aiLabels = ['ai-task', 'ai-in-progress', 'ai-follow-up'];
+            const aiIssueLabels = [...aiLabels, 'ai-ready'];
+            const hasAiLabel = prLabels.some(label => aiLabels.includes(label.name));
+            
+            // Detect AI-authored PRs even if labels haven't propagated
+            const author = context.payload.pull_request.user || {};
+            const aiAccounts = ['github-copilot[bot]', 'codex-bot', 'codexai[bot]'];
+            const isBotAccount = typeof author.type === 'string' && author.type.toLowerCase() === 'bot';
+            const isAiAuthor = isBotAccount || aiAccounts.includes((author.login || '').toLowerCase());
+            
+            if (hasAiLabel || isAiAuthor) {
+              core.info(`PR #${prNumber} has AI-related labels or is AI-authored; applying ai-needs-review.`);
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: ['ai-needs-review'],
+              });
+              return;
+            }
+            
+            // Check if PR references an issue with AI labels
+            // Matches: closes/fixed/resolves #123 (case-insensitive)
+            const issueRefPattern = /(?:close[sd]?|fix(?:e[sd]|ing)?|resolve[sd]?)\s+#(\d+)/gi;
+            const matches = [...prBody.matchAll(issueRefPattern)];
+            
+            if (matches.length === 0) {
+              core.info(`PR #${prNumber} does not reference any issues; skipping ai-needs-review.`);
+              return;
+            }
+            
+            for (const match of matches) {
+              const issueNumber = parseInt(match[1], 10);
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                });
+                
+                const issueLabels = issue.labels.map(label => typeof label === 'string' ? label : label.name);
+                const hasAiIssueLabel = issueLabels.some(label => aiIssueLabels.includes(label));
+                
+                if (hasAiIssueLabel) {
+                  core.info(`PR #${prNumber} references issue #${issueNumber} with AI labels; applying ai-needs-review.`);
+                  await github.rest.issues.addLabels({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    labels: ['ai-needs-review'],
+                  });
+                  return;
+                }
+              } catch (error) {
+                core.warning(`Could not fetch issue #${issueNumber}: ${error.message}`);
+              }
+            }
+            
+            core.info(`PR #${prNumber} does not have AI-related labels, is not AI-authored, or references AI issues; skipping ai-needs-review.`);
+
+  open-follow-up-issue:
+    name: Open follow-up on AI rejection
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create follow-up issue when AI rejects
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const reviewerUser = context.payload.review.user;
+            const reviewerLogin = reviewerUser.login.toLowerCase();
+            const aiReviewers = ['github-copilot[bot]', 'codex-bot', 'codexai[bot]'];
+            const isBotAccount = typeof reviewerUser.type === 'string' && reviewerUser.type.toLowerCase() === 'bot';
+            const isAiReviewer = isBotAccount || aiReviewers.includes(reviewerLogin);
+            if (!isAiReviewer) {
+              core.info(`Reviewer ${reviewerLogin} is not an AI bot; skipping follow-up issue.`);
+              return;
+            }
+
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const title = `AI follow-up for PR #${pr.number}: ${pr.title}`;
+
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'ai-follow-up,ai-ready',
+            });
+
+            const duplicate = existing.find((issue) => issue.title === title);
+            if (duplicate) {
+              core.info(`Follow-up issue already exists: ${duplicate.html_url}`);
+              return;
+            }
+
+            const body = [
+              'An AI reviewer requested changes on this PR.',
+              '',
+              `- PR: #${pr.number} (${pr.html_url})`,
+              `- Reviewer: ${context.payload.review.user.login}`,
+              `- Review: ${context.payload.review.html_url}`,
+              '',
+              'Please address the feedback, then re-request AI review and update labels as needed.',
+            ].join('\n');
+
+            const { data: issue } = await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              body,
+              labels: ['ai-follow-up', 'ai-ready'],
+            });
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pr.number,
+              labels: ['ai-follow-up'],
+            });
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: pr.number,
+              body: `Opened follow-up issue ${issue.html_url} after AI requested changes.`,
+            });
