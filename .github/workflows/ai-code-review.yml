@@ -6,8 +6,10 @@ name: AI code review requests
 # - It only posts standard comment messages
 # - The webhook receives PR metadata, not repository secrets
 #
-# Security note: This workflow does not require manual approval for fork PRs
-# since it performs only safe, read-only operations with controlled outputs.
+# Security note: Depending on repository settings, this workflow may run on
+# fork pull requests without requiring manual approval. It is designed to be
+# safe in that mode since it performs only safe, read-only operations with
+# controlled outputs.
 
 on:
   pull_request_target:
