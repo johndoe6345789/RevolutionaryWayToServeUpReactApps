@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "bun@1.3.4",
   "scripts": {
-    "serve": "bun --cwd ../server install && bun --cwd ../server start",
+    "serve": "bun --cwd ../retro-react-app install && bun --cwd ../retro-react-app run dev",
     "test": "node ./run-e2e.js"
   },
   "devDependencies": {

@@ -16,9 +16,9 @@ if (existsSync(configPath)) {
 
 const serverConfig = config.server || {};
 const host = serverConfig.host || "127.0.0.1";
-const rawPort = serverConfig.port ?? 4173;
+const rawPort = serverConfig.port ?? 3000;
 const parsedPort = Number(rawPort);
-const port = Number.isNaN(parsedPort) ? 4173 : parsedPort;
+const port = Number.isNaN(parsedPort) ? 3000 : parsedPort;
 const baseUrl = `http://${host}:${port}`;
 
 const args = [
