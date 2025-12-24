@@ -1,7 +1,5 @@
 name: AI remediation loop
-
-description: Drive AI triage for CI failures and follow-up reviews.
-
+# Drive AI triage for CI failures and follow-up reviews.
 on:
   issues:
     types: [opened, edited, labeled]
