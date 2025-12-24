@@ -168,7 +168,7 @@ jobs:
                 '- Start by acknowledging this issue and set the `ai-in-progress` label.',
                 '- Investigate the linked CI run and reproduce locally.',
                 '- Push a branch that references this issue in the PR description so it auto-closes.',
-                '- When ready for review, swap to `ai-needs-review` and request an AI code review.',
+                '- When ready for review, request an AI code review; the `ai-needs-review` label will be applied automatically by the workflow.',
                 '- If the fix is rejected, tag `ai-follow-up` and open a new issue for the next cycle.',
               ].join('\n'),
             });
