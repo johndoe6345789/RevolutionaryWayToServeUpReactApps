@@ -173,7 +173,7 @@ jobs:
               }
             }
             
-            core.info(`PR #${prNumber} does not have AI-related labels, is not AI-authored, or reference AI issues; skipping ai-needs-review.`);
+            core.info(`PR #${prNumber} does not have AI-related labels, is not AI-authored, or references AI issues; skipping ai-needs-review.`);
 
   open-follow-up-issue:
     name: Open follow-up on AI rejection
