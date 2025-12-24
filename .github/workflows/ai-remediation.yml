@@ -120,11 +120,13 @@ PAYLOAD
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const reviewer = context.payload.review.user.login.toLowerCase();
+            const reviewerUser = context.payload.review.user;
+            const reviewerLogin = reviewerUser.login.toLowerCase();
             const aiReviewers = ['github-copilot[bot]', 'codex-bot', 'codexai[bot]'];
-            const isAiReviewer = aiReviewers.includes(reviewer) || reviewer.endsWith('[bot]');
+            const isBotAccount = typeof reviewerUser.type === 'string' && reviewerUser.type.toLowerCase() === 'bot';
+            const isAiReviewer = isBotAccount || aiReviewers.includes(reviewerLogin);
             if (!isAiReviewer) {
-              core.info(`Reviewer ${reviewer} is not an AI bot; skipping follow-up issue.`);
+              core.info(`Reviewer ${reviewerLogin} is not an AI bot; skipping follow-up issue.`);
               return;
             }
 
