@@ -1,4 +1,5 @@
-name: Package site image
+# Docker image build and publish workflow
+name: Package Site Image
 
 on:
   push:
@@ -19,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # REQUIRED for cross-architecture builds
       - name: Set up QEMU

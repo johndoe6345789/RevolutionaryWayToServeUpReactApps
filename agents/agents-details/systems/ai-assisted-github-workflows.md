@@ -29,3 +29,11 @@ A resilient way to coordinate AI help inside GitHub without depending on flaky A
 - Prefer deterministic Actions workflows over ad-hoc scripts.
 - Mirror important summaries in the PR description so context survives rebases and force-pushes.
 - Keep instructions human-readable; avoid terse machine-coded tokens.
+
+## Workflow diagnostics helper (for ChatGPT/Codex)
+- Run `bun run codegen/scripts/workflow-diagnostics.ts` from the repo root to scan every file in `.github/workflows` for:
+  - missing `runs-on` targets,
+  - broken `needs` references,
+  - unpinned or floating `uses` versions that make runs nondeterministic.
+- Add `--workflow=<filename>` to focus on a single file or `--json` when you need machine-readable output for another tool in the agent stack.
+- Use the results to draft human-readable PR/issue comments (e.g., “job `build` needs `lint`, but that job does not exist”) instead of trying to pull logs through external APIs.

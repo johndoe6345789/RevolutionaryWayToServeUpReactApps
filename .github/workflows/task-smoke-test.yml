@@ -1,3 +1,4 @@
+# Reusable workflow task for Playwright smoke tests
 name: Smoke Test Task
 
 on:
@@ -16,6 +17,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
@@ -25,6 +29,10 @@ jobs:
         uses: ./.github/actions/install-deps
         with:
           projects: 'retro-react-app,e2e'
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: bun x playwright install --with-deps
 
       - name: Verify Playwright browsers exist
         working-directory: e2e
