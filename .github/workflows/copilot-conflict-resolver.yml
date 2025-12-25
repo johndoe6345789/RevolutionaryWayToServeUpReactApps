@@ -1,6 +1,16 @@
 # Automated merge conflict resolution workflow
 name: Copilot Conflict Resolver
 
+# This workflow uses pull_request_target to have write permissions for posting
+# comments and labels. Security measures:
+# - Explicitly checks if PR is from a fork (lines 37-46)
+# - Skips Copilot @-mention for forked PRs to prevent secret exposure
+# - Posts informational comments and may call Codex webhook for fork PRs
+#
+# This workflow may require approval for fork PRs depending on repository
+# settings, which is appropriate since it accesses secrets. Same-repo PRs
+# do not require approval.
+
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review]

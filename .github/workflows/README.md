@@ -11,6 +11,14 @@ Summary of the automation that runs in this repository:
 - **ai-code-review.yml** – asks both Copilot and Codex for a code review on every pull request event (including when the PR is closed).
 - **workflow-doctor.yml** – runs the workflow diagnostics helper after CI failures (or on demand) and publishes a report plus an artifact with the raw JSON results.
 
+## Workflow Approval Settings
+
+For information about configuring repository settings to ensure workflows do not require manual approval, see [`../WORKFLOW_SETTINGS.md`](../WORKFLOW_SETTINGS.md).
+
+Most workflows use `pull_request` triggers which run safely without requiring approval. Workflows using `pull_request_target` (for posting comments or accessing secrets) include fork detection to maintain security.
+
+## Adding New Workflows
+
 When adding new workflows, keep them documented here so maintainers can see the full CI/CD surface at a glance.
 
 AI-focused automation should follow the label- and comment-driven patterns in `../ai-assisted-workflows.md` (e.g., responding to `ai-ready`, `ai-needs-review`, or `/run-tests`). When you add new triggers, document the label or slash command in both the workflow file and that guide so the behavior stays discoverable.
