@@ -1,16 +1,38 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { ConsoleSystem } from "./systems.ts";
 
-export default function ConsoleArcade({ system }: { system: ConsoleSystem }): React.JSX.Element {
+export default function ConsoleArcade({
+  system,
+}: {
+  system: ConsoleSystem;
+}): React.JSX.Element {
   const archiveId = new URLSearchParams(location.search).get("archive");
   const archiveFile = new URLSearchParams(location.search).get("file");
-  const archiveRom = archiveId && archiveFile ? { name: archiveFile, url: `https://cors.archive.org/cors/${encodeURIComponent(archiveId)}/${archiveFile.split("/").map(encodeURIComponent).join("/")}`, archiveId } : null;
-  const [rom, setRom] = useState<{ name: string; url: string; archiveId?: string } | null>(archiveRom);
+  const archiveRom =
+    archiveId && archiveFile
+      ? {
+          name: archiveFile,
+          url: `https://cors.archive.org/cors/${encodeURIComponent(archiveId)}/${archiveFile.split("/").map(encodeURIComponent).join("/")}`,
+          archiveId,
+        }
+      : null;
+  const [rom, setRom] = useState<{
+    name: string;
+    url: string;
+    archiveId?: string;
+  } | null>(archiveRom);
   const [error, setError] = useState("");
   const objectUrl = useRef<string | null>(null);
-  const [spectrumExample, setSpectrumExample] = useState(() => new URLSearchParams(location.search).get("example") === "csss");
+  const [spectrumExample, setSpectrumExample] = useState(
+    () => new URLSearchParams(location.search).get("example") === "csss",
+  );
 
-  useEffect(() => () => { if (objectUrl.current) URL.revokeObjectURL(objectUrl.current); }, []);
+  useEffect(
+    () => () => {
+      if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+    },
+    [],
+  );
   useEffect(() => {
     if (!rom || !system.core) return;
     const runtime = window as unknown as Record<string, unknown>;
@@ -24,17 +46,28 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
     const loader = document.createElement("script");
     loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
     loader.dataset.consoleLoader = "true";
-    loader.onerror = (): void => setError("The emulator core could not be downloaded. Check the network and try again.");
+    loader.onerror = (): void =>
+      setError(
+        "The emulator core could not be downloaded. Check the network and try again.",
+      );
     document.body.appendChild(loader);
-    return (): void => { loader.remove(); };
+    return (): void => {
+      loader.remove();
+    };
   }, [rom?.url, system.core]);
 
   const chooseRom = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     if (!file) return;
     const extension = `.${file.name.split(".").pop()?.toLowerCase()}`;
-    if (!system.extensions.includes(extension)) { setError(`Expected ${system.extensions.join(", ")}`); return; }
-    if (file.size > 64 * 1024 * 1024) { setError("Please choose a ROM smaller than 64 MB."); return; }
+    if (!system.extensions.includes(extension)) {
+      setError(`Expected ${system.extensions.join(", ")}`);
+      return;
+    }
+    if (file.size > 64 * 1024 * 1024) {
+      setError("Please choose a ROM smaller than 64 MB.");
+      return;
+    }
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
     objectUrl.current = URL.createObjectURL(file);
     setError("");
@@ -44,13 +77,101 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
   if (system.id === "spectrum") {
     const exampleUrl = `${location.origin}/examples/csss.tap`;
     const selectedUrl = archiveRom?.url ?? (spectrumExample ? exampleUrl : "");
-    const frameUrl = selectedUrl ? `/spectrum-player.html?rom=${encodeURIComponent(selectedUrl)}` : "/spectrum-player.html";
-    return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>{archiveRom ? `Streaming ${archiveRom.name} from Internet Archive.` : "Use its folder button for your own file, or launch the bundled GPL example."}</span><button className="button tiny" onClick={() => setSpectrumExample(true)}>Play CSSS</button></div><iframe key={frameUrl} className="spectrum-frame" src={frameUrl} title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" />{archiveRom && <p className="example-credit">Loaded client-side from <a href={`https://archive.org/details/${encodeURIComponent(archiveRom.archiveId)}`} target="_blank" rel="noreferrer">Internet Archive ↗</a></p>}</section>;
+    const frameUrl = selectedUrl
+      ? `/spectrum-player.html?rom=${encodeURIComponent(selectedUrl)}`
+      : "/spectrum-player.html";
+    return (
+      <section className="rom-launcher">
+        <div className="privacy-note">
+          <strong>JSSpeccy 3</strong>
+          <span>
+            {archiveRom
+              ? `Streaming ${archiveRom.name} from Internet Archive.`
+              : "Use its folder button for your own file, or launch the bundled GPL example."}
+          </span>
+          <button
+            className="button tiny"
+            onClick={() => setSpectrumExample(true)}
+          >
+            Play CSSS
+          </button>
+        </div>
+        <iframe
+          key={frameUrl}
+          className="spectrum-frame"
+          src={frameUrl}
+          title="JSSpeccy ZX Spectrum emulator"
+          allow="fullscreen; autoplay"
+        />
+        {archiveRom && (
+          <p className="example-credit">
+            Loaded client-side from{" "}
+            <a
+              href={`https://archive.org/details/${encodeURIComponent(archiveRom.archiveId)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Internet Archive ↗
+            </a>
+          </p>
+        )}
+      </section>
+    );
   }
 
-  return <section className="rom-launcher">
-    {!rom && <label className="rom-drop"><span className="rom-icon">⬡</span><strong>Insert your {system.name} cartridge</strong><small>Choose a ROM stored on this device. It stays in your browser.</small><input type="file" accept={system.extensions.join(",")} onChange={chooseRom} /><span className="button">Choose ROM</span><em>{system.extensions.join("  ")}</em></label>}
-    {error && <p className="rom-error" role="alert">{error}</p>}
-    {rom && <><div className="loaded-rom"><span>{rom.archiveId ? "STREAMING FROM ARCHIVE.ORG" : "LOADED LOCALLY"}</span><strong>{rom.name}</strong><button onClick={() => { location.href = `/systems/${system.id}`; }}>Eject</button></div><div id="console-player" className="console-player" />{rom.archiveId && <p className="example-credit">Source: <a href={`https://archive.org/details/${encodeURIComponent(rom.archiveId)}`} target="_blank" rel="noreferrer">Internet Archive item ↗</a></p>}</>}
-  </section>;
+  return (
+    <section className="rom-launcher">
+      {!rom && (
+        <label className="rom-drop">
+          <span className="rom-icon">⬡</span>
+          <strong>Insert your {system.name} cartridge</strong>
+          <small>
+            Choose a ROM stored on this device. It stays in your browser.
+          </small>
+          <input
+            type="file"
+            accept={system.extensions.join(",")}
+            onChange={chooseRom}
+          />
+          <span className="button">Choose ROM</span>
+          <em>{system.extensions.join("  ")}</em>
+        </label>
+      )}
+      {error && (
+        <p className="rom-error" role="alert">
+          {error}
+        </p>
+      )}
+      {rom && (
+        <>
+          <div className="loaded-rom">
+            <span>
+              {rom.archiveId ? "STREAMING FROM ARCHIVE.ORG" : "LOADED LOCALLY"}
+            </span>
+            <strong>{rom.name}</strong>
+            <button
+              onClick={() => {
+                location.href = `/systems/${system.id}`;
+              }}
+            >
+              Eject
+            </button>
+          </div>
+          <div id="console-player" className="console-player" />
+          {rom.archiveId && (
+            <p className="example-credit">
+              Source:{" "}
+              <a
+                href={`https://archive.org/details/${encodeURIComponent(rom.archiveId)}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Internet Archive item ↗
+              </a>
+            </p>
+          )}
+        </>
+      )}
+    </section>
+  );
 }
