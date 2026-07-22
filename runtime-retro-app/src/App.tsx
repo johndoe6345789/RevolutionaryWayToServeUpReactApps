@@ -3,7 +3,7 @@ import { Router, Route, Link, useRouter } from "./router.tsx";
 import Emulator from "./Emulator.tsx";
 import ConsoleArcade from "./ConsoleArcade.tsx";
 import ArchiveCatalog from "./ArchiveCatalog.tsx";
-import { GamePill, Kicker, PageTitle, SectionTitle } from "./components/ui.tsx";
+import { Kicker, PageTitle, SectionTitle } from "./components/ui.tsx";
 import { findGame, games } from "./games.ts";
 import { findSystem, systems } from "./systems.ts";
 
@@ -75,8 +75,8 @@ function Home(): React.JSX.Element {
           Client-side routes. Real emulation. No application bundle.
         </p>
         <div className="actions">
-          <Link to="/play/pixel-painter" className="button">
-            Launch arcade <span>→</span>
+          <Link to="/systems" className="button">
+            Browse the archive <span>→</span>
           </Link>
           <Link to="/technology" className="text-link">
             How does it work?
@@ -104,25 +104,13 @@ function Home(): React.JSX.Element {
           <span>build steps</span>
         </div>
         <div>
-          <strong>3</strong>
-          <span>original ROMs</span>
+          <strong>4</strong>
+          <span>emulated systems</span>
         </div>
         <div>
           <strong>100%</strong>
           <span>client routed</span>
         </div>
-      </section>
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <span className="kicker">CURATED CIRCUITS</span>
-            <h2>Featured programs</h2>
-          </div>
-          <Link to="/games" className="text-link">
-            View the whole library →
-          </Link>
-        </div>
-        <GameGrid items={games} />
       </section>
     </>
   );
@@ -263,36 +251,9 @@ function Systems(): React.JSX.Element {
       <Kicker>MULTI-SYSTEM DECK</Kicker>
       <PageTitle title="Play" status="LOCAL OR STREAMED" />
       <p className="lede system-lede">
-        Choose a system to load a local ROM, launch a bundled example, or find
-        something to stream from Internet Archive below.
+        Find a game on Internet Archive, or choose a system to load a local ROM
+        you already have.
       </p>
-      <div className="example-shelf">
-        <div>
-          <Kicker>PLAY RIGHT NOW</Kicker>
-          <h2>Bundled examples</h2>
-        </div>
-        <GamePill
-          to="/play/pixel-painter"
-          title="Pixel Painter"
-          system="CHIP-8"
-        />
-        <GamePill
-          to="/play/random-stars"
-          title="Random Stars"
-          system="CHIP-8"
-        />
-        <GamePill
-          to="/play/diagonal-drift"
-          title="Diagonal Drift"
-          system="CHIP-8"
-        />
-        <GamePill
-          to="/systems/spectrum?example=csss"
-          title="CSSS"
-          system="ZX SPECTRUM"
-          featured
-        />
-      </div>
       <div className="system-grid">
         {systems.map((system) => (
           <Link
@@ -453,18 +414,12 @@ function RoutedApp(): React.JSX.Element {
     path === "/catalog" ||
     path === "/technology" ||
     path === "/about" ||
-    /^\/games\/[^/]+\/?$/.test(path) ||
-    /^\/play\/[^/]+\/?$/.test(path) ||
     /^\/systems\/[^/]+\/?$/.test(path);
   return (
     <div className="site">
       <Header />
       <Route path="/">{() => <Home />}</Route>
       <Route path="/games">{() => <Systems />}</Route>
-      <Route path="/games/:id">
-        {({ params }) => <GameDetails id={params.id} />}
-      </Route>
-      <Route path="/play/:id">{({ params }) => <Play id={params.id} />}</Route>
       <Route path="/systems">{() => <Systems />}</Route>
       <Route path="/systems/:id">
         {({ params }) => <SystemPlayer id={params.id} />}

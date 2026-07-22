@@ -23,9 +23,6 @@ export default function ConsoleArcade({
   } | null>(archiveRom);
   const [error, setError] = useState("");
   const objectUrl = useRef<string | null>(null);
-  const [spectrumExample, setSpectrumExample] = useState(
-    () => new URLSearchParams(location.search).get("example") === "csss",
-  );
 
   useEffect(
     () => () => {
@@ -75,9 +72,8 @@ export default function ConsoleArcade({
   };
 
   if (system.id === "spectrum") {
-    const exampleUrl = `${location.origin}/examples/csss.tap`;
-    const selectedUrl = archiveRom?.url ?? (spectrumExample ? exampleUrl : "");
-    const machine = archiveRom ? 128 : 48;
+    const selectedUrl = archiveRom?.url ?? "";
+    const machine = 128;
     const frameUrl = selectedUrl
       ? `/spectrum-player.html?machine=${machine}&rom=${encodeURIComponent(selectedUrl)}`
       : "/spectrum-player.html";
@@ -88,14 +84,8 @@ export default function ConsoleArcade({
           <span>
             {archiveRom
               ? `Streaming ${archiveRom.name} from Internet Archive.`
-              : "Use its folder button for your own file, or launch the bundled GPL example."}
+              : "Choose a game from the Archive catalog or open a local file."}
           </span>
-          <button
-            className="button tiny"
-            onClick={() => setSpectrumExample(true)}
-          >
-            Play CSSS
-          </button>
         </div>
         <iframe
           key={frameUrl}
