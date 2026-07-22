@@ -5,6 +5,7 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
   const [rom, setRom] = useState<{ name: string; url: string } | null>(null);
   const [error, setError] = useState("");
   const objectUrl = useRef<string | null>(null);
+  const [spectrumExample, setSpectrumExample] = useState(() => new URLSearchParams(location.search).get("example") === "csss");
 
   useEffect(() => () => { if (objectUrl.current) URL.revokeObjectURL(objectUrl.current); }, []);
   useEffect(() => {
@@ -37,7 +38,11 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
     setRom({ name: file.name, url: objectUrl.current });
   };
 
-  if (system.id === "spectrum") return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>Use its folder button to open a local TAP, TZX, Z80, SNA, or SZX file.</span></div><iframe className="spectrum-frame" src="https://jsspeccy.zxdemo.org/" title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" /></section>;
+  if (system.id === "spectrum") {
+    const exampleUrl = `${location.origin}/examples/csss.tap`;
+    const frameUrl = spectrumExample ? `https://jsspeccy.zxdemo.org/#l=${encodeURIComponent(exampleUrl)}` : "https://jsspeccy.zxdemo.org/";
+    return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>Use its folder button for your own file, or launch the bundled GPL example.</span><button className="button tiny" onClick={() => setSpectrumExample(true)}>Play CSSS</button></div><iframe key={frameUrl} className="spectrum-frame" src={frameUrl} title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" /><p className="example-credit">CSSS © TheShich, distributed under GPLv3. Source available on GitHub.</p></section>;
+  }
 
   return <section className="rom-launcher">
     {!rom && <label className="rom-drop"><span className="rom-icon">⬡</span><strong>Insert your {system.name} cartridge</strong><small>Choose a ROM stored on this device. It stays in your browser.</small><input type="file" accept={system.extensions.join(",")} onChange={chooseRom} /><span className="button">Choose ROM</span><em>{system.extensions.join("  ")}</em></label>}

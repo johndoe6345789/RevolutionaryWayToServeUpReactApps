@@ -8,6 +8,12 @@ const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; cha
 
 http.createServer((request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
+  if (pathname === "/examples/csss.tap") {
+    const csss = Buffer.from("EwAAAGNzc3MgICAgICAmAQIAJgESKAH/AAAPAOpUaGVTaGljaCAyMDI2DQABDgD5wDMzMzE0DgAAIoIADQAC/QDrST0zMzMxNA4AACKCACDMMzMzMzYOAAA4ggA640I69EksQjrzSTrkMTExDgAAbwAALDE3NQ4AAK8AACwxDgAAAQAALDAOAAAAAAAsMQ4AAAEAACwzOA4AACYAACw5MQ4AAFsAACwxNw4AABEAACwwDgAAAAAALDg5DgAAWQAALDIzNw4AAO0AACwxNzYOAACwAAAsMjE5DgAA2wAALDI1NA4AAP4AACw5NQ4AAF8AACw4DgAACAAALDE3MQ4AAKsAACwzMQ4AAB8AACwxNTMOAACZAAAsMTMzDgAAhQAALDIwMA4AAMgAACwyNA4AABgAACwyMjMOAADfAAANXw==", "base64");
+    response.writeHead(200, { "Content-Type": "application/x.zx.tap", "Content-Length": csss.length, "Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=86400" });
+    response.end(csss);
+    return;
+  }
   const requested = path.resolve(root, `.${pathname}`);
   const safe = requested.startsWith(root) ? requested : path.join(root, "index.html");
   const file = fs.existsSync(safe) && fs.statSync(safe).isFile() ? safe : path.join(root, "index.html");
