@@ -1,0 +1,20 @@
+.connected-library {
+  margin-top: 100px;
+  padding-top: 70px;
+  border-top: 1px solid var(--line);
+}
+
+.connected-library .section-head {
+  align-items: end;
+  margin: 12px 0 32px;
+}
+
+.connected-library .section-head p,
+.connected-library .section-head > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+@media (max-width: 800px) {
+  .connected-library { margin-top: 65px; padding-top: 50px; }
+}
