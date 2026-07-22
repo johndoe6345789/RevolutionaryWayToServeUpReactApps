@@ -6,6 +6,12 @@
 
 A **revolutionary** code generation system that creates complete, well-structured projects from JSON specifications with innovation features and developer joy.
 
+## Runtime React demonstration
+
+The live [Runtime Retro Arcade](https://retro-react.wardcrew.com/) in `runtime-retro-app/` demonstrates the project's original zero-build idea: the server sends TypeScript and TSX source as text, then the browser resolves imports, compiles the module graph with Babel Standalone, and mounts React at runtime. It includes History API client-side routing, direct deep-link support, and a CHIP-8 virtual machine running original programs.
+
+The larger historical bootloader was removed by cleanup commits `cf0d080` and `3b0ddf4`. Its last complete source remains recoverable from commit `262b3f0`; it includes the original compiler service, local module loader, import-map/CDN services, Sass compiler, framework renderer, proxy server, and browser tests. Do not treat those runtime concepts as obsolete generated output.
+
 ## 🎯 What this project is (and isn’t)
 - **Philosophy**: Convention over configuration, enforced patterns, and a playful experience (achievements, easter eggs, celebrations) to keep shipping fun.
 - **Scope**: Generates end-to-end project scaffolds—from folders to business logic, lifecycle orchestration, tests, and docs—using a JSON specification. Extensible via plugins; language-agnostic by design.

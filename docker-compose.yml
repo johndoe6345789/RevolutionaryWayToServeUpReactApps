@@ -1,0 +1,30 @@
+name: revolutionary-react-apps
+
+services:
+  docs-viewer:
+    build:
+      context: ./docs-viewer
+    container_name: revolutionary-docs-viewer
+    restart: unless-stopped
+    ports:
+      - "8910:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  retro-react-app:
+    build:
+      context: ./runtime-retro-app
+    container_name: revolutionary-retro-react-app
+    restart: unless-stopped
+    ports:
+      - "8911:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

@@ -1,0 +1,7 @@
+{
+  "name": "runtime-retro-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A zero-build React application compiled from TypeScript in the browser",
+  "scripts": { "start": "node server.js" }
+}
