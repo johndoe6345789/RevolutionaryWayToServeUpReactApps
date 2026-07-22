@@ -77,8 +77,9 @@ export default function ConsoleArcade({
   if (system.id === "spectrum") {
     const exampleUrl = `${location.origin}/examples/csss.tap`;
     const selectedUrl = archiveRom?.url ?? (spectrumExample ? exampleUrl : "");
+    const machine = archiveRom ? 128 : 48;
     const frameUrl = selectedUrl
-      ? `/spectrum-player.html?rom=${encodeURIComponent(selectedUrl)}`
+      ? `/spectrum-player.html?machine=${machine}&rom=${encodeURIComponent(selectedUrl)}`
       : "/spectrum-player.html";
     return (
       <section className="rom-launcher">
