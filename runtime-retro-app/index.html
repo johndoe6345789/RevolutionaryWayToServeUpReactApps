@@ -6,7 +6,7 @@
     <meta name="description" content="A retro arcade compiled from TypeScript in your browser." />
     <title>Runtime Retro Arcade</title>
     <link rel="stylesheet" href="/styles.css" />
-    <link rel="stylesheet" href="/play.css" />
+    <link rel="stylesheet/scss" href="/play.scss" data-runtime-scss />
   </head>
   <body>
     <div id="runtime-status" role="status">BOOTING TYPESCRIPT RUNTIME…</div>
@@ -14,6 +14,7 @@
     <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.28.5/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sass.js@0.11.1/dist/sass.sync.min.js"></script>
     <script src="/bootloader.js"></script>
   </body>
 </html>

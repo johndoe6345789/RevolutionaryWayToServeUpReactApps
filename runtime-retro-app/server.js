@@ -10,6 +10,7 @@ const mime = {
   ".ts": "text/plain; charset=utf-8",
   ".tsx": "text/plain; charset=utf-8",
   ".css": "text/css; charset=utf-8",
+  ".scss": "text/x-scss; charset=utf-8",
   ".json": "application/json",
   ".wasm": "application/wasm",
   ".rom": "application/octet-stream",

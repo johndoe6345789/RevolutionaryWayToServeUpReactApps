@@ -4,6 +4,7 @@ import Emulator from "./Emulator.tsx";
 import ConsoleArcade from "./ConsoleArcade.tsx";
 import ArchiveCatalog from "./ArchiveCatalog.tsx";
 import { Kicker, PageTitle, SectionTitle } from "./components/ui.tsx";
+import PlayContents from "./components/PlayContents.tsx";
 import { findGame, games } from "./games.ts";
 import { findSystem, systems } from "./systems.ts";
 
@@ -254,22 +255,30 @@ function Systems(): React.JSX.Element {
         Find a game on Internet Archive, or choose a system to load a local ROM
         you already have.
       </p>
-      <div className="system-grid">
-        {systems.map((system) => (
-          <Link
-            key={system.id}
-            to={`/systems/${system.id}`}
-            className={`system-card ${system.colour}`}
-          >
-            <span>{system.era}</span>
-            <strong>{system.name}</strong>
-            <p>{system.description}</p>
-            <small>{system.extensions.join(" · ")}</small>
-            <i>→</i>
-          </Link>
-        ))}
-      </div>
-      <section className="connected-library">
+      <PlayContents />
+      <section id="choose-a-system" className="system-chooser">
+        <SectionTitle
+          kicker="LOCAL LIBRARY"
+          title="Choose a system"
+          description="Open an emulator for a ROM stored on your device."
+        />
+        <div className="system-grid">
+          {systems.map((system) => (
+            <Link
+              key={system.id}
+              to={`/systems/${system.id}`}
+              className={`system-card ${system.colour}`}
+            >
+              <span>{system.era}</span>
+              <strong>{system.name}</strong>
+              <p>{system.description}</p>
+              <small>{system.extensions.join(" · ")}</small>
+              <i>→</i>
+            </Link>
+          ))}
+        </div>
+      </section>
+      <section id="find-a-game" className="connected-library">
         <SectionTitle
           kicker="CONNECTED COLLECTIONS"
           title="Find a game"

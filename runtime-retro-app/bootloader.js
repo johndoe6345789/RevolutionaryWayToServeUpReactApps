@@ -9,6 +9,26 @@
     "react-dom/client": global.ReactDOM,
   };
 
+  async function compileScss() {
+    const links = [...document.querySelectorAll("link[data-runtime-scss]")];
+    const startedAt = performance.now();
+    await Promise.all(links.map(async (link) => {
+      const response = await fetch(link.href, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Cannot load SCSS: ${link.href}`);
+      const source = await response.text();
+      const result = await new Promise((resolve) => {
+        global.Sass.compile(source, resolve);
+      });
+      if (result.status !== 0) throw new Error(result.formatted || result.message);
+      const style = document.createElement("style");
+      style.dataset.runtimeCompiledScss = link.getAttribute("href");
+      style.textContent = result.text;
+      document.head.appendChild(style);
+      link.remove();
+    }));
+    return Math.round(performance.now() - startedAt);
+  }
+
   function isLocal(specifier) {
     return specifier.startsWith(".") || specifier.startsWith("/");
   }
@@ -79,15 +99,21 @@
 
   async function boot() {
     const startedAt = performance.now();
+    const scssElapsed = await compileScss();
     const appModule = await loadModule("/src/App.tsx");
     const App = appModule.default;
     const root = global.ReactDOM.createRoot(document.getElementById("root"));
     root.render(global.React.createElement(App));
     const elapsed = Math.round(performance.now() - startedAt);
     const status = document.getElementById("runtime-status");
-    status.textContent = `TSX COMPILED IN BROWSER · ${elapsed}MS`;
+    status.textContent = `TSX + SCSS COMPILED IN BROWSER · ${elapsed}MS`;
     status.dataset.runtimeCompiled = "true";
-    global.__RUNTIME_RETRO__ = { compiled: true, elapsed, modules: moduleCache.size };
+    global.__RUNTIME_RETRO__ = {
+      compiled: true,
+      elapsed,
+      scssElapsed,
+      modules: moduleCache.size,
+    };
   }
 
   boot().catch((error) => {
