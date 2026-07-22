@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZX Spectrum player</title>
+    <style>
+      html,body{margin:0;min-height:100%;background:#050608;color:#ddd;font:12px monospace}#status{padding:12px;text-align:center;color:#ffca5c}#jsspeccy{display:flex;justify-content:center}.error{color:#ff6f82}
+    </style>
+    <script src="/jsspeccy/jsspeccy.js"></script>
+  </head>
+  <body>
+    <div id="status">INITIALISING ZX SPECTRUM…</div>
+    <div id="jsspeccy"></div>
+    <script>
+      const parameters = new URLSearchParams(location.search);
+      const rom = parameters.get("rom");
+      const status = document.getElementById("status");
+      if (!rom) {
+        status.textContent = "Choose a Spectrum game from the Archive catalog.";
+      } else {
+        try {
+          const emulator = JSSpeccy(document.getElementById("jsspeccy"), {
+            autoStart: true,
+            autoLoadTapes: true,
+            tapeAutoLoadMode: "usr0",
+            machine: 128,
+            openUrl: rom,
+            zoom: 2
+          });
+          emulator.onReady(() => { status.textContent = "GAME LOADED · CLICK THE SCREEN FOR KEYBOARD AND AUDIO"; });
+        } catch (error) {
+          status.className = "error";
+          status.textContent = `LOAD FAILED · ${error.message}`;
+        }
+      }
+    </script>
+  </body>
+</html>

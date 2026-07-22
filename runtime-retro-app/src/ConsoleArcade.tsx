@@ -44,7 +44,7 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
   if (system.id === "spectrum") {
     const exampleUrl = `${location.origin}/examples/csss.tap`;
     const selectedUrl = archiveRom?.url ?? (spectrumExample ? exampleUrl : "");
-    const frameUrl = selectedUrl ? `https://jsspeccy.zxdemo.org/#l=${encodeURIComponent(selectedUrl)}` : "https://jsspeccy.zxdemo.org/";
+    const frameUrl = selectedUrl ? `/spectrum-player.html?rom=${encodeURIComponent(selectedUrl)}` : "/spectrum-player.html";
     return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>{archiveRom ? `Streaming ${archiveRom.name} from Internet Archive.` : "Use its folder button for your own file, or launch the bundled GPL example."}</span><button className="button tiny" onClick={() => setSpectrumExample(true)}>Play CSSS</button></div><iframe key={frameUrl} className="spectrum-frame" src={frameUrl} title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" />{archiveRom && <p className="example-credit">Loaded client-side from <a href={`https://archive.org/details/${encodeURIComponent(archiveRom.archiveId)}`} target="_blank" rel="noreferrer">Internet Archive ↗</a></p>}</section>;
   }
 
