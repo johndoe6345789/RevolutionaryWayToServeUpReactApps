@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { Router, Route, Link, useRouter } from "./router.tsx";
 import Emulator from "./Emulator.tsx";
+import ConsoleArcade from "./ConsoleArcade.tsx";
 import { findGame, games } from "./games.ts";
+import { findSystem, systems } from "./systems.ts";
 
 function Logo(): React.JSX.Element { return <Link to="/" className="logo"><span className="logo-mark">R</span><span>Runtime<br />Arcade</span></Link>; }
 
 function Header(): React.JSX.Element {
   const { path } = useRouter();
-  return <header><div className="nav-wrap"><Logo /><nav aria-label="Main navigation"><Link to="/games" className={path.startsWith("/games") || path.startsWith("/play") ? "active" : ""}>Games</Link><Link to="/technology" className={path === "/technology" ? "active" : ""}>Technology</Link><Link to="/about" className={path === "/about" ? "active" : ""}>About</Link></nav><Link to="/play/pixel-painter" className="button tiny">Insert coin</Link></div></header>;
+  return <header><div className="nav-wrap"><Logo /><nav aria-label="Main navigation"><Link to="/games" className={path.startsWith("/games") || path.startsWith("/play") ? "active" : ""}>Games</Link><Link to="/systems" className={path.startsWith("/systems") ? "active" : ""}>Systems</Link><Link to="/technology" className={path === "/technology" ? "active" : ""}>Technology</Link><Link to="/about" className={path === "/about" ? "active" : ""}>About</Link></nav><Link to="/systems" className="button tiny">Insert coin</Link></div></header>;
 }
 
 function Home(): React.JSX.Element {
@@ -36,6 +38,10 @@ function Play({ id }: { id: string }): React.JSX.Element {
   return <main className="page play-page"><div className="play-heading"><div><span className="kicker">NOW EMULATING</span><h1>{game.title}</h1></div><Link to={`/games/${game.id}`} className="text-link">Program details ↗</Link></div><Emulator game={game} /></main>;
 }
 
+function Systems(): React.JSX.Element { return <main className="page section"><span className="kicker">MULTI-SYSTEM DECK</span><div className="page-title"><h1>Choose a system</h1><span>LOCAL ROMS ONLY</span></div><p className="lede system-lede">Play software you own without sending it anywhere. Console cores are loaded on demand; your ROM remains a temporary browser object URL.</p><div className="system-grid">{systems.map((system) => <Link key={system.id} to={`/systems/${system.id}`} className={`system-card ${system.colour}`}><span>{system.era}</span><strong>{system.name}</strong><p>{system.description}</p><small>{system.extensions.join(" · ")}</small><i>→</i></Link>)}</div></main>; }
+
+function SystemPlayer({ id }: { id: string }): React.JSX.Element { const system = findSystem(id); if (!system) return <NotFound />; return <main className="page system-page"><Link to="/systems" className="text-link">← All systems</Link><div className="play-heading"><div><span className="kicker">{system.era} HARDWARE PROFILE</span><h1>{system.name}</h1></div><span className="local-badge">ROM NEVER UPLOADED</span></div><ConsoleArcade system={system} /><p className="legal-copy">Only load homebrew, public-domain software, or cartridge/tape dumps you are legally entitled to use. Runtime Arcade does not provide commercial ROMs.</p></main>; }
+
 function Technology(): React.JSX.Element {
   return <main className="page section prose"><span className="kicker">UNDER THE CARTRIDGE</span><h1>TypeScript with no build step.</h1><p className="lede">The source files powering this page are still TypeScript and TSX when the server sends them. The bootloader turns them into executable modules inside this browser session.</p><div className="flow"><div><b>01</b><strong>Fetch</strong><span>The loader requests App.tsx and discovers its imports.</span></div><i>→</i><div><b>02</b><strong>Compile</strong><span>Babel Standalone strips types and transforms JSX.</span></div><i>→</i><div><b>03</b><strong>Execute</strong><span>A module registry resolves dependencies and React renders.</span></div><i>→</i><div><b>04</b><strong>Route</strong><span>History API navigation swaps views without a reload.</span></div></div><pre><code>{`// This component reached you as TSX\ninterface GreetingProps { name: string }\nexport function Greeting({ name }: GreetingProps) {\n  return <h1>Hello, {name}</h1>;\n}`}</code></pre><div className="proof"><span id="compile-proof">●</span><div><strong>Runtime proof is active</strong><small>Inspect window.__RUNTIME_RETRO__ for compiler timing and module count.</small></div></div></main>;
 }
@@ -46,8 +52,8 @@ function NotFound(): React.JSX.Element { return <main className="page not-found"
 
 function RoutedApp(): React.JSX.Element {
   const { path } = useRouter();
-  const known = path === "/" || path === "/games" || path === "/technology" || path === "/about" || /^\/games\/[^/]+\/?$/.test(path) || /^\/play\/[^/]+\/?$/.test(path);
-  return <div className="site"><Header /><Route path="/">{() => <Home />}</Route><Route path="/games">{() => <Library />}</Route><Route path="/games/:id">{({ params }) => <GameDetails id={params.id} />}</Route><Route path="/play/:id">{({ params }) => <Play id={params.id} />}</Route><Route path="/technology">{() => <Technology />}</Route><Route path="/about">{() => <About />}</Route>{!known && <NotFound />}<footer><Logo /><p>Source code delivered raw. Compiled with curiosity.</p><div><Link to="/games">Games</Link><Link to="/technology">Technology</Link><Link to="/about">About</Link></div></footer></div>;
+  const known = path === "/" || path === "/games" || path === "/systems" || path === "/technology" || path === "/about" || /^\/games\/[^/]+\/?$/.test(path) || /^\/play\/[^/]+\/?$/.test(path) || /^\/systems\/[^/]+\/?$/.test(path);
+  return <div className="site"><Header /><Route path="/">{() => <Home />}</Route><Route path="/games">{() => <Library />}</Route><Route path="/games/:id">{({ params }) => <GameDetails id={params.id} />}</Route><Route path="/play/:id">{({ params }) => <Play id={params.id} />}</Route><Route path="/systems">{() => <Systems />}</Route><Route path="/systems/:id">{({ params }) => <SystemPlayer id={params.id} />}</Route><Route path="/technology">{() => <Technology />}</Route><Route path="/about">{() => <About />}</Route>{!known && <NotFound />}<footer><Logo /><p>Source code delivered raw. Compiled with curiosity.</p><div><Link to="/games">Games</Link><Link to="/systems">Systems</Link><Link to="/technology">Technology</Link><Link to="/about">About</Link></div></footer></div>;
 }
 
 export default function App(): React.JSX.Element { return <Router><RoutedApp /></Router>; }

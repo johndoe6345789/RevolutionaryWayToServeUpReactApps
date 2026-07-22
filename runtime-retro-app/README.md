@@ -2,7 +2,9 @@
 
 This is the zero-build demonstration application for RevolutionaryWayToServeUpReactApps. The server sends the files in `src/` as human-readable TypeScript and TSX. `bootloader.js` fetches their dependency graph and uses Babel Standalone in the browser to strip types, transform JSX, execute the modules, and mount React.
 
-It also demonstrates framework-native client routing through the History API and a real CHIP-8 interpreter running three original programs. No commercial game ROMs are included.
+It also demonstrates framework-native client routing through the History API and a real CHIP-8 interpreter running three original programs. The system deck adds local-ROM play for ZX Spectrum (JSSpeccy), NES, SNES, and GBA (EmulatorJS/RetroArch cores). ROMs are represented by temporary object URLs and are never uploaded to the server. No commercial game ROMs are included.
+
+EmulatorJS is GPL-3.0 licensed. JSSpeccy 3 is ISC licensed and includes components derived from Fuse. Their emulator assets are loaded on demand from their official public hosts; the Runtime Arcade application remains independently runtime-compiled.
 
 ```bash
 node server.js
