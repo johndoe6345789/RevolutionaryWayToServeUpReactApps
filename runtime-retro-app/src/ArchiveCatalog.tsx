@@ -15,10 +15,6 @@ const platforms = [
 ];
 
 function text(value: string | string[] | undefined): string { return Array.isArray(value) ? value.join(", ") : (value ?? "Community uploader"); }
-function downloadUrl(identifier: string, name: string): string {
-  return `https://archive.org/download/${encodeURIComponent(identifier)}/${name.split("/").map(encodeURIComponent).join("/")}`;
-}
-
 export default function ArchiveCatalog(): React.JSX.Element {
   const { navigate } = useRouter();
   const [platform, setPlatform] = useState("spectrum");
@@ -53,9 +49,11 @@ export default function ArchiveCatalog(): React.JSX.Element {
         const name = file.name?.toLowerCase() ?? "";
         return system.extensions.some((extension) => name.endsWith(extension));
       }).sort((left, right) => {
+        const leftZip = left.name?.toLowerCase().endsWith(".zip") ? 1 : 0;
+        const rightZip = right.name?.toLowerCase().endsWith(".zip") ? 1 : 0;
         const leftOriginal = left.source === "original" ? 0 : 1;
         const rightOriginal = right.source === "original" ? 0 : 1;
-        return leftOriginal - rightOriginal || Number(left.size ?? 0) - Number(right.size ?? 0);
+        return leftZip - rightZip || leftOriginal - rightOriginal || Number(left.size ?? 0) - Number(right.size ?? 0);
       });
       const file = candidates[0];
       if (!file?.name) throw new Error(`No compatible ${system.extensions.join(", ")} file was found in this item.`);

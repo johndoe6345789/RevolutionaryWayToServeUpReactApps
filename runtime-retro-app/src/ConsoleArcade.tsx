@@ -4,7 +4,7 @@ import type { ConsoleSystem } from "./systems.ts";
 export default function ConsoleArcade({ system }: { system: ConsoleSystem }): React.JSX.Element {
   const archiveId = new URLSearchParams(location.search).get("archive");
   const archiveFile = new URLSearchParams(location.search).get("file");
-  const archiveRom = archiveId && archiveFile ? { name: archiveFile, url: `https://archive.org/download/${encodeURIComponent(archiveId)}/${archiveFile.split("/").map(encodeURIComponent).join("/")}`, archiveId } : null;
+  const archiveRom = archiveId && archiveFile ? { name: archiveFile, url: `https://cors.archive.org/cors/${encodeURIComponent(archiveId)}/${archiveFile.split("/").map(encodeURIComponent).join("/")}`, archiveId } : null;
   const [rom, setRom] = useState<{ name: string; url: string; archiveId?: string } | null>(archiveRom);
   const [error, setError] = useState("");
   const objectUrl = useRef<string | null>(null);
