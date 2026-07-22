@@ -8,6 +8,8 @@ EmulatorJS is GPL-3.0 licensed. JSSpeccy 3 is ISC licensed and includes componen
 
 The bundled ZX Spectrum example, [CSSS](https://github.com/TheShich/CSSS), is copyright TheShich and distributed under GPL-3.0. Its unmodified TAP is encoded in `server.js` so the server can return the correct Spectrum MIME type with CORS enabled.
 
+The `/catalog` route searches Internet Archive's public Advanced Search API directly from the browser. Search results link to the original Archive.org item page for provenance and rights review. They are intentionally not passed straight into an emulator: Archive metadata is uploader supplied and a Creative Commons or public-domain label is not, by itself, sufficient verification that a console image is lawful to redistribute.
+
 ```bash
 node server.js
 ```
