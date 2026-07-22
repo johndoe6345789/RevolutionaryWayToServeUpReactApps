@@ -39,6 +39,23 @@
 .system-chooser,
 .connected-library { scroll-margin-top: 110px; }
 
+.catalog-more {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--cyan);
+  cursor: pointer;
+  font: 9px var(--font-mono);
+  letter-spacing: .14em;
+
+  &:hover { border-color: var(--cyan); }
+  &:disabled { cursor: wait; opacity: .65; }
+}
+
 .system-chooser {
   margin-top: 100px;
   padding-top: 70px;

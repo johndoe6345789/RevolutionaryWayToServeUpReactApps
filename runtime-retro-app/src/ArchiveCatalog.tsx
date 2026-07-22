@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "./router.tsx";
 import { findSystem } from "./systems.ts";
 
@@ -40,10 +40,20 @@ export default function ArchiveCatalog(): React.JSX.Element {
   const [query, setQuery] = useState("homebrew");
   const [items, setItems] = useState<ArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
   const [launching, setLaunching] = useState("");
+  const more = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
+    setItems([]);
+    setPage(1);
+    setTotal(0);
+  }, [platform, query]);
+
+  useEffect(() => {
+    const controller = new AbortController();
     const selected =
       platforms.find((entry) => entry.id === platform) ?? platforms[0];
     const search = [
@@ -56,7 +66,7 @@ export default function ArchiveCatalog(): React.JSX.Element {
     const parameters = new URLSearchParams({
       q: search,
       rows: "24",
-      page: "1",
+      page: String(page),
       output: "json",
       sort: "downloads desc",
     });
@@ -70,16 +80,47 @@ export default function ArchiveCatalog(): React.JSX.Element {
     ].forEach((field) => parameters.append("fl[]", field));
     setLoading(true);
     setError("");
-    fetch(`https://archive.org/advancedsearch.php?${parameters}`)
+    fetch(`https://archive.org/advancedsearch.php?${parameters}`, {
+      signal: controller.signal,
+    })
       .then((response) => {
         if (!response.ok)
           throw new Error(`Archive.org returned ${response.status}`);
         return response.json() as Promise<ArchiveResponse>;
       })
-      .then((data) => setItems(data.response?.docs ?? []))
-      .catch((reason: Error) => setError(reason.message))
-      .finally(() => setLoading(false));
-  }, [platform, query]);
+      .then((data) => {
+        const next = data.response?.docs ?? [];
+        setTotal(data.response?.numFound ?? 0);
+        setItems((current) => {
+          if (page === 1) return next;
+          const known = new Set(current.map((item) => item.identifier));
+          return [
+            ...current,
+            ...next.filter((item) => !known.has(item.identifier)),
+          ];
+        });
+      })
+      .catch((reason: Error) => {
+        if (reason.name !== "AbortError") setError(reason.message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [platform, query, page]);
+
+  useEffect(() => {
+    const target = more.current;
+    if (!target || loading || items.length >= total) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setPage((current) => current + 1);
+      },
+      { rootMargin: "500px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [items.length, loading, total]);
 
   const play = async (item: ArchiveItem): Promise<void> => {
     const system = findSystem(platform);
@@ -161,13 +202,15 @@ export default function ArchiveCatalog(): React.JSX.Element {
           information.
         </span>
       </div>
-      {loading && <p className="catalog-state">SCANNING INTERNET ARCHIVE…</p>}
+      {loading && items.length === 0 && (
+        <p className="catalog-state">SCANNING INTERNET ARCHIVE…</p>
+      )}
       {error && (
         <p className="catalog-state error" role="alert">
           {error}
         </p>
       )}
-      {!loading && (
+      {items.length > 0 && (
         <div className="archive-grid">
           {items.map((item) => (
             <article key={item.identifier} className="archive-card">
@@ -202,6 +245,16 @@ export default function ArchiveCatalog(): React.JSX.Element {
             </article>
           ))}
         </div>
+      )}
+      {items.length > 0 && items.length < total && (
+        <button
+          ref={more}
+          className="catalog-more"
+          disabled={loading}
+          onClick={() => setPage((current) => current + 1)}
+        >
+          {loading ? "LOADING MORE GAMES…" : "LOAD MORE GAMES"}
+        </button>
       )}
     </section>
   );
