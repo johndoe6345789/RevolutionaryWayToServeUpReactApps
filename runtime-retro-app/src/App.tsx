@@ -256,6 +256,15 @@ function Systems(): React.JSX.Element {
         you already have.
       </p>
       <PlayContents />
+      <section id="find-a-game" className="connected-library">
+        <SectionTitle
+          kicker="CONNECTED COLLECTIONS"
+          title="Find a game"
+          description="Search and launch software from Internet Archive."
+          status="POWERED BY ARCHIVE.ORG"
+        />
+        <ArchiveCatalog />
+      </section>
       <section id="choose-a-system" className="system-chooser">
         <SectionTitle
           kicker="LOCAL LIBRARY"
@@ -277,15 +286,6 @@ function Systems(): React.JSX.Element {
             </Link>
           ))}
         </div>
-      </section>
-      <section id="find-a-game" className="connected-library">
-        <SectionTitle
-          kicker="CONNECTED COLLECTIONS"
-          title="Find a game"
-          description="Search and launch software from Internet Archive."
-          status="POWERED BY ARCHIVE.ORG"
-        />
-        <ArchiveCatalog />
       </section>
     </main>
   );
