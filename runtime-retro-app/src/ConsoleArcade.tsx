@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import type { ConsoleSystem } from "./systems.ts";
 
 export default function ConsoleArcade({ system }: { system: ConsoleSystem }): React.JSX.Element {
-  const [rom, setRom] = useState<{ name: string; url: string } | null>(null);
+  const archiveId = new URLSearchParams(location.search).get("archive");
+  const archiveFile = new URLSearchParams(location.search).get("file");
+  const archiveRom = archiveId && archiveFile ? { name: archiveFile, url: `https://archive.org/download/${encodeURIComponent(archiveId)}/${archiveFile.split("/").map(encodeURIComponent).join("/")}`, archiveId } : null;
+  const [rom, setRom] = useState<{ name: string; url: string; archiveId?: string } | null>(archiveRom);
   const [error, setError] = useState("");
   const objectUrl = useRef<string | null>(null);
   const [spectrumExample, setSpectrumExample] = useState(() => new URLSearchParams(location.search).get("example") === "csss");
@@ -40,13 +43,14 @@ export default function ConsoleArcade({ system }: { system: ConsoleSystem }): Re
 
   if (system.id === "spectrum") {
     const exampleUrl = `${location.origin}/examples/csss.tap`;
-    const frameUrl = spectrumExample ? `https://jsspeccy.zxdemo.org/#l=${encodeURIComponent(exampleUrl)}` : "https://jsspeccy.zxdemo.org/";
-    return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>Use its folder button for your own file, or launch the bundled GPL example.</span><button className="button tiny" onClick={() => setSpectrumExample(true)}>Play CSSS</button></div><iframe key={frameUrl} className="spectrum-frame" src={frameUrl} title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" /><p className="example-credit">CSSS © TheShich, distributed under GPLv3. Source available on GitHub.</p></section>;
+    const selectedUrl = archiveRom?.url ?? (spectrumExample ? exampleUrl : "");
+    const frameUrl = selectedUrl ? `https://jsspeccy.zxdemo.org/#l=${encodeURIComponent(selectedUrl)}` : "https://jsspeccy.zxdemo.org/";
+    return <section className="rom-launcher"><div className="privacy-note"><strong>JSSpeccy 3</strong><span>{archiveRom ? `Streaming ${archiveRom.name} from Internet Archive.` : "Use its folder button for your own file, or launch the bundled GPL example."}</span><button className="button tiny" onClick={() => setSpectrumExample(true)}>Play CSSS</button></div><iframe key={frameUrl} className="spectrum-frame" src={frameUrl} title="JSSpeccy ZX Spectrum emulator" allow="fullscreen; autoplay" />{archiveRom && <p className="example-credit">Loaded client-side from <a href={`https://archive.org/details/${encodeURIComponent(archiveRom.archiveId)}`} target="_blank" rel="noreferrer">Internet Archive ↗</a></p>}</section>;
   }
 
   return <section className="rom-launcher">
     {!rom && <label className="rom-drop"><span className="rom-icon">⬡</span><strong>Insert your {system.name} cartridge</strong><small>Choose a ROM stored on this device. It stays in your browser.</small><input type="file" accept={system.extensions.join(",")} onChange={chooseRom} /><span className="button">Choose ROM</span><em>{system.extensions.join("  ")}</em></label>}
     {error && <p className="rom-error" role="alert">{error}</p>}
-    {rom && <><div className="loaded-rom"><span>LOADED LOCALLY</span><strong>{rom.name}</strong><button onClick={() => location.reload()}>Eject</button></div><div id="console-player" className="console-player" /></>}
+    {rom && <><div className="loaded-rom"><span>{rom.archiveId ? "STREAMING FROM ARCHIVE.ORG" : "LOADED LOCALLY"}</span><strong>{rom.name}</strong><button onClick={() => { location.href = `/systems/${system.id}`; }}>Eject</button></div><div id="console-player" className="console-player" />{rom.archiveId && <p className="example-credit">Source: <a href={`https://archive.org/details/${encodeURIComponent(rom.archiveId)}`} target="_blank" rel="noreferrer">Internet Archive item ↗</a></p>}</>}
   </section>;
 }
