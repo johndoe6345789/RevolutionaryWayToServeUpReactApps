@@ -3,6 +3,8 @@ import { Providers } from "@/components/providers";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Box, Container, Stack, Typography, Link } from "@mui/material";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 
 // Use JetBrains Mono for that retro gaming feel
@@ -24,11 +26,13 @@ export default async function RootLayout({
   const resolvedParams = await params;
   const locale = Array.isArray(resolvedParams.locale)
     ? resolvedParams.locale[0]
-    : resolvedParams.locale;
+    : (resolvedParams.locale ?? "en");
+  const messages = await getMessages({ locale });
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        <Providers>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Providers>
           <Box
             sx={{
               minHeight: "100vh",
@@ -195,7 +199,8 @@ export default async function RootLayout({
               </Container>
             </Box>
           </Box>
-        </Providers>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

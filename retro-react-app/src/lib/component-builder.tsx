@@ -20,8 +20,8 @@ export class ComponentBuilder implements IComponentBuilder {
   ): this {
     this.components.set(id, {
       id,
-      component,
-      props: props ?? {},
+      component: component as ComponentType<ComponentProps>,
+      props: (props ?? {}) as Partial<ComponentProps>,
       dependencies: [],
     });
     return this;

@@ -1,9 +1,6 @@
-import createMiddleware from "next-intl/middleware";
+import { NextResponse } from "next/server";
 
-export default createMiddleware({
-  // A list of all locales that are supported
-  locales: ["en", "es"],
-
-  // Used when no locale matches
-  defaultLocale: "en",
-});
+/** Keep the root-only application route unchanged. */
+export function middleware(): NextResponse {
+  return NextResponse.next();
+}
